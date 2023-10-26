@@ -1,11 +1,7 @@
 
-const mongoose = require('mongoose')
-const Product = require('./models/products');
-const Order = require('./models/orders')
-const app = require('./app')
-const port = 3000;
+const app = require("./app");
 
+const port = process.env.PORT;
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+  console.log("Server running on port http://127.0.0.1:3000/");
 });
-
