@@ -1,4 +1,4 @@
 */node_modules
-*/.json
-*/tempCodeRunnerFile.js
-*/.vs
+*.json
+*tempCodeRunnerFile.js
+*.vs
