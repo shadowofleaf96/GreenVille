@@ -1,5 +1,5 @@
-const Order = require('../models/orders');
-const Orders = require('../models/orders');
+const Order = require('../models/Order');
+const Orders = require('../models/Order');
 
 
 const CreateOrders = (req, res) => {
@@ -12,7 +12,6 @@ const CreateOrders = (req, res) => {
         price: req.body.price,
 
     })
-    console.log(req.body.order_items.blobField);
     orders.save()
         .then(result => {
             res.status(201).json(orders);
@@ -26,7 +25,6 @@ const RetrievingOrders = async (req, res) => {
 
     const page = parseInt(req.query.page) || 1;
     const perPage = 10;
-    console.log(req.query.page)
     try {
         const productPage = await Order.find()
             .skip((page - 1) * perPage)

@@ -1,8 +1,4 @@
-const Product = require('../models/products');
-
-const homePage = (req, res) => {
-    res.send('Hello, Express.js!');
-}
+const Product = require('../models/Product');
 
 const createData = (req, res) => {
 
@@ -33,8 +29,6 @@ const searchingItems = async (req, res) => {
         const { searchQuery, page } = req.query;
         const limit = 10;
         const skip = (page - 1) * limit;
-        console.log(searchQuery)
-
         const pipeline = [
             {
                 $match: {
@@ -152,7 +146,7 @@ const DeleteProductById = async (req, res) => {
 };
 
 module.exports = {
-    homePage, createData, searchingItems, RetrievingItems, categorySub, RetrieveById, UpdateProductById, DeleteProductById
+    createData, searchingItems, RetrievingItems, categorySub, RetrieveById, UpdateProductById, DeleteProductById
 }
 
 

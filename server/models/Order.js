@@ -25,5 +25,10 @@ const ordersSchema = mongoose.Schema({
 
 
 const Order = mongoose.model('Order', ordersSchema);
+if (Order) {
+    console.log("Order Schema created");
+  } else {
+    console.log("error");
+  }
 
 module.exports = Order;
