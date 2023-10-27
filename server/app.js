@@ -1,10 +1,12 @@
 const express = require("express");
 const session = require("express-session");
 const passport = require("passport");
-const database = require('../server/config/database');
 const api = require("./routes/api");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
+const database = require('../server/config/database');
+
+
 const app = express();
 
 // Middleware

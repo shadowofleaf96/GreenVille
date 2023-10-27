@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 
 mongoose
-  .connect(process.env.MONGOOSE, { useNewUrlParser: true }).then(() => {
+  .connect(process.env.MONGOOSE, { useNewUrlParser: true })
+  .then(() => {
     console.log("Connected to MongoDB");
   })
   .catch((error) => {
