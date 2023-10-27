@@ -35,6 +35,7 @@ router.delete(
   "/v1/categories/:id",
   passport.authenticate("jwt", { session: false }),
   isAuthenticated,
+  requireAdminOrManager,
   deleteCategory
 );
 router.get(
