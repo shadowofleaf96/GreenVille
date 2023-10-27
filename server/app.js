@@ -4,6 +4,9 @@ const passport = require("passport");
 const api = require("./routes/api");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
+const database = require('../server/config/database');
+
+
 const app = express();
 
 // Middleware
@@ -27,4 +30,4 @@ app.use(passport.session());
 
 app.use("/", api);
 
-module.exports = { app };
+module.exports = app;
