@@ -22,12 +22,12 @@ const customersController = {
 
       if (customer && customer.active) {
         // Generate an access token with a short expiration time (e.g., 1 hour)
-        const accessToken = jwt.sign({ sub: customer._id }, process.env.SECRET_KEY, {
+        const accessToken = jwt.sign({ sub: customer._id }, process.env.SECRETKEY, {
           expiresIn: '1h',
         });
 
         // Generate a refresh token with a longer expiration time (e.g., 7 days)
-        const refreshToken = jwt.sign({ sub: customer._id }, process.env.REFRESH_SECRET_KEY, {
+        const refreshToken = jwt.sign({ sub: customer._id }, process.env.REFRESHSECRETLEY, {
           expiresIn: '7d',
         });
 

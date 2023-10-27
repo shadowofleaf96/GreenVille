@@ -1,3 +1,1 @@
-node_modules
-*.json
-*.vs
+/node_modules
