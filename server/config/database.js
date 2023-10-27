@@ -1,10 +1,9 @@
-const mongoose = require("mongoose");
-
-mongoose
-  .connect(process.env.MONGOOSE, { useNewUrlParser: true })
+const mongoose = require('mongoose');
+//connnect to mongo
+mongoose.connect(process.env.MONGOOSE, {userNewUrlParser:true})
   .then(() => {
-    console.log("Connected to MongoDB");
+    console.log('Connected to the database');
   })
-  .catch((error) => {
-    console.error("Error connecting to Database:", error);
+  .catch(err => {
+    console.error('Error connecting to the database:', err);
   });
