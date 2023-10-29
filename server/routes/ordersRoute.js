@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+
 const {
   CreateOrders,
   RetrievingOrders,
@@ -7,16 +8,16 @@ const {
   UpdateOrdersById,
 } = require("../controllers/ordersController");
 const {
-  isAuthenticated,
+  verifyToken,
   requireAdminOrManager,
-} = require("../middleware/authmiddleware");
+} = require("../middleware/authMiddleware");
 
-router.post("/v1/orders", isAuthenticated, requireAdminOrManager, CreateOrders);
-router.get("/v1/orders", RetrievingOrders);
-router.get("/v1/orders/:id", searchingOrders);
+router.post("/", CreateOrders);
+router.get("/", verifyToken, requireAdminOrManager, RetrievingOrders);
+router.get("/:id", verifyToken, requireAdminOrManager, searchingOrders);
 router.put(
-  "/v1/orders/:id",
-  isAuthenticated,
+  "/:id",
+  verifyToken,
   requireAdminOrManager,
   UpdateOrdersById
 );

@@ -1,3 +1,5 @@
+// Shadow Of Leaf was Here
+
 const express = require("express");
 const mongoose = require("mongoose");
 const productSchema = mongoose.Schema(
@@ -15,7 +17,7 @@ const productSchema = mongoose.Schema(
     },
     subcategory_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Subcategory",
+      ref: "SubCategories",
     },
     short_description: {
       type: String,

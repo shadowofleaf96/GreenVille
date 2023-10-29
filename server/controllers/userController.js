@@ -1,11 +1,14 @@
+// Shadow Of Leaf was Here
+
 const { User } = require("../models/User");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const bcrypt = require("bcrypt");
 const { createTransport } = require("nodemailer");
-const passport = require("passport");
 const { log } = require("console");
-const jwtSecret = process.env.SECRETKEY;
-const expirationDate = process.env.EXPIRATIONDATE;
+const secretKey = process.env.SECRETKEY;
+const secretRefreshKey = process.env.REFRESHSECRETLEY;
+const expiration = process.env.EXPIRATIONDATE;
 
 const createUser = async (req, res) => {
   // Extract user data from the request body
@@ -23,6 +26,8 @@ const createUser = async (req, res) => {
     });
   }
 
+  const hashedPassword = await bcrypt.hash(password, 10);
+
   // Create a new user using the create() method
   User.create({
     role,
@@ -30,7 +35,7 @@ const createUser = async (req, res) => {
     first_name,
     last_name,
     email,
-    password,
+    password: hashedPassword,
     creation_date: Date.now(),
     active: true,
   })
@@ -41,18 +46,18 @@ const createUser = async (req, res) => {
         message: "User created successfully",
       });
       const transporter = createTransport({
-        host: "sandbox.smtp.mailtrap.io",
+        host: process.env.STMPHOST,
         port: 2525,
         secure: false,
         auth: {
-          user: "cd17faf293a75f",
-          pass: "f3108b781b86ce",
+          user: process.env.STMPUSER,
+          pass: process.env.STMPASS,
         },
       });
 
       const mailOptions = {
         from: process.env.SENDER,
-        to: email,
+        to: newUser.email,
         subject: `Welcome to Our Ecommerce Project`,
         text: `Hello ${newUser.first_name},\n\nWelcome to Our Ecommerce Project! Your account has been successfully created.`,
       };
@@ -127,13 +132,6 @@ const searchUser = async (req, res, next) => {
 
     // Execute the query
     const users = await query.exec();
-
-    if (categories.length === 0) {
-      return res.status(200).json({
-        status: 404,
-        data: {},
-      });
-    }
 
     res.status(200).json({
       status: 200,
@@ -229,6 +227,7 @@ const updateUser = async (req, res) => {
     existingUser.email = email;
     existingUser.password = password;
     existingUser.active = active;
+    existingUser.last_update = new Date();
 
     await existingUser.save();
 
@@ -269,120 +268,84 @@ const deleteUser = async (req, res) => {
 };
 
 const loginUser = async (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
-    if (err) {
-      return next(err);
-    }
+  const { user_name, password } = req.body;
 
-    if (!user) {
-      return res.status(401).json({ message: info.message });
-    }
+  try {
+    const user = await User.findOne({ user_name });
 
-    req.logIn(user, async (loginErr) => {
-      if (loginErr) {
-        return next(loginErr);
-      }
+    if (user && user.active === true) {
+      const isPasswordValid = await bcrypt.compare(password, user.password);
 
-      // Generate JWT token
-      const payload = {
-        id: user._id,
-        role: user.role,
-        expiration: Date.now() + parseInt(expirationDate),
-        // ...other payload data you want to include
-      };
-      const accessToken = jwt.sign(JSON.stringify(payload), jwtSecret); // Token expires in 1 hour
+      if (isPasswordValid) {
+        // Generate JWT token
+        const payload = {
+          id: user._id,
+          role: user.role,
+          expiration: Date.now() + parseInt(expiration),
+          // ...other payload data you want to include
+        };
+        const accessToken = jwt.sign(JSON.stringify(payload), secretKey); // Token expires in 1 hour
 
-      res.cookie("jwt", accessToken, {
-        httpOnly: true,
-        secure: false, //--> SET TO TRUE ON PRODUCTION
-      });
+        res.cookie("user_access_token", accessToken, {
+          httpOnly: true,
+          secure: false, //--> SET TO TRUE ON PRODUCTION
+        });
 
-      // Generate Refresh Token
-      const refreshTokenPayload = {
-        id: user._id,
-        role: user.role,
-        expiration: Date.now() + parseInt(expirationDate),
-        // ...other payload data
-      };
-      const refreshToken = jwt.sign(
-        refreshTokenPayload,
-        process.env.REFRESHSECRETLEY,
-        {
+        // Generate Refresh Token
+        const refreshTokenPayload = {
+          id: user._id,
+          role: user.role,
+          expiration: Date.now() + parseInt(expiration),
+          // ...other payload data
+        };
+        const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
           expiresIn: "7d",
-        }
-      );
+        });
 
-      res.cookie("jwtRefresh", refreshToken, {
-        httpOnly: true,
-        secure: false, //--> SET TO TRUE ON PRODUCTION
-      });
+        res.cookie("user_refresh_token", refreshToken, {
+          httpOnly: true,
+          secure: false, //--> SET TO TRUE ON PRODUCTION
+        });
 
-      // User is now authenticated and session is established
-      return res.status(200).json({
-        status: 200,
-        message: "Login success",
-        access_token: accessToken,
-        token_type: "Bearer",
-        expires_in: "1h",
-        refresh_token: refreshToken,
-        user: user,
-      });
-    });
-  })(req, res, next);
+        // Update last_login
+        user.last_login = new Date();
+        await user.save();
+
+        // User is now authenticated and session is established
+        return res.status(200).json({
+          status: 200,
+          message: "Login success",
+          access_token: accessToken,
+          token_type: "Bearer",
+          expires_in: "1h",
+          refresh_token: refreshToken,
+          user: user,
+        });
+      } else {
+        res.status(401).json({ message: "Invalid credentials or inactive account" });
+      }
+    } else {
+      res
+        .status(401)
+        .json({ message: "Invalid credentials or inactive account" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 const logOut = async (req, res) => {
-  if (req.cookies["jwt"]) {
-    res.clearCookie("jwt").status(200).json({
-      message: "You have logged out",
+  if (req.cookies["user_access_token"]) {
+    res.clearCookie("user_access_token").status(200);
+    res.clearCookie("user_refresh_token").status(200).json({
+      message: "Logout successful",
     });
   } else {
     res.status(401).json({
       error: "Invalid jwt",
     });
   }
-};
-
-const refreshTokenMiddleware = async (req, res, next) => {
-  // Get the access token from the request cookies
-  const accessToken = req.cookies["jwt"];
-
-  // If the access token is expired, try to refresh it
-  if (Date.now() > jwt.decode(accessToken).expiration) {
-    // Get the refresh token from the request cookies
-    const refreshToken = req.cookies["jwtRefresh"];
-
-    if (!refreshToken) {
-      return next("Unauthorized: Refresh token not found");
-    }
-
-    try {
-      const decodedRefreshToken = jwt.verify(
-        refreshToken,
-        process.env.REFRESHSECRETLEY
-      );
-
-      // Generate a new access token
-      const payload = {
-        id: decodedRefreshToken.id,
-        role: decodedRefreshToken.role,
-        expiration: Date.now() + parseInt(expirationDate),
-        // ...other payload data you want to include
-      };
-      const newAccessToken = jwt.sign(JSON.stringify(payload), jwtSecret); // Token expires in 1 hour
-
-      // Set the new access token in the response cookie
-      res.cookie("jwt", newAccessToken, {
-        httpOnly: true,
-        secure: false, //--> SET TO TRUE ON PRODUCTION
-      });
-    } catch (error) {
-      return next("Unauthorized: Refresh token invalid");
-    }
-  }
-
-  // Continue with the request
-  next();
 };
 
 module.exports = {
@@ -393,6 +356,5 @@ module.exports = {
   updateUser,
   deleteUser,
   loginUser,
-  refreshTokenMiddleware,
   logOut,
 };

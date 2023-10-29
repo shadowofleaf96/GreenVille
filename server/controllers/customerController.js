@@ -1,10 +1,17 @@
-const customers = require("../models/Customer");
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
+// Shadow Of Leaf was Here
+
+const { Customer } = require("../models/Customer");
+const bcrypt = require("bcrypt");
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
+const { createTransport } = require("nodemailer");
+const { log } = require("console");
+const secretKey = process.env.SECRETKEY;
+const secretRefreshKey = process.env.REFRESHSECRETLEY;
+const expiration = process.env.EXPIRATIONDATE;
 
 function verifyToken(token, callback) {
-  jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+  jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
       callback(null);
     } else {
@@ -13,58 +20,90 @@ function verifyToken(token, callback) {
   });
 }
 
-const customersController = {  
+const CustomerController = {
   async login(req, res) {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     try {
-      const customer = await customers.findOne({ username, password });
+      const customer = await Customer.findOne({ email });
 
-      if (customer && customer.active) {
-        // Generate an access token with a short expiration time (e.g., 1 hour)
-        const accessToken = jwt.sign({ sub: customer._id }, process.env.SECRET_KEY, {
-          expiresIn: '1h',
-        });
+      if (customer && customer.active === true) {
+        const isPasswordValid = await bcrypt.compare(
+          password,
+          customer.password
+        );
 
-        // Generate a refresh token with a longer expiration time (e.g., 7 days)
-        const refreshToken = jwt.sign({ sub: customer._id }, process.env.REFRESH_SECRET_KEY, {
-          expiresIn: '7d',
-        });
+        if (isPasswordValid) {
+          // Generate JWT token
+          const payload = {
+            id: customer._id,
+            expiration: Date.now() + parseInt(expiration),
+            // ...other payload data you want to include
+          };
+          const accessToken = jwt.sign(JSON.stringify(payload), secretKey); // Token expires in 1 hour
 
-        // Store the refresh token on the server (e.g., in a database)
-        // You should have a mechanism to associate refresh tokens with users
+          res.cookie("customer_access_token", accessToken, {
+            httpOnly: true,
+            secure: false, //--> SET TO TRUE ON PRODUCTION
+          });
 
-        // Set both the access token and refresh token as cookies (httpOnly and secure are recommended)
-        res.cookie('access_token', accessToken, { httpOnly: true, secure: false });
-        res.cookie('refresh_token', refreshToken, { httpOnly: true, secure: false });
+          // Generate Refresh Token
+          const refreshTokenPayload = {
+            id: customer._id,
+            expiration: Date.now() + parseInt(expiration),
+            // ...other payload data
+          };
+          const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
+            expiresIn: "7d",
+          });
 
-        res.json({
-          message: 'Login success',
-          accessToken, // Return the access token
-          refreshToken, // Return the refresh token
-        });
+          res.cookie("customer_refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: false, //--> SET TO TRUE ON PRODUCTION
+          });
+
+          // User is now authenticated and session is established
+          return res.status(200).json({
+            status: 200,
+            message: "Login success",
+            access_token: accessToken,
+            token_type: "Bearer",
+            expires_in: "1h",
+            refresh_token: refreshToken,
+            customer: customer,
+          });
+        } else {
+          res
+            .status(401)
+            .json({ message: "Invalid credentials or inactive account" });
+        }
       } else {
-        res.status(401).json({ message: 'Invalid credentials or inactive account' });
+        res
+          .status(401)
+          .json({ message: "Invalid credentials or inactive account" });
       }
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: "Internal server error" });
     }
   },
 
-  async createCustomer(req, res) {  //Create a new customer account
+  async createCustomer(req, res) {
+    //Create a new customer account
     const { first_name, last_name, email, password } = req.body;
 
     try {
-      const existingCustomer = await customers.findOne({ email });
+      const existingCustomer = await Customer.findOne({ email });
 
       if (existingCustomer) {
-        return res.status(400).json({ error: 'Customer with this email already exists' });
+        return res
+          .status(400)
+          .json({ error: "Customer with this email already exists" });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const newCustomer = new customers({
+      const newCustomer = new Customer({
         first_name,
         last_name,
         email,
@@ -73,46 +112,50 @@ const customersController = {
 
       await newCustomer.save();
 
-      res.status(201).json({ status: 200, message: 'Customer created successfully' });
+      res
+        .status(201)
+        .json({ status: 200, message: "Customer created successfully" });
     } catch (error) {
       console.error(error);
-      res.status(400).json({ error: 'Bad field type' });
+      res.status(400).json({ error: "Bad field type" });
     }
   },
 
-  async getCustomerProfile(req, res) {  //Get the customer's profile
+  async getCustomerProfile(req, res) {
+    //Get the customer's profile
     const token = req.cookies.token;
 
     if (!token) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
     verifyToken(token, async (decoded) => {
       if (decoded) {
-        const customer = await customers.find({ _id: decoded.sub });
+        const customer = await Customer.find({ _id: decoded.sub });
         res.json(customer);
       } else {
-        res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: "Invalid token" });
       }
     });
   },
 
-  async getAllCustomers(req, res) {  //Get all the customers list & Search for a customer
+  async getAllCustomers(req, res) {
+    //Get all the Customer list & Search for a customer
     const page = parseInt(req.query.page) || 1;
     const query = req.query.query || "";
-    const sort = req.query.sort || 'DESC';
+    const sort = req.query.sort || "DESC";
 
     const perPage = 10;
     const skipCount = (page - 1) * perPage;
 
     try {
-      let queryBuilder = customers.find();
+      let queryBuilder = Customer.find();
 
       if (query) {
-        queryBuilder = queryBuilder.where('first_name', new RegExp(query, 'i'));
+        queryBuilder = queryBuilder.where("first_name", new RegExp(query, "i"));
       }
 
-      if (sort.toUpperCase() === 'DESC') {
+      if (sort.toUpperCase() === "DESC") {
         queryBuilder = queryBuilder.sort({ first_name: -1 });
       } else {
         queryBuilder = queryBuilder.sort({ first_name: 1 });
@@ -123,7 +166,7 @@ const customersController = {
         .limit(perPage)
         .exec();
 
-      const formattedCustomers = customerList.map((customer) => ({
+      const formattedCustomer = customerList.map((customer) => ({
         _id: customer._id,
         first_name: customer.first_name,
         last_name: customer.last_name,
@@ -132,26 +175,22 @@ const customersController = {
 
       res.status(200).json({
         status: 200,
-        data: formattedCustomers,
+        data: formattedCustomer,
       });
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal server error' });
+      return res.status(500).json({ error: "Internal server error" });
     }
   },
 
-  async getCustomerById(req, res) {  //Get a customer by ID
+  async getCustomerById(req, res) {
+    //Get a customer by ID
     const customerId = req.params.id;
-
     try {
-      const customeers = await customers.find();
-
-      const matchingCustomer = customeers.find((element) => {
-        return element.id === customerId;
-      });
+      const matchingCustomer = await Customer.findById(customerId);
 
       if (!matchingCustomer) {
-        return res.status(404).json({ error: 'Customer not found' });
+        return res.status(404).json({ error: "Customer not found" });
       } else {
         res.json(matchingCustomer);
       }
@@ -160,57 +199,69 @@ const customersController = {
     }
   },
 
-  async validateCustomer(req, res) {  //Validate the customer's account or email
+  async validateCustomer(req, res) {
+    //Validate the customer's account or email
     const _id = req.params.id;
-  
+
     try {
-      const matchingCustomer = await customers.findById(_id);
-      if (!matchingCustomer) {
-        return res.status(404).json({ message: 'Customer not found' });
+      const matchingCustomer = await Customer.findById(_id);
+      if (!matchingCustomer || matchingCustomer.active === false) {
+        return res.status(404).json({ message: "Customer not found or not active" });
       }
-  
-      if (matchingCustomer?.validated) {
-        return res.status(400).json({ message: 'Account is already validated' });
+
+      if (matchingCustomer?.valid_account) {
+        return res
+          .status(400)
+          .json({ message: "Account is already validated" });
       }
-  
-      matchingCustomer.validated = true;
+
+      matchingCustomer.valid_account = true;
       await matchingCustomer.save();
-  
+
       // Send an email to the customer
-      const transporter = nodemailer.createTransport({
-        // Set up your email configuration here
+      const transporter = createTransport({
+        host: process.env.STMPHOST,
+        port: 2525,
+        secure: false,
+        auth: {
+          user: process.env.STMPUSER,
+          pass: process.env.STMPASS,
+        },
       });
       const mailOptions = {
         to: matchingCustomer.email,
-        subject: 'Account Validation Successful',
-        text: 'Your account has been successfully validated!',
+        subject: "Account Validation Successful",
+        text: "Your account has been successfully validated!",
       };
-  
+
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          console.error('Email sending error:', error);
+          console.error("Email sending error:", error);
         } else {
-          console.log('Email sent:', info.response);
+          console.log("Email sent:", info.response);
         }
       });
-  
-      // Respond to the client
-      res.status(200).json({ message: 'Customer account validated successfully' });
-    } catch (error) {
-      console.error('Validation error:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-    },
 
-  async updateCustomer(req, res) {  //Update the customer's data
+      // Respond to the client
+      res
+        .status(200)
+        .json({ message: "Customer account validated successfully" });
+    } catch (error) {
+      console.error("Validation error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+
+  async updateCustomer(req, res) {
+    //Update the customer's data
     const customerId = req.params.id;
     const { first_name, last_name, email, active } = req.body;
 
     try {
-      const customer = await customers.findById(customerId);
+      const customer = await Customer.findById(customerId);
 
       if (!customer) {
-        return res.status(404).json({ message: 'Invalid customer id' });
+        return res.status(404).json({ message: "Invalid customer id" });
       }
 
       if (first_name) {
@@ -229,35 +280,45 @@ const customersController = {
 
       await customer.save();
 
-      res.status(200).json({ message: 'Customer information updated', customer });
+      res
+        .status(200)
+        .json({ message: "Customer information updated successfully", customer });
     } catch (error) {
-      console.error('Update error:', error);
-      res.status(500).json({ message: 'Internal server error' });
+      console.error("Update error:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   },
 
-  async deleteCustomer(req, res) {   //Delete the customer's account
+  async deleteCustomer(req, res) {
+    //Delete the customer's account
     const customerId = req.params.id;
 
     try {
-      const customer = await customers.findOneAndRemove({ id: customerId });
+      const customer = await Customer.findOneAndRemove({ _id: customerId });
 
       if (!customer) {
-        return res.status(404).json({ message: 'Customer not found' });
+        return res.status(404).json({ message: "Customer not found" });
       }
 
-      return res.status(200).json({ message: 'Account deleted' });
+      return res.status(200).json({ message: "Account deleted successfully" });
     } catch (error) {
-      console.error('Deletion error:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+      console.error("Deletion error:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
   },
 
- 
-  async logout(req, res) {         //logout
-    res.clearCookie('token');
-    res.status(200).json({ message: 'Logout successful' });
+  async logout(req, res) {
+    if (req.cookies["customer_access_token"]) {
+      res.clearCookie("customer_access_token").status(200);
+      res.clearCookie("customer_refresh_token").status(200).json({
+        message: "Logout successful",
+      });
+    } else {
+      res.status(401).json({
+        error: "Invalid jwt",
+      });
+    }
   },
 };
 
-module.exports = customersController;
+module.exports = CustomerController;
