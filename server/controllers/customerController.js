@@ -13,7 +13,7 @@ const expiration = process.env.EXPIRATIONDATE;
 function verifyToken(token, callback) {
   jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
-      callback(null);
+      callback(err);
     } else {
       callback(decoded);
     }
@@ -123,15 +123,15 @@ const CustomerController = {
 
   async getCustomerProfile(req, res) {
     //Get the customer's profile
-    const token = req.cookies.token;
+    const token = req.cookies.customer_access_token;
 
     if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res.status(401).json({ message: err + "Unauthorized" });
     }
 
     verifyToken(token, async (decoded) => {
       if (decoded) {
-        const customer = await Customer.find({ _id: decoded.sub });
+        const customer = await Customer.find({ _id: decoded.id });
         res.json(customer);
       } else {
         res.status(401).json({ message: "Invalid token" });
