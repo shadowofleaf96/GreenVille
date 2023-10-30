@@ -1,10 +1,10 @@
 const express = require("express");
 const userRoute = require("../routes/userRoutes");
 const categoryRoute = require("../routes/categoryRoutes");
-const productRoute = require("../routes/productRoute");
 const ordersRoute = require("../routes/ordersRoute");
 const customerRoute = require('./customerRoute');
 const subcategoryRoute = require('./subcategoryRoute');
+const productRoute = require("../routes/productRoute");
 const app = express();
 
 

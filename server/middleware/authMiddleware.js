@@ -9,7 +9,7 @@ const verifyToken = (req, res, next) => {
   const userToken = req.cookies.user_access_token || req.cookies.customer_access_token;
 
   if (!userToken) {
-    return res.status(403).send("A token is required for authentication");
+    return res.status(403).send("A token is required for authentication, login again and repeat");
   }
   
   try {

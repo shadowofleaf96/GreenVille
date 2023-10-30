@@ -4,9 +4,9 @@ const {Schema, model, ObjectId} = require("mongoose");
 
 const subcategorieSchema = new Schema({
   id: String,
-  subcategory_name: {type: String, trim:true, maxlength:25, require:true},
-  category_id: {type: ObjectId, ref: 'Categories', require:true},
-  active: {type: Boolean},
+  subcategory_name: {type: String, trim:true, maxlength:25, required:true, unique: true }, //this needs to be unique
+  category_id: {type: ObjectId, ref: 'Categories', required:true},
+  active: {type: Boolean, default: false},
  
 }, { collection: "SubCategories" });
 
