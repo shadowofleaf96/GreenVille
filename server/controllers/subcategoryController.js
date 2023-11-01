@@ -124,14 +124,11 @@ const subcategoriesController = {
     //Delete a subcategory
     const SubcategoryId = req.params.id;
 
-    console.log(SubcategoryId);
-
     // try {
     const productsCount = await Product.countDocuments({
       subcategory_id: SubcategoryId,
     });
 
-    console.log(productsCount);
     try {
       if (productsCount > 0) {
         return res.status(400).json({
