@@ -1,0 +1,324 @@
+// Shadow Of Leaf was Here
+
+const { Customer } = require("../models/Customer");
+const bcrypt = require("bcrypt");
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
+const { createTransport } = require("nodemailer");
+const { log } = require("console");
+const secretKey = process.env.SECRETKEY;
+const secretRefreshKey = process.env.REFRESHSECRETLEY;
+const expiration = process.env.EXPIRATIONDATE;
+
+function verifyToken(token, callback) {
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      callback(err);
+    } else {
+      callback(decoded);
+    }
+  });
+}
+
+const CustomerController = {
+  async login(req, res) {
+    const { email, password } = req.body;
+
+    try {
+      const customer = await Customer.findOne({ email });
+
+      if (customer && customer.active === true) {
+        const isPasswordValid = await bcrypt.compare(
+          password,
+          customer.password
+        );
+
+        if (isPasswordValid) {
+          // Generate JWT token
+          const payload = {
+            id: customer._id,
+            expiration: Date.now() + parseInt(expiration),
+            // ...other payload data you want to include
+          };
+          const accessToken = jwt.sign(JSON.stringify(payload), secretKey); // Token expires in 1 hour
+
+          res.cookie("customer_access_token", accessToken, {
+            httpOnly: true,
+            secure: false, //--> SET TO TRUE ON PRODUCTION
+          });
+
+          // Generate Refresh Token
+          const refreshTokenPayload = {
+            id: customer._id,
+            expiration: Date.now() + parseInt(expiration),
+            // ...other payload data
+          };
+          const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
+            expiresIn: "7d",
+          });
+
+          res.cookie("customer_refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: false, //--> SET TO TRUE ON PRODUCTION
+          });
+
+          // User is now authenticated and session is established
+          return res.status(200).json({
+            status: 200,
+            message: "Login success",
+            access_token: accessToken,
+            token_type: "Bearer",
+            expires_in: "1h",
+            refresh_token: refreshToken,
+            customer: customer,
+          });
+        } else {
+          res
+            .status(401)
+            .json({ message: "Invalid credentials or inactive account" });
+        }
+      } else {
+        res
+          .status(401)
+          .json({ message: "Invalid credentials or inactive account" });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+
+  async createCustomer(req, res) {
+    //Create a new customer account
+    const { first_name, last_name, email, password } = req.body;
+
+    try {
+      const existingCustomer = await Customer.findOne({ email });
+
+      if (existingCustomer) {
+        return res
+          .status(400)
+          .json({ error: "Customer with this email already exists" });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newCustomer = new Customer({
+        first_name,
+        last_name,
+        email,
+        password: hashedPassword,
+      });
+
+      await newCustomer.save();
+
+      res
+        .status(201)
+        .json({ status: 200, message: "Customer created successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ error: "Bad field type" });
+    }
+  },
+
+  async getCustomerProfile(req, res) {
+    //Get the customer's profile
+    const token = req.cookies.customer_access_token;
+
+    if (!token) {
+      return res.status(401).json({ message: err + "Unauthorized" });
+    }
+
+    verifyToken(token, async (decoded) => {
+      if (decoded) {
+        const customer = await Customer.find({ _id: decoded.id });
+        res.json(customer);
+      } else {
+        res.status(401).json({ message: "Invalid token" });
+      }
+    });
+  },
+
+  async getAllCustomers(req, res) {
+    //Get all the Customer list & Search for a customer
+    const page = parseInt(req.query.page) || 1;
+    const query = req.query.query || "";
+    const sort = req.query.sort || "DESC";
+
+    const perPage = 10;
+    const skipCount = (page - 1) * perPage;
+
+    try {
+      let queryBuilder = Customer.find();
+
+      if (query) {
+        queryBuilder = queryBuilder.where("first_name", new RegExp(query, "i"));
+      }
+
+      if (sort.toUpperCase() === "DESC") {
+        queryBuilder = queryBuilder.sort({ first_name: -1 });
+      } else {
+        queryBuilder = queryBuilder.sort({ first_name: 1 });
+      }
+
+      const customerList = await queryBuilder
+        .skip(skipCount)
+        .limit(perPage)
+        .exec();
+
+      const formattedCustomer = customerList.map((customer) => ({
+        _id: customer._id,
+        first_name: customer.first_name,
+        last_name: customer.last_name,
+        email: customer.email,
+      }));
+
+      res.status(200).json({
+        status: 200,
+        data: formattedCustomer,
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  },
+
+  async getCustomerById(req, res) {
+    //Get a customer by ID
+    const customerId = req.params.id;
+    try {
+      const matchingCustomer = await Customer.findById(customerId);
+
+      if (!matchingCustomer) {
+        return res.status(404).json({ error: "Customer not found" });
+      } else {
+        res.json(matchingCustomer);
+      }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  async validateCustomer(req, res) {
+    //Validate the customer's account or email
+    const _id = req.params.id;
+
+    try {
+      const matchingCustomer = await Customer.findById(_id);
+      if (!matchingCustomer || matchingCustomer.active === false) {
+        return res.status(404).json({ message: "Customer not found or not active" });
+      }
+
+      if (matchingCustomer?.valid_account) {
+        return res
+          .status(400)
+          .json({ message: "Account is already validated" });
+      }
+
+      matchingCustomer.valid_account = true;
+      await matchingCustomer.save();
+
+      // Send an email to the customer
+      const transporter = createTransport({
+        host: process.env.STMPHOST,
+        port: 2525,
+        secure: false,
+        auth: {
+          user: process.env.STMPUSER,
+          pass: process.env.STMPASS,
+        },
+      });
+      const mailOptions = {
+        to: matchingCustomer.email,
+        subject: "Account Validation Successful",
+        text: "Your account has been successfully validated!",
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error("Email sending error:", error);
+        } else {
+          console.log("Email sent:", info.response);
+        }
+      });
+
+      // Respond to the client
+      res
+        .status(200)
+        .json({ message: "Customer account validated successfully" });
+    } catch (error) {
+      console.error("Validation error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+
+  async updateCustomer(req, res) {
+    //Update the customer's data
+    const customerId = req.params.id;
+    const { first_name, last_name, email, active } = req.body;
+
+    try {
+      const customer = await Customer.findById(customerId);
+
+      if (!customer) {
+        return res.status(404).json({ message: "Invalid customer id" });
+      }
+
+      if (first_name) {
+        customer.first_name = first_name;
+      }
+
+      if (last_name) {
+        customer.last_name = last_name;
+      }
+      if (email) {
+        customer.email = email;
+      }
+      if (active) {
+        customer.active = active;
+      }
+
+      await customer.save();
+
+      res
+        .status(200)
+        .json({ message: "Customer information updated successfully", customer });
+    } catch (error) {
+      console.error("Update error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+
+  async deleteCustomer(req, res) {
+    //Delete the customer's account
+    const customerId = req.params.id;
+
+    try {
+      const customer = await Customer.findOneAndRemove({ _id: customerId });
+
+      if (!customer) {
+        return res.status(404).json({ message: "Customer not found" });
+      }
+
+      return res.status(200).json({ message: "Account deleted successfully" });
+    } catch (error) {
+      console.error("Deletion error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  },
+
+  async logout(req, res) {
+    if (req.cookies["customer_access_token"]) {
+      res.clearCookie("customer_access_token").status(200);
+      res.clearCookie("customer_refresh_token").status(200).json({
+        message: "Logout successful",
+      });
+    } else {
+      res.status(401).json({
+        error: "Invalid jwt",
+      });
+    }
+  },
+};
+
+module.exports = CustomerController;

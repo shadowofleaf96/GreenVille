@@ -1,4 +1,5 @@
 const { Category } = require("../models/Category");
+const SubCategory = require("../models/SubCategory");
 
 const createCategory = async (req, res) => {
   // Extract user data from the request body
@@ -159,25 +160,30 @@ const updateCategory = async (req, res) => {
 };
 
 const deleteCategory = async (req, res) => {
-  const catId = req.params.id;
-
+  //Delete a subcategory
+  const categoryId = req.params.id;
+  // try {
+  const catCount = await SubCategory.countDocuments({
+    category_id: categoryId,
+  });
   try {
-    const existingCategory = await Category.findOneAndDelete({ _id: catId });
-
-    if (!existingCategory) {
-      res.status(404).json({
-        status: 404,
-        message: "Invalid User id",
-      });
-    } else {
-      res.status(200).json({
-        status: 200,
-        message: "Category deleted successfully",
+    if (catCount > 0) {
+      return res.status(400).json({
+        message: "Category cannot be deleted, it has some subCategories",
       });
     }
+    const category = await Category.findOneAndRemove({
+      _id: categoryId,
+    });
+
+    if (!category) {
+      return res.status(404).json({ message: "Subcategory not found" });
+    }
+
+    return res.status(200).json({ message: "Subcategory deleted" });
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
+    console.error("Deletion error:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 

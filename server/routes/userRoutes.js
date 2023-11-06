@@ -1,13 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const passport = require("passport");
 
-router.use(passport.session());
 const {
-  isAuthenticated,
+  verifyToken,
   requireAdmin,
   requireAdminOrManager
-} = require("../middleware/authmiddleware");
+} = require("../middleware/authMiddleware");
 
 const {
   createUser,
@@ -17,57 +15,49 @@ const {
   updateUser,
   deleteUser,
   loginUser,
-  refreshTokenMiddleware,
   logOut,
 } = require("../controllers/userController");
 
-router.post("/v1/users/login", loginUser);
+router.post("/login", loginUser);
 router.post(
-  "/v1/users",
-  passport.authenticate("jwt", { session: false }),
-  isAuthenticated,
+  "/",
+  verifyToken,
   requireAdmin,
   createUser
 );
 router.put(
-  "/v1/users/:id",
-  passport.authenticate("jwt", { session: false }),
-  isAuthenticated,
+  "/:id",
+  verifyToken,
   requireAdmin,
   updateUser
 );
 router.delete(
-  "/v1/users/:id",
-  passport.authenticate("jwt", { session: false }),
-  isAuthenticated,
+  "/:id",
+  verifyToken,
   requireAdmin,
   deleteUser
 );
 router.get(
-  "/v1/users", passport.authenticate("jwt", { session: false }),
-  refreshTokenMiddleware,
-  isAuthenticated,
+  "/",
+  verifyToken,
   requireAdminOrManager,
   getAllUsers
 );
 router.get(
-  "/v1/users/search",
-  passport.authenticate("jwt", { session: false }),
-  isAuthenticated,
+  "/search",
+  verifyToken,
   requireAdminOrManager,
   searchUser
 );
 router.get(
-  "/v1/users/:id",
-  passport.authenticate("jwt", { session: false }),
-  isAuthenticated,
+  "/:id",
+  verifyToken,
   requireAdminOrManager,
   getUserDetails
 );
 router.post(
-  "/v1/users/logout",
-  passport.authenticate("jwt", { session: false }),
-  isAuthenticated,
+  "/logout",
+  verifyToken,
   requireAdminOrManager,
   logOut
 );

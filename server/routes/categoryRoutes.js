@@ -1,12 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const passport = require("passport");
 
-router.use(passport.session());
 const {
-  isAuthenticated,
+  verifyToken,
   requireAdminOrManager,
-} = require("../middleware/authmiddleware");
+} = require("../middleware/authMiddleware");
 
 const {
   createCategory,
@@ -18,35 +16,33 @@ const {
 } = require("../controllers/categoryController");
 
 router.post(
-  "/v1/categories",
-  passport.authenticate("jwt", { session: false }),
-  isAuthenticated,
+  "/",
+  verifyToken,
   requireAdminOrManager,
   createCategory,
 );
 router.put(
-  "/v1/categories/:id",
-  passport.authenticate("jwt", { session: false }),
-  isAuthenticated,
+  "/:id",
+  verifyToken,
   requireAdminOrManager,
   updateCategory
 );
 router.delete(
-  "/v1/categories/:id",
-  passport.authenticate("jwt", { session: false }),
-  isAuthenticated,
+  "/:id",
+  verifyToken,
+  requireAdminOrManager,
   deleteCategory
 );
 router.get(
-  "/v1/categories",
+  "/",
   getAllCategories
 );
 router.get(
-  "/v1/categories/search",
+  "/search",
   searchCategory
 );
 router.get(
-  "/v1/categories/:id",
+  "/:id",
   getCategoryDetails
 );
 

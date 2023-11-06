@@ -1,30 +1,24 @@
-const express = require("express");
-const session = require("express-session");
-const passport = require("passport");
 const api = require("./routes/api");
 const cookieParser = require("cookie-parser");
+const express = require("express");
+const path = require("path");
 require("dotenv").config();
+
 const app = express();
 
-// Middleware
+const staticPath = path.join(__dirname, "public", "images");
+// Serve static files (images) with caching headers
 app.use(
-  session({
-    secret: process.env.SECRETKEY,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: false, // This makes me debug for hours, and it is simple
-    },
+  "/images",
+  express.static(staticPath, {
+    maxAge: "1d", // Set the maximum age for caching (1 day in this example)
+    etag: true, // Enable ETag for RESTful API
   })
 );
 
 app.use(cookieParser());
 app.use(express.json());
 
-app.use(passport.initialize());
-app.use(passport.session());
-
 app.use("/", api);
 
-module.exports = { app };
+module.exports = app;
