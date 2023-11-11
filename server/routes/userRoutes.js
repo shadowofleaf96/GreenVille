@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { upload } = require('../middleware/multerMiddleware');
 
 const {
   verifyToken,
@@ -23,6 +24,7 @@ router.post(
   "/",
   verifyToken,
   requireAdmin,
+  upload.single('user_image'),
   createUser
 );
 router.put(

@@ -1,5 +1,6 @@
 const express = require("express");
 const route = express.Router();
+const { upload } = require('../middleware/multerMiddleware');
 
 const {
   verifyToken,
@@ -19,7 +20,8 @@ const {
 } = require("../controllers/customerController");
 
 route.post("/login", login);
-route.post("/", createCustomer);
+route.post("/",   upload.single('customer_image'),
+createCustomer);
 route.get("/profile", getCustomerProfile);
 route.get(
   "/",

@@ -90,6 +90,7 @@ const CustomerController = {
 
   async createCustomer(req, res) {
     //Create a new customer account
+    const customer_image = req.file;
     const { first_name, last_name, email, password } = req.body;
 
     try {
@@ -104,10 +105,13 @@ const CustomerController = {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const newCustomer = new Customer({
+        customer_image: customer_image.path, // Store the file path in the database
         first_name,
         last_name,
         email,
         password: hashedPassword,
+        creation_date: Date.now(),
+        active: true,
       });
 
       await newCustomer.save();
@@ -206,7 +210,9 @@ const CustomerController = {
     try {
       const matchingCustomer = await Customer.findById(_id);
       if (!matchingCustomer || matchingCustomer.active === false) {
-        return res.status(404).json({ message: "Customer not found or not active" });
+        return res
+          .status(404)
+          .json({ message: "Customer not found or not active" });
       }
 
       if (matchingCustomer?.valid_account) {
@@ -280,9 +286,10 @@ const CustomerController = {
 
       await customer.save();
 
-      res
-        .status(200)
-        .json({ message: "Customer information updated successfully", customer });
+      res.status(200).json({
+        message: "Customer information updated successfully",
+        customer,
+      });
     } catch (error) {
       console.error("Update error:", error);
       res.status(500).json({ message: "Internal server error" });

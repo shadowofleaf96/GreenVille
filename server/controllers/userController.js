@@ -11,8 +11,10 @@ const secretRefreshKey = process.env.REFRESHSECRETLEY;
 const expiration = process.env.EXPIRATIONDATE;
 
 const createUser = async (req, res) => {
+  const user_image = req.file;
   // Extract user data from the request body
   const { role, user_name, first_name, last_name, email, password } = req.body;
+  
 
   // Check if the user already exists based on user_name or email
   const existingUser = await User.findOne({
@@ -30,6 +32,7 @@ const createUser = async (req, res) => {
 
   // Create a new user using the create() method
   User.create({
+    user_image: user_image.path, // Store the file path in the database
     role,
     user_name,
     first_name,

@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const customerSchema = new Schema(
   {
     id: String,
+    customer_image: String,
     first_name: { type: String, trim: true, maxlength: 25, required: true },
     last_name: { type: String, trim: true, maxlength: 25, required: true },
     email: { type: String, trim: true, maxlength: 25, required: true },

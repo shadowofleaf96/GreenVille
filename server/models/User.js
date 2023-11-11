@@ -1,13 +1,13 @@
-// Shadow Of Leaf was here 
+// Shadow Of Leaf was here
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
-require("dotenv").config()
-
+require("dotenv").config();
 
 // Define Joi schema for product data validation
-const userJoiSchema = Joi.object({
+const userJoiSchema = Joi.object({  
   _id: Joi.any().strip(),
+  user_image: Joi.string(),
   first_name: Joi.string().required(),
   last_name: Joi.string().required(),
   email: Joi.string().required(),
@@ -22,6 +22,9 @@ const userJoiSchema = Joi.object({
 
 const userSchema = new mongoose.Schema(
   {
+    user_image: {
+      type: String,
+    },
     first_name: {
       type: String,
       required: true,
@@ -84,6 +87,7 @@ userSchema.pre("save", async function (next) {
     const validatedData = await userJoiSchema.validateAsync(this.toObject());
 
     // Update the schema fields with validated data
+    this.user_image = validatedData.user_image;
     this.first_name = validatedData.first_name;
     this.last_name = validatedData.last_name;
     this.email = validatedData.email;
