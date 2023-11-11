@@ -2,9 +2,11 @@ const api = require("./routes/api");
 const cookieParser = require("cookie-parser");
 const express = require("express");
 const path = require("path");
+const cors = require ("cors")
 require("dotenv").config();
 
 const app = express();
+app.use(cors())
 
 const staticPath = path.join(__dirname, "public", "images");
 // Serve static files (images) with caching headers
