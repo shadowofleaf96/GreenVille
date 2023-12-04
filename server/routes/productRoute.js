@@ -2,7 +2,7 @@
 
 const express = require("express");
 const router = express.Router();
-const { upload } = require('../middleware/multerMiddleware');
+const { upload } = require("../middleware/multerMiddleware");
 
 const {
   verifyToken,
@@ -21,14 +21,20 @@ router.post(
   "/",
   verifyToken,
   requireAdminOrManager,
-  upload.single('product_image'),
+  upload.single("product_image"),
   createData
 );
 router.get("/", RetrievingItems);
 router.get("/replace", categorySub);
 router.get("/search", searchingItems);
 router.get("/:id", RetrieveById);
-router.put("/:id", verifyToken, requireAdminOrManager, UpdateProductById);
+router.put(
+  "/:id",
+  verifyToken,
+  requireAdminOrManager,
+  upload.single("product_image"),
+  UpdateProductById
+);
 router.delete("/:id", verifyToken, requireAdminOrManager, DeleteProductById);
 
 module.exports = router;

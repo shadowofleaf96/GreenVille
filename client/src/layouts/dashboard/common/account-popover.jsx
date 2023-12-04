@@ -1,37 +1,27 @@
-import { useState } from 'react';
+import { useState } from "react";
 
-import Box from '@mui/material/Box';
-import Avatar from '@mui/material/Avatar';
-import Divider from '@mui/material/Divider';
-import Popover from '@mui/material/Popover';
-import { alpha } from '@mui/material/styles';
-import MenuItem from '@mui/material/MenuItem';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-
-import { account } from '../../../_mock/account';
-
-// ----------------------------------------------------------------------
-
-const MENU_OPTIONS = [
-  {
-    label: 'Home',
-    icon: 'eva:home-fill',
-  },
-  {
-    label: 'Profile',
-    icon: 'eva:person-fill',
-  },
-  {
-    label: 'Settings',
-    icon: 'eva:settings-2-fill',
-  },
-];
-
-// ----------------------------------------------------------------------
+import Box from "@mui/material/Box";
+import Avatar from "@mui/material/Avatar";
+import Divider from "@mui/material/Divider";
+import Popover from "@mui/material/Popover";
+import { alpha } from "@mui/material/styles";
+import MenuItem from "@mui/material/MenuItem";
+import { Link as RouterLink } from "react-router-dom";
+import Typography from "@mui/material/Typography";
+import { useRouter } from "../../../routes/hooks";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../../features/authSlice";
+import axios from "axios";
+import { useTranslation } from "react-i18next";
+import Iconify from "../../../components/iconify";
+import IconButton from "@mui/material/IconButton";
 
 export default function AccountPopover() {
   const [open, setOpen] = useState(null);
+  const { t } = useTranslation();
+  const user = useSelector((state) => state.auth.user);
+  const router = useRouter();
+  const dispatch = useDispatch();
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
@@ -41,13 +31,29 @@ export default function AccountPopover() {
     setOpen(null);
   };
 
+  const logOut = async () => {
+    try {
+      const response = await axios.post("/v1/users/logout");
+
+      if (response.data.message === "Logout successful") {
+        dispatch(logout({}));
+        router.push("/login");
+      } else {
+        alert("Login failed\n" + response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Login error\n" + error);
+    }
+  };
+
   return (
     <>
       <IconButton
         onClick={handleOpen}
         sx={{
-          width: 40,
-          height: 40,
+          width: 52,
+          height: 52,
           background: (theme) => alpha(theme.palette.grey[500], 0.08),
           ...(open && {
             background: (theme) =>
@@ -56,15 +62,15 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
-          src={account.photoURL}
-          alt={account.displayName}
+          src={`http://127.0.0.1:3000/${user.user_image}`}
+          alt={user.user_name}
           sx={{
-            width: 36,
-            height: 36,
+            width: 48,
+            height: 48,
             border: (theme) => `solid 2px ${theme.palette.background.default}`,
           }}
         >
-          {account.displayName.charAt(0).toUpperCase()}
+          {user.user_name.charAt(0).toUpperCase()}
         </Avatar>
       </IconButton>
 
@@ -72,8 +78,8 @@ export default function AccountPopover() {
         open={!!open}
         anchorEl={open}
         onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
         PaperProps={{
           sx: {
             p: 0,
@@ -83,32 +89,38 @@ export default function AccountPopover() {
           },
         }}
       >
-        <Box sx={{ my: 1.5, px: 2 }}>
-          <Typography variant="subtitle2" noWrap>
-            {account.displayName}
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.email}
-          </Typography>
-        </Box>
+        <MenuItem
+          key={"profile"}
+          component={RouterLink}
+          to="/profile"
+          onClick={handleClose}
+          sx={{ py: 1.5, color: "text.secondary" }}
+        >
+          <Iconify
+            icon="material-symbols-light:contacts-product-outline"
+            width={28}
+            height={28}
+            style={{ marginRight: "8px" }}
+          />
+          {t("profile")}
+        </MenuItem>
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
-
-        {MENU_OPTIONS.map((option) => (
-          <MenuItem key={option.label} onClick={handleClose}>
-            {option.label}
-          </MenuItem>
-        ))}
-
-        <Divider sx={{ borderStyle: 'dashed', m: 0 }} />
+        <Divider sx={{ my: 1 }}></Divider>
 
         <MenuItem
           disableRipple
+          component="nav"
           disableTouchRipple
-          onClick={handleClose}
-          sx={{ typography: 'body2', color: 'error.main', py: 1.5 }}
+          onClick={logOut}
+          sx={{ typography: "body2", color: "error.main", py: 1.5 }}
         >
-          Logout
+          <Iconify
+            icon="material-symbols-light:exit-to-app-rounded"
+            width={28}
+            height={28}
+            sx={{ color: "error.main", mx: 1 }}
+          />
+          <strong>{t('logout')}</strong>
         </MenuItem>
       </Popover>
     </>

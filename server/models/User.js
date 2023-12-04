@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 // Define Joi schema for product data validation
-const userJoiSchema = Joi.object({  
+const userJoiSchema = Joi.object({
   _id: Joi.any().strip(),
   user_image: Joi.string(),
   first_name: Joi.string().required(),
@@ -18,6 +18,8 @@ const userJoiSchema = Joi.object({
   last_login: Joi.number(),
   last_update: Joi.number(),
   active: Joi.boolean(),
+  resetPasswordToken:Joi.string(),
+  resetPasswordExpires:Joi.date()
 });
 
 const userSchema = new mongoose.Schema(
@@ -66,6 +68,13 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    resetPasswordToken: {
+      type: String,
+    },
+
+    resetPasswordExpires: {
+      type: Date,
+    },
   },
   {
     collection: "Users",
@@ -97,7 +106,9 @@ userSchema.pre("save", async function (next) {
     this.last_login = validatedData.last_login;
     this.last_update = validatedData.last_update;
     this.active = validatedData.active;
-
+    this.resetPasswordToken = validatedData.resetPasswordToken;
+    this.resetPasswordExpires = validatedData.resetPasswordExpires;
+  
     next();
   } catch (error) {
     next(error);

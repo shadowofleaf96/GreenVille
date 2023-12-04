@@ -1,17 +1,17 @@
-import PropTypes from 'prop-types';
-import { forwardRef, useCallback } from 'react';
+import PropTypes from "prop-types";
+import { forwardRef, useCallback } from "react";
 
-import Stack from '@mui/material/Stack';
-import { alpha } from '@mui/material/styles';
-import ButtonBase from '@mui/material/ButtonBase';
+import Stack from "@mui/material/Stack";
+import { alpha } from "@mui/material/styles";
+import ButtonBase from "@mui/material/ButtonBase";
 
-import Iconify from '../iconify';
+import Iconify from "../iconify";
 
 // ----------------------------------------------------------------------
 
 const ColorPicker = forwardRef(
-  ({ colors, selected, onSelectColor, limit = 'auto', sx, ...other }, ref) => {
-    const singleSelect = typeof selected === 'string';
+  ({ colors, selected, onSelectColor, limit = "auto", sx, ...other }, ref) => {
+    const singleSelect = typeof selected === "string";
 
     const handleSelect = useCallback(
       (color) => {
@@ -36,17 +36,19 @@ const ColorPicker = forwardRef(
         direction="row"
         display="inline-flex"
         sx={{
-          flexWrap: 'wrap',
-          ...(limit !== 'auto' && {
+          flexWrap: "wrap",
+          ...(limit !== "auto" && {
             width: limit * 36,
-            justifyContent: 'flex-end',
+            justifyContent: "flex-end",
           }),
           ...sx,
         }}
         {...other}
       >
         {colors.map((color) => {
-          const hasSelected = singleSelect ? selected === color : selected.includes(color);
+          const hasSelected = singleSelect
+            ? selected === color
+            : selected.includes(color);
 
           return (
             <ButtonBase
@@ -54,7 +56,7 @@ const ColorPicker = forwardRef(
               sx={{
                 width: 36,
                 height: 36,
-                borderRadius: '50%',
+                borderRadius: "50%",
               }}
               onClick={() => {
                 handleSelect(color);
@@ -67,14 +69,15 @@ const ColorPicker = forwardRef(
                   width: 20,
                   height: 20,
                   bgcolor: color,
-                  borderRadius: '50%',
-                  border: (theme) => `solid 1px ${alpha(theme.palette.grey[500], 0.16)}`,
+                  borderRadius: "50%",
+                  border: (theme) =>
+                    `solid 1px ${alpha(theme.palette.grey[500], 0.16)}`,
                   ...(hasSelected && {
-                    transform: 'scale(1.3)',
+                    transform: "scale(1.3)",
                     boxShadow: `4px 4px 8px 0 ${alpha(color, 0.48)}`,
                     outline: `solid 2px ${alpha(color, 0.08)}`,
                     transition: (theme) =>
-                      theme.transitions.create('all', {
+                      theme.transitions.create("all", {
                         duration: theme.transitions.duration.shortest,
                       }),
                   }),
@@ -82,11 +85,11 @@ const ColorPicker = forwardRef(
               >
                 <Iconify
                   width={hasSelected ? 12 : 0}
-                  icon="eva:checkmark-fill"
+                  icon="material-symbols-light:check-box-outline-rounded"
                   sx={{
                     color: (theme) => theme.palette.getContrastText(color),
                     transition: (theme) =>
-                      theme.transitions.create('all', {
+                      theme.transitions.create("all", {
                         duration: theme.transitions.duration.shortest,
                       }),
                   }}
@@ -101,10 +104,16 @@ const ColorPicker = forwardRef(
 );
 
 ColorPicker.propTypes = {
-  colors: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
+  colors: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
   limit: PropTypes.number,
   onSelectColor: PropTypes.func,
-  selected: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
+  selected: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
   sx: PropTypes.object,
 };
 

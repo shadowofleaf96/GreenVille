@@ -1,5 +1,6 @@
 const subcategories = require("../models/SubCategory");
 const Product = require("../models/Product");
+const { Category } = require("../models/Category");
 
 const subcategoriesController = {
   async createSubcategory(req, res) {
@@ -28,42 +29,57 @@ const subcategoriesController = {
       // Save the new subcategory to the database
       await newSubcategory.save();
 
-      res
-        .status(201)
-        .json({ status: 200, message: "Subcategory created successfully" });
+      res.status(201).json({
+        message: "Subcategory created successfully",
+        data: newSubcategory,
+      });
     } catch (error) {
       console.error(error);
       res.status(400).json({ error: "Bad request" });
     }
   },
   async getAllSubcategories(req, res) {
-    //List all the subcategories & Search for subcategories
-    const page = parseInt(req.query.page) || 1;
+    const page = parseInt(req.query.page);
     const perPage = 10;
-    const skipCount = (page - 1) * perPage;
-    const query = req.query.query || ""; // Get the query parameter
+    const query = req.query.query || "";
 
     try {
-      let queryBuilder = subcategories.find(); // Initialize the query with the Subcategory model
+      let queryBuilder = subcategories.find();
 
       if (query) {
-        // If a query parameter is provided, filter subcategories by subcategory_name
         queryBuilder = queryBuilder.where(
           "subcategory_name",
           new RegExp(query, "i")
         );
       }
 
-      const subcategorie = await queryBuilder
-        .skip(skipCount)
-        .limit(perPage)
-        .lean();
-
-      if (subcategorie.length === 0) {
-        return res.status(200).json([]); // Return an empty array if no matching subcategories exist
+      if (page) {
+        queryBuilder = queryBuilder.skip((page - 1) * perPage).limit(perPage);
       }
 
-      res.status(200).json(subcategorie);
+      const subcategoriesData = await queryBuilder.lean();
+
+      if (subcategoriesData.length === 0) {
+        return res.status(200).json([]);
+      }
+
+      // Fetch category details for all subcategories in parallel
+      const categoryPromises = subcategoriesData.map((subcategory) =>
+        Category.findById(subcategory.category_id).lean()
+      );
+      const categories = await Promise.all(categoryPromises);
+
+      // Enrich subcategory data with category details
+      const enrichedSubcategories = subcategoriesData.map(
+        (subcategory, index) => ({
+          ...subcategory,
+          category: categories[index],
+        })
+      );
+
+      res.status(200).json({
+        data: enrichedSubcategories,
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
@@ -95,7 +111,7 @@ const subcategoriesController = {
       const subcategory = await subcategories.findById(subcategoryId);
 
       if (!subcategory) {
-        return res.status(404).json({ message: "Invalid customer id" });
+        return res.status(404).json({ message: "Invalid subcategory id" });
       }
 
       if (subcategory_name) {
@@ -112,9 +128,10 @@ const subcategoriesController = {
 
       await subcategory.save();
 
-      res
-        .status(200)
-        .json({ message: "Customer information updated", subcategory });
+      res.status(200).json({
+        message: "Subcategory information updated",
+        data: subcategory,
+      });
     } catch (error) {
       console.error("Update error:", error);
       res.status(500).json({ message: "Internal server error" });
@@ -143,7 +160,9 @@ const subcategoriesController = {
         return res.status(404).json({ message: "Subcategory not found" });
       }
 
-      return res.status(200).json({ message: "Subcategory deleted" });
+      return res
+        .status(200)
+        .json({ message: "Subcategory deleted Successfully" });
     } catch (error) {
       console.error("Deletion error:", error);
       return res.status(500).json({ message: "Internal server error" });

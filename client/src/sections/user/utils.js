@@ -2,12 +2,12 @@ export const visuallyHidden = {
   border: 0,
   margin: -1,
   padding: 0,
-  width: '1px',
-  height: '1px',
-  overflow: 'hidden',
-  position: 'absolute',
-  whiteSpace: 'nowrap',
-  clip: 'rect(0 0 0 0)',
+  width: "1px",
+  height: "1px",
+  overflow: "hidden",
+  position: "absolute",
+  whiteSpace: "nowrap",
+  clip: "rect(0 0 0 0)",
 };
 
 export function emptyRows(page, rowsPerPage, arrayLength) {
@@ -30,12 +30,12 @@ function descendingComparator(a, b, orderBy) {
   return 0;
 }
 export function getComparator(order, orderBy) {
-  return order === 'desc'
+  return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-export function applyFilter({ inputData, comparator, filterName }) {
+export function applyFilter({ inputData, comparator, filterName, emailFilter }) {
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -47,9 +47,23 @@ export function applyFilter({ inputData, comparator, filterName }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
-    );
+    inputData = inputData.filter((user) => {
+      const firstNameMatch =
+        user.first_name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1;
+      const lastNameMatch =
+        user.last_name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1;
+
+      return firstNameMatch || lastNameMatch;
+    });
+  }
+
+  if (emailFilter) {
+    inputData = inputData.filter((user) => {
+      const emailMatch =
+      user.email.toLowerCase().indexOf(emailFilter.toLowerCase()) !== -1;
+
+      return emailMatch;
+    });
   }
 
   return inputData;

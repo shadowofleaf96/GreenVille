@@ -5,12 +5,13 @@ const multer = require("multer");
 // Set up multer storage options
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Specify the destination folder for uploaded files
-    cb(null, "public/images");
+    // Prepend the current working directory (cwd) to the path
+    const path = `public/images`;
+    cb(null, path);
   },
   filename: (req, file, cb) => {
-    // Use the original filename
-    cb(null, file.originalname);
+    const filename = `${Date.now()}-${file.originalname}`;
+    cb(null, filename);
   },
 });
 

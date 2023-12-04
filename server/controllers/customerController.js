@@ -89,8 +89,14 @@ const CustomerController = {
   },
 
   async createCustomer(req, res) {
-    //Create a new customer account
     const customer_image = req.file;
+    let fixed_customer_image;
+
+    if (customer_image) {
+      fixed_customer_image = customer_image.path.replace(/public\\/g, "");
+    } else {
+      fixed_customer_image = `images/image_placeholder.png`;
+    }
     const { first_name, last_name, email, password } = req.body;
 
     try {
@@ -105,7 +111,7 @@ const CustomerController = {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const newCustomer = new Customer({
-        customer_image: customer_image.path, // Store the file path in the database
+        customer_image: fixed_customer_image, // Store the file path in the database
         first_name,
         last_name,
         email,
@@ -116,9 +122,10 @@ const CustomerController = {
 
       await newCustomer.save();
 
-      res
-        .status(201)
-        .json({ status: 200, message: "Customer created successfully" });
+      res.status(200).json({
+        message: "Customer created successfully",
+        data: newCustomer,
+      });
     } catch (error) {
       console.error(error);
       res.status(400).json({ error: "Bad field type" });
@@ -145,48 +152,77 @@ const CustomerController = {
 
   async getAllCustomers(req, res) {
     //Get all the Customer list & Search for a customer
-    const page = parseInt(req.query.page) || 1;
+    const page = parseInt(req.query.page);
     const query = req.query.query || "";
     const sort = req.query.sort || "DESC";
 
     const perPage = 10;
     const skipCount = (page - 1) * perPage;
 
-    try {
-      let queryBuilder = Customer.find();
+    if (page) {
+      try {
+        let queryBuilder = Customer.find();
 
-      if (query) {
-        queryBuilder = queryBuilder.where("first_name", new RegExp(query, "i"));
+        if (query) {
+          queryBuilder = queryBuilder.where(
+            "first_name",
+            new RegExp(query, "i")
+          );
+        }
+
+        if (sort.toUpperCase() === "DESC") {
+          queryBuilder = queryBuilder.sort({ first_name: -1 });
+        } else {
+          queryBuilder = queryBuilder.sort({ first_name: 1 });
+        }
+
+        const customerList = await queryBuilder
+          .skip(skipCount)
+          .limit(perPage)
+          .exec();
+
+        const formattedCustomer = customerList.map((customer) => ({
+          _id: customer._id,
+          first_name: customer.first_name,
+          last_name: customer.last_name,
+          email: customer.email,
+        }));
+
+        res.status(200).json({
+          data: formattedCustomer,
+        });
+      } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal server error" });
       }
+    } else {
+      try {
+        let queryBuilder = Customer.find();
 
-      if (sort.toUpperCase() === "DESC") {
-        queryBuilder = queryBuilder.sort({ first_name: -1 });
-      } else {
-        queryBuilder = queryBuilder.sort({ first_name: 1 });
+        if (query) {
+          queryBuilder = queryBuilder.where(
+            "first_name",
+            new RegExp(query, "i")
+          );
+        }
+
+        if (sort.toUpperCase() === "DESC") {
+          queryBuilder = queryBuilder.sort({ first_name: -1 });
+        } else {
+          queryBuilder = queryBuilder.sort({ first_name: 1 });
+        }
+
+        const customerList = await queryBuilder.exec();
+
+        res.status(200).json({
+          data: customerList,
+        });
+      } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal server error" });
       }
-
-      const customerList = await queryBuilder
-        .skip(skipCount)
-        .limit(perPage)
-        .exec();
-
-      const formattedCustomer = customerList.map((customer) => ({
-        _id: customer._id,
-        first_name: customer.first_name,
-        last_name: customer.last_name,
-        email: customer.email,
-      }));
-
-      res.status(200).json({
-        status: 200,
-        data: formattedCustomer,
-      });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Internal server error" });
     }
   },
-
   async getCustomerById(req, res) {
     //Get a customer by ID
     const customerId = req.params.id;
@@ -260,14 +296,26 @@ const CustomerController = {
 
   async updateCustomer(req, res) {
     //Update the customer's data
+    const customer_image = req.file;
+    let fixed_customer_image;
     const customerId = req.params.id;
-    const { first_name, last_name, email, active } = req.body;
+    const { first_name, last_name, email, password, active } = req.body;
 
     try {
       const customer = await Customer.findById(customerId);
 
       if (!customer) {
         return res.status(404).json({ message: "Invalid customer id" });
+      }
+
+      if (customer_image) {
+        fixed_customer_image = customer_image.path.replace(/public\\/g, "");
+      } else {
+        fixed_customer_image = customer.customer_image;
+      }
+
+      if (customer_image) {
+        customer.customer_image = fixed_customer_image;
       }
 
       if (first_name) {
@@ -277,9 +325,17 @@ const CustomerController = {
       if (last_name) {
         customer.last_name = last_name;
       }
+
       if (email) {
         customer.email = email;
       }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      if (password) {
+        customer.password = hashedPassword;
+      }
+
       if (active) {
         customer.active = active;
       }
@@ -287,8 +343,7 @@ const CustomerController = {
       await customer.save();
 
       res.status(200).json({
-        message: "Customer information updated successfully",
-        customer,
+        message: "Account updated successfully",
       });
     } catch (error) {
       console.error("Update error:", error);

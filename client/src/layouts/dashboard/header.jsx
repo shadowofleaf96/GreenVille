@@ -1,46 +1,45 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import { useTheme } from '@mui/material/styles';
-import IconButton from '@mui/material/IconButton';
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import { useTheme } from "@mui/material/styles";
+import IconButton from "@mui/material/IconButton";
 
-import { useResponsive } from '../../hooks/use-responsive';
+import { useResponsive } from "../../hooks/use-responsive";
 
-import { bgBlur } from '../../theme/css';
+import { bgBlur } from "../../theme/css";
 
-import Iconify from '../../components/iconify';
+import Iconify from "../../components/iconify";
 
-import Searchbar from '../dashboard/common/searchbar';
-import { NAV, HEADER } from './config-layout';
-import AccountPopover from './common/account-popover';
-import LanguagePopover from './common/language-popover';
-import NotificationsPopover from './common/notifications-popover';
+import { NAV, HEADER } from "./config-layout";
+import AccountPopover from "./common/account-popover";
+import LanguagePopover from "./common/language-popover";
 
 // ----------------------------------------------------------------------
 
 export default function Header({ onOpenNav }) {
   const theme = useTheme();
 
-  const lgUp = useResponsive('up', 'lg');
+  const lgUp = useResponsive("up", "lg");
 
   const renderContent = (
     <>
       {!lgUp && (
         <IconButton onClick={onOpenNav} sx={{ mr: 1 }}>
-          <Iconify icon="eva:menu-2-fill" />
+          <Iconify
+            icon="material-symbols-light:menu-rounded" width={30}
+            height={30}
+          />
         </IconButton>
       )}
-
-      <Searchbar />
 
       <Box sx={{ flexGrow: 1 }} />
 
       <Stack direction="row" alignItems="center" spacing={1}>
         <LanguagePopover />
-        <NotificationsPopover />
+        {/* <NotificationsPopover /> No Time to Work on it */}
         <AccountPopover />
       </Stack>
     </>
@@ -49,13 +48,13 @@ export default function Header({ onOpenNav }) {
   return (
     <AppBar
       sx={{
-        boxShadow: 'none',
+        boxShadow: "none",
         height: HEADER.H_MOBILE,
         zIndex: theme.zIndex.appBar + 1,
         ...bgBlur({
           color: theme.palette.background.default,
         }),
-        transition: theme.transitions.create(['height'], {
+        transition: theme.transitions.create(["height"], {
           duration: theme.transitions.duration.shorter,
         }),
         ...(lgUp && {

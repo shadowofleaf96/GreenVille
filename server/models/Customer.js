@@ -3,7 +3,6 @@
 const { Schema, model } = require("mongoose");
 const bcrypt = require("bcrypt");
 
-
 const customerSchema = new Schema(
   {
     id: String,
@@ -17,7 +16,7 @@ const customerSchema = new Schema(
     valid_account: Boolean,
     active: Boolean,
   },
-  { collection: "Customers" }
+  { collection: "Customers", versionKey: false }
 );
 
 // Define the validatePassword method for user model

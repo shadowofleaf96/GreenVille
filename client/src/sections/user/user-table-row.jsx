@@ -1,40 +1,46 @@
-import { useState } from 'react';
-import PropTypes from 'prop-types';
+import { useState } from "react";
+import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next"; // Importing translations
 
-import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
-import Popover from '@mui/material/Popover';
-import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
-import MenuItem from '@mui/material/MenuItem';
-import TableCell from '@mui/material/TableCell';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
+import Stack from "@mui/material/Stack";
+import Avatar from "@mui/material/Avatar";
+import Popover from "@mui/material/Popover";
+import TableRow from "@mui/material/TableRow";
+import Checkbox from "@mui/material/Checkbox";
+import MenuItem from "@mui/material/MenuItem";
+import { useDispatch, useSelector } from "react-redux";
+import TableCell from "@mui/material/TableCell";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import Badge from "@mui/material/Badge";
+import axios from "axios";
+import { fDateTime } from "../../utils/format-time";
 
-import Label from '../../components/label';
-import Iconify from '../../components/iconify';
+import Label from "../../components/label";
+import Iconify from "../../components/iconify";
 
 // ----------------------------------------------------------------------
 
 export default function UserTableRow({
   selected,
-  name,
-  avatarUrl,
-  company,
+  user_image,
+  first_name,
+  last_name,
   role,
-  isVerified,
-  status,
+  user_name,
+  creation_date,
+  active,
   handleClick,
+  onEdit,
+  onDelete,
+  onDetails,
 }) {
+  // Toggle the selection
   const [open, setOpen] = useState(null);
-
-  const handleOpenMenu = (event) => {
-    setOpen(event.currentTarget);
-  };
-
-  const handleCloseMenu = () => {
-    setOpen(null);
-  };
+  const { t } = useTranslation(); // Using translation hook
+  const user = useSelector((state) => state.auth.user);
+  const isActive = active;
+  const color = isActive ? "primary" : "secondary";
 
   return (
     <>
@@ -43,63 +49,98 @@ export default function UserTableRow({
           <Checkbox disableRipple checked={selected} onChange={handleClick} />
         </TableCell>
 
-        <TableCell component="th" scope="row" padding="none">
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar alt={name} src={avatarUrl} />
-            <Typography variant="subtitle2" noWrap>
-              {name}
-            </Typography>
-          </Stack>
+        <TableCell>
+          <Avatar
+            align="center"
+            alt={`${first_name} ${last_name}`}
+            src={user_image}
+          />
         </TableCell>
 
-        <TableCell>{company}</TableCell>
+        <TableCell>{first_name}</TableCell>
 
-        <TableCell>{role}</TableCell>
+        <TableCell>{last_name}</TableCell>
 
-        <TableCell align="center">{isVerified ? 'Yes' : 'No'}</TableCell>
+        <TableCell>{t(role)}</TableCell>
+
+        <TableCell>{user_name}</TableCell>
+
+        <TableCell>{fDateTime(creation_date)}</TableCell>
 
         <TableCell>
-          <Label color={(status === 'banned' && 'error') || 'success'}>{status}</Label>
+          <Badge
+            sx={{
+              minWidth: 24,
+            }}
+            badgeContent={isActive ? t("Active") : t("Inactive")}
+            color={color}
+          ></Badge>
         </TableCell>
 
-        <TableCell align="right">
-          <IconButton onClick={handleOpenMenu}>
-            <Iconify icon="eva:more-vertical-fill" />
+        <TableCell align="center">
+          <IconButton
+            onClick={() =>
+              onDetails({
+                first_name,
+                last_name,
+                user_name,
+                active,
+                creation_date,
+              })
+            }
+          >
+            <Iconify
+              icon="material-symbols-light:visibility-outline-rounded"
+              width={26}
+              height={26}
+            />
           </IconButton>
+
+          {user.role !== "manager" && (
+            <IconButton
+              onClick={() => {
+                onEdit && onEdit();
+              }}
+            >
+              <Iconify
+                icon="material-symbols-light:edit-outline-rounded"
+                width={28}
+                height={28}
+              />
+            </IconButton>
+          )}
+
+          {user.role !== "manager" && (
+            <IconButton
+              onClick={(event) => {
+                onDelete && onDelete(event);
+              }}
+              sx={{ color: "error.main" }}
+            >
+              <Iconify
+                icon="material-symbols-light:delete-outline-rounded"
+                width={28}
+                height={28}
+              />
+            </IconButton>
+          )}
         </TableCell>
       </TableRow>
-
-      <Popover
-        open={!!open}
-        anchorEl={open}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: { width: 140 },
-        }}
-      >
-        <MenuItem onClick={handleCloseMenu}>
-          <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Edit
-        </MenuItem>
-
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
-          <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
-          Delete
-        </MenuItem>
-      </Popover>
     </>
   );
 }
 
 UserTableRow.propTypes = {
-  avatarUrl: PropTypes.any,
-  company: PropTypes.any,
+  user_image: PropTypes.string,
   handleClick: PropTypes.func,
-  isVerified: PropTypes.any,
-  name: PropTypes.any,
-  role: PropTypes.any,
-  selected: PropTypes.any,
-  status: PropTypes.string,
+  first_name: PropTypes.string,
+  last_name: PropTypes.string,
+  role: PropTypes.string,
+  user_name: PropTypes.string,
+  creation_date: PropTypes.number,
+  active: PropTypes.bool,
+  selected: PropTypes.bool,
+  onDelete: PropTypes.func,
+  onEdit: PropTypes.func,
+  onDetails: PropTypes.func,
 };

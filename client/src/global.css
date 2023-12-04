@@ -1,2 +1,16 @@
 /* scrollbar */
-@import 'simplebar-react/dist/simplebar.min.css';
+@import "simplebar-react/dist/simplebar.min.css";
+@font-face {
+  font-display: swap;
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./assets/fonts/open-sans-v36-latin-regular.woff2") format("woff2");
+}
+@font-face {
+    font-display: swap;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/montserrat-v26-latin-regular.woff2') format('woff2');
+  }

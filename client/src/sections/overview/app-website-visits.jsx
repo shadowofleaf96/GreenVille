@@ -15,7 +15,7 @@ export default function AppWebsiteVisits({ title, subheader, chart, ...other }) 
     colors,
     plotOptions: {
       bar: {
-        columnWidth: '16%',
+        columnWidth: '20%',
       },
     },
     fill: {
@@ -25,14 +25,18 @@ export default function AppWebsiteVisits({ title, subheader, chart, ...other }) 
     xaxis: {
       type: 'datetime',
     },
+    yaxis: {
+      labels: {
+        formatter: function (value) {
+          return value ;
+        }
+      },
+    },
     tooltip: {
       shared: true,
       intersect: false,
       y: {
         formatter: (value) => {
-          if (typeof value !== 'undefined') {
-            return `${value.toFixed(0)} visits`;
-          }
           return value;
         },
       },

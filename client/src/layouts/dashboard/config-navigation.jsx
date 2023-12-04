@@ -1,42 +1,99 @@
-import SvgColor from '../../components/svg-color';
-
-// ----------------------------------------------------------------------
-
-const icon = (name) => (
-  <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />
-);
+import { useTranslation } from "react-i18next";
+import Iconify from "../../components/iconify/iconify";
 
 const navConfig = [
   {
-    title: 'dashboard',
-    path: '/',
-    icon: icon('ic_analytics'),
+    title: "dashboard",
+    path: "/",
+    icon: (
+      <Iconify
+        icon="material-symbols-light:dashboard-outline-rounded"
+        width={30}
+        height={30}
+      />
+    ),
   },
   {
-    title: 'user',
-    path: '/user',
-    icon: icon('ic_user'),
+    title: "user",
+    path: "/user",
+    icon: (
+      <Iconify
+        icon="material-symbols-light:supervised-user-circle-outline"
+        width={30}
+        height={30}
+      />
+    ),
   },
   {
-    title: 'product',
-    path: '/products',
-    icon: icon('ic_cart'),
+    title: "customer",
+    path: "/customer",
+    icon: (
+      <Iconify
+        icon="material-symbols-light:account-circle-outline"
+        width={30}
+        height={30}
+      />
+    ),
   },
   {
-    title: 'blog',
-    path: '/blog',
-    icon: icon('ic_blog'),
+    title: "category",
+    path: "/category",
+    icon: (
+      <Iconify
+        icon="material-symbols-light:content-copy-outline"
+        width={30}
+        height={30}
+      />
+    ),
   },
   {
-    title: 'login',
-    path: '/login',
-    icon: icon('ic_lock'),
+    title: "subcategory",
+    path: "/subcategory",
+    icon: (
+      <Iconify
+        icon="material-symbols-light:border-all-outline-rounded"
+        width={30}
+        height={30}
+      />
+    ),
   },
   {
-    title: 'Not found',
-    path: '/404',
-    icon: icon('ic_disabled'),
+    title: "product",
+    path: "/products",
+    icon: (
+      <Iconify
+        icon="material-symbols-light:shopping-cart-outline-rounded"
+        width={30}
+        height={30}
+      />
+    ),
   },
+  {
+    title: "order",
+    path: "/order",
+    icon: (
+      <Iconify
+        icon="material-symbols-light:orders-outline-rounded"
+        width={30}
+        height={30}
+      />
+    ),
+  },
+  // Completing it Later
+  // {
+  //   title: "payment list",
+  //   path: "/paymentlist",
+  //   icon: <Iconify icon="material-symbols-light:payments-outline-rounded" width={30} height={30} />,
+  // },
 ];
 
-export default navConfig;
+const TranslatedNavConfig = () => {
+  const { t } = useTranslation();
+
+  return navConfig.map((item) => ({
+    ...item,
+    title: t(item.title),
+  }));
+};
+
+export default TranslatedNavConfig;
