@@ -123,7 +123,6 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
           onChange={handleFieldChange}
           fullWidth
           sx={{ marginBottom: 2 }}
-          InputLabelProps={{ shrink: true }}
         />
 
         <TextField
@@ -134,7 +133,6 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
           onChange={handleFieldChange}
           fullWidth
           sx={{ marginBottom: 2 }}
-          InputLabelProps={{ shrink: true }}
         />
 
         <TextField
@@ -148,7 +146,6 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
           error={!emailValid}
           helperText={!emailValid ? "Invalid email format" : ""}
           sx={{ marginBottom: 2 }}
-          InputLabelProps={{ shrink: true }}
         />
 
         <TextField
@@ -162,7 +159,6 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
           type="password"
           fullWidth
           sx={{ marginBottom: 2 }}
-          InputLabelProps={{ shrink: true }}
         />
         {editedCustomer.password.length < 8 && (
           <Typography color="error" variant="caption" sx={{ marginBottom: 2 }}>
@@ -178,7 +174,6 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
           type="password"
           fullWidth
           sx={{ marginBottom: 2 }}
-          InputLabelProps={{ shrink: true }}
         />
         {!passwordsMatch && (
           <Typography color="error" variant="caption" sx={{ marginBottom: 2 }}>

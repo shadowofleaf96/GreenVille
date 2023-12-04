@@ -138,7 +138,6 @@ function EditUserForm({ user, onSave, onCancel, open, onClose }) {
           onChange={handleFieldChange}
           fullWidth
           sx={{ marginBottom: 2 }}
-          InputLabelProps={{ shrink: true }}
         />
 
         <TextField
@@ -149,7 +148,6 @@ function EditUserForm({ user, onSave, onCancel, open, onClose }) {
           onChange={handleFieldChange}
           fullWidth
           sx={{ marginBottom: 2 }}
-          InputLabelProps={{ shrink: true }}
         />
 
         <TextField
@@ -161,7 +159,6 @@ function EditUserForm({ user, onSave, onCancel, open, onClose }) {
           onChange={handleFieldChange}
           fullWidth
           sx={{ marginBottom: 2 }}
-          InputLabelProps={{ shrink: true }}
           error={!emailValid}
           helperText={!emailValid ? t("Invalid email format") : ""}
         />
@@ -174,7 +171,6 @@ function EditUserForm({ user, onSave, onCancel, open, onClose }) {
           onChange={handleFieldChange}
           fullWidth
           sx={{ marginBottom: 2 }}
-          InputLabelProps={{ shrink: true }}
         />
         <TextField
           label={t("Password")}
@@ -188,7 +184,6 @@ function EditUserForm({ user, onSave, onCancel, open, onClose }) {
           type="password"
           fullWidth
           sx={{ marginBottom: 2 }}
-          InputLabelProps={{ shrink: true }}
           error={editedUser.password.length < 8}
           helperText={
             editedUser.password.length > 0 &&
@@ -207,7 +202,6 @@ function EditUserForm({ user, onSave, onCancel, open, onClose }) {
           type="password"
           fullWidth
           sx={{ marginBottom: 2 }}
-          InputLabelProps={{ shrink: true }}
           error={!passwordsMatch}
           helperText={!passwordsMatch ? t("Password and Confirm Password do not match") : ""}
         />

@@ -470,6 +470,7 @@ export default function ProductPage() {
           component="div"
           count={data.length}
           rowsPerPage={rowsPerPage}
+          labelRowsPerPage={t("Rows per page:")}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}
           onRowsPerPageChange={handleChangeRowsPerPage}

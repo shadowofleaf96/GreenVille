@@ -90,6 +90,9 @@ const ProductDetailsPopup = ({ product, open, onClose }) => {
 
           <Typography variant="body1" sx={{ alignSelf: "center" }}>
             <Badge
+              sx={{
+                minWidth: 24,
+              }}
               badgeContent={isActive ? t("Active") : t("Inactive")}
               color={color}
             ></Badge>

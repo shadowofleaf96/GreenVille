@@ -295,7 +295,6 @@ const CustomerController = {
   },
 
   async updateCustomer(req, res) {
-    //Update the customer's data
     const customer_image = req.file;
     let fixed_customer_image;
     const customerId = req.params.id;

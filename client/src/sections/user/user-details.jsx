@@ -69,12 +69,17 @@ const UserDetailsPopup = ({ user, open, onClose }) => {
           </Typography>
 
           <Typography variant="body1">
-            <strong>{t("Last Update")}:</strong>{" "}
-            {fDateTime(user?.last_update)}
+            <strong>{t("Last Update")}:</strong> {fDateTime(user?.last_update)}
           </Typography>
 
           <Typography variant="body1" sx={{ alignSelf: "center" }}>
-            <Badge badgeContent={isActive ? t("Active") : t("Inactive")} color={color}></Badge>
+            <Badge
+              sx={{
+                minWidth: 24,
+              }}
+              badgeContent={isActive ? t("Active") : t("Inactive")}
+              color={color}
+            ></Badge>
           </Typography>
         </Stack>
       </Box>

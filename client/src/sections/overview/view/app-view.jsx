@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
@@ -86,7 +86,7 @@ export default function AppView() {
     labels: labels,
     series: [
       {
-        name: t("Customers"), // Translating label
+        name: t("Customers"),
         type: "line",
         fill: "solid",
         data: labels.map((date) => {
@@ -97,7 +97,7 @@ export default function AppView() {
         }),
       },
       {
-        name: t("Orders"), // Translating label
+        name: t("Orders"),
         type: "area",
         fill: "gradient",
         data: labels.map((date) => {
@@ -135,75 +135,73 @@ export default function AppView() {
           <Box
             sx={{
               display: "flex",
-              backgroundColor: "#FFFFFF",
               borderRadius: "16px",
               alignItems: "center",
-              justifyContent: "center",
+              justifyContent: "space-between",
               p: 2,
               mb: 3,
-              boxShadow: 1,
             }}
           >
-            <Stack direction="row" spacing={2}>
-              <AppWidgetSummary
-                title={t("Sales")} // Translating title
-                total={totalQuantity}
-                icon={
-                  <Iconify
-                    icon="material-symbols-light:shopping-bag"
-                    width={72}
-                    height={72}
-                    color="primary.main"
-                  />
-                }
-              />
+              <Grid item xs={6} md={3}>
+                <AppWidgetSummary
+                  title={t("Sales")}
+                  total={totalQuantity}
+                  icon={
+                    <Iconify
+                      icon="material-symbols-light:shopping-bag"
+                      width={72}
+                      height={72}
+                      color="primary.main"
+                    />
+                  }
+                />
+              </Grid>
 
-              <AppWidgetSummary
-                title={t("Customers")} // Translating title
-                total={data.customers.length}
-                icon={
-                  <Iconify
-                    icon="material-symbols-light:contacts-product"
-                    width={72}
-                    height={72}
-                    color="primary.main"
-                  />
-                }
-              />
+            <AppWidgetSummary
+              title={t("Customers")}
+              total={data.customers.length}
+              icon={
+                <Iconify
+                  icon="material-symbols-light:contacts-product"
+                  width={72}
+                  height={72}
+                  color="primary.main"
+                />
+              }
+            />
 
-              <AppWidgetSummary
-                title={t("Orders")} // Translating title
-                total={data.orders.length}
-                icon={
-                  <Iconify
-                    icon="material-symbols-light:shopping-cart-rounded"
-                    width={72}
-                    height={72}
-                    color="primary.main"
-                  />
-                }
-              />
+            <AppWidgetSummary
+              title={t("Orders")}
+              total={data.orders.length}
+              icon={
+                <Iconify
+                  icon="material-symbols-light:shopping-cart-rounded"
+                  width={72}
+                  height={72}
+                  color="primary.main"
+                />
+              }
+            />
 
-              <AppWidgetSummary
-                title={t("Revenues")} // Translating title
-                total={totalCartTotalPrice}
-                currency="DH"
-                icon={
-                  <Iconify
-                    icon="material-symbols-light:payments-rounded"
-                    width={72}
-                    height={72}
-                    color="primary.main"
-                  />
-                }
-              />
-            </Stack>
+            <AppWidgetSummary
+              title={t("Revenues")}
+              total={totalCartTotalPrice}
+              currency="DH"
+              icon={
+                <Iconify
+                  icon="material-symbols-light:payments-rounded"
+                  width={72}
+                  height={72}
+                  color="primary.main"
+                />
+              }
+            />
           </Box>
           <Box sx={{ borderRadius: "16px", boxShadow: 1 }}>
             <Grid xs={12} md={6} lg={8}>
               <AppWebsiteVisits
                 title={t("Last Sign in Customers and New Orders Added")} // Translating title
-                subheader={t("Customers sign in and orders added each day")} // Translating subheader
+                subheader={t("Customers sign in and orders added each day")}
                 chart={chartData}
               />
             </Grid>

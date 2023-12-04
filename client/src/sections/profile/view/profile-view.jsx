@@ -83,7 +83,7 @@ const ProfilePage = () => {
                     {new Date(user.last_login).toLocaleString()}
                   </Typography>
                   <Badge
-                    sx={{ mt: 5 }}
+                    sx={{ mt: 5, minWidth: 24 }}
                     badgeContent={isActive ? t("Active") : t("Inactive")}
                     color={color}
                   ></Badge>

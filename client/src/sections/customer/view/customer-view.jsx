@@ -376,6 +376,7 @@ export default function CustomerPage() {
           page={page}
           component="div"
           count={data.length}
+          labelRowsPerPage={t("Rows per page:")}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}
