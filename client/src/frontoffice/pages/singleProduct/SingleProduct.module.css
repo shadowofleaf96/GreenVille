@@ -1,0 +1,183 @@
+.product_details {
+  display: flex;
+  margin-top: 75px;
+
+}
+.product_details .preview_image {
+  height: 350px;
+  width: 500px;
+  border-radius: 20px;
+}
+@media screen and (max-width: 900px) {
+  .product_details .preview_image {
+    height: 200px;
+    width: 350px;
+  }
+}
+.product_details .preview_image img {
+  height: 300px;
+  width: 450px;
+  border-radius: 20px;
+}
+@media screen and (max-width: 900px) {
+  .product_details .preview_image img {
+    height: 200px;
+    width: 350px;
+  }
+}
+.product_details .products_container {
+  display: flex;
+  flex-direction: row;
+  width: 450px;
+  position: relative;
+}
+@media screen and (max-width: 900px) {
+  .product_details .products_container {
+    width: 350px;
+  }
+}
+.product_details .products_container .products_container_branch {
+  margin-top: 5px;
+  display: flex;
+  flex-direction: row;
+  width: -moz-max-content;
+  width: max-content;
+  overflow-x: scroll;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.product_details .products_container .products_container_branch::-webkit-scrollbar {
+  display: none;
+}
+.product_details .products_container .products_container_branch .item {
+  display: flex;
+  margin: 1rem;
+  flex-direction: column;
+  align-items: center;
+  width: 135px;
+  border-radius: 10px;
+}
+.product_details .products_container .products_container_branch .item img {
+  height: 100px;
+  width: 135px;
+  border-radius: 10px;
+}
+.product_details .products_container .app__gallery_images_arrows {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+  position: absolute;
+  bottom: 5%;
+}
+.product_details .products_container .gallery__arrow_icon {
+  color: var(--color-black);
+  font-size: 2rem;
+  cursor: pointer;
+  background: var(--color-golden);
+  border-radius: 5px;
+}
+.product_details .products_container .gallery__arrow_icon:hover {
+  color: var(--color-white);
+}
+.product_details .Product_info p {
+  color: var(--color-gray);
+  font-size: 16px;
+  margin-top: 5px;
+}
+.product_details .Product_info .stock_counter {
+  display: flex;
+  gap: 10px;
+}
+.product_details .Product_info .stock_counter span {
+  padding: 5px 10px;
+  border-radius: 50%;
+  border: 2px solid var(--color-gray);
+}
+.product_details .Product_info .stock_counter span:nth-child(1):hover {
+  background-color: rgb(182, 9, 9);
+  border: 2px solid maroon;
+  color: white;
+}
+.product_details .Product_info .stock_counter span:nth-child(3):hover {
+  background-color: rgb(12, 146, 12);
+  border: 2px solid green;
+  color: white;
+}
+.product_details .Product_info .stock_counter input {
+  width: 10%;
+  padding: 5px 10px;
+  border-radius: 20px;
+  outline: 2px solid green;
+  border: none;
+  text-align: center;
+}
+.product_details .Product_info .button button {
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  margin-top: 10px;
+}
+.product_details .Product_info .button button:nth-child(1) {
+  border: 2px solid black;
+  background-color: black;
+  color: white;
+  transition: all 0.3s ease-in-out;
+}
+.product_details .Product_info .button button:nth-child(1):hover {
+  background-color: rgb(24, 21, 21);
+  border: 2px solid rgb(24, 21, 21);
+}
+.product_details .Product_info .button button:nth-child(2) {
+  margin-left: 10px;
+  border: 2px solid black;
+  transition: all 0.3s ease-in-out;
+}
+.product_details .Product_info .button button:nth-child(2):hover {
+  background-color: rgb(24, 21, 21);
+  border: 2px solid rgb(24, 21, 21);
+  color: white;
+}
+.product_details .Product_info .review {
+  margin-top: 20px;
+}
+.product_details .Product_info .review button {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid goldenrod;
+}
+.product_details .Product_info .review .review_card {
+  position: absolute;
+  top: 30%;
+  right: 30%;
+  background: #fff;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 2rem;
+  border-radius: 20px;
+  width: 400px;
+  z-index: 999;
+}
+.product_details .Product_info .review .review_card div .icon {
+  background-color: unset;
+  border: none;
+  color: red;
+  transition: all 0.5s ease;
+}
+.product_details .Product_info .review .review_card div .icon:hover {
+  transform: scale(1.2, 1.2);
+}
+.product_details .Product_info .review .review_card div button {
+  border: none;
+  background-color: goldenrod;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+  margin-top: 15px;
+  color: #fff;
+}
+.product_details .Product_info .review .review_card div button:hover {
+  background-color: rgb(204, 179, 34);
+}/*# sourceMappingURL=SingleProduct.module.css.map */

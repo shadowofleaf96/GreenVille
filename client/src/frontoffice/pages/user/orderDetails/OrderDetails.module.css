@@ -1,0 +1,45 @@
+.order_details {
+  display: flex;
+  background-color: #fff;
+  min-height: 100vh;
+
+}
+.order_details .details {
+  background-color: #fff;
+  box-shadow: 0 4px 8px 5px rgba(232, 226, 226, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 10px;
+}
+.order_details .details div button {
+  border: none;
+  background-color: #f8ecc3;
+  padding: 5px 15px;
+  border-radius: 20px;
+  transition: all 0.5s;
+}
+.order_details .details div button:hover {
+  background-color: #e4dcc2;
+}
+.order_details .details .done {
+  color: aqua;
+}
+.order_details .details .inProgress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: inProgress 1s ease infinite alternate;
+}
+.order_details .details .undone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0.3;
+}
+
+@keyframes inProgress {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}/*# sourceMappingURL=OrderDetails.module.css.map */

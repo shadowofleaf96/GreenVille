@@ -13,7 +13,7 @@ const {
 } = require("../middleware/authMiddleware");
 
 router.post("/", CreateOrders);
-router.get("/", verifyToken, requireAdminOrManager, RetrievingOrders);
+router.get("/", RetrievingOrders);
 router.get("/:id", verifyToken, requireAdminOrManager, searchingOrders);
 router.put(
   "/:id",

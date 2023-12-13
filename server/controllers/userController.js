@@ -6,11 +6,20 @@ require("dotenv").config();
 const bcrypt = require("bcrypt");
 const { createTransport } = require("nodemailer");
 const { log } = require("console");
+const crypto = require("crypto");
 const secretKey = process.env.SECRETKEY;
 const secretRefreshKey = process.env.REFRESHSECRETLEY;
 const expiration = process.env.EXPIRATIONDATE;
 
 const createUser = async (req, res) => {
+  const user_image = req.file;
+  let fixed_user_image;
+
+  if (user_image) {
+    fixed_user_image = user_image.path.replace(/public\\/g, "");
+  } else {
+    fixed_user_image = `images/image_placeholder.png`;
+  }
   // Extract user data from the request body
   const { role, user_name, first_name, last_name, email, password } = req.body;
 
@@ -22,7 +31,7 @@ const createUser = async (req, res) => {
   if (existingUser) {
     return res.status(400).json({
       status: 400,
-      message: "Username or email already exists",
+      message: "User name or email already exists",
     });
   }
 
@@ -30,6 +39,7 @@ const createUser = async (req, res) => {
 
   // Create a new user using the create() method
   User.create({
+    user_image: fixed_user_image, // Store the file path in the database
     role,
     user_name,
     first_name,
@@ -44,6 +54,7 @@ const createUser = async (req, res) => {
       res.status(201).json({
         status: 201,
         message: "User created successfully",
+        data: newUser,
       });
       const transporter = createTransport({
         host: process.env.STMPHOST,
@@ -81,7 +92,7 @@ const createUser = async (req, res) => {
 };
 
 const getAllUsers = async (req, res, next) => {
-  const { page = 1, sort = "ASC" } = req.query;
+  const { page, sort } = req.query;
   const perPage = 10; // Number of users per page
 
   // Calculate the skip value to implement pagination
@@ -89,18 +100,31 @@ const getAllUsers = async (req, res, next) => {
 
   // Define the sorting order based on the "sort" parameter
   const sortOrder = sort === "DESC" ? -1 : 1;
-  try {
-    const Users = await User.find()
-      .skip(skip)
-      .limit(perPage)
-      .sort({ creation_date: sortOrder });
-    res.status(200).json({
-      status: 200,
-      data: Users,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
+  if (page) {
+    try {
+      const Users = await User.find()
+        .skip(skip)
+        .limit(perPage)
+        .sort({ creation_date: sortOrder });
+      res.status(200).json({
+        status: 200,
+        data: Users,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Internal Server Error");
+    }
+  } else {
+    try {
+      const Users = await User.find();
+      res.status(200).json({
+        status: 200,
+        data: Users,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Internal Server Error");
+    }
   }
 };
 
@@ -133,10 +157,7 @@ const searchUser = async (req, res, next) => {
     // Execute the query
     const users = await query.exec();
 
-    res.status(200).json({
-      status: 200,
-      data: users,
-    });
+    res.status(200).json({ data: users });
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -155,12 +176,10 @@ const getUserDetails = async (req, res, next) => {
     });
     if (matchingUser) {
       res.status(200).json({
-        status: 200,
         data: matchingUser,
       });
     } else {
-      res.status(200).json({
-        status: 404,
+      res.status(404).json({
         message: "No Users found",
       });
     }
@@ -172,7 +191,9 @@ const getUserDetails = async (req, res, next) => {
 
 const updateUser = async (req, res) => {
   try {
-    const userId = req.params.id; // Get the user's ID from the route parameter
+    const user_image = req.file;
+    let fixed_user_image;
+    const userId = req.params.id;
     const { role, first_name, last_name, user_name, email, password, active } =
       req.body;
     const invalidFields = [];
@@ -182,12 +203,20 @@ const updateUser = async (req, res) => {
 
     if (!existingUser) {
       return res.status(404).json({
-        status: 404,
         message: "Invalid user id",
       });
     }
 
+    if (user_image) {
+      fixed_user_image = user_image.path.replace(/public\\/g, "");
+    } else {
+      fixed_user_image = existingUser.user_image; 
+    }
+
     // Validate the request body to ensure data types
+    if (typeof role !== "string") {
+      invalidFields.push("user_image");
+    }
     if (typeof role !== "string") {
       invalidFields.push("role");
     }
@@ -197,7 +226,7 @@ const updateUser = async (req, res) => {
     if (typeof last_name !== "string") {
       invalidFields.push("last_name");
     }
-    if (typeof last_name !== "string") {
+    if (typeof user_name !== "string") {
       invalidFields.push("user_name");
     }
     if (typeof email !== "string") {
@@ -206,13 +235,9 @@ const updateUser = async (req, res) => {
     if (typeof password !== "string") {
       invalidFields.push("password");
     }
-    if (typeof active !== "boolean") {
-      invalidFields.push("active");
-    }
 
     if (invalidFields.length > 0) {
       return res.status(400).json({
-        status: 400,
         message: `Bad request. The following fields have invalid data types: ${invalidFields.join(
           ", "
         )}`,
@@ -220,6 +245,7 @@ const updateUser = async (req, res) => {
     }
 
     // Update the user properties
+    existingUser.user_image = fixed_user_image;
     existingUser.role = role;
     existingUser.first_name = first_name;
     existingUser.last_name = last_name;
@@ -232,15 +258,11 @@ const updateUser = async (req, res) => {
     await existingUser.save();
 
     res.status(200).json({
-      status: 200,
       message: "User updated successfully",
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      status: 500,
-      message: "Internal Server Error",
-    });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
@@ -252,12 +274,10 @@ const deleteUser = async (req, res) => {
 
     if (!existingUser) {
       res.status(404).json({
-        status: 404,
         message: "Invalid User id",
       });
     } else {
       res.status(200).json({
-        status: 200,
         message: "User deleted successfully",
       });
     }
@@ -277,17 +297,17 @@ const loginUser = async (req, res, next) => {
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (isPasswordValid) {
-        // Generate JWT token
         const payload = {
           id: user._id,
           role: user.role,
-          expiration: Date.now() + parseInt(expiration),
-          // ...other payload data you want to include
         };
-        const accessToken = jwt.sign(JSON.stringify(payload), secretKey); // Token expires in 1 hour
+
+        const accessToken = jwt.sign(payload, secretKey, {
+          expiresIn: "8h",
+        });
 
         res.cookie("user_access_token", accessToken, {
-          httpOnly: true,
+          httpOnly: false, //--> Fix this Later with react
           secure: false, //--> SET TO TRUE ON PRODUCTION
         });
 
@@ -295,15 +315,13 @@ const loginUser = async (req, res, next) => {
         const refreshTokenPayload = {
           id: user._id,
           role: user.role,
-          expiration: Date.now() + parseInt(expiration),
-          // ...other payload data
         };
         const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
           expiresIn: "7d",
         });
 
         res.cookie("user_refresh_token", refreshToken, {
-          httpOnly: true,
+          httpOnly: false, //--> Fix this Later with react
           secure: false, //--> SET TO TRUE ON PRODUCTION
         });
 
@@ -313,16 +331,17 @@ const loginUser = async (req, res, next) => {
 
         // User is now authenticated and session is established
         return res.status(200).json({
-          status: 200,
           message: "Login success",
           access_token: accessToken,
           token_type: "Bearer",
-          expires_in: "1h",
+          expires_in: "8h",
           refresh_token: refreshToken,
           user: user,
         });
       } else {
-        res.status(401).json({ message: "Invalid credentials or inactive account" });
+        res
+          .status(401)
+          .json({ message: "Invalid credentials or inactive account" });
       }
     } else {
       res
@@ -332,6 +351,91 @@ const loginUser = async (req, res, next) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    // If user not found, return an error
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Generate a unique token for password reset
+    const resetToken = crypto.randomBytes(20).toString("hex");
+
+    // Set the token and expiration time in the user's document
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // Token expires in 1 hour
+
+    // Save the user with the updated token information
+    await user.save();
+
+    // Send an email with the reset link
+    const transporter = createTransport({
+      host: process.env.STMPHOST,
+      port: 2525,
+      secure: false,
+      auth: {
+        user: process.env.STMPUSER,
+        pass: process.env.STMPASS,
+      },
+    });
+
+    const mailOptions = {
+      from: " process.env.SENDER",
+      to: user.email,
+      subject: "Password Reset",
+      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+        Please click on the following link, or paste this into your browser to complete the process:\n\n
+        ${process.env.URL}/admin/reset-password/${resetToken}\n\n
+        If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email sent: " + info.response);
+      }
+    });
+
+    res.json({ message: "Password reset email sent" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: "Invalid or expired token" });
+    }
+
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    res.json({ message: "Password reset successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -357,4 +461,6 @@ module.exports = {
   deleteUser,
   loginUser,
   logOut,
+  forgotPassword,
+  resetPassword,
 };

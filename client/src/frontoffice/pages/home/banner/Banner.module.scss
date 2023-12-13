@@ -1,0 +1,123 @@
+.banner {
+  .swiper1 {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url("../../../../../public/assets/swiper1.png");
+
+    .slider_text {
+      margin-top: 30px;
+
+      p {
+        color: rgb(254, 250, 225);
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 0.5rem 1rem;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-radius: 10px;
+      }
+      h1 {
+        color: rgb(254, 250, 225);
+        line-height: 70px;
+        font-size: 50px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 0.5rem 1rem;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid transparent;
+        border-radius: 10px;
+      }
+      div {
+        margin-top: 30px;
+        a {
+          border: none;
+          text-decoration: none;
+          background-color: rgb(141, 198, 63);
+          padding: 0.5rem 1rem;
+          color: #fff;
+          font-weight: 500;
+          text-transform: uppercase;
+          border: solid transparent;
+          border-radius: 10px;
+        }
+      }
+    }
+  }
+
+  .swiper2 {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-image: url("../../../../../public/assets/swiper2.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    .slider_text {
+      margin-top: 30px;
+
+      p {
+        color: rgb(254, 250, 225);
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 0.5rem 1rem;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-radius: 10px;
+      }
+      h1 {
+        color: rgb(254, 250, 225);
+        line-height: 70px;
+        font-size: 50px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 0.5rem 1rem;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid transparent;
+        border-radius: 10px;
+      }
+      div {
+        margin-top: 30px;
+        a {
+          border: none;
+          text-decoration: none;
+          background-color: rgb(141, 198, 63);
+          padding: 0.5rem 1rem;
+          color: #fff;
+          font-weight: 500;
+          text-transform: uppercase;
+          border: solid transparent;
+          border-radius: 10px;
+        }
+      }
+    }
+  }
+  .mynextbutton,
+  .myprevbutton {
+    color: whitesmoke;
+    z-index: 10;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  .mynextbutton {
+    right: 20px;
+    color: var(--bs-gray-800);
+  }
+
+  .myprevbutton {
+    left: 20px;
+    color: var(--bs-gray-800);
+  }
+}

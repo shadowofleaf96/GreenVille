@@ -1,0 +1,200 @@
+.nav_container .navbar {
+  background-color: rgb(240, 222, 174);
+  z-index: 1000;
+
+  width: 100%;
+  height: 80px;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nav_container .navbar .search {
+  position: relative;
+}
+.nav_container .navbar .search input {
+  border-radius: 25px;
+  height: 40px;
+  width: 500px;
+  border: 1px solid #fb774b;
+  outline: none;
+  padding: 0.5rem 1rem;
+  background-color: #fff;
+  margin-left: 60px;
+}
+.nav_container .navbar .search button {
+  position: absolute;
+  right: 10px;
+  background-color: #fff;
+  border: none;
+}
+@media screen and (max-width: 900px) {
+  .nav_container .navbar .search {
+    display: none;
+  }
+}
+.nav_container .navbar .nav_links ul {
+  list-style: none;
+}
+.nav_container .navbar .nav_links ul .cart {
+  position: relative;
+}
+.nav_container .navbar .nav_links ul .cart span {
+  position: absolute;
+  background-color: white;
+  color: black;
+  padding: 0px 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: -50%;
+  right: -50%;
+  font-weight: 500;
+  font-size: 16px;
+}
+.nav_container .navbar .nav_links ul li {
+  margin: 0.4rem 0.5rem 0rem 0.5rem;
+  color: black;
+}
+.nav_container .navbar .nav_links ul li a {
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
+}
+.nav_container .navbar .nav_links ul li button {
+  background-color: unset;
+  border: 2px solid white;
+  border-radius: 20px;
+  padding: 0.2rem 1rem;
+  color: white;
+}
+.nav_container .navbar .nav_links ul .dropdown {
+  position: absolute;
+  padding: 1rem;
+  top: 82px;
+  right: 150px;
+  min-width: 200px;
+  z-index: 999;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  background-color: black;
+}
+.nav_container .navbar .nav_links ul .dropdown a {
+  text-decoration: none;
+  font-weight: 500;
+  color: #fff;
+  padding: 0.5rem 2rem;
+  border-radius: 5px;
+  transition: all 0.3s;
+}
+.nav_container .navbar .nav_links ul .dropdown a:hover {
+  background-color: rgb(172, 235, 214);
+}
+@media screen and (max-width: 900px) {
+  .nav_container .navbar .nav_links {
+    display: none;
+  }
+}
+.nav_container .links {
+  background-color: rgb(240, 222, 174);
+}
+@media screen and (max-width: 900px) {
+  .nav_container .links {
+    display: none;
+  }
+}
+.nav_container .is-sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
+  box-shadow: 0 2px 24px 0 rgba(0, 0, 0, 0.15);
+  background-color: black !important;
+  animation: 500ms ease-in-out 0s normal none 1 running fadeInDown;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+.nav_container .is-sticky a {
+  color: #fff;
+}
+.nav_container .is-sticky a:hover {
+  color: #fb774b;
+}
+.nav_container .app__navbar-menu {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color-blue);
+}
+.nav_container .app__navbar-menu svg {
+  width: 70%;
+  height: 70%;
+  color: var(--color-white);
+}
+.nav_container .app__navbar-menu div {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 5;
+  padding: 1rem;
+  width: 80%;
+  height: 100vh;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  flex-direction: column;
+  background-color: var(--color-blue);
+  background-size: cover;
+  background-repeat: repeat;
+  /* top box shadow */
+  box-shadow: 0px 0px 20px rgba(168, 168, 168, 0.15);
+}
+.nav_container .app__navbar-menu div svg {
+  width: 35px;
+  height: 35px;
+  color: var(--secondary-color);
+  margin: 0.5rem 1rem;
+}
+.nav_container .app__navbar-menu div ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.nav_container .app__navbar-menu div ul li {
+  margin: 0rem 1rem;
+}
+.nav_container .app__navbar-menu div ul li a {
+  color: var(--gray-color);
+  text-decoration: none;
+  font-size: 1rem;
+  text-transform: uppercase;
+  font-weight: 500;
+  transition: all 0.3s ease-in-out;
+}
+.nav_container .app__navbar-menu div ul li a:hover {
+  color: var(--secondary-color);
+}
+@media screen and (min-width: 900px) {
+  .nav_container .app__navbar-menu div {
+    display: none;
+  }
+}
+@media screen and (min-width: 900px) {
+  .nav_container .app__navbar-menu {
+    display: none;
+  }
+}/*# sourceMappingURL=Navbar.css.map */

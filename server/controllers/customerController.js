@@ -37,38 +37,34 @@ const CustomerController = {
           // Generate JWT token
           const payload = {
             id: customer._id,
-            expiration: Date.now() + parseInt(expiration),
-            // ...other payload data you want to include
           };
-          const accessToken = jwt.sign(JSON.stringify(payload), secretKey); // Token expires in 1 hour
-
-          res.cookie("customer_access_token", accessToken, {
-            httpOnly: true,
-            secure: false, //--> SET TO TRUE ON PRODUCTION
+          const accessToken = jwt.sign(payload, secretKey, {
+            expiresIn: "8h",
           });
 
-          // Generate Refresh Token
+          res.cookie("customer_access_token", accessToken, {
+            httpOnly: false,
+            secure: false,
+          });
+
           const refreshTokenPayload = {
             id: customer._id,
-            expiration: Date.now() + parseInt(expiration),
-            // ...other payload data
           };
+
           const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
             expiresIn: "7d",
           });
 
           res.cookie("customer_refresh_token", refreshToken, {
-            httpOnly: true,
-            secure: false, //--> SET TO TRUE ON PRODUCTION
+            httpOnly: false,
+            secure: false,
           });
 
-          // User is now authenticated and session is established
           return res.status(200).json({
-            status: 200,
             message: "Login success",
             access_token: accessToken,
             token_type: "Bearer",
-            expires_in: "1h",
+            expires_in: "8h",
             refresh_token: refreshToken,
             customer: customer,
           });
@@ -89,7 +85,14 @@ const CustomerController = {
   },
 
   async createCustomer(req, res) {
-    //Create a new customer account
+    const customer_image = req.file;
+    let fixed_customer_image;
+
+    if (customer_image) {
+      fixed_customer_image = customer_image.path.replace(/public\\/g, "");
+    } else {
+      fixed_customer_image = `images/image_placeholder.png`;
+    }
     const { first_name, last_name, email, password } = req.body;
 
     try {
@@ -104,17 +107,21 @@ const CustomerController = {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const newCustomer = new Customer({
+        customer_image: fixed_customer_image, // Store the file path in the database
         first_name,
         last_name,
         email,
         password: hashedPassword,
+        creation_date: Date.now(),
+        active: true,
       });
 
       await newCustomer.save();
 
-      res
-        .status(201)
-        .json({ status: 200, message: "Customer created successfully" });
+      res.status(200).json({
+        message: "Customer created successfully",
+        data: newCustomer,
+      });
     } catch (error) {
       console.error(error);
       res.status(400).json({ error: "Bad field type" });
@@ -126,7 +133,7 @@ const CustomerController = {
     const token = req.cookies.customer_access_token;
 
     if (!token) {
-      return res.status(401).json({ message: err + "Unauthorized" });
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
     verifyToken(token, async (decoded) => {
@@ -141,48 +148,77 @@ const CustomerController = {
 
   async getAllCustomers(req, res) {
     //Get all the Customer list & Search for a customer
-    const page = parseInt(req.query.page) || 1;
+    const page = parseInt(req.query.page);
     const query = req.query.query || "";
     const sort = req.query.sort || "DESC";
 
     const perPage = 10;
     const skipCount = (page - 1) * perPage;
 
-    try {
-      let queryBuilder = Customer.find();
+    if (page) {
+      try {
+        let queryBuilder = Customer.find();
 
-      if (query) {
-        queryBuilder = queryBuilder.where("first_name", new RegExp(query, "i"));
+        if (query) {
+          queryBuilder = queryBuilder.where(
+            "first_name",
+            new RegExp(query, "i")
+          );
+        }
+
+        if (sort.toUpperCase() === "DESC") {
+          queryBuilder = queryBuilder.sort({ first_name: -1 });
+        } else {
+          queryBuilder = queryBuilder.sort({ first_name: 1 });
+        }
+
+        const customerList = await queryBuilder
+          .skip(skipCount)
+          .limit(perPage)
+          .exec();
+
+        const formattedCustomer = customerList.map((customer) => ({
+          _id: customer._id,
+          first_name: customer.first_name,
+          last_name: customer.last_name,
+          email: customer.email,
+        }));
+
+        res.status(200).json({
+          data: formattedCustomer,
+        });
+      } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal server error" });
       }
+    } else {
+      try {
+        let queryBuilder = Customer.find();
 
-      if (sort.toUpperCase() === "DESC") {
-        queryBuilder = queryBuilder.sort({ first_name: -1 });
-      } else {
-        queryBuilder = queryBuilder.sort({ first_name: 1 });
+        if (query) {
+          queryBuilder = queryBuilder.where(
+            "first_name",
+            new RegExp(query, "i")
+          );
+        }
+
+        if (sort.toUpperCase() === "DESC") {
+          queryBuilder = queryBuilder.sort({ first_name: -1 });
+        } else {
+          queryBuilder = queryBuilder.sort({ first_name: 1 });
+        }
+
+        const customerList = await queryBuilder.exec();
+
+        res.status(200).json({
+          data: customerList,
+        });
+      } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal server error" });
       }
-
-      const customerList = await queryBuilder
-        .skip(skipCount)
-        .limit(perPage)
-        .exec();
-
-      const formattedCustomer = customerList.map((customer) => ({
-        _id: customer._id,
-        first_name: customer.first_name,
-        last_name: customer.last_name,
-        email: customer.email,
-      }));
-
-      res.status(200).json({
-        status: 200,
-        data: formattedCustomer,
-      });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Internal server error" });
     }
   },
-
   async getCustomerById(req, res) {
     //Get a customer by ID
     const customerId = req.params.id;
@@ -206,7 +242,9 @@ const CustomerController = {
     try {
       const matchingCustomer = await Customer.findById(_id);
       if (!matchingCustomer || matchingCustomer.active === false) {
-        return res.status(404).json({ message: "Customer not found or not active" });
+        return res
+          .status(404)
+          .json({ message: "Customer not found or not active" });
       }
 
       if (matchingCustomer?.valid_account) {
@@ -253,15 +291,26 @@ const CustomerController = {
   },
 
   async updateCustomer(req, res) {
-    //Update the customer's data
+    const customer_image = req.file;
+    let fixed_customer_image;
     const customerId = req.params.id;
-    const { first_name, last_name, email, active } = req.body;
+    const { first_name, last_name, email, password, active } = req.body;
 
     try {
       const customer = await Customer.findById(customerId);
 
       if (!customer) {
         return res.status(404).json({ message: "Invalid customer id" });
+      }
+
+      if (customer_image) {
+        fixed_customer_image = customer_image.path.replace(/public\\/g, "");
+      } else {
+        fixed_customer_image = customer.customer_image;
+      }
+
+      if (customer_image) {
+        customer.customer_image = fixed_customer_image;
       }
 
       if (first_name) {
@@ -271,18 +320,26 @@ const CustomerController = {
       if (last_name) {
         customer.last_name = last_name;
       }
+
       if (email) {
         customer.email = email;
       }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      if (password) {
+        customer.password = hashedPassword;
+      }
+
       if (active) {
         customer.active = active;
       }
 
       await customer.save();
 
-      res
-        .status(200)
-        .json({ message: "Customer information updated successfully", customer });
+      res.status(200).json({
+        message: "Account updated successfully",
+      });
     } catch (error) {
       console.error("Update error:", error);
       res.status(500).json({ message: "Internal server error" });
@@ -290,7 +347,6 @@ const CustomerController = {
   },
 
   async deleteCustomer(req, res) {
-    //Delete the customer's account
     const customerId = req.params.id;
 
     try {
@@ -317,6 +373,93 @@ const CustomerController = {
       res.status(401).json({
         error: "Invalid jwt",
       });
+    }
+  },
+  async forgotPassword(req, res) {
+    try {
+      const { email } = req.body;
+
+      // Find the user by email
+      const customer = await Customer.findOne({ email });
+
+      // If user not found, return an error
+      if (!customer) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Generate a unique token for password reset
+      const resetToken = crypto.randomBytes(20).toString("hex");
+
+      // Set the token and expiration time in the user's document
+      customer.resetPasswordToken = resetToken;
+      customer.resetPasswordExpires = Date.now() + 3600000; // Token expires in 1 hour
+
+      // Save the user with the updated token information
+      await customer.save();
+
+      // Send an email with the reset link
+      const transporter = createTransport({
+        host: process.env.STMPHOST,
+        port: 2525,
+        secure: false,
+        auth: {
+          user: process.env.STMPUSER,
+          pass: process.env.STMPASS,
+        },
+      });
+
+      const mailOptions = {
+        from: " process.env.SENDER",
+        to: customer.email,
+        subject: "Password Reset",
+        text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+          Please click on the following link, or paste this into your browser to complete the process:\n\n
+          ${process.env.URL}/reset-password/${resetToken}\n\n
+          If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log("Email sent: " + info.response);
+        }
+      });
+
+      res.json({ message: "Password reset email sent" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+
+  async resetPassword(req, res) {
+    try {
+      const { token } = req.params;
+      const { newPassword } = req.body;
+      console.log(newPassword);
+
+      const customer = await Customer.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() },
+      });
+
+      if (!customer) {
+        return res.status(400).json({ error: "Invalid or expired token" });
+      }
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+      customer.password = hashedNewPassword;
+      customer.resetPasswordToken = undefined;
+      customer.resetPasswordExpires = undefined;
+
+      await customer.save();
+
+      res.json({ message: "Password reset successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
     }
   },
 };

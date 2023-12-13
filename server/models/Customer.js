@@ -3,10 +3,10 @@
 const { Schema, model } = require("mongoose");
 const bcrypt = require("bcrypt");
 
-
 const customerSchema = new Schema(
   {
     id: String,
+    customer_image: String,
     first_name: { type: String, trim: true, maxlength: 25, required: true },
     last_name: { type: String, trim: true, maxlength: 25, required: true },
     email: { type: String, trim: true, maxlength: 25, required: true },
@@ -14,9 +14,11 @@ const customerSchema = new Schema(
     creation_date: { type: Number, default: Date.now },
     last_login: { type: Number, default: Date.now },
     valid_account: Boolean,
+    resetPasswordExpires: {type:Date},
+    resetPasswordToken: {type:String},
     active: Boolean,
   },
-  { collection: "Customers" }
+  { collection: "Customers", versionKey: false }
 );
 
 // Define the validatePassword method for user model

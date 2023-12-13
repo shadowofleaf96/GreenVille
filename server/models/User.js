@@ -1,13 +1,13 @@
-// Shadow Of Leaf was here 
+// Shadow Of Leaf was here
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
-require("dotenv").config()
-
+require("dotenv").config();
 
 // Define Joi schema for product data validation
 const userJoiSchema = Joi.object({
   _id: Joi.any().strip(),
+  user_image: Joi.string(),
   first_name: Joi.string().required(),
   last_name: Joi.string().required(),
   email: Joi.string().required(),
@@ -18,10 +18,15 @@ const userJoiSchema = Joi.object({
   last_login: Joi.number(),
   last_update: Joi.number(),
   active: Joi.boolean(),
+  resetPasswordToken:Joi.string(),
+  resetPasswordExpires:Joi.date()
 });
 
 const userSchema = new mongoose.Schema(
   {
+    user_image: {
+      type: String,
+    },
     first_name: {
       type: String,
       required: true,
@@ -63,6 +68,13 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    resetPasswordToken: {
+      type: String,
+    },
+
+    resetPasswordExpires: {
+      type: Date,
+    },
   },
   {
     collection: "Users",
@@ -84,6 +96,7 @@ userSchema.pre("save", async function (next) {
     const validatedData = await userJoiSchema.validateAsync(this.toObject());
 
     // Update the schema fields with validated data
+    this.user_image = validatedData.user_image;
     this.first_name = validatedData.first_name;
     this.last_name = validatedData.last_name;
     this.email = validatedData.email;
@@ -93,7 +106,9 @@ userSchema.pre("save", async function (next) {
     this.last_login = validatedData.last_login;
     this.last_update = validatedData.last_update;
     this.active = validatedData.active;
-
+    this.resetPasswordToken = validatedData.resetPasswordToken;
+    this.resetPasswordExpires = validatedData.resetPasswordExpires;
+  
     next();
   } catch (error) {
     next(error);

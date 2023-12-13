@@ -1,6 +1,5 @@
 // Shadow Of Leaf was Here
 
-const express = require("express");
 const mongoose = require("mongoose");
 const productSchema = mongoose.Schema(
   {
@@ -31,14 +30,26 @@ const productSchema = mongoose.Schema(
     discount_price: {
       type: Number,
     },
+    quantity: {
+      type: Number,
+    },
     option: [Array],
     active: {
       type: Boolean,
       default: false,
     },
+    creation_date: {
+      type: Number,
+      default: Date.now,
+    },
+    last_update: {
+      type: Number,
+      default: Date.now,
+    },
   },
   {
     collection: "Products",
+    versionKey: false,
   }
 );
 

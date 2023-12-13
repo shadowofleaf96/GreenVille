@@ -1,0 +1,54 @@
+.update_profile {
+  display: flex;
+  background-color: #fff;
+  min-height: 100vh;
+
+}
+.update_profile .form_container {
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px 5px rgba(232, 226, 226, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 10px;
+  padding: 1rem;
+}
+.update_profile .form_container .form {
+  width: 400px;
+  margin: 25px auto;
+}
+.update_profile .form_container .form .from_group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 15px;
+}
+.update_profile .form_container .form .from_group label {
+  color: black;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-align: left;
+  font-size: 16px;
+}
+.update_profile .form_container .form .from_group input {
+  height: 40px;
+  border-radius: 20px;
+  border: 2px solid #fff;
+  outline: none;
+  padding: 0.5rem 1rem;
+  background-color: rgb(216, 214, 214);
+  font-size: 16px;
+}
+.update_profile .form_container .form .from_group button {
+  height: 35px;
+  border-radius: 20px;
+  border: none;
+  width: 80%;
+  margin: 1rem auto;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+  font-size: 16px;
+  background-color: #d3eacd;
+  transition: all 0.5s ease-in-out;
+}
+.update_profile .form_container .form .from_group button:hover {
+  width: 90%;
+}/*# sourceMappingURL=UpdateProfile.module.css.map */

@@ -1,0 +1,56 @@
+.profile_links {
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px 5px rgba(232, 226, 226, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  padding: 1rem;
+  border-radius: 20px;
+
+}
+.profile_links div img {
+  height: 150px;
+  width: 150px;
+  border-radius: 50%;
+  border: 3px solid #e8daff;
+}
+.profile_links div h4 {
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+.profile_links div p {
+  color: var(--color-gray);
+}
+.profile_links .links {
+  display: flex;
+  flex-direction: column;
+}
+.profile_links .links a {
+  text-decoration: none;
+  padding: 10px 30px;
+  color: var(--color-gray);
+  margin: 5px 0;
+  border-radius: 5px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+.profile_links .links a:hover {
+  background-color: #e8daff;
+  color: black;
+}
+.profile_links .links button {
+  padding: 10px 30px;
+  color: var(--color-gray);
+  margin: 5px 0;
+  border-radius: 5px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  font-size: 16px;
+  border: none;
+  background-color: #ffffff;
+  text-align: start;
+  transition: all 0.3s ease;
+}
+.profile_links .links button:hover {
+  background-color: #ffd6e8;
+  color: black;
+}/*# sourceMappingURL=ProfileLink.module.css.map */

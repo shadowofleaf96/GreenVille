@@ -1,0 +1,12 @@
+.backImage{
+    background-image: url('https://www.thequench.com/wp-content/uploads/2018/10/Organic-GIF-1.gif');
+    background-size:cover;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    filter: grayscale(30%);
+    background-position: center;
+    margin: 0;
+    padding: 0;
+  }

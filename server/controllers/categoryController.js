@@ -5,44 +5,64 @@ const createCategory = async (req, res) => {
   // Extract user data from the request body
   const { category_name } = req.body;
 
+  // Check if the subcategory name is unique
+  const existingCategory = await Category.findOne({
+    category_name,
+  });
+
+  if (existingCategory) {
+    return res
+      .status(400)
+      .json({ error: "Category with this name already exists" });
+  }
   // Create a new user using the create() method
   Category.create({
     category_name,
   })
     .then((newCategory) => {
       // Send a notification email to the user (you need to implement this)
-      res.status(201).json({
-        status: 201,
+      res.status(200).json({
         message: "Category created successfully",
+        data: newCategory,
       });
     })
     .catch((error) => {
       // Handle any errors that occur during document creation
       console.error(error);
       res.status(500).json({
-        status: 500,
         message: "Error creating the Category",
       });
     });
 };
 
 const getAllCategories = async (req, res, next) => {
-  const { page = 1 } = req.query;
+  const { page } = req.query;
   const perPage = 10; // Number of users per page
 
   // Calculate the skip value to implement pagination
   const skip = (page - 1) * perPage;
 
   // Define the sorting order based on the "sort" parameter
-  try {
-    const Users = await Category.find().skip(skip).limit(perPage);
-    res.status(200).json({
-      status: 200,
-      data: Users,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
+  if (page) {
+    try {
+      const Categories = await Category.find().skip(skip).limit(perPage);
+      res.status(200).json({
+        data: Categories,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Internal Server Error");
+    }
+  } else {
+    try {
+      const Categories = await Category.find();
+      res.status(200).json({
+        data: Categories,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Internal Server Error");
+    }
   }
 };
 
@@ -64,20 +84,17 @@ const searchCategory = async (req, res, next) => {
     const categories = await query.exec();
 
     if (categories.length === 0) {
-      return res.status(200).json({
-        status: 404,
+      return res.status(404).json({
         data: {},
       });
     }
 
     res.status(200).json({
-      status: 200,
       data: categories,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      status: 500,
       message: "Internal Server Error",
     });
   }
@@ -92,12 +109,10 @@ const getCategoryDetails = async (req, res, next) => {
     });
     if (matchingCategory) {
       res.status(200).json({
-        status: 200,
         data: matchingCategory,
       });
     } else {
-      res.status(200).json({
-        status: 404,
+      res.status(404).json({
         message: "No Category found",
       });
     }
@@ -119,7 +134,6 @@ const updateCategory = async (req, res) => {
 
     if (!existingCustomer) {
       return res.status(404).json({
-        status: 404,
         message: "Invalid Category id",
       });
     }
@@ -134,7 +148,6 @@ const updateCategory = async (req, res) => {
 
     if (invalidFields.length > 0) {
       return res.status(400).json({
-        status: 400,
         message: `Bad request. The following fields have invalid data types: ${invalidFields.join(
           ", "
         )}`,
@@ -147,13 +160,11 @@ const updateCategory = async (req, res) => {
     await existingCustomer.save();
 
     res.status(200).json({
-      status: 200,
       message: "Category updated successfully",
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      status: 500,
       message: "Internal Server Error",
     });
   }
