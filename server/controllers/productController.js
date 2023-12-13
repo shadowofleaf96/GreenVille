@@ -71,7 +71,7 @@ const searchingItems = async (req, res) => {
 
   try {
     const products = await Product.find({
-      product_name: { $regex: searchQuery, $options: "i" }, // Case-insensitive search
+      product_name: { $regex: searchQuery, $options: "i" },
     })
       .skip(skip)
       .limit(limit)
@@ -103,13 +103,11 @@ const RetrievingItems = async (req, res) => {
 
     const productPage = await query;
 
-    // Fetch subcategories for all products in parallel
     const subcategoryPromises = productPage.map((product) =>
       SubCategory.findById(product.subcategory_id).lean()
     );
     const subcategories = await Promise.all(subcategoryPromises);
 
-    // Enrich product data with subcategory details
     const enrichedProducts = productPage.map((product, index) => {
       const subcategory = subcategories[index];
       return {
@@ -151,7 +149,10 @@ const RetrieveById = async (req, res) => {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    return res.status(200).json(productById);
+    res.status(200).json({
+      data: productById,
+    });
+    
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });

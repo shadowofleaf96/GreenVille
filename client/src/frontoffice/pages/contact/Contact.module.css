@@ -1,0 +1,119 @@
+.contact {
+
+}
+.contact .contact_title {
+  background-color: rgb(240, 222, 174);
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+}
+.contact .contact_info .about {
+  width: 80%;
+}
+@media screen and (max-width: 900px) {
+  .contact .contact_info .about {
+    width: 90%;
+  }
+}
+.contact .contact_info .about p {
+  color: var(--color-gray);
+}
+.contact .contact_info .about div {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+.contact .contact_info .about div span {
+  height: 40px;
+  width: 40px;
+  padding: 10px;
+  background-color: aliceblue;
+  margin: 5px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.contact .contact_info .about div span:nth-child(1) {
+  color: #139bf7;
+}
+.contact .contact_info .about div span:nth-child(2) {
+  color: #c629a1;
+}
+.contact .contact_info .about div span:nth-child(3) {
+  color: #ff0000;
+}
+.contact .contact_info .contact p {
+  color: var(--color-gray);
+}
+.contact .contact_form {
+  background-color: aliceblue;
+  padding: 2rem 0;
+  margin: 5rem 0 0 0;
+}
+.contact .contact_form .form {
+  width: 400px;
+  background: rgba(230, 228, 228, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  padding: 2rem;
+  border-radius: 10px;
+  margin-top: 25px;
+}
+@media screen and (max-width: 900px) {
+  .contact .contact_form .form {
+    width: 300px;
+    margin: 20px auto auto auto;
+  }
+}
+.contact .contact_form .form .from_group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 15px;
+}
+.contact .contact_form .form .from_group label {
+  color: black;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+.contact .contact_form .form .from_group input {
+  height: 40px;
+  border-radius: 20px;
+  border: 2px solid #fff;
+  outline: none;
+  padding: 0.5rem 1rem;
+  font-size: 16px;
+}
+.contact .contact_form .form .from_group textarea {
+  border-radius: 20px;
+  border: 2px solid #fff;
+  outline: none;
+  padding: 0.5rem 1rem;
+  font-size: 16px;
+}
+.contact .contact_form .form .from_group button {
+  height: 35px;
+  border-radius: 20px;
+  border: none;
+  width: 80%;
+  margin: 1rem auto;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+  transition: all 0.5s ease-in-out;
+  background-color: #c629a1;
+  color: #fff;
+}
+.contact .contact_form .form .from_group button:hover {
+  width: 90%;
+}
+.contact .contact_form .contact_img img {
+  height: 500px;
+  width: 500px;
+}
+@media screen and (max-width: 900px) {
+  .contact .contact_form .contact_img img {
+    width: 300px;
+    height: 300px;
+  }
+}/*# sourceMappingURL=Contact.module.css.map */

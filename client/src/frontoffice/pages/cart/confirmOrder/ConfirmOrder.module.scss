@@ -1,0 +1,21 @@
+.confirm {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+
+    .order_summary {
+        background-color: aliceblue;
+        padding: 1.5rem;
+        border-radius: 10px;
+
+        button {
+            background-color: rgb(250, 156, 35);
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+        }
+    }
+}

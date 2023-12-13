@@ -17,6 +17,8 @@ const {
   updateCustomer,
   deleteCustomer,
   logout,
+  forgotPassword,
+  resetPassword
 } = require("../controllers/customerController");
 
 route.post("/login", login);
@@ -28,5 +30,7 @@ route.put("/validate/:id", validateCustomer);
 route.put("/:id", upload.single("customer_image"), updateCustomer);
 route.delete("/:id", deleteCustomer);
 route.post("/logout", logout);
+route.post("/forgot-password", forgotPassword);
+route.post("/reset-password/:token", resetPassword);
 
 module.exports = route;

@@ -1,0 +1,23 @@
+.orders {
+  display: flex;
+  background-color: #fff;
+  min-height: 100vh;
+
+}
+.orders .orders_container {
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px 5px rgba(232, 226, 226, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  padding: 1rem;
+  border-radius: 10px;
+}
+.orders .orders_container .view_button {
+  text-decoration: none;
+  background-color: #e5e5f3;
+  color: #5b5bd6;
+  padding: 5px 15px;
+  border-radius: 20px;
+  transition: all 0.5s ease;
+}
+.orders .orders_container .view_button:hover {
+  background-color: #eeeef3;
+}/*# sourceMappingURL=MyOrders.module.css.map */

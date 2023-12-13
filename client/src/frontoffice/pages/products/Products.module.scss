@@ -1,0 +1,121 @@
+.spinner {
+  height: 88vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.products {
+  overflow-y: scroll;
+  .filter {
+    margin-bottom: 20px;
+    p {
+      background-color: rgb(240, 222, 174);
+      padding: 0.5rem 2rem;
+      color: black;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      font-size: 1.2rem;
+      width: 100%;
+    }
+  }
+  .categories {
+    li {
+      padding: 5px;
+      margin: 2px 0;
+      list-style: none;
+      &:hover {
+        color: var(--color-gray);
+      }
+    }
+  }
+  .accordionButton {
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    background: #f1f1f1;
+    color: #333;
+
+    &:hover {
+      background-color: #ddd;
+    }
+  }
+  .accordionItem {
+    background-color: #fff;
+    color: #000;
+    padding: 1rem 1.25rem;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+  }
+  .product_span {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.product {
+  background-color: #f4f4f4;
+  padding: 1rem;
+  border-radius: 20px;
+  position: relative;
+  transition: all 0.5s ease-in-out;
+
+  &:hover .product_image {
+    img {
+      transform: scale(1.1, 1.1);
+    }
+  }
+  &:hover .link_container {
+    display: grid;
+  }
+
+  .product_image {
+    text-align: center;
+    img {
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+      transition: all 0.5s ease-in-out;
+    }
+  }
+
+  a {
+    text-decoration: none;
+    text-align: center;
+    color: var(--color-black);
+    .product_name {
+      margin-top: 20px;
+    }
+  }
+
+  .link_container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    top: 10%;
+    right: 8%;
+    z-index: 1;
+    display: none;
+
+    button {
+      background-color: #fff;
+      border: none;
+      padding: 5px;
+      border-radius: 50%;
+      color: rgb(218, 131, 145);
+      cursor: pointer;
+    }
+
+    a {
+      background-color: #fff;
+      padding: 5px;
+      border-radius: 50%;
+      color: rgb(47, 45, 218);
+      cursor: pointer;
+    }
+  }
+}

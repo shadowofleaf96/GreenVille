@@ -17,5 +17,4 @@ app.use("/v1/customers", customerRoute);
 app.use("/v1/payments", paymentRoute);
 app.use("/v1/subcategories", subcategoryRoute);
 
-
 module.exports = app

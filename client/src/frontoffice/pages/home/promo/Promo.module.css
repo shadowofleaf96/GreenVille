@@ -1,0 +1,77 @@
+.fashion {
+
+}
+.fashion div div h4 {
+  font-weight: 700;
+}
+.fashion div div span {
+  background-color: brown;
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+}
+.fashion div div span a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: 500;
+  transition: all 0.3s ease-in-out;
+}
+.fashion div .products_container {
+  display: flex;
+  flex-direction: row;
+  max-width: 100%;
+  position: relative;
+}
+.fashion div .products_container .products_container_branch {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: row;
+  width: -moz-max-content;
+  width: max-content;
+  overflow-x: scroll;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.fashion div .products_container .products_container_branch::-webkit-scrollbar {
+  display: none;
+}
+.fashion div .products_container .products_container_branch .item {
+  display: flex;
+  margin: 1rem;
+  flex-direction: column;
+  align-items: center;
+  width: 300px;
+  background-color: aliceblue;
+  border-radius: 10px;
+}
+.fashion div .products_container .products_container_branch .item img {
+  height: 200px;
+  width: 300px;
+  border-radius: 10px 10px 0 0;
+}
+.fashion div .products_container .products_container_branch .item p a {
+  text-decoration: none;
+  color: black;
+}
+.fashion div .products_container .products_container_branch .item p a:hover {
+  color: palevioletred;
+}
+.fashion div .products_container .app__gallery_images_arrows {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 0 1rem;
+  position: absolute;
+  bottom: 5%;
+  margin-bottom: 12%;
+}
+.fashion div .products_container .gallery__arrow_icon {
+  color: var(--color-black);
+  font-size: 2rem;
+  cursor: pointer;
+  background: var(--color-golden);
+  border-radius: 5px;
+}
+.fashion div .products_container .gallery__arrow_icon:hover {
+  color: var(--color-white);
+}/*# sourceMappingURL=Fashion.module.css.map */

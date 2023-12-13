@@ -1,0 +1,84 @@
+.banner .swiper1 {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-image: url("https://images.unsplash.com/photo-1598030304671-5aa1d6f21128?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+}
+.banner .swiper1 .slider_text {
+  margin-top: 30px;
+}
+.banner .swiper1 .slider_text p {
+  color: var(--color-beige);
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 0.5rem 1rem;
+  opacity: 0.9;
+}
+.banner .swiper1 .slider_text h1 {
+  color: rgb(254, 250, 225);
+  line-height: 70px;
+  font-size: 50px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 0.5rem 1rem;
+  opacity: 0.9;
+}
+.banner .swiper1 .slider_text div {
+  margin-top: 30px;
+}
+.banner .swiper1 .slider_text div a {
+  border: none;
+  text-decoration: none;
+  background-color: brown;
+  padding: 0.5rem 1rem;
+  color: #fff;
+  font-weight: 500;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+.banner .swiper2 {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-image: url("https://img.freepik.com/premium-photo/flat-lay-composition-with-cosmetic-products-natural-organic-botany-alternative-herb-medicine-natural-skin-care-beauty-products-creation-natural-cosmetics-mortar_121946-593.jpg?w=900");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.banner .swiper2 .slider_text {
+  margin-top: 30px;
+}
+.banner .swiper2 .slider_text p {
+  color: black;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background-color: #fefae1;
+  padding: 0.5rem 1rem;
+  opacity: 0.9;
+}
+.banner .swiper2 .slider_text h1 {
+  color: black;
+  line-height: 70px;
+  font-size: 50px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background-color: #fefae1;
+  padding: 0.5rem 1rem;
+  opacity: 0.9;
+}
+.banner .swiper2 .slider_text div {
+  margin-top: 30px;
+}
+.banner .swiper2 .slider_text div a {
+  border: none;
+  text-decoration: none;
+  background-color: brown;
+  padding: 0.5rem 1rem;
+  color: #fff;
+  font-weight: 500;
+  text-transform: uppercase;
+  opacity: 0.9;
+}/*# sourceMappingURL=Banner.module.css.map */

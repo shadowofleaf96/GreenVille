@@ -37,38 +37,34 @@ const CustomerController = {
           // Generate JWT token
           const payload = {
             id: customer._id,
-            expiration: Date.now() + parseInt(expiration),
-            // ...other payload data you want to include
           };
-          const accessToken = jwt.sign(JSON.stringify(payload), secretKey); // Token expires in 1 hour
-
-          res.cookie("customer_access_token", accessToken, {
-            httpOnly: true,
-            secure: false, //--> SET TO TRUE ON PRODUCTION
+          const accessToken = jwt.sign(payload, secretKey, {
+            expiresIn: "8h",
           });
 
-          // Generate Refresh Token
+          res.cookie("customer_access_token", accessToken, {
+            httpOnly: false,
+            secure: false,
+          });
+
           const refreshTokenPayload = {
             id: customer._id,
-            expiration: Date.now() + parseInt(expiration),
-            // ...other payload data
           };
+
           const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
             expiresIn: "7d",
           });
 
           res.cookie("customer_refresh_token", refreshToken, {
-            httpOnly: true,
-            secure: false, //--> SET TO TRUE ON PRODUCTION
+            httpOnly: false,
+            secure: false,
           });
 
-          // User is now authenticated and session is established
           return res.status(200).json({
-            status: 200,
             message: "Login success",
             access_token: accessToken,
             token_type: "Bearer",
-            expires_in: "1h",
+            expires_in: "8h",
             refresh_token: refreshToken,
             customer: customer,
           });
@@ -137,7 +133,7 @@ const CustomerController = {
     const token = req.cookies.customer_access_token;
 
     if (!token) {
-      return res.status(401).json({ message: err + "Unauthorized" });
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
     verifyToken(token, async (decoded) => {
@@ -351,7 +347,6 @@ const CustomerController = {
   },
 
   async deleteCustomer(req, res) {
-    //Delete the customer's account
     const customerId = req.params.id;
 
     try {
@@ -378,6 +373,93 @@ const CustomerController = {
       res.status(401).json({
         error: "Invalid jwt",
       });
+    }
+  },
+  async forgotPassword(req, res) {
+    try {
+      const { email } = req.body;
+
+      // Find the user by email
+      const customer = await Customer.findOne({ email });
+
+      // If user not found, return an error
+      if (!customer) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Generate a unique token for password reset
+      const resetToken = crypto.randomBytes(20).toString("hex");
+
+      // Set the token and expiration time in the user's document
+      customer.resetPasswordToken = resetToken;
+      customer.resetPasswordExpires = Date.now() + 3600000; // Token expires in 1 hour
+
+      // Save the user with the updated token information
+      await customer.save();
+
+      // Send an email with the reset link
+      const transporter = createTransport({
+        host: process.env.STMPHOST,
+        port: 2525,
+        secure: false,
+        auth: {
+          user: process.env.STMPUSER,
+          pass: process.env.STMPASS,
+        },
+      });
+
+      const mailOptions = {
+        from: " process.env.SENDER",
+        to: customer.email,
+        subject: "Password Reset",
+        text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+          Please click on the following link, or paste this into your browser to complete the process:\n\n
+          ${process.env.URL}/reset-password/${resetToken}\n\n
+          If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log("Email sent: " + info.response);
+        }
+      });
+
+      res.json({ message: "Password reset email sent" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+
+  async resetPassword(req, res) {
+    try {
+      const { token } = req.params;
+      const { newPassword } = req.body;
+      console.log(newPassword);
+
+      const customer = await Customer.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() },
+      });
+
+      if (!customer) {
+        return res.status(400).json({ error: "Invalid or expired token" });
+      }
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+      customer.password = hashedNewPassword;
+      customer.resetPasswordToken = undefined;
+      customer.resetPasswordExpires = undefined;
+
+      await customer.save();
+
+      res.json({ message: "Password reset successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
     }
   },
 };

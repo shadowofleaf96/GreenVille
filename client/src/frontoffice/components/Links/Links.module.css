@@ -1,0 +1,15 @@
+.links {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.links a {
+  margin: 0 1rem;
+  text-decoration: none;
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: black;
+
+}/*# sourceMappingURL=Links.module.css.map */

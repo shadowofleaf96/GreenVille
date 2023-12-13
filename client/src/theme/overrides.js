@@ -40,11 +40,11 @@ export function overrides(theme) {
             },
           },
         },
-        img: {
-          maxWidth: '100%',
-          display: 'inline-block',
-          verticalAlign: 'bottom',
-        },
+        // img: {
+        //   maxWidth: '100%',
+        //   display: 'inline-block',
+        //   verticalAlign: 'bottom',
+        // },
       },
     },
     MuiBackdrop: {

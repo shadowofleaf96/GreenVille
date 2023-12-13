@@ -245,7 +245,7 @@ const updateUser = async (req, res) => {
     }
 
     // Update the user properties
-    existingUser.user_image = fixed_user_image; // Store the file path in the database
+    existingUser.user_image = fixed_user_image;
     existingUser.role = role;
     existingUser.first_name = first_name;
     existingUser.last_name = last_name;
@@ -297,7 +297,6 @@ const loginUser = async (req, res, next) => {
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (isPasswordValid) {
-        // Generate JWT token
         const payload = {
           id: user._id,
           role: user.role,
@@ -394,7 +393,7 @@ const forgotPassword = async (req, res) => {
       subject: "Password Reset",
       text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
         Please click on the following link, or paste this into your browser to complete the process:\n\n
-        ${process.env.URL}/reset-password/${resetToken}\n\n
+        ${process.env.URL}/admin/reset-password/${resetToken}\n\n
         If you did not request this, please ignore this email and your password will remain unchanged.\n`,
     };
 

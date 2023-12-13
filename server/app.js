@@ -8,7 +8,7 @@ require("dotenv").config();
 const app = express();
 // Enable CORS for all routes
 app.use(cors({
-  origin: 'http://localhost:5174', 
+  origin: 'http://localhost:5173', 
   credentials: true
 }))
 

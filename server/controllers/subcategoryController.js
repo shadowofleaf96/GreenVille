@@ -63,13 +63,11 @@ const subcategoriesController = {
         return res.status(200).json([]);
       }
 
-      // Fetch category details for all subcategories in parallel
       const categoryPromises = subcategoriesData.map((subcategory) =>
         Category.findById(subcategory.category_id).lean()
       );
       const categories = await Promise.all(categoryPromises);
 
-      // Enrich subcategory data with category details
       const enrichedSubcategories = subcategoriesData.map(
         (subcategory, index) => ({
           ...subcategory,
@@ -96,7 +94,9 @@ const subcategoriesController = {
       if (!subcategory) {
         return res.status(404).json({ error: "Subcategory not found" });
       } else {
-        res.json(subcategory);
+        res.status(200).json({
+          data: subcategory,
+        });
       }
     } catch (error) {
       res.status(500).json(error);
