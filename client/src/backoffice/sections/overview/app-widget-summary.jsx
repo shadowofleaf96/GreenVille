@@ -16,7 +16,7 @@ export default function AppWidgetSummary({
   sx,
   ...other
 }) {
-  const theme = useTheme(); // Access theme object
+  const theme = useTheme();
 
   return (
     <Card
