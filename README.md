@@ -81,7 +81,7 @@ Make sure you have the following installed on your machine:
    ```bash
    cd client
    npm run dev
-   cd ..
+   open another terminal window
    cd client
    npx nodemon
    ```
