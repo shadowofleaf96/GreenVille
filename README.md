@@ -63,17 +63,17 @@ Make sure you have the following installed on your machine:
 7. Create a `.env` file in the project root and configure your environment variables:
 
    ```env
-  VITE_PORT = 3000
-  VITE_SECRETKEY = your token secret key
-  VITE_REFRESHSECRETLEY = your refresh token secret token
-  VITE_STMPHOST = Mailtrap host
-  VITE_STMPUSER = Mailtrap username
-  VITE_URLFRONTEND = localhost:5173 
-  VITE_URLBACKEND = localhost:3000
-  VITE_STMPASS = Mailtrap password
-  VITE_SENDER = your email
-  VITE_EXPIRATIONDATE = 120000 (you can change this)
-  VITE_MONGOOSE = MongoDB atlas db link
+   VITE_PORT = 3000
+   VITE_SECRETKEY = your token secret key
+   VITE_REFRESHSECRETLEY = your refresh token secret token
+   VITE_STMPHOST = Mailtrap host
+   VITE_STMPUSER = Mailtrap username
+   VITE_URLFRONTEND = localhost:5173 
+   VITE_URLBACKEND = localhost:3000
+   VITE_STMPASS = Mailtrap password
+   VITE_SENDER = your email
+   VITE_EXPIRATIONDATE = 120000 (you can change this)
+   VITE_MONGOOSE = MongoDB atlas db link
    ```
 
 8. Start the development server:
