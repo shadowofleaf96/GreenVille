@@ -12,7 +12,6 @@ Welcome to GreenVille, an open-source MERN (MongoDB, Express.js, React.js, Node.
   - [Installation](#installation)
 - [Usage](#usage)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Features
 
