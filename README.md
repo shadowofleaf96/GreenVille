@@ -2,7 +2,7 @@
 
 ![GreenVille Logo](https://github.com/shadowofleaf96/Ecommerce-Final-Project/blob/main/client/src/assets/logo.png?raw=true)
 
-Welcome to GreenVille, an open-source MERN (MongoDB, Express.js, React.js, Node.js) stack ecommerce shop project. GreenVille is designed to provide a foundation for building a robust and scalable online store. Whether you're a developer looking to learn MERN stack or an entrepreneur planning to kickstart your ecommerce venture, GreenVille is a great starting point.
+Welcome to GreenVille, an open-source MERN (MongoDB, Express.js, React.js, Node.js) stack ecommerce shop project. GreenVille is designed to provide a foundation for building a robust and scalable online bio Organic store. Whether you're a developer looking to learn MERN stack or an entrepreneur planning to kickstart your ecommerce venture, GreenVille is a great starting point.
 
 ## Table of Contents
 
@@ -16,12 +16,12 @@ Welcome to GreenVille, an open-source MERN (MongoDB, Express.js, React.js, Node.
 
 ## Features
 
-- **User Authentication**: Secure user authentication and authorization.
-- **Product Management**: Easily manage products, categories, and inventory.
-- **Shopping Cart**: Intuitive shopping cart functionality for users.
-- **Payment Integration**: Seamless integration with popular payment gateways.
-- **Order Management**: Track and manage customer orders efficiently.
-- **Responsive Design**: Mobile-friendly and responsive UI for a great user experience.
+- **User Authentication**: Secure user authentication and authorization. (Completed)
+- **Product Management**: Easily manage products, categories, subcategories. (Completed)
+- **Shopping Cart**: Intuitive shopping cart functionality for users. (Completed, but need some improvements)
+- **Payment Integration**: Seamless integration with popular payment gateways. (In Progress)
+- **Order Management**: Track and manage customer orders efficiently. (In Progress)
+- **Responsive Design**: Mobile-friendly and responsive UI for a great user experience. (In Progress)
 
 ## Getting Started
 
@@ -50,25 +50,15 @@ Make sure you have the following installed on your machine:
 3. Install server dependencies:
 
    ```bash
+   cd server
    npm install
    ```
 
-4. Change into the client directory:
+4. Install client dependencies:
 
    ```bash
    cd client
-   ```
-
-5. Install client dependencies:
-
-   ```bash
    npm install
-   ```
-
-6. Return to the project root directory:
-
-   ```bash
-   cd ..
    ```
 
 7. Create a `.env` file in the project root and configure your environment variables:
@@ -82,7 +72,11 @@ Make sure you have the following installed on your machine:
 8. Start the development server:
 
    ```bash
+   cd client
    npm run dev
+   cd ..
+   cd client
+   npx nodemon
    ```
 
 Visit [http://localhost:5173](http://localhost:5173) to access the GreenVille application.
@@ -98,7 +92,3 @@ Visit [http://localhost:5173](http://localhost:5173) to access the GreenVille ap
 ## Contributing
 
 We welcome contributions from the community. If you find any bugs or have suggestions for improvement, please open an issue or submit a pull request. Check our [contribution guidelines](CONTRIBUTING.md) for more details.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
