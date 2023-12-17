@@ -37,7 +37,7 @@ Make sure you have the following installed on your machine:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/shadowofleaf96/GreenVille.git
+   git clone https://github.com/shadowofleaf96/GreenVille-Ecommerce_Final_Project.git
    ```
 
 2. Change into the project directory:
