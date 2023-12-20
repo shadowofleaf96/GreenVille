@@ -87,13 +87,19 @@ Make sure you have the following installed on your machine:
    ```
    
 ## Usage
-
+Client:
 1. **Create an Account**: Register for a new account on the GreenVille website.
 2. **Explore Products**: Browse through the available products and categories.
 3. **Add to Cart**: Add desired products to your shopping cart.
 4. **Proceed to Checkout**: Complete the purchase by providing necessary details.
 5. **Manage Orders**: View and manage your order history.
+Admin:
+1. **Analytics**: See sales and revenues data through dashboard.
+2. **Add Products**: Add Product from the admin menu.
+3. **Add Users**: Add admins or managers.
+4. **Add Categories and Subcategories**: Add Categories and Subcategories.
+5. **Edit and remove existant Infos**: .
 
 ## Contributing
 
-We welcome contributions from the community. If you find any bugs or have suggestions for improvement, please open an issue or submit a pull request. Check our [contribution guidelines](CONTRIBUTING.md) for more details.
+We welcome contributions from the community. If you find any bugs or have suggestions for improvement, please open an issue or submit a pull request.
