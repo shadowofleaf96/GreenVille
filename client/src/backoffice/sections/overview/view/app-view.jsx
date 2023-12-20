@@ -197,7 +197,7 @@ export default function AppView() {
           <Box sx={{ borderRadius: "16px", boxShadow: 1 }}>
             <Grid xs={12} md={6} lg={8}>
               <AppWebsiteVisits
-                title={t("Last Sign in Customers and New Orders Added")} // Translating title
+                title={t("Last Sign in Customers and New Orders Added")}
                 subheader={t("Customers sign in and orders added each day")}
                 chart={chartData}
               />
