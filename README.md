@@ -85,9 +85,7 @@ Make sure you have the following installed on your machine:
    cd client
    npx nodemon
    ```
-
-Visit [http://localhost:5173](http://localhost:5173) to access the GreenVille application.
-
+   
 ## Usage
 
 1. **Create an Account**: Register for a new account on the GreenVille website.
