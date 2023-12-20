@@ -60,8 +60,7 @@ const RegistrationForm = () => {
           sx={{ p: 5 }}
           style={{
             maxWidth: "420px",
-            backdropFilter: "blur(90px)",
-            backgroundColor: "rgba(255, 255, 255, 0.5)",
+            backgroundColor: "white",
             borderRadius: "20px",
             textAlign: "center",
           }}

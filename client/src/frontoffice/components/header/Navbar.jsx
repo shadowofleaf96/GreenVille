@@ -92,7 +92,7 @@ const Navbar = () => {
         <div className="container">
           <div className="d-flex align-items-center">
             <Link to="/">
-              <img className="img" src="/assets/logo.png" alt="logo" />
+              <img className="img" src="/assets/logo-white.png" alt="logo" />
             </Link>
           </div>
           <div className="search">
