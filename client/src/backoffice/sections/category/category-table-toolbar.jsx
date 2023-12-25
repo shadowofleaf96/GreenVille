@@ -165,7 +165,7 @@ export default function CategoryTableToolbar({
 
         <Snackbar
           open={snackbarOpen}
-          autoHideDuration={5000} // Adjust as needed
+          autoHideDuration={5000}
           onClose={closeSnackbar}
           anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         >

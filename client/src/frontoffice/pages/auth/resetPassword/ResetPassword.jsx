@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { TextField, Button, Paper, Typography } from "@mui/material";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import { useParams, useNavigate } from "react-router-dom";
 import Logo from "../../../components/logo";
 
@@ -8,7 +10,9 @@ const ResetPassword = () => {
   const { token } = useParams();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [resetSuccess, setResetSuccess] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [resetError, setResetError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -16,7 +20,7 @@ const ResetPassword = () => {
 
   useEffect(() => {
     if (resetSuccess) {
-      history.push("/login");
+      history("/login");
     }
   }, [resetSuccess, history]);
 
@@ -31,7 +35,6 @@ const ResetPassword = () => {
     try {
       setLoading(true);
 
-      // Make an API request to your reset password endpoint
       const response = await axios.post(
         `http://localhost:3000/v1/customers/reset-password/${token}`,
         {
@@ -40,14 +43,25 @@ const ResetPassword = () => {
       );
 
       setResetSuccess(true);
+      openSnackbar(response.data.message);
       setResetError(null);
     } catch (error) {
-      console.error(error.message);
+      console.error(error.response.data.error);
       setResetError("Failed to reset password. Please try again.");
       setResetSuccess(false);
+      openSnackbar("Error: " + error.response.data.error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const openSnackbar = (message) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  };
+
+  const closeSnackbar = () => {
+    setSnackbarOpen(false);
   };
 
   return (
@@ -130,6 +144,19 @@ const ResetPassword = () => {
           </form>
         )}
       </Paper>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={5000}
+        onClose={closeSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <Alert
+          onClose={closeSnackbar}
+          severity={snackbarMessage.includes("Error") ? "error" : "success"}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

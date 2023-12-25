@@ -3,6 +3,7 @@
 const { Customer } = require("../models/Customer");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const { createTransport } = require("nodemailer");
 const { log } = require("console");
@@ -437,7 +438,6 @@ const CustomerController = {
     try {
       const { token } = req.params;
       const { newPassword } = req.body;
-      console.log(newPassword);
 
       const customer = await Customer.findOne({
         resetPasswordToken: token,
