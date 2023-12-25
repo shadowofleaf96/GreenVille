@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/v1/": {
-        target: "https://greenville.onrender.com/", // changing to env later
+        target: "https://greenville.onrender.com/",
         changeOrigin: true,
         secure: false,
         ws: true,

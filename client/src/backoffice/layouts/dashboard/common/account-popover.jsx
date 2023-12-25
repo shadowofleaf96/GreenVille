@@ -33,7 +33,17 @@ export default function AccountPopover() {
 
   const logOut = async () => {
     try {
-      const response = await axios.post("/v1/users/logout");
+      let logoutEndpoint;
+
+      if (import.meta.env.MODE === "development") {
+        // Development build
+        logoutEndpoint = "/v1/users/logout";
+      } else {
+        // Production build
+        logoutEndpoint = "https://greenville.onrender.com/v1/users/logout";
+      }
+
+      const response = await axios.post(logoutEndpoint);
 
       if (response.data.message === "Logout successful") {
         dispatch(logout({}));
@@ -120,7 +130,7 @@ export default function AccountPopover() {
             height={28}
             sx={{ color: "error.main", mx: 1 }}
           />
-          <strong>{t('logout')}</strong>
+          <strong>{t("logout")}</strong>
         </MenuItem>
       </Popover>
     </>
