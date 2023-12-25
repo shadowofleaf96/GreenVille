@@ -1,9 +1,9 @@
 const api = require("./routes/api");
 const cookieParser = require("cookie-parser");
 const express = require("express");
+require('dotenv').config({ path: '../.env' });
 const path = require("path");
 const cors = require("cors");
-require("dotenv").config();
 
 const app = express();
 // Enable CORS for all routes

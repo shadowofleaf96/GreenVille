@@ -2,10 +2,10 @@
 
 const { User } = require("../models/User");
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
 const bcrypt = require("bcrypt");
 const { createTransport } = require("nodemailer");
 const { log } = require("console");
+require('dotenv').config({ path: '../.env' });
 const crypto = require("crypto");
 const secretKey = process.env.SECRETKEY;
 const secretRefreshKey = process.env.REFRESHSECRETLEY;
@@ -307,8 +307,8 @@ const loginUser = async (req, res, next) => {
         });
 
         res.cookie("user_access_token", accessToken, {
-          httpOnly: false, //--> Fix this Later with react
-          secure: false, //--> SET TO TRUE ON PRODUCTION
+          httpOnly: false,
+          secure: false,
         });
 
         // Generate Refresh Token
