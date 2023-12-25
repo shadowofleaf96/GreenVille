@@ -43,7 +43,6 @@ const Login = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const router = useRouter();
 
-
   useEffect(() => {
     const storedRememberMe = localStorage.getItem("rememberMe");
     if (storedRememberMe) {
@@ -63,11 +62,9 @@ const Login = () => {
     const newRememberMe = !rememberMe;
     setRememberMe(newRememberMe);
 
-    // Save the "Remember Me" state to local storage
     localStorage.setItem("rememberMe", JSON.stringify(newRememberMe));
   };
   const responseMessage = (response) => {
-    // Handle the Google login response
     console.log(response);
   };
   const errorMessage = (error) => {
@@ -109,11 +106,12 @@ const Login = () => {
         email: enteredEmail,
       });
 
-      // Handle the response (display a success message)
       console.log(response.data);
+      openSnackbar(response.data.message);
       setOpenDialog(false);
     } catch (error) {
       console.error(error.message);
+      openSnackbar("Error: " + error.response.data.message);
     }
   };
 
