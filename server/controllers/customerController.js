@@ -2,9 +2,9 @@
 
 const { Customer } = require("../models/Customer");
 const bcrypt = require("bcrypt");
-require("dotenv").config();
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+require('dotenv').config({ path: '../.env' });
 const { createTransport } = require("nodemailer");
 const { log } = require("console");
 const secretKey = process.env.SECRETKEY;

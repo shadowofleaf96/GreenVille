@@ -1,5 +1,6 @@
 const Payment = require("../models/Payment");
 const Order = require("../models/Order");
+require('dotenv').config({ path: '../.env' });
 const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
 
 const createPayment = async (req, res) => {

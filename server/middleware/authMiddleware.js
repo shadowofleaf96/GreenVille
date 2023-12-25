@@ -1,6 +1,5 @@
 // Shadow Of Leaf was Here
-
-require("dotenv").config();
+require('dotenv').config({ path: '../.env' });
 const secretKey = process.env.SECRETKEY;
 const secretRefreshKey = process.env.REFRESHSECRETLEY;
 const jwt = require("jsonwebtoken");
