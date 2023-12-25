@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/v1/": {
-        target: process.env.VITE_API_URL,
+        target: "https://greenville.onrender.com/", // changing to env later
         changeOrigin: true,
         secure: false,
         ws: true,
