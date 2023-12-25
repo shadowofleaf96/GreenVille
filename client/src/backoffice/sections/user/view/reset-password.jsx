@@ -24,7 +24,7 @@ import { useTranslation } from "react-i18next";
 import Logo from "../../../components/logo";
 import axios from "axios";
 import Iconify from "../../../components/iconify";
-import { bgGradient } from "../../../theme/css";
+import { bgGradient } from "../../../../theme/css";
 import { useRouter } from "../../../../routes/hooks";
 import Alert from "@mui/material/Alert";
 

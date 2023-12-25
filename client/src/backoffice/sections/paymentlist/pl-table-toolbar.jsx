@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteUser } from "../../../../redux/userSlice";
+import { deleteUser } from "../../../redux/backoffice/userSlice";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Alert from "@mui/material/Alert";
 import InputAdornment from "@mui/material/InputAdornment";
