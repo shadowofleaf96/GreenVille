@@ -60,7 +60,7 @@ Make sure you have the following installed on your machine:
    npm install
    ```
 
-7. Create a `.env` file in the project root and configure your environment variables:
+5. Create a `.env` file in the project root and configure your environment variables:
 
    ```env
    VITE_PORT = 3000
@@ -76,13 +76,13 @@ Make sure you have the following installed on your machine:
    VITE_MONGOOSE = MongoDB atlas db link
    ```
 
-8. Start the development server:
+6. Start the development server:
 
    ```bash
    cd client
    npm run dev
    open another terminal window
-   cd client
+   cd server
    npx nodemon
    ```
    
