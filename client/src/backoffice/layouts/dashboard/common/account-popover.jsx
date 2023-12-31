@@ -15,6 +15,8 @@ import axios from "axios";
 import { useTranslation } from "react-i18next";
 import Iconify from "../../../components/iconify";
 import IconButton from "@mui/material/IconButton";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
+
 
 export default function AccountPopover() {
   const [open, setOpen] = useState(null);

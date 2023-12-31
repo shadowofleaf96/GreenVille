@@ -1,6 +1,7 @@
 import React from "react";
 import Iconify from "../../../../backoffice/components/iconify";
 import { Link } from "react-router-dom";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 import styles from "./Promo.module.scss";
 
 const Promo = ({ products, type }) => {

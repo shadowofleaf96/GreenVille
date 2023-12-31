@@ -24,6 +24,8 @@ import Scrollbar from "../../components/scrollbar";
 
 import { NAV } from "../dashboard/config-layout";
 import TranslatedNavConfig from "../dashboard/config-navigation";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
+
 
 // ----------------------------------------------------------------------
 

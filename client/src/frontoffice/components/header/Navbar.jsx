@@ -16,6 +16,7 @@ import { useCookies } from "react-cookie";
 import { useRouter } from "../../../routes/hooks";
 import { isExpired } from "react-jwt";
 import Links from "../Links/Links";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 const SECRETKEY = import.meta.env.VITE_SECRETKEY;
 
 const Navbar = () => {

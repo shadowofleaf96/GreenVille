@@ -16,6 +16,7 @@ import Popover from "@mui/material/Popover";
 import Button from "@mui/material/Button";
 import axios from "axios";
 import Iconify from "../../components/iconify";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 export default function CategoryTableToolbar({
   numSelected,

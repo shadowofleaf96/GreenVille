@@ -12,6 +12,7 @@ import styles from "./Cart.module.scss";
 import Navbar from "../../components/header/Navbar";
 import Footer from "../../components/footer/Footer";
 import MetaData from "../../components/MetaData";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 const Cart = ({ history }) => {
   const dispatch = useDispatch();

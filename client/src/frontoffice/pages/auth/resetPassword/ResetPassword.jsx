@@ -5,6 +5,8 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { useParams, useNavigate } from "react-router-dom";
 import Logo from "../../../components/logo";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
+
 
 const ResetPassword = () => {
   const { token } = useParams();

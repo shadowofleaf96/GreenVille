@@ -8,6 +8,7 @@ import Badge from "@mui/material/Badge";
 import Avatar from "@mui/material/Avatar";
 import { fDateTime } from "../../../utils/format-time";
 import { useTranslation } from "react-i18next"; // Importing translation hook
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 const ProductDetailsPopup = ({ product, open, onClose }) => {
   const { t } = useTranslation(); // Using translation hook

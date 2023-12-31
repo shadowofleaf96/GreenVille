@@ -6,6 +6,8 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
 import { fDateTime } from "../../../utils/format-time";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
+
 
 
 const UserDetailsPopup = ({ product, open, onClose }) => {

@@ -5,6 +5,7 @@ import Alert from "@mui/material/Alert";
 import Iconify from "../../../backoffice/components/iconify";
 import { Link } from "react-router-dom";
 import { addItemToCart } from "../../../redux/frontoffice/cartSlice";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 import styles from "./Products.module.scss";
 
