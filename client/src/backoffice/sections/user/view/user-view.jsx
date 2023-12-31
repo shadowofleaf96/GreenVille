@@ -30,6 +30,7 @@ import TableEmptyRows from "../table-empty-rows";
 import UserTableToolbar from "../user-table-toolbar";
 import EditUserForm from "../user-edit";
 import NewUserForm from "../new-user-form";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 import UserDetailsPopup from "../user-details";
 
 import { emptyRows, applyFilter, getComparator } from "../utils";
@@ -76,7 +77,7 @@ export default function UserPage() {
       dispatch(setLoading(true));
 
       // Use axios to fetch data
-      const response = await axios.get("https://greenville.onrender.com/v1/users");
+      const response = await axios.get(VITE_API_URL + "v1/users");
       const data = response.data.data;
 
       // Update the state with the fetched data
@@ -217,7 +218,7 @@ export default function UserPage() {
         formData.append("user_image", selectedImage);
       }
 
-      const response = await axios.put(`https://greenville.onrender.com/v1/users/${editedUser._id}`, formData);
+      const response = await axios.put(`${VITE_API_URL}v1/users/${editedUser._id}`, formData);
 
       const index = data.findIndex((user) => user._id === editedUser._id);
 
@@ -257,7 +258,7 @@ export default function UserPage() {
   const handleDeleteUser = async (userId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`https://greenville.onrender.com/v1/users/${userId}`);
+      const response = await axios.delete(`${VITE_API_URL}v1/users/${userId}`);
       const updatedUsers = data.filter((user) => user._id !== userId);
       dispatch(setData(updatedUsers));
       openSnackbar(response.data.message);
@@ -308,7 +309,7 @@ export default function UserPage() {
       }
 
       // Make API call to create a new user
-      const response = await axios.post("https://greenville.onrender.com/v1/users", formData);
+      const response = await axios.post(VITE_API_URL + "v1/users", formData);
       const userdata = response.data.data;
       const AddedUsers = {
         key: userdata._id,
@@ -408,7 +409,7 @@ export default function UserPage() {
                   .map((row) => (
                     <UserTableRow
                       key={row._id}
-                      user_image={`http://localhost:3000/${row.user_image}`}
+                      user_image={`${VITE_API_URL}${row.user_image}`}
                       first_name={row.first_name}
                       last_name={row.last_name}
                       role={row.role}

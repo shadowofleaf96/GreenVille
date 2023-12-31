@@ -30,6 +30,7 @@ import TableEmptyRows from "../table-empty-rows.jsx";
 import OrderTableToolbar from "../order-table-toolbar.jsx";
 import EditOrderForm from "../order-edit.jsx";
 import OrderDetailsPopup from "../order-details.jsx";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 import { emptyRows, applyFilter, getComparator } from "../utils.js";
 import {
@@ -72,7 +73,7 @@ export default function OrderPage() {
       dispatch(setLoading(true));
 
       // Use axios to fetch data
-      const response = await axios.get("https://greenville.onrender.com/v1/orders");
+      const response = await axios.get(VITE_API_UR + "v1/orders");
       const data = response.data.data;
       dispatch(setData(data));
     } catch (err) {
@@ -217,7 +218,7 @@ export default function OrderPage() {
         cart_total_price,
       };
 
-      const response = await axios.put(`https://greenville.onrender.com/v1/orders/${_id}`, payload);
+      const response = await axios.put(`${VITE_API_URL}v1/orders/${_id}`, payload);
 
       // Assuming you have a data state and dispatch function similar to the existing code
       const index = data.findIndex((order) => order._id === _id);
@@ -263,7 +264,7 @@ export default function OrderPage() {
   const handleDeleteOrder = async (orderId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`https://greenville.onrender.com/v1/orders/${orderId}`);
+      const response = await axios.delete(`${VITE_API_URL}v1/orders/${orderId}`);
       const updatedSubCategories = data.filter(
         (order) => order._id !== orderId
       );

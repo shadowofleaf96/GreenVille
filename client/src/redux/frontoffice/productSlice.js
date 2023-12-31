@@ -1,11 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
+
 
 export const getProducts = createAsyncThunk(
   "products/getProducts",
   async (keyword = "", { rejectWithValue }) => {
     try {
-      const response = await axios.get("https://greenville.onrender.com/v1/products");
+      const response = await axios.get(VITE_API_URL + "v1/products");
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response.data.message);
@@ -17,7 +19,7 @@ export const getProductDetails = createAsyncThunk(
   "products/getProductDetails",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`https://greenville.onrender.com/v1/products/${id}`);
+      const response = await axios.get(`${VITE_API_URL}v1/products/${id}`);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response.data.message);

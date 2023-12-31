@@ -27,7 +27,7 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import Logo from "../../components/logo";
 import Iconify from "../../components/iconify";
-
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 export default function LoginView() {
   const theme = useTheme();
@@ -68,7 +68,7 @@ export default function LoginView() {
     try {
       setResetPasswordLoading(true);
 
-      const response = await axios.post("https://greenville.onrender.com/v1/users/forgot-password", {
+      const response = await axios.post(VITE_API_URL + "v1/users/forgot-password", {
         email: resetEmail,
       });
 
@@ -95,7 +95,7 @@ export default function LoginView() {
         password,
       };
 
-      const response = await axios.post("https://greenville.onrender.com/v1/users/login", requestBody, {
+      const response = await axios.post(VITE_API_URL + "v1/users/login", requestBody, {
         withCredentials: true,
       });
 

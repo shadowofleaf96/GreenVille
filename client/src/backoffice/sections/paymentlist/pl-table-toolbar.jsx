@@ -15,6 +15,7 @@ import Popover from "@mui/material/Popover";
 import Button from "@mui/material/Button";
 import axios from "axios";
 import Iconify from "../../components/iconify";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 export default function UserTableToolbar({
   numSelected,
@@ -37,7 +38,7 @@ export default function UserTableToolbar({
       let response; // Declare the response variable outside the loop
       const deletedUserIds = [];
       for (const userId of selected) {
-        response = await axios.delete(`https://greenville.onrender.com/v1/users/${userId}`);
+        response = await axios.delete(`${VITE_API_URL}v1/users/${userId}`);
         deletedUserIds.push(userId);
       }
 

@@ -5,6 +5,8 @@ import styles from "./Payment.module.scss";
 import Alert from "@mui/material/Alert";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
+
 
 import {
     useStripe,
@@ -78,7 +80,7 @@ const Payment = ({ history }) => {
             };
 
             res = await axios.post(
-                "https://greenville.onrender.com/api/v1/payment/process",
+                VITE_API_URL + "v1/payment/process",
                 paymentData,
                 config
             );

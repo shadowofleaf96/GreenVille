@@ -13,6 +13,7 @@ import Snackbar from "@mui/material/Snackbar";
 import TextField from "@mui/material/TextField";
 import UploadButton from "../../../../backoffice/components/button/UploadButton";
 import styles from "./UpdateProfile.module.scss";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 const UpdateProfile = () => {
   const [firstname, setFirstName] = useState("");
@@ -79,7 +80,7 @@ const UpdateProfile = () => {
         formData.append("customer_image", selectedImage);
       }
 
-      const response = await axios.put(`https://greenville.onrender.com/v1/customers/${customerId}`, formData);
+      const response = await axios.put(`${VITE_API_URL}v1/customers/${customerId}`, formData);
       openSnackbar(response.data.message);
       router.push("/me");
     } catch (error) {

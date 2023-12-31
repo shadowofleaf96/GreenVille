@@ -16,6 +16,7 @@ import Button from "@mui/material/Button";
 import axios from "axios";
 import Iconify from "../../components/iconify";
 import { useTranslation } from "react-i18next"; // Using translation hook
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 export default function ProductTableToolbar({
   numSelected,
@@ -47,7 +48,7 @@ export default function ProductTableToolbar({
       let response;
       const deletedProductIds = [];
       for (const userId of selected) {
-        response = await axios.delete(`https://greenville.onrender.com/v1/users/${userId}`);
+        response = await axios.delete(`${VITE_API_URL}v1/users/${userId}`);
         deletedProductIds.push(userId);
       }
 

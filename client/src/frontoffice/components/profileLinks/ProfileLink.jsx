@@ -9,6 +9,7 @@ import { useRouter } from "../../../routes/hooks/";
 import Alert from "@mui/material/Alert";
 import { logout } from "../../../redux/frontoffice/customerSlice";
 import Iconify from "../../../backoffice/components/iconify"
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 const ProfileLink = () => {
   const { customer, loading } = useSelector((state) => state.customers);
@@ -29,7 +30,7 @@ const ProfileLink = () => {
 
   const logoutHandler = async () => {
     try {
-      const response = await axios.post("https://greenville.onrender.com/v1/customers/logout");
+      const response = await axios.post(VITE_API_URL + "v1/customers/logout");
 
       if (response.data.message === "Logout successful") {
         dispatch(logout({}));
@@ -54,7 +55,7 @@ const ProfileLink = () => {
             <div className="text-center mt-3">
               {customer && (
                 <img
-                  src={`http://localhost:3000/${customer?.customer_image}`}
+                  src={`${VITE_API_URL}${customer?.customer_image}`}
                   alt={customer?.first_name + customer?.last_name}
                 />
               )}

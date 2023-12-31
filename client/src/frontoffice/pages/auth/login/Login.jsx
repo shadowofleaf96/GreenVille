@@ -30,6 +30,7 @@ import Logo from "../../../components/logo";
 import Link from "@mui/material/Link";
 import InputAdornment from "@mui/material/InputAdornment";
 import "./Login.module.scss";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -75,7 +76,7 @@ const Login = () => {
     dispatch(loginStart());
 
     try {
-      const response = await axios.post("https://greenville.onrender.com/v1/customers/login", {
+      const response = await axios.post(VITE_API_URL + "v1/customers/login", {
         email,
         password,
         rememberMe,
@@ -102,7 +103,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("https://greenville.onrender.com/v1/customers/forgot-password", {
+      const response = await axios.post(VITE_API_URL + "v1/customers/forgot-password", {
         email: enteredEmail,
       });
 

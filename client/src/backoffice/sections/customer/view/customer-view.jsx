@@ -30,6 +30,8 @@ import CustomerTableToolbar from "../customer-table-toolbar";
 import EditCustomerForm from "../customer-edit";
 import CustomerDetailsPopup from "../customer-details";
 import { useTranslation } from "react-i18next";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
+
 
 import { emptyRows, applyFilter, getComparator } from "../utils";
 import {
@@ -74,7 +76,7 @@ export default function CustomerPage() {
       dispatch(setLoading(true));
 
       // Use axios to fetch data
-      const response = await axios.get("https://greenville.onrender.com/v1/customers");
+      const response = await axios.get(VITE_API_URL + "v1/customers");
       const data = response.data.data;
 
       // Update the state with the fetched data
@@ -209,12 +211,11 @@ export default function CustomerPage() {
       formData.append("active", editedCustomer.active);
 
       if (selectedImage) {
-        // Append "user_image" to formData only if selectedImage is provided
         formData.append("customer_image", selectedImage);
       }
 
       const response = await axios.put(
-        `https://greenville.onrender.com/v1/customers/${editedCustomer._id}`,
+        `${VITE_API_URL}v1/customers/${editedCustomer._id}`,
         formData
       );
 
@@ -258,7 +259,7 @@ export default function CustomerPage() {
   const handleDeleteCustomer = async (customerId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`https://greenville.onrender.com/v1/customers/${customerId}`);
+      const response = await axios.delete(`${VITE_API_URL}v1/customers/${customerId}`);
       const updatedCustomers = data.filter(
         (customer) => customer._id !== customerId
       );
@@ -343,7 +344,7 @@ export default function CustomerPage() {
                     return (
                       <CustomerTableRow
                         key={row._id}
-                        customer_image={`http://localhost:3000/${row.customer_image}`}
+                        customer_image={`${VITE_API_URL}${row.customer_image}`}
                         first_name={row.first_name}
                         last_name={row.last_name}
                         email={row.email}

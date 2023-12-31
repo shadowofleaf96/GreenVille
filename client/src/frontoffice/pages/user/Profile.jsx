@@ -45,7 +45,7 @@ const Profile = () => {
                         <div className={styles.image}>
                           {customer && (
                             <img
-                              src={`http://localhost:3000/${customer?.customer_image}`}
+                              src={`${VITE_API_URL}${customer?.customer_image}`}
                               alt={
                                 customer?.first_name + " " + customer?.last_name
                               }

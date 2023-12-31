@@ -22,7 +22,7 @@ const ProfilePage = () => {
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <Avatar
-                src={`http://127.0.0.1:3000/${user.user_image}`}
+                src={`${VITE_API_URL}${user.user_image}`}
                 alt={`${user.first_name} ${user.last_name}`}
                 sx={{
                   width: 220,

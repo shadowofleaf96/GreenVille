@@ -14,6 +14,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import UploadButton from "../../components/button/UploadButton";
 import axios from "axios";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 function NewProductForm({ onSave, onCancel, open, onClose }) {
   const [subcategories, setSubcategories] = useState([]);
@@ -37,7 +38,7 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
     // Fetch subcategories when the component mounts
     const fetchSubcategories = async () => {
       try {
-        const response = await axios.get("https://greenville.onrender.com/v1/subcategories");
+        const response = await axios.get(VITE_API_URL + "v1/subcategories");
         setSubcategories(response.data.data);
       } catch (error) {
         console.error("Error fetching subcategories:", error);

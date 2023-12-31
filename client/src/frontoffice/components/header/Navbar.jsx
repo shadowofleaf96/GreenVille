@@ -60,7 +60,7 @@ const Navbar = () => {
   const logoutHandler = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("https://greenville.onrender.com/v1/customers/logout");
+      const response = await axios.post(VITE_API_URL + "v1/customers/logout");
 
       if (response.data.message === "Logout successful") {
         dispatch(logout({}));
@@ -128,7 +128,7 @@ const Navbar = () => {
                             borderRadius: "50%",
                             border: "2px solid black",
                           }}
-                          src={`http://localhost:3000/${customer?.customer_image}`}
+                          src={`${VITE_API_URL}${customer?.customer_image}`}
                           alt={customer?.first_name + customer?.last_name}
                         />
                       </li>

@@ -39,7 +39,7 @@ export default function CategoryTableToolbar({
       let response;
       const deletedUserIds = [];
       for (const userId of selected) {
-        response = await axios.delete(`https://greenville.onrender.com/v1/users/${userId}`);
+        response = await axios.delete(`${VITE_API_URL}v1/users/${userId}`);
         deletedUserIds.push(userId);
       }
 

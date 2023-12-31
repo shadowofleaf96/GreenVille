@@ -44,6 +44,8 @@ export const ResetPasswordPage = lazy(() =>
 import { useCookies } from "react-cookie";
 import { isExpired } from "react-jwt";
 const SECRETKEY = import.meta.env.VITE_SECRETKEY;
+const VITE_API_URL = import.meta.env.VITE_API_URL;
+
 
 export default function Router() {
   const user = useSelector((state) => state.adminAuth.adminUser);
@@ -55,7 +57,7 @@ export default function Router() {
 
   useEffect(() => {
     async function getStripApiKey() {
-      const { data } = await axios.get("https://greenville.onrender.com/v1/stripeapi");
+      const { data } = await axios.get(VITE_API_URL + "v1/stripeapi");
 
       setStripeApiKey(data.stripeApiKey);
     }

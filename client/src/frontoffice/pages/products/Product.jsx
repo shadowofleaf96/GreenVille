@@ -31,7 +31,7 @@ const Product = ({ product }) => {
         <Link to={`/product/${product?._id}`}>
           <div className={styles.product_image}>
             <img
-              src={`http://localhost:3000/${product?.product_image}`}
+              src={`${VITE_API_URL}${product?.product_image}`}
               alt={product?.product_name}
             />
           </div>

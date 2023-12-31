@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import UploadButton from "../../components/button/UploadButton";
 import { useTranslation } from "react-i18next";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 function NewSubCategoryForm({ onSave, onCancel, open, onClose }) {
   const { t } = useTranslation();
@@ -35,7 +36,7 @@ function NewSubCategoryForm({ onSave, onCancel, open, onClose }) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("https://greenville.onrender.com/v1/categories");
+        const response = await axios.get(VITE_API_URL + "v1/categories");
         setCategories(response.data.data);
       } catch (error) {
         console.error("Error fetching categories:", error);

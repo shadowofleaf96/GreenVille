@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios"
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 const initialState = {
   loading: false,
@@ -44,7 +45,7 @@ export const getCategories = (category_Id) => async (dispatch) => {
   dispatch(categoriesRequest());
 
   try {
-    let link = `https://greenville.onrender.com/v1/categories`;
+    let link = `${VITE_API_URL}v1/categories`;
 
     if (category_Id) {
       link = `/${category_Id}`;

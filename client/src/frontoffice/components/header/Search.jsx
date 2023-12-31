@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import Iconify from "../../../backoffice/components/iconify";
 import { Dropdown } from "react-bootstrap";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 import "./Search.scss";
 
 import { useRouter } from "../../../routes/hooks";
@@ -21,7 +22,7 @@ const Search = () => {
           setLoading(true);
 
           const response = await axios.get(
-            `https://greenville.onrender.com/v1/products/search?searchQuery=${keyword}`
+            `${VITE_API_URL}v1/products/search?searchQuery=${keyword}`
           );
 
           setSearchResults(response.data.data);

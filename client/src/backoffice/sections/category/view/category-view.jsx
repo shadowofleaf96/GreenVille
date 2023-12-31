@@ -30,6 +30,7 @@ import TableEmptyRows from "../table-empty-rows";
 import CategoryTableToolbar from "../category-table-toolbar";
 import EditCategoryForm from "../category-edit";
 import AddCategoryForm from "../new-category-form";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 import { emptyRows, applyFilter, getComparator } from "../utils";
 import {
@@ -71,7 +72,7 @@ export default function CategoryPage() {
       dispatch(setLoading(true));
 
       // Use axios to fetch data
-      const response = await axios.get("https://greenville.onrender.com/v1/categories");
+      const response = await axios.get(VITE_API_URL+"v1/categories");
       const data = response.data.data;
 
       // Update the state with the fetched data
@@ -192,7 +193,7 @@ export default function CategoryPage() {
     setLoadingDelete(true);
     try {
       const response = await axios.put(
-        `https://greenville.onrender.com/v1/categories/${editedCategory._id}`,
+        `${VITE_API_URL}v1/categories/${editedCategory._id}`,
         editedCategory
       );
 
@@ -227,7 +228,7 @@ export default function CategoryPage() {
   const handleDeleteCategory = async (categoryId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`https://greenville.onrender.com/v1/categories/${categoryId}`);
+      const response = await axios.delete(`${VITE_API_URL}v1/categories/${categoryId}`);
       const updatedCategories = data.filter(
         (category) => category._id !== categoryId
       );
@@ -263,7 +264,7 @@ export default function CategoryPage() {
     setLoadingDelete(true);
 
     try {
-      const response = await axios.post("https://greenville.onrender.com/v1/categories", newCategory);
+      const response = await axios.post(VITE_API_URL+"v1/categories", newCategory);
       const categorydata = response.data.data;
       const AddedCategory = {
         key: categorydata._id,

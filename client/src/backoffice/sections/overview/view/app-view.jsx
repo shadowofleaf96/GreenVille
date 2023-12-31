@@ -12,6 +12,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import Divider from "@mui/material/Divider";
 import { useEffect, useState } from "react";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 import { fDate } from "../../../../utils/format-time";
 
@@ -35,8 +36,8 @@ export default function AppView() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const customersResponse = await axios.get("https://greenville.onrender.com/v1/customers");
-        const ordersResponse = await axios.get("https://greenville.onrender.com/v1/orders");
+        const customersResponse = await axios.get(VITE_API_URL + "v1/customers");
+        const ordersResponse = await axios.get(VITE_API_URL + "v1/orders");
         setData({
           customers: customersResponse.data.data,
           orders: ordersResponse.data.data,

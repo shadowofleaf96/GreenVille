@@ -32,7 +32,7 @@ const ProductDetailsPopup = ({ product, open, onClose }) => {
       >
         <Stack direction="column" alignItems="flex-start" spacing={2}>
           <Avatar
-            src={`http://localhost:3000/${product?.product_image}`}
+            src={`${VITE_API_URL}${product?.product_image}`}
             sx={{ alignSelf: "center", width: 100, height: 100 }}
           />
 

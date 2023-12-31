@@ -73,7 +73,7 @@ const SingleProduct = () => {
                     <>
                       <div className={styles.preview_image}>
                         <img
-                          src={`http://localhost:3000/${product?.product_image}`}
+                          src={`${VITE_API_URL}${product?.product_image}`}
                           alt={product.product_image}
                         />
                       </div>

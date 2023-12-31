@@ -33,7 +33,7 @@ export default function AccountPopover() {
 
   const logOut = async () => {
     try {
-      const response = await axios.post("https://greenville.onrender.com/v1/users/logout");
+      const response = await axios.post("https://greenville.onrender.comv1/users/logout");
 
       if (response.data.message === "Logout successful") {
         dispatch(logout({}));
@@ -62,7 +62,7 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
-          src={`http://127.0.0.1:3000/${user.user_image}`}
+          src={`${VITE_API_URL}${user.user_image}`}
           alt={user.user_name}
           sx={{
             width: 48,

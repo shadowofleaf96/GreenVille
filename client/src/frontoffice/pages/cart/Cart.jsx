@@ -76,7 +76,7 @@ const Cart = ({ history }) => {
                         <div className={`row ${styles.item_info}`}>
                           <div className="col-4 col-lg-2">
                             <img
-                              src={`http://localhost:3000/${item.image}`}
+                              src={`${VITE_API_URL}${item.image}`}
                               alt="Laptop"
                               height="100"
                               width="100"

@@ -31,7 +31,7 @@ const UserDetailsPopup = ({ user, open, onClose }) => {
       >
         <Stack direction="column" alignItems="flex-start" spacing={2}>
           <Avatar
-            src={`http://localhost:3000/${user?.user_image}`}
+            src={`${VITE_API_URL}${user?.user_image}`}
             sx={{ width: 100, height: 100, alignSelf: "center" }}
           />
 

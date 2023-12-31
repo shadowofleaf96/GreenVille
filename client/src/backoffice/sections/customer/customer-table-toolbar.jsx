@@ -44,7 +44,7 @@ export default function CustomerTableToolbar({
       let response; // Declare the response variable outside the loop
       const deletedCustomerIds = [];
       for (const customerId of selected) {
-        response = await axios.delete(`https://greenville.onrender.com/v1/customers/${customerId}`);
+        response = await axios.delete(`${VITE_API_URL}v1/customers/${customerId}`);
         deletedCustomerIds.push(customerId);
       }
 

@@ -15,6 +15,7 @@ import Switch from "@mui/material/Switch";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 import { useTranslation } from 'react-i18next'; // Importing translation hook
 
 function EditOrderForm({ order, onSave, onCancel, open, onClose }) {
@@ -32,7 +33,7 @@ function EditOrderForm({ order, onSave, onCancel, open, onClose }) {
     // Fetch customers and other necessary data when the component mounts
     const fetchData = async () => {
       try {
-        const customersResponse = await axios.get("https://greenville.onrender.com/v1/customers");
+        const customersResponse = await axios.get(VITE_API_URL + "v1/customers");
         setCustomers(customersResponse.data.data);
         // You can fetch other data if needed for the form
       } catch (error) {

@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from "axios"
+const VITE_API_URL = import.meta.env.VITE_API_URL;
+
 
 export const createOrder = createAsyncThunk(
   'orders/createOrder',
@@ -11,7 +13,7 @@ export const createOrder = createAsyncThunk(
         },
       };
 
-      const { data } = await axios.post('https://greenville.onrender.com/v1/order/new', order, config);
+      const { data } = await axios.post(VITE_API_URL + 'v1/order/new', order, config);
 
       return data;
     } catch (error) {
@@ -22,7 +24,7 @@ export const createOrder = createAsyncThunk(
 
 export const myOrders = createAsyncThunk('orders/myOrders', async (_, { rejectWithValue }) => {
   try {
-    const { data } = await axios.get('https://greenville.onrender.com/v1/orders/me');
+    const { data } = await axios.get(VITE_API_URL + 'v1/orders/me');
     return data.orders;
   } catch (error) {
     return rejectWithValue(error.response.data.message);
@@ -31,7 +33,7 @@ export const myOrders = createAsyncThunk('orders/myOrders', async (_, { rejectWi
 
 export const allOrders = createAsyncThunk('orders/allOrders', async (_, { rejectWithValue }) => {
   try {
-    const { data } = await axios.get('https://greenville.onrender.com/v1/admin/orders');
+    const { data } = await axios.get(VITE_API_URL + 'v1/admin/orders');
     return data;
   } catch (error) {
     return rejectWithValue(error.response.data.message);
@@ -48,7 +50,7 @@ export const updateOrder = createAsyncThunk(
         },
       };
 
-      const { data } = await axios.put(`https://greenville.onrender.com/v1/admin/order/${id}`, orderData, config);
+      const { data } = await axios.put(`${VITE_API_URL}v1/admin/order/${id}`, orderData, config);
       return data.success;
     } catch (error) {
       return rejectWithValue(error.response.data.message);
@@ -58,7 +60,7 @@ export const updateOrder = createAsyncThunk(
 
 export const deleteOrder = createAsyncThunk('orders/deleteOrder', async (id, { rejectWithValue }) => {
   try {
-    const { data } = await axios.delete(`https://greenville.onrender.com/v1/admin/order/${id}`);
+    const { data } = await axios.delete(`${VITE_API_URL}v1/admin/order/${id}`);
     return data.success;
   } catch (error) {
     return rejectWithValue(error.response.data.message);
@@ -69,7 +71,7 @@ export const getOrderDetails = createAsyncThunk(
   'orders/getOrderDetails',
   async (id, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`https://greenville.onrender.com/v1/order/${id}`);
+      const { data } = await axios.get(`${VITE_API_URL}v1/order/${id}`);
       return data.order;
     } catch (error) {
       return rejectWithValue(error.response.data.message);

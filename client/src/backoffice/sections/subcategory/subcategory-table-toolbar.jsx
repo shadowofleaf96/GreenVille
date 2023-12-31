@@ -16,6 +16,7 @@ import Button from "@mui/material/Button";
 import axios from "axios";
 import Iconify from "../../components/iconify";
 import { useTranslation } from "react-i18next";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 export default function SubCategoryTableToolbar({
   numSelected,
@@ -39,7 +40,7 @@ export default function SubCategoryTableToolbar({
       let response; // Declare the response variable outside the loop
       const deletedSubCategoryIds = [];
       for (const subcategoryId of selected) {
-        response = await axios.delete(`https://greenville.onrender.com/v1/subcategories/${subcategoryId}`);
+        response = await axios.delete(`${VITE_API_URL}v1/subcategories/${subcategoryId}`);
         deletedSubCategoryIds.push(subcategoryId);
       }
 

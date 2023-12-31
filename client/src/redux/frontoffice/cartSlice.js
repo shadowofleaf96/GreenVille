@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 // Import your API client
 import axios from "axios";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 // Define cart action types
 const ADD_TO_CART = "cart/addItem";
@@ -14,7 +15,7 @@ export const addItemToCart = createAsyncThunk(
   ADD_TO_CART,
   async ({ id, quantity }) => {
     try {
-      const response = await axios.get(`https://greenville.onrender.com/v1/products/${id}`);
+      const response = await axios.get(`${VITE_API_URL}v1/products/${id}`);
       const productData = response.data.data;
       return {
         product: productData._id,

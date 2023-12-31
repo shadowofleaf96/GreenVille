@@ -14,6 +14,7 @@ import axios from "axios";
 import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import UploadButton from "../../components/button/UploadButton";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 // Importing translation hook
 import { useTranslation } from "react-i18next";
@@ -31,7 +32,7 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
   useEffect(() => {
     const fetchSubcategories = async () => {
       try {
-        const response = await axios.get("https://greenville.onrender.com/v1/subcategories");
+        const response = await axios.get(VITE_API_URL + "v1/subcategories");
         setSubcategories(response.data.data);
       } catch (error) {
         console.error("Error fetching subcategories:", error);

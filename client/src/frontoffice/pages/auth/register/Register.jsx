@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { useRouter } from "../../../../routes/hooks";
 import { motion } from "framer-motion";
 import "./Register.module.scss";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 const RegistrationForm = () => {
   const [firstName, setFirstName] = useState("");
@@ -31,7 +32,7 @@ const RegistrationForm = () => {
       }
 
       const response = await axios.post(
-        "https://greenville.onrender.com/v1/customers/",
+        VITE_API_URL + "v1/customers/",
         formData
       );
 

@@ -30,6 +30,7 @@ import TableEmptyRows from "../table-empty-rows.jsx";
 import SubCategoryTableToolbar from "../subcategory-table-toolbar.jsx";
 import EditSubCategoryForm from "../subcategory-edit.jsx";
 import NewSubCategoryForm from "../new-subcategory-form.jsx";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 import { emptyRows, applyFilter, getComparator } from "../utils.js";
 import {
@@ -68,7 +69,7 @@ export default function SubCategoryPage() {
     try {
       dispatch(setLoading(true));
 
-      const response = await axios.get("https://greenville.onrender.com/v1/subcategories");
+      const response = await axios.get(VITE_API_URL + "v1/subcategories");
       const data = response.data.data;
       dispatch(setData(data));
     } catch (err) {
@@ -186,7 +187,7 @@ export default function SubCategoryPage() {
     setLoadingDelete(true);
     try {
       const response = await axios.put(
-        `https://greenville.onrender.com/v1/subcategories/${editedSubCategory._id}`,
+        `${VITE_API_URL}v1/subcategories/${editedSubCategory._id}`,
         editedSubCategory
       );
 
@@ -227,7 +228,7 @@ export default function SubCategoryPage() {
   const handleDeleteSubCategory = async (subcategoryId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`/v1/subcategories/${subcategoryId}`);
+      const response = await axios.delete(`${VITE_API_URL}v1/subcategories/${subcategoryId}`);
       const updatedSubCategories = data.filter(
         (subcategory) => subcategory._id !== subcategoryId
       );
@@ -255,7 +256,7 @@ export default function SubCategoryPage() {
     try {
       // Make API call to create a new subcategory
       console.log(newSubCategory);
-      const response = await axios.post("https://greenville.onrender.com/v1/subcategories", newSubCategory);
+      const response = await axios.post(VITE_API_URL + "v1/subcategories", newSubCategory);
       const { category_name } = newSubCategory.category;
       const subcategorydata = response.data.data;
       const AddedSubCategories = {

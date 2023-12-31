@@ -31,6 +31,7 @@ import ProductTableToolbar from "../product-table-toolbar";
 import EditProductForm from "../product-edit";
 import NewProductForm from "../new-product-form.jsx";
 import ProductDetailsPopup from "../product-details";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 import { emptyRows, applyFilter, getComparator } from "../utils";
 import {
@@ -75,7 +76,7 @@ export default function ProductPage() {
       dispatch(setLoading(true));
 
       // Use axios to fetch data
-      const response = await axios.get("https://greenville.onrender.com/v1/products");
+      const response = await axios.get(VITE_API_URL + "v1/products");
       const data = response.data.data;
 
       // Update the state with the fetched data
@@ -229,7 +230,7 @@ export default function ProductPage() {
       }
 
       const response = await axios.put(
-        `https://greenville.onrender.com/v1/products/${editedProduct._id}`,
+        `${VITE_API_URL}v1/products/${editedProduct._id}`,
         formData
       );
 
@@ -277,7 +278,7 @@ export default function ProductPage() {
   const handleDeleteProduct = async (productId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`https://greenville.onrender.com/v1/products/${productId}`);
+      const response = await axios.delete(`${VITE_API_URL}v1/products/${productId}`);
       const updatedProducts = data.filter(
         (product) => product._id !== productId
       );
@@ -332,7 +333,7 @@ export default function ProductPage() {
       }
 
       // Make API call to create a new product
-      const response = await axios.post("https://greenville.onrender.com/v1/products", formData);
+      const response = await axios.post(VITE_API_URL + "v1/products", formData);
       const productdata = response.data.data;
       const AddedProducts = {
         key: productdata._id,
@@ -440,7 +441,7 @@ export default function ProductPage() {
                     return (
                       <ProductTableRow
                         key={row._id}
-                        product_image={`http://localhost:3000/${row.product_image}`}
+                        product_image={`${VITE_API_URL}${row.product_image}`}
                         sku={row.sku}
                         product_name={row.product_name}
                         price={row.price}

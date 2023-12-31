@@ -73,7 +73,7 @@ const Promo = ({ products, type }) => {
               {filteredProducts.map((product, index) => (
                 <div className={styles.item} key={index}>
                   <img
-                    src={`http://localhost:3000/${product?.product_image}`}
+                    src={`${VITE_API_URL}${product?.product_image}`}
                     alt={product?.product_name}
                   />
                   <p className="text-center mt-3">

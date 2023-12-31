@@ -27,6 +27,7 @@ import Iconify from "../../../components/iconify";
 import { bgGradient } from "../../../../theme/css";
 import { useRouter } from "../../../../routes/hooks";
 import Alert from "@mui/material/Alert";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 const ResetPasswordPage = () => {
   const theme = useTheme();
@@ -48,7 +49,7 @@ const ResetPasswordPage = () => {
 
       // Send a request to your server to update the password
       const response = await axios.post(
-        "https://greenville.onrender.com/v1/users/reset-password/" + token,
+        VITE_API_URL + "v1/users/reset-password/" + token,
         newPasswordJson
       );
 
