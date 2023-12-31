@@ -76,11 +76,15 @@ const Login = () => {
     dispatch(loginStart());
 
     try {
-      const response = await axios.post(VITE_API_URL + "v1/customers/login", {
-        email,
-        password,
-        rememberMe,
-      });
+      const response = await axios.post(
+        VITE_API_URL + "v1/customers/login",
+        {
+          email,
+          password,
+          rememberMe,
+        },
+        { withCredentials: true }
+      );
 
       if (response.status === 200) {
         dispatch(
@@ -103,9 +107,12 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(VITE_API_URL + "v1/customers/forgot-password", {
-        email: enteredEmail,
-      });
+      const response = await axios.post(
+        VITE_API_URL + "v1/customers/forgot-password",
+        {
+          email: enteredEmail,
+        }
+      );
 
       console.log(response.data);
       openSnackbar(response.data.message);
