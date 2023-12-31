@@ -75,7 +75,7 @@ export default function ProductPage() {
       dispatch(setLoading(true));
 
       // Use axios to fetch data
-      const response = await axios.get("/v1/products");
+      const response = await axios.get("https://greenville.onrender.com/v1/products");
       const data = response.data.data;
 
       // Update the state with the fetched data
@@ -229,7 +229,7 @@ export default function ProductPage() {
       }
 
       const response = await axios.put(
-        `/v1/products/${editedProduct._id}`,
+        `https://greenville.onrender.com/v1/products/${editedProduct._id}`,
         formData
       );
 
@@ -277,7 +277,7 @@ export default function ProductPage() {
   const handleDeleteProduct = async (productId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`/v1/products/${productId}`);
+      const response = await axios.delete(`https://greenville.onrender.com/v1/products/${productId}`);
       const updatedProducts = data.filter(
         (product) => product._id !== productId
       );
@@ -332,7 +332,7 @@ export default function ProductPage() {
       }
 
       // Make API call to create a new product
-      const response = await axios.post("/v1/products", formData);
+      const response = await axios.post("https://greenville.onrender.com/v1/products", formData);
       const productdata = response.data.data;
       const AddedProducts = {
         key: productdata._id,

@@ -21,7 +21,7 @@ const Search = () => {
           setLoading(true);
 
           const response = await axios.get(
-            `/v1/products/search?searchQuery=${keyword}`
+            `https://greenville.onrender.com/v1/products/search?searchQuery=${keyword}`
           );
 
           setSearchResults(response.data.data);

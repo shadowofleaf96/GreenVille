@@ -76,7 +76,7 @@ export default function UserPage() {
       dispatch(setLoading(true));
 
       // Use axios to fetch data
-      const response = await axios.get("/v1/users");
+      const response = await axios.get("https://greenville.onrender.com/v1/users");
       const data = response.data.data;
 
       // Update the state with the fetched data
@@ -217,7 +217,7 @@ export default function UserPage() {
         formData.append("user_image", selectedImage);
       }
 
-      const response = await axios.put(`/v1/users/${editedUser._id}`, formData);
+      const response = await axios.put(`https://greenville.onrender.com/v1/users/${editedUser._id}`, formData);
 
       const index = data.findIndex((user) => user._id === editedUser._id);
 
@@ -257,7 +257,7 @@ export default function UserPage() {
   const handleDeleteUser = async (userId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`/v1/users/${userId}`);
+      const response = await axios.delete(`https://greenville.onrender.com/v1/users/${userId}`);
       const updatedUsers = data.filter((user) => user._id !== userId);
       dispatch(setData(updatedUsers));
       openSnackbar(response.data.message);
@@ -308,7 +308,7 @@ export default function UserPage() {
       }
 
       // Make API call to create a new user
-      const response = await axios.post("/v1/users", formData);
+      const response = await axios.post("https://greenville.onrender.com/v1/users", formData);
       const userdata = response.data.data;
       const AddedUsers = {
         key: userdata._id,

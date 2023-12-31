@@ -45,7 +45,7 @@ export default function OrderTableToolbar({
       let response; // Declare the response variable outside the loop
       const deletedOrderIds = [];
       for (const orderId of selected) {
-        response = await axios.delete(`/v1/subcategories/${orderId}`);
+        response = await axios.delete(`https://greenville.onrender.com/v1/subcategories/${orderId}`);
         deletedOrderIds.push(orderId);
       }
 

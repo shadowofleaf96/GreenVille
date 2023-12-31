@@ -72,7 +72,7 @@ export default function OrderPage() {
       dispatch(setLoading(true));
 
       // Use axios to fetch data
-      const response = await axios.get("/v1/orders");
+      const response = await axios.get("https://greenville.onrender.com/v1/orders");
       const data = response.data.data;
       dispatch(setData(data));
     } catch (err) {
@@ -217,7 +217,7 @@ export default function OrderPage() {
         cart_total_price,
       };
 
-      const response = await axios.put(`/v1/orders/${_id}`, payload);
+      const response = await axios.put(`https://greenville.onrender.com/v1/orders/${_id}`, payload);
 
       // Assuming you have a data state and dispatch function similar to the existing code
       const index = data.findIndex((order) => order._id === _id);
@@ -263,7 +263,7 @@ export default function OrderPage() {
   const handleDeleteOrder = async (orderId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`/v1/orders/${orderId}`);
+      const response = await axios.delete(`https://greenville.onrender.com/v1/orders/${orderId}`);
       const updatedSubCategories = data.filter(
         (order) => order._id !== orderId
       );

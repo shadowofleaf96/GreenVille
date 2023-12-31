@@ -75,7 +75,7 @@ const Login = () => {
     dispatch(loginStart());
 
     try {
-      const response = await axios.post("/v1/customers/login", {
+      const response = await axios.post("https://greenville.onrender.com/v1/customers/login", {
         email,
         password,
         rememberMe,
@@ -102,7 +102,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("/v1/customers/forgot-password", {
+      const response = await axios.post("https://greenville.onrender.com/v1/customers/forgot-password", {
         email: enteredEmail,
       });
 

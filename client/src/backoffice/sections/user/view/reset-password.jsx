@@ -48,7 +48,7 @@ const ResetPasswordPage = () => {
 
       // Send a request to your server to update the password
       const response = await axios.post(
-        "/v1/users/reset-password/" + token,
+        "https://greenville.onrender.com/v1/users/reset-password/" + token,
         newPasswordJson
       );
 

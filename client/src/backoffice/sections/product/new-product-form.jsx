@@ -37,7 +37,7 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
     // Fetch subcategories when the component mounts
     const fetchSubcategories = async () => {
       try {
-        const response = await axios.get("/v1/subcategories");
+        const response = await axios.get("https://greenville.onrender.com/v1/subcategories");
         setSubcategories(response.data.data);
       } catch (error) {
         console.error("Error fetching subcategories:", error);

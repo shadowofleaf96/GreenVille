@@ -17,7 +17,7 @@ export const getProductDetails = createAsyncThunk(
   "products/getProductDetails",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`/v1/products/${id}`);
+      const response = await axios.get(`https://greenville.onrender.com/v1/products/${id}`);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response.data.message);

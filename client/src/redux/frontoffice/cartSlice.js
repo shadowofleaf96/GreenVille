@@ -14,7 +14,7 @@ export const addItemToCart = createAsyncThunk(
   ADD_TO_CART,
   async ({ id, quantity }) => {
     try {
-      const response = await axios.get(`/v1/products/${id}`);
+      const response = await axios.get(`https://greenville.onrender.com/v1/products/${id}`);
       const productData = response.data.data;
       return {
         product: productData._id,

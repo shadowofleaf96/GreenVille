@@ -68,7 +68,7 @@ export default function LoginView() {
     try {
       setResetPasswordLoading(true);
 
-      const response = await axios.post("/v1/users/forgot-password", {
+      const response = await axios.post("https://greenville.onrender.com/v1/users/forgot-password", {
         email: resetEmail,
       });
 
@@ -95,7 +95,7 @@ export default function LoginView() {
         password,
       };
 
-      const response = await axios.post("/v1/users/login", requestBody, {
+      const response = await axios.post("https://greenville.onrender.com/v1/users/login", requestBody, {
         withCredentials: true,
       });
 

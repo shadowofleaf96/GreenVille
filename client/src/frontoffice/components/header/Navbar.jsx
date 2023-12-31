@@ -60,7 +60,7 @@ const Navbar = () => {
   const logoutHandler = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/v1/customers/logout");
+      const response = await axios.post("https://greenville.onrender.com/v1/customers/logout");
 
       if (response.data.message === "Logout successful") {
         dispatch(logout({}));

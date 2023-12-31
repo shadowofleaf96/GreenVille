@@ -35,8 +35,8 @@ export default function AppView() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const customersResponse = await axios.get("/v1/customers");
-        const ordersResponse = await axios.get("/v1/orders");
+        const customersResponse = await axios.get("https://greenville.onrender.com/v1/customers");
+        const ordersResponse = await axios.get("https://greenville.onrender.com/v1/orders");
         setData({
           customers: customersResponse.data.data,
           orders: ordersResponse.data.data,

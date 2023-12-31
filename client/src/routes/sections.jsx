@@ -55,7 +55,7 @@ export default function Router() {
 
   useEffect(() => {
     async function getStripApiKey() {
-      const { data } = await axios.get("/api/v1/stripeapi");
+      const { data } = await axios.get("https://greenville.onrender.com/v1/stripeapi");
 
       setStripeApiKey(data.stripeApiKey);
     }

@@ -44,7 +44,7 @@ export const getCategories = (category_Id) => async (dispatch) => {
   dispatch(categoriesRequest());
 
   try {
-    let link = `/v1/categories`;
+    let link = `https://greenville.onrender.com/v1/categories`;
 
     if (category_Id) {
       link = `/${category_Id}`;

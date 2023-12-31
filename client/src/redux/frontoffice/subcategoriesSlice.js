@@ -44,7 +44,7 @@ export const getSubcategories = (category_Id) => async (dispatch) => {
   dispatch(subcategoriesRequest());
 
   try {
-    let link = `/v1/subcategories`;
+    let link = `https://greenville.onrender.com/v1/subcategories`;
 
     if (category_Id) {
       link = `/${category_Id}`;

@@ -32,7 +32,7 @@ function EditOrderForm({ order, onSave, onCancel, open, onClose }) {
     // Fetch customers and other necessary data when the component mounts
     const fetchData = async () => {
       try {
-        const customersResponse = await axios.get("/v1/customers");
+        const customersResponse = await axios.get("https://greenville.onrender.com/v1/customers");
         setCustomers(customersResponse.data.data);
         // You can fetch other data if needed for the form
       } catch (error) {

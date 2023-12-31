@@ -29,7 +29,7 @@ const ProfileLink = () => {
 
   const logoutHandler = async () => {
     try {
-      const response = await axios.post("/v1/customers/logout");
+      const response = await axios.post("https://greenville.onrender.com/v1/customers/logout");
 
       if (response.data.message === "Logout successful") {
         dispatch(logout({}));

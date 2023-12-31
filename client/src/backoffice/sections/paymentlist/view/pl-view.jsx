@@ -69,7 +69,7 @@ export default function PaymentListPage() {
       dispatch(setLoading(true));
 
       // Use axios to fetch data
-      const response = await axios.get("/v1/paymentLists");
+      const response = await axios.get("https://greenville.onrender.com/v1/paymentLists");
       const data = response.data.paymentList;
 
       // Update the state with the fetched data
@@ -203,7 +203,7 @@ export default function PaymentListPage() {
       formData.append("active", editedPaymentList.active);
 
       const response = await axios.put(
-        `/v1/paymentLists/${editedPaymentList._id}`,
+        `https://greenville.onrender.com/v1/paymentLists/${editedPaymentList._id}`,
         formData
       );
 
@@ -246,7 +246,7 @@ export default function PaymentListPage() {
     setLoadingDelete(true);
     try {
       console.log(paymentListId);
-      const response = await axios.delete(`/v1/paymentLists/${paymentListId}`);
+      const response = await axios.delete(`https://greenville.onrender.com/v1/paymentLists/${paymentListId}`);
       const updatedPaymentLists = data.filter(
         (paymentList) => paymentList._id !== paymentListId
       );
@@ -294,7 +294,7 @@ export default function PaymentListPage() {
       formData.append("active", newPaymentList.active);
 
       // Make API call to create a new paymentList
-      const response = await axios.post("/v1/paymentLists", formData);
+      const response = await axios.post("https://greenville.onrender.com/v1/paymentLists", formData);
       const paymentListdata = response.data.paymentList;
       selectedImage.name;
       // Dispatch the action to update the Redux state

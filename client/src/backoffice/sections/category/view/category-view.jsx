@@ -71,7 +71,7 @@ export default function CategoryPage() {
       dispatch(setLoading(true));
 
       // Use axios to fetch data
-      const response = await axios.get("/v1/categories");
+      const response = await axios.get("https://greenville.onrender.com/v1/categories");
       const data = response.data.data;
 
       // Update the state with the fetched data
@@ -192,7 +192,7 @@ export default function CategoryPage() {
     setLoadingDelete(true);
     try {
       const response = await axios.put(
-        `/v1/categories/${editedCategory._id}`,
+        `https://greenville.onrender.com/v1/categories/${editedCategory._id}`,
         editedCategory
       );
 
@@ -227,7 +227,7 @@ export default function CategoryPage() {
   const handleDeleteCategory = async (categoryId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`/v1/categories/${categoryId}`);
+      const response = await axios.delete(`https://greenville.onrender.com/v1/categories/${categoryId}`);
       const updatedCategories = data.filter(
         (category) => category._id !== categoryId
       );
@@ -263,7 +263,7 @@ export default function CategoryPage() {
     setLoadingDelete(true);
 
     try {
-      const response = await axios.post("/v1/categories", newCategory);
+      const response = await axios.post("https://greenville.onrender.com/v1/categories", newCategory);
       const categorydata = response.data.data;
       const AddedCategory = {
         key: categorydata._id,

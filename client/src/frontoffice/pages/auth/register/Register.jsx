@@ -31,7 +31,7 @@ const RegistrationForm = () => {
       }
 
       const response = await axios.post(
-        "http://localhost:3000/v1/customers/",
+        "https://greenville.onrender.com/v1/customers/",
         formData
       );
 

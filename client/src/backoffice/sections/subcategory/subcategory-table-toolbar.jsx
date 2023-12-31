@@ -39,7 +39,7 @@ export default function SubCategoryTableToolbar({
       let response; // Declare the response variable outside the loop
       const deletedSubCategoryIds = [];
       for (const subcategoryId of selected) {
-        response = await axios.delete(`/v1/subcategories/${subcategoryId}`);
+        response = await axios.delete(`https://greenville.onrender.com/v1/subcategories/${subcategoryId}`);
         deletedSubCategoryIds.push(subcategoryId);
       }
 

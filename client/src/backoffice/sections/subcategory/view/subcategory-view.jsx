@@ -68,7 +68,7 @@ export default function SubCategoryPage() {
     try {
       dispatch(setLoading(true));
 
-      const response = await axios.get("/v1/subcategories");
+      const response = await axios.get("https://greenville.onrender.com/v1/subcategories");
       const data = response.data.data;
       dispatch(setData(data));
     } catch (err) {
@@ -186,7 +186,7 @@ export default function SubCategoryPage() {
     setLoadingDelete(true);
     try {
       const response = await axios.put(
-        `/v1/subcategories/${editedSubCategory._id}`,
+        `https://greenville.onrender.com/v1/subcategories/${editedSubCategory._id}`,
         editedSubCategory
       );
 
@@ -255,7 +255,7 @@ export default function SubCategoryPage() {
     try {
       // Make API call to create a new subcategory
       console.log(newSubCategory);
-      const response = await axios.post("/v1/subcategories", newSubCategory);
+      const response = await axios.post("https://greenville.onrender.com/v1/subcategories", newSubCategory);
       const { category_name } = newSubCategory.category;
       const subcategorydata = response.data.data;
       const AddedSubCategories = {

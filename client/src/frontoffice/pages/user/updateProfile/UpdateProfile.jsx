@@ -79,7 +79,7 @@ const UpdateProfile = () => {
         formData.append("customer_image", selectedImage);
       }
 
-      const response = await axios.put(`/v1/customers/${customerId}`, formData);
+      const response = await axios.put(`https://greenville.onrender.com/v1/customers/${customerId}`, formData);
       openSnackbar(response.data.message);
       router.push("/me");
     } catch (error) {

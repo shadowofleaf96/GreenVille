@@ -47,7 +47,7 @@ export default function ProductTableToolbar({
       let response;
       const deletedProductIds = [];
       for (const userId of selected) {
-        response = await axios.delete(`/v1/users/${userId}`);
+        response = await axios.delete(`https://greenville.onrender.com/v1/users/${userId}`);
         deletedProductIds.push(userId);
       }
 

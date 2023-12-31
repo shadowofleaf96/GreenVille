@@ -74,7 +74,7 @@ export default function CustomerPage() {
       dispatch(setLoading(true));
 
       // Use axios to fetch data
-      const response = await axios.get("/v1/customers");
+      const response = await axios.get("https://greenville.onrender.com/v1/customers");
       const data = response.data.data;
 
       // Update the state with the fetched data
@@ -214,7 +214,7 @@ export default function CustomerPage() {
       }
 
       const response = await axios.put(
-        `/v1/customers/${editedCustomer._id}`,
+        `https://greenville.onrender.com/v1/customers/${editedCustomer._id}`,
         formData
       );
 
@@ -258,7 +258,7 @@ export default function CustomerPage() {
   const handleDeleteCustomer = async (customerId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`/v1/customers/${customerId}`);
+      const response = await axios.delete(`https://greenville.onrender.com/v1/customers/${customerId}`);
       const updatedCustomers = data.filter(
         (customer) => customer._id !== customerId
       );

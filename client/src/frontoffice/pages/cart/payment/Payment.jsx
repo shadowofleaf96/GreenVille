@@ -78,7 +78,7 @@ const Payment = ({ history }) => {
             };
 
             res = await axios.post(
-                "/api/v1/payment/process",
+                "https://greenville.onrender.com/api/v1/payment/process",
                 paymentData,
                 config
             );

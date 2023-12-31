@@ -30,7 +30,7 @@ function EditSubCategoryForm({ subcategory, onSave, onCancel, open, onClose }) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("/v1/categories");
+        const response = await axios.get("https://greenville.onrender.com/v1/categories");
         setCategories(response.data.data);
       } catch (error) {
         console.error("Error fetching categories:", error);
