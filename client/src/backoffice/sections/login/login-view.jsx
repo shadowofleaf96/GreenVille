@@ -27,7 +27,6 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import Logo from "../../components/logo";
 import Iconify from "../../components/iconify";
-import axiosInstance from "../../../utils/axiosInstance"
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 export default function LoginView() {
