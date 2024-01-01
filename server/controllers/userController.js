@@ -308,7 +308,8 @@ const loginUser = async (req, res, next) => {
 
         res.cookie("user_access_token", accessToken, {
           httpOnly: false,
-          secure: false,
+          secure: true,
+          sameSite: 'None', // Allow cross-origin access
         });
 
         // Generate Refresh Token
@@ -322,7 +323,8 @@ const loginUser = async (req, res, next) => {
 
         res.cookie("user_refresh_token", refreshToken, {
           httpOnly: false, //--> Fix this Later with react
-          secure: false, //--> SET TO TRUE ON PRODUCTION
+          secure: true, //--> SET TO TRUE ON PRODUCTION
+          sameSite: 'None', // Allow cross-origin access
         });
 
         // Update last_login

@@ -45,7 +45,8 @@ const CustomerController = {
 
           res.cookie("customer_access_token", accessToken, {
             httpOnly: false,
-            secure: false,
+            secure: true,
+            sameSite: 'None', // Allow cross-origin access
           });
 
           const refreshTokenPayload = {
@@ -58,7 +59,8 @@ const CustomerController = {
 
           res.cookie("customer_refresh_token", refreshToken, {
             httpOnly: false,
-            secure: false,
+            secure: true,
+            sameSite: 'None', // Allow cross-origin access
           });
 
           return res.status(200).json({
