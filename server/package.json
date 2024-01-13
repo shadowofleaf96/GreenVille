@@ -2,6 +2,7 @@
     "name": "secure-node-app",
     "version": "1.0",
     "description": "Ecommerce Project",
+    "proxy": "https://greenville.onrender.com/",
     "main": "server.js",
     "scripts": {
         "start": "node app.js"

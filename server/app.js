@@ -10,8 +10,8 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin:"https://greenville-frontend.onrender.com",
     credentials: true,
+    origin: ["https://greenville-frontend.onrender.com","http://localhost:5173"]
   })
 );
 

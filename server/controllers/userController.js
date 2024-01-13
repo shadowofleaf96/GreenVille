@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { createTransport } = require("nodemailer");
 const { log } = require("console");
-require('dotenv').config({ path: '../.env' });
+require("dotenv").config({ path: "../.env" });
 const crypto = require("crypto");
 const secretKey = process.env.SECRETKEY;
 const secretRefreshKey = process.env.REFRESHSECRETLEY;
@@ -210,7 +210,7 @@ const updateUser = async (req, res) => {
     if (user_image) {
       fixed_user_image = user_image.path.replace(/public\\/g, "");
     } else {
-      fixed_user_image = existingUser.user_image; 
+      fixed_user_image = existingUser.user_image;
     }
 
     // Validate the request body to ensure data types
@@ -308,8 +308,8 @@ const loginUser = async (req, res, next) => {
 
         res.cookie("user_access_token", accessToken, {
           httpOnly: false,
+          sameSite: "none", // Allow cross-origin access
           secure: true,
-          sameSite: 'None', // Allow cross-origin access
         });
 
         // Generate Refresh Token
@@ -323,8 +323,8 @@ const loginUser = async (req, res, next) => {
 
         res.cookie("user_refresh_token", refreshToken, {
           httpOnly: false, //--> Fix this Later with react
+          sameSite: "none", // Allow cross-origin access
           secure: true, //--> SET TO TRUE ON PRODUCTION
-          sameSite: 'None', // Allow cross-origin access
         });
 
         // Update last_login
