@@ -121,7 +121,7 @@ const Contact = () => {
               <div className="col-md-6">
                 <div className={styles.contact_img}>
                   <img
-                    src="../../../../public/assets/contact.png"
+                    src="../../../../public/assets/contact.webp"
                     alt=""
                   />
                 </div>

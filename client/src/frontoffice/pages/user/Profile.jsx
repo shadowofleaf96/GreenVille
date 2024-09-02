@@ -3,8 +3,8 @@ import ProfileLink from "../../components/profileLinks/ProfileLink";
 import { useSelector } from "react-redux";
 import Iconify from "../../../backoffice/components/iconify";
 import { Link } from "react-router-dom";
-import { Table } from "react-bootstrap";
 import styles from "./Profile.module.scss";
+import { Typography } from "@material-tailwind/react";
 import Loader from "../../components/loader/Loader";
 import Navbar from "../../components/header/Navbar";
 import Footer from "../../components/footer/Footer";
@@ -55,43 +55,37 @@ const Profile = () => {
                       </div>
                       <div className="col-md-6">
                         <div className={styles.info}>
-                          <Table responsive="sm md lg xl">
-                            <tbody>
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <tbody className="bg-white divide-y divide-gray-200">
                               <tr>
-                                <td>
-                                  <Iconify
-                                    icon="material-symbols-light:face"
-                                    width={30}
-                                    height={30}
-                                  />
+                                <td className="px-4 py-2">
+                                  <Iconify icon="material-symbols-light:face" width={30} height={30} />
                                 </td>
-                                <td className="fw-bold">First Name</td>
-                                <td>{customer?.first_name}</td>
+                                <td className="px-4 py-2 font-semibold">
+                                  <Typography variant="small">First Name</Typography>
+                                </td>
+                                <td className="px-4 py-2">{customer?.first_name}</td>
                               </tr>
                               <tr>
-                                <td>
-                                  <Iconify
-                                    icon="material-symbols-light:face-6"
-                                    width={30}
-                                    height={30}
-                                  />
+                                <td className="px-4 py-2">
+                                  <Iconify icon="material-symbols-light:face-6" width={30} height={30} />
                                 </td>
-                                <td className="fw-bold">Last Name</td>
-                                <td>{customer?.last_name}</td>
+                                <td className="px-4 py-2 font-semibold">
+                                  <Typography variant="small">Last Name</Typography>
+                                </td>
+                                <td className="px-4 py-2">{customer?.last_name}</td>
                               </tr>
                               <tr>
-                                <td>
-                                  <Iconify
-                                    icon="material-symbols-light:mail-outline"
-                                    width={30}
-                                    height={30}
-                                  />
+                                <td className="px-4 py-2">
+                                  <Iconify icon="material-symbols-light:mail-outline" width={30} height={30} />
                                 </td>
-                                <td className="fw-bold">Email</td>
-                                <td>{customer?.email}</td>
+                                <td className="px-4 py-2 font-semibold">
+                                  <Typography variant="small">Email</Typography>
+                                </td>
+                                <td className="px-4 py-2">{customer?.email}</td>
                               </tr>
                             </tbody>
-                          </Table>
+                          </table>
                         </div>
                       </div>
                     </div>

@@ -21,7 +21,7 @@ const MiniLogo = forwardRef(({ disabledLink = true, sx, ...other }, ref) => {
   const logo = (
     <Box
       component="img"
-      src="/assets/logo.png"
+      src="/assets/logo.webp"
       sx={{ width: 117, height: 88, cursor: 'pointer', ...sx }}
     />
   );

@@ -3,19 +3,16 @@ import Iconify from "../../../backoffice/components/iconify";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { Spinner } from "react-bootstrap";
-
-import "./Navbar.scss";
-import { Link, Route, Routes } from "react-router-dom";
+import { Spinner } from "@material-tailwind/react";
+import { Link } from "react-router-dom";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { logout } from "../../../redux/frontoffice/customerSlice";
 import Announcement from "../announcement/Announcement";
-import Search from "./Search";
 import { useCookies } from "react-cookie";
 import { useRouter } from "../../../routes/hooks";
 import { isExpired } from "react-jwt";
-import Links from "../Links/Links";
+
 const SECRETKEY = import.meta.env.VITE_SECRETKEY;
 
 const Navbar = () => {
@@ -30,6 +27,7 @@ const Navbar = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const router = useRouter();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     window.addEventListener("scroll", isSticky);
@@ -55,8 +53,6 @@ const Navbar = () => {
       : header.classList.remove("is-sticky");
   };
 
-  const dispatch = useDispatch();
-
   const logoutHandler = async (e) => {
     e.preventDefault();
     try {
@@ -64,7 +60,7 @@ const Navbar = () => {
 
       if (response.data.message === "Logout successful") {
         dispatch(logout({}));
-        router.push("/")
+        router.push("/");
         openSnackbar(response.data.message);
       } else {
         openSnackbar("Error: " + response.data.message);
@@ -86,65 +82,54 @@ const Navbar = () => {
   };
 
   return (
-    <div className="nav_container">
+    <div className="relative">
       <Announcement />
-      <nav className="navbar">
-        <div className="container">
-          <div className="d-flex align-items-center">
-            <Link to="/">
-              <img className="img" src="/assets/logo-white.png" alt="logo" />
+      <nav className="bg-white shadow-md py-4">
+        <div className="container mx-auto flex items-center justify-between px-4">
+          <Link to="/">
+            <img className="w-24 h-auto bg-cover" src="/assets/logo.webp" alt="logo" />
+          </Link>
+          <div className="flex-grow">
+            <div className="flex font-semibold text-lg justify-center gap-8 ">
+              <Link to="/" className="hover:text-green-400">Home </Link>
+              <Link to="/products" className="hover:text-green-400">Products </Link>
+              <Link to="/contact" className="hover:text-green-400">Contact </Link>
+              <Link to="/about" className="hover:text-green-400">About </Link>
+            </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Link to="/cart" className="relative">
+              <Iconify
+                icon="material-symbols-light:shopping-cart-outline-rounded"
+                width={32}
+                height={32}
+              />
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full px-1 text-xs">
+                {cartItems?.length}
+              </span>
             </Link>
-          </div>
-          <div className="search">
-            <Routes>
-              <Route path="*" element={<Search />} />
-            </Routes>
-          </div>
-          <div className="nav_links">
-            <ul className="d-flex align-items-center">
-              <li className="cart">
-                <Link to="/cart">
-                  <Iconify
-                    icon="material-symbols-light:shopping-cart-outline-rounded"
-                    width={32}
-                    height={32}
-                  />
-                  <span>{cartItems?.length}</span>
-                </Link>
-              </li>
-              {loading ? (
-                <>
-                  <Spinner animation="border" className="mt-2" />
-                </>
-              ) : (
-                <>
-                  {isTokenValid() && token && customer ? (
-                    <>
-                      <li>
+            {loading ? (
+              <Spinner className="mt-2" />
+            ) : (
+              <>
+                {isTokenValid() && token && customer ? (
+                  <>
+                    <div className="relative">
+                      <button
+                        className="focus:outline-none"
+                        onClick={() => setDropdown(!dropdown)}
+                      >
                         <img
-                          style={{
-                            height: "50px",
-                            width: "50px",
-                            borderRadius: "50%",
-                            border: "2px solid black",
-                          }}
+                          className="h-12 w-12 rounded-full border-5 border-black"
                           src={`http://localhost:3000/${customer?.customer_image}`}
                           alt={customer?.first_name + customer?.last_name}
                         />
-                      </li>
-                      <li>
-                        <button
-                          onClick={() => {
-                            dropdown ? setDropdown(false) : setDropdown(true);
-                          }}
-                        >
-                          {customer?.first_name + " " + customer?.last_name}
-                        </button>
-                      </li>
+                      </button>
                       {dropdown && (
-                        <div className="dropdown">
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
                           <Link
                             to="/me"
+                            className="flex items-center px-4 py-2 text-sm text-black hover:text-green-400"
                             onClick={(e) => {
                               e.preventDefault();
                               setDropdown(false);
@@ -152,83 +137,87 @@ const Navbar = () => {
                             }}
                           >
                             <Iconify
+                              className="mx-2"
                               icon="material-symbols-light:supervised-user-circle-outline"
                               width={30}
                               height={30}
-                            />
+                            />{" "}
                             Profile
                           </Link>
-                          <Link id="logout" onClick={logoutHandler}>
+                          <button
+                            className="flex items-center px-4 py-2 text-sm text-black hover:text-green-400 w-full text-left"
+                            onClick={logoutHandler}
+                          >
                             <Iconify
+                              className="mx-2"
                               icon="material-symbols-light:logout-rounded"
                               width={30}
                               height={30}
-                            />
+                            />{" "}
                             Logout
-                          </Link>
+                          </button>
                         </div>
                       )}
-                    </>
-                  ) : (
-                    <>
-                      <li>
-                        <Link to="/login">Login</Link>
-                      </li>
-                    </>
-                  )}
-                </>
-              )}
-            </ul>
+                    </div>
+                  </>
+                ) : (
+                  <Link to="/login" className="text-sm">
+                    Login
+                  </Link>
+                )}
+              </>
+            )}
           </div>
-          <div className="app__navbar-menu">
+          <div className="md:hidden flex items-center">
             <Iconify
               icon="material-symbols-light:menu-rounded"
               width={28}
               height={28}
               onClick={() => setToggle(true)}
             />
-
-            {toggle && (
-              <motion.div
-                whileInView={{ x: [300, 0] }}
-                transition={{ duration: 0.85, ease: "easeOut" }}
-              >
-                <Iconify
-                  icon="material-symbols-light:cancel-outline-rounded"
-                  width={28}
-                  height={28}
-                  onClick={() => setToggle(false)}
-                />
-                <ul>
-                  <li>
-                    <Link to="/" onClick={() => setToggle(false)}>
-                      Home
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/products" onClick={() => setToggle(false)}>
-                      Products
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/contact" onClick={() => setToggle(false)}>
-                      Contact
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/about" onClick={() => setToggle(false)}>
-                      About
-                    </Link>
-                  </li>
-                </ul>
-              </motion.div>
-            )}
           </div>
         </div>
       </nav>
-      <div className="links">
-        <Links />
-      </div>
+
+      {toggle && (
+        <motion.div
+          className="fixed top-0 right-0 bottom-0 w-2/3 bg-white shadow-md z-50 p-6"
+          whileInView={{ x: [300, 0] }}
+          transition={{ duration: 0.85, ease: "easeOut" }}
+        >
+          <div className="flex justify-end">
+            <Iconify
+              icon="material-symbols-light:cancel-outline-rounded"
+              width={28}
+              height={28}
+              onClick={() => setToggle(false)}
+            />
+          </div>
+          <ul className="mt-8 space-y-4">
+            <li>
+              <Link to="/" onClick={() => setToggle(false)}>
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link to="/products" onClick={() => setToggle(false)}>
+                Products
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact" onClick={() => setToggle(false)}>
+                Contact
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" onClick={() => setToggle(false)}>
+                About
+              </Link>
+            </li>
+          </ul>
+        </motion.div>
+      )}
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={5000}

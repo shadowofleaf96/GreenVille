@@ -46,7 +46,7 @@ const About = () => {
               <div className="col-md-6">
                 <div className={styles.image}>
                   <img
-                    src="../../../../public/assets/about.png"
+                    src="../../../../public/assets/about.webp"
                     alt="About"
                   />
                 </div>

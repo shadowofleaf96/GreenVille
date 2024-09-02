@@ -29,7 +29,6 @@ import {
 import Logo from "../../../components/logo";
 import Link from "@mui/material/Link";
 import InputAdornment from "@mui/material/InputAdornment";
-import "./Login.module.scss";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -125,175 +124,175 @@ const Login = () => {
   };
 
   return (
-    <div className="backImage">
-      <motion.div
-        initial={{ scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{
-          duration: 0.3,
-        }}
-      >
-        <Paper
-          elevation={3}
-          sx={{ p: 5 }}
-          style={{
-            maxWidth: "420px",
-            backgroundColor: "white",
-            borderRadius: "20px",
-            textAlign: "center",
+      <div className="backImage">
+        <motion.div
+          initial={{ scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            duration: 0.3,
           }}
         >
-          <Logo sx={{ marginBottom: "20px" }} />
-          <Typography variant="h5" gutterBottom style={{ color: "black" }}>
-            Welcome
-          </Typography>
-
-          <form onSubmit={handleLogin}>
-            <TextField
-              label="Email"
-              variant="outlined"
-              autoComplete="chrome-off"
-              fullWidth
-              margin="normal"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              placeholder="Email"
-            />
-            <TextField
-              label="Password"
-              type="password"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              placeholder="Password"
-              InputProps={{
-                autoComplete: "new-password",
-                form: {
-                  autoComplete: "off",
-                },
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <MuiLink
-                      component={Link}
-                      to="/forgot-password"
-                      variant="body2"
-                      style={{ color: "black", cursor: "pointer" }}
-                      onClick={handleOpenDialog}
-                    >
-                      Forgot?
-                    </MuiLink>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={rememberMe}
-                  onChange={handleRememberMeChange}
-                  style={{ color: "#8dc63f" }}
-                />
-              }
-              label="Remember Me"
-            />
-            <Button
-              type="submit"
-              style={{
-                backgroundColor: "#8dc63f",
-                color: "#fff",
-                marginTop: "10px",
-                marginBottom: "20px",
-                borderRadius: "20px",
-              }}
-              fullWidth
-            >
-              Login
-            </Button>
-            <GoogleLogin
-              onSuccess={responseMessage}
-              onError={errorMessage}
-              width="340px"
-              size="medium"
-              shape="circle"
-              logo_alignment="center"
-            />
-            <Typography
-              variant="body2"
-              style={{ textAlign: "center", marginTop: "30px" }}
-            >
-              Don't have an account?{" "}
-              <Link
-                component={RouterLink}
-                to="/register"
-                underline="hover"
-                style={{ color: "#8dc63f" }}
-              >
-                Register
-              </Link>
+          <Paper
+            elevation={3}
+            sx={{ p: 5 }}
+            style={{
+              maxWidth: "420px",
+              backgroundColor: "white",
+              borderRadius: "20px",
+              textAlign: "center",
+            }}
+          >
+            <Logo sx={{ marginBottom: "20px" }} />
+            <Typography variant="h5" gutterBottom style={{ color: "black" }}>
+              Welcome
             </Typography>
-          </form>
 
-          <Dialog open={openDialog} onClose={handleCloseDialog}>
-            <DialogTitle>Forgot Password</DialogTitle>
-            <DialogContent
-              elevation={3}
-              style={{
-                padding: "40px",
-                maxWidth: "300px",
-                borderRadius: "20px",
-              }}
-            >
-              <Typography>Enter your email to reset your password:</Typography>
-              <form onSubmit={handleForgotPassword}>
-                <TextField
-                  label="Email"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
-                  value={enteredEmail}
-                  onChange={(e) => setEnteredEmail(e.target.value)}
-                />
-                <Button
-                  type="submit"
-                  style={{
-                    backgroundColor: "#8dc63f",
-                    color: "#fff",
-                    marginTop: "10px",
-                    borderRadius: "20px",
-                  }}
-                  variant="contained"
-                  fullWidth
-                >
-                  Submit
-                </Button>
-              </form>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseDialog} style={{ color: "#8dc63f" }}>
-                Cancel
+            <form onSubmit={handleLogin}>
+              <TextField
+                label="Email"
+                variant="outlined"
+                autoComplete="chrome-off"
+                fullWidth
+                margin="normal"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+                placeholder="Email"
+              />
+              <TextField
+                label="Password"
+                type="password"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+                placeholder="Password"
+                InputProps={{
+                  autoComplete: "new-password",
+                  form: {
+                    autoComplete: "off",
+                  },
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <MuiLink
+                        component={Link}
+                        to="/forgot-password"
+                        variant="body2"
+                        style={{ color: "black", cursor: "pointer" }}
+                        onClick={handleOpenDialog}
+                      >
+                        Forgot?
+                      </MuiLink>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={rememberMe}
+                    onChange={handleRememberMeChange}
+                    style={{ color: "#8dc63f" }}
+                  />
+                }
+                label="Remember Me"
+              />
+              <Button
+                type="submit"
+                style={{
+                  backgroundColor: "#8dc63f",
+                  color: "#fff",
+                  marginTop: "10px",
+                  marginBottom: "20px",
+                  borderRadius: "20px",
+                }}
+                fullWidth
+              >
+                Login
               </Button>
-            </DialogActions>
-          </Dialog>
-        </Paper>
-      </motion.div>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
+              <GoogleLogin
+                onSuccess={responseMessage}
+                onError={errorMessage}
+                width="340px"
+                size="medium"
+                shape="circle"
+                logo_alignment="center"
+              />
+              <Typography
+                variant="body2"
+                style={{ textAlign: "center", marginTop: "30px" }}
+              >
+                Don't have an account?{" "}
+                <Link
+                  component={RouterLink}
+                  to="/register"
+                  underline="hover"
+                  style={{ color: "#8dc63f" }}
+                >
+                  Register
+                </Link>
+              </Typography>
+            </form>
+
+            <Dialog open={openDialog} onClose={handleCloseDialog}>
+              <DialogTitle>Forgot Password</DialogTitle>
+              <DialogContent
+                elevation={3}
+                style={{
+                  padding: "40px",
+                  maxWidth: "300px",
+                  borderRadius: "20px",
+                }}
+              >
+                <Typography>Enter your email to reset your password:</Typography>
+                <form onSubmit={handleForgotPassword}>
+                  <TextField
+                    label="Email"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    value={enteredEmail}
+                    onChange={(e) => setEnteredEmail(e.target.value)}
+                  />
+                  <Button
+                    type="submit"
+                    style={{
+                      backgroundColor: "#8dc63f",
+                      color: "#fff",
+                      marginTop: "10px",
+                      borderRadius: "20px",
+                    }}
+                    variant="contained"
+                    fullWidth
+                  >
+                    Submit
+                  </Button>
+                </form>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseDialog} style={{ color: "#8dc63f" }}>
+                  Cancel
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </Paper>
+        </motion.div>
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={5000}
           onClose={closeSnackbar}
-          severity={snackbarMessage.includes("Error") ? "error" : "success"}
+          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-    </div>
+          <Alert
+            onClose={closeSnackbar}
+            severity={snackbarMessage.includes("Error") ? "error" : "success"}
+          >
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
+      </div>
   );
 };
 

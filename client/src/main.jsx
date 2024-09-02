@@ -6,7 +6,6 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "../src/redux/store";
 import "./locales/i18n";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "../src/global.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 

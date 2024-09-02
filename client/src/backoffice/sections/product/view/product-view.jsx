@@ -328,7 +328,7 @@ export default function ProductPage() {
         formData.append("product_image", selectedImage);
         newProduct.product_image = "images/" + selectedImage.name;
       } else {
-        newProduct.product_image = "images/image_placeholder.png";
+        newProduct.product_image = "images/image_placeholder.webp";
       }
 
       // Make API call to create a new product

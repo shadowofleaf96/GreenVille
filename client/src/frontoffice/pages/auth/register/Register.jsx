@@ -6,7 +6,6 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { useRouter } from "../../../../routes/hooks";
 import { motion } from "framer-motion";
-import "./Register.module.scss";
 
 const RegistrationForm = () => {
   const [firstName, setFirstName] = useState("");

@@ -21,7 +21,7 @@ const NavLogo = forwardRef(({ disabledLink = true, sx, ...other }, ref) => {
   const logo = (
     <Box
       component="img"
-      src="/assets/nav_logo.png"
+      src="/assets/nav_logo.webp"
       sx={{ width: 32, height: 37, cursor: "pointer", ...sx }}
     />
   );

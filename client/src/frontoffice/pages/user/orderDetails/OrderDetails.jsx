@@ -4,10 +4,10 @@ import Alert from "@mui/material/Alert";
 import { useDispatch, useSelector } from "react-redux";
 import Iconify from "../../../../backoffice/components/iconify";
 import { useParams } from "react-router-dom";
+import { Typography } from "@material-tailwind/react";
 import styles from "./OrderDetails.module.scss";
 import { clearErrors, getOrderDetails } from "../../../../redux/frontoffice/orderSlice";
 import { Link } from "react-router-dom";
-import { Table } from "react-bootstrap";
 import Loader from "../../../components/loader/Loader";
 import Navbar from "../../../components/header/Navbar";
 import Footer from "../../../components/footer/Footer";
@@ -152,155 +152,92 @@ const OrderDetails = () => {
                                             {/* shipping info  */}
                                             <div className="col-md-6">
                                                 <h5>Shipping Info</h5>
-                                                <Table
-                                                    className="mt-3 mb-3"
-                                                    borderless
-                                                    responsive
-                                                >
-                                                    <tbody>
+                                                <table className="min-w-full divide-y divide-gray-200 border-0">
+                                                    <tbody className="bg-white divide-y divide-gray-200">
                                                         <tr>
-                                                            <td>
-                                                                <Iconify
-                                                                    icon="twemoji:blush"
-                                                                    size={20}
-                                                                />
+                                                            <td className="px-4 py-2">
+                                                                <Iconify icon="twemoji:blush" width={20} height={20} />
                                                             </td>
-                                                            <td className="fw-bold">
-                                                                Name
+                                                            <td className="px-4 py-2 font-semibold">
+                                                                <Typography variant="small">Name</Typography>
                                                             </td>
-                                                            <td>
-                                                                {customer &&
-                                                                    customer.name}
-                                                            </td>
+                                                            <td className="px-4 py-2">{customer?.name}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td>
-                                                                <Iconify
-                                                                    icon="twemoji:telephone"
-                                                                    size={20}
-                                                                />
+                                                            <td className="px-4 py-2">
+                                                                <Iconify icon="twemoji:telephone" width={20} height={20} />
                                                             </td>
-                                                            <td className="fw-bold">
-                                                                Phone
+                                                            <td className="px-4 py-2 font-semibold">
+                                                                <Typography variant="small">Phone</Typography>
                                                             </td>
-                                                            <td>
-                                                                {shippingInfo &&
-                                                                    shippingInfo.phoneNo}
-                                                            </td>
+                                                            <td className="px-4 py-2">{shippingInfo?.phoneNo}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td>
-                                                                <Iconify
-                                                                    icon="twemoji:round_pushpin"
-                                                                    size={20}
-                                                                />
+                                                            <td className="px-4 py-2">
+                                                                <Iconify icon="twemoji:round_pushpin" width={20} height={20} />
                                                             </td>
-                                                            <td className="fw-bold">
-                                                                Address
+                                                            <td className="px-4 py-2 font-semibold">
+                                                                <Typography variant="small">Address</Typography>
                                                             </td>
-                                                            <td>
-                                                                {shippingInfo &&
-                                                                    shippingInfo.address}
-                                                            </td>
+                                                            <td className="px-4 py-2">{shippingInfo?.address}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td>
-                                                                <Iconify
-                                                                    icon="twemoji:cityscape"
-                                                                    size={20}
-                                                                />
+                                                            <td className="px-4 py-2">
+                                                                <Iconify icon="twemoji:cityscape" width={20} height={20} />
                                                             </td>
-                                                            <td className="fw-bold">
-                                                                City
+                                                            <td className="px-4 py-2 font-semibold">
+                                                                <Typography variant="small">City</Typography>
                                                             </td>
-                                                            <td>
-                                                                {shippingInfo &&
-                                                                    shippingInfo.city}
-                                                            </td>
+                                                            <td className="px-4 py-2">{shippingInfo?.city}</td>
                                                         </tr>
                                                     </tbody>
-                                                </Table>
+                                                </table>
                                             </div>
                                             <div className="col-md-6">
                                                 {/* payment info  */}
                                                 <h5>Payment Info</h5>
-                                                <Table
-                                                    className="mt-3 mb-3"
-                                                    borderless
-                                                    responsive
-                                                >
-                                                    <tbody>
+                                                <table className="min-w-full divide-y divide-gray-200 border-0">
+                                                    <tbody className="bg-white divide-y divide-gray-200">
                                                         <tr>
-                                                            <td>
-                                                                <Iconify
-                                                                    icon="twemoji:dollar"
-                                                                    size={20}
-                                                                />
+                                                            <td className="px-4 py-2">
+                                                                <Iconify icon="twemoji:dollar" width={20} height={20} />
                                                             </td>
-                                                            <td className="fw-bold">
-                                                                Payment
+                                                            <td className="px-4 py-2 font-semibold">
+                                                                <Typography variant="small">Payment</Typography>
                                                             </td>
-                                                            <td
-                                                                className={
-                                                                    isPaid
-                                                                        ? "greenColor"
-                                                                        : "redColor"
-                                                                }
-                                                            >
-                                                                <b>
-                                                                    {isPaid
-                                                                        ? "PAID"
-                                                                        : "NOT PAID"}
-                                                                </b>
+                                                            <td className={`px-4 py-2 font-semibold ${isPaid ? "text-green-500" : "text-red-500"}`}>
+                                                                {isPaid ? "PAID" : "NOT PAID"}
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            <td>
-                                                                <Iconify
-                                                                    icon="simple-icons:stripe"
-                                                                    size={20}
-                                                                />
+                                                            <td className="px-4 py-2">
+                                                                <Iconify icon="simple-icons:stripe" width={20} height={20} />
                                                             </td>
-                                                            <td className="fw-bold">
-                                                                ID
+                                                            <td className="px-4 py-2 font-semibold">
+                                                                <Typography variant="small">ID</Typography>
                                                             </td>
-                                                            <td>
-                                                                {paymentInfo &&
-                                                                    paymentInfo.id}
-                                                            </td>
+                                                            <td className="px-4 py-2">{paymentInfo?.id}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td>
-                                                                <Iconify
-                                                                    icon="mdi:cash-multiple"
-                                                                    size={20}
-                                                                />
+                                                            <td className="px-4 py-2">
+                                                                <Iconify icon="mdi:cash-multiple" width={20} height={20} />
                                                             </td>
-                                                            <td className="fw-bold">
-                                                                Total
+                                                            <td className="px-4 py-2 font-semibold">
+                                                                <Typography variant="small">Total</Typography>
                                                             </td>
-                                                            <td>
-                                                                {totalPrice}
-                                                            </td>
+                                                            <td className="px-4 py-2">{totalPrice}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td>
-                                                                <Iconify
-                                                                    icon="twemoji:question"
-                                                                    size={20}
-                                                                />
+                                                            <td className="px-4 py-2">
+                                                                <Iconify icon="twemoji:question" width={20} height={20} />
                                                             </td>
-                                                            <td className="fw-bold">
-                                                                Status
+                                                            <td className="px-4 py-2 font-semibold">
+                                                                <Typography variant="small">Status</Typography>
                                                             </td>
-                                                            <td>
-                                                                {
-                                                                    order.orderStatus
-                                                                }
-                                                            </td>
+                                                            <td className="px-4 py-2">{order?.orderStatus}</td>
                                                         </tr>
                                                     </tbody>
-                                                </Table>
+                                                </table>
                                             </div>
                                         </div>
 

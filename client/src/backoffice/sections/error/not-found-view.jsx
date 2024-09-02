@@ -29,7 +29,7 @@ export default function NotFoundView() {
         >
           <Box
             component="img"
-            src="/assets/illustrations/illustration_404.png"
+            src="/assets/illustrations/illustration_404.webp"
             sx={{
               mx: "auto",
               height: "auto",

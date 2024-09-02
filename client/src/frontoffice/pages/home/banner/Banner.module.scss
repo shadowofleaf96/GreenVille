@@ -4,7 +4,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: url("../../../../../public/assets/swiper1.png");
+    background-image: url("../../../../../assets/swiper1.webp");
 
     .slider_text {
       margin-top: 30px;
@@ -14,8 +14,6 @@
         font-weight: 700;
         letter-spacing: 1px;
         padding: 0.5rem 1rem;
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
         border-radius: 10px;
       }
       h1 {
@@ -25,8 +23,6 @@
         font-weight: 700;
         letter-spacing: 1px;
         padding: 0.5rem 1rem;
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
         border: 1px solid transparent;
         border-radius: 10px;
       }
@@ -53,7 +49,7 @@
     align-items: center;
     justify-content: center;
 
-    background-image: url("../../../../../public/assets/swiper2.png");
+    background-image: url("../../../../../assets/swiper2.webp");
     background-size: cover;
     background-repeat: no-repeat;
 
@@ -65,8 +61,6 @@
         font-weight: 700;
         letter-spacing: 1px;
         padding: 0.5rem 1rem;
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
         border-radius: 10px;
       }
       h1 {
@@ -76,8 +70,6 @@
         font-weight: 700;
         letter-spacing: 1px;
         padding: 0.5rem 1rem;
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
         border: 1px solid transparent;
         border-radius: 10px;
       }

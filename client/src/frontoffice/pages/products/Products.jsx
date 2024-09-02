@@ -11,7 +11,11 @@ import Pagination from "react-js-pagination";
 import "rc-slider/assets/index.css";
 import Navbar from "../../components/header/Navbar";
 import Footer from "../../components/footer/Footer";
-import Accordion from "react-bootstrap/Accordion";
+import {
+  Accordion,
+  AccordionHeader,
+  AccordionBody,
+} from "@material-tailwind/react";
 import MetaData from "../../components/MetaData";
 import { getCategories } from "../../../redux/frontoffice/categoriesSlice";
 import { getSubcategories } from "../../../redux/frontoffice/subcategoriesSlice";
@@ -121,45 +125,36 @@ const Products = () => {
                   <div>
                     <h4>Categories</h4>
                     <hr className="mt-3 text-primary" />
-                    <Accordion defaultActiveKey="0">
-                      <Accordion.Item
-                        className={styles.accordionItem}
-                        eventKey="0"
-                        onClick={() => handleAllCategory()}
-                      >
-                        <Link
-                          to="/products"
-                          style={{ textDecoration: "none", color: "inherit" }}
-                        >
-                          <span className={styles.product_span}>All</span>
-                        </Link>
-                      </Accordion.Item>
+                    <Accordion open={0}>
+                      {/* "All" Category Item */}
+                      <div className={styles.accordionItem}>
+                        <AccordionHeader onClick={handleAllCategory}>
+                          <Link to="/products" style={{ textDecoration: "none", color: "inherit" }}>
+                            <span className={styles.product_span}>All</span>
+                          </Link>
+                        </AccordionHeader>
+                        {/* No AccordionBody needed for "All" since it's a link */}
+                      </div>
+
+                      {/* Categories Accordion Items */}
                       {categories.map((category) => (
-                        <Accordion.Item
-                          key={category._id}
-                          eventKey={category._id}
-                        >
-                          <Accordion.Header>
+                        <div key={category._id} className={styles.accordionItem}>
+                          <AccordionHeader>
                             {category.category_name}
-                          </Accordion.Header>
-                          <Accordion.Body>
+                          </AccordionHeader>
+                          <AccordionBody>
                             <ul style={{ listStyle: "none", padding: 0 }}>
                               {subcategories
                                 .filter((el) => el.category_id === category._id)
                                 .map((subcategory) => (
-                                  <li
-                                    key={subcategory._id}
-                                    style={{ margin: "15px 10px" }}
-                                  >
+                                  <li key={subcategory._id} style={{ margin: "15px 10px" }}>
                                     <Link
                                       to={`/products/${subcategory._id}`}
                                       style={{
                                         textDecoration: "none",
                                         color: "inherit",
                                       }}
-                                      onClick={() =>
-                                        handleClick(subcategory._id)
-                                      }
+                                      onClick={() => handleClick(subcategory._id)}
                                       className={styles.accordionButton}
                                     >
                                       {subcategory.subcategory_name}
@@ -167,11 +162,10 @@ const Products = () => {
                                   </li>
                                 ))}
                             </ul>
-                          </Accordion.Body>
-                        </Accordion.Item>
+                          </AccordionBody>
+                        </div>
                       ))}
                     </Accordion>
-
                     <hr className="my-3" />
                   </div>
                 </div>
@@ -179,11 +173,11 @@ const Products = () => {
                   <div className="row g-3">
                     {categoryId
                       ? productsfiltre.map((product) => (
-                          <Product key={product._id} product={product} />
-                        ))
+                        <Product key={product._id} product={product} />
+                      ))
                       : filteredProduct.map((product) => (
-                          <Product key={product._id} product={product} />
-                        ))}
+                        <Product key={product._id} product={product} />
+                      ))}
                   </div>
                   {resPerPage <= count && (
                     <div className="d-flex justify-content-center mt-5">

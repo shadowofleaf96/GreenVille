@@ -304,7 +304,7 @@ export default function UserPage() {
         formData.append("user_image", selectedImage);
         newUser.user_image = "images/" + selectedImage.name;
       } else {
-        newUser.user_image = "images/image_placeholder.png";
+        newUser.user_image = "images/image_placeholder.webp";
       }
 
       // Make API call to create a new user

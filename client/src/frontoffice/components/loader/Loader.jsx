@@ -1,10 +1,10 @@
 import React from "react";
-import { Spinner } from "react-bootstrap";
+import { Spinner } from "@material-tailwind/react";
 import "./Loader.scss";
 
 const Loader = () => {
   return (
-    <div className="d-flex align-items-center justify-content-center loader-container">
+    <div className="flex align-center justify-center loader-container">
       <Spinner animation="border" />
     </div>
   );

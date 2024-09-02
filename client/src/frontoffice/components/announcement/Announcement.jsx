@@ -1,9 +1,8 @@
 import React from "react";
-import styles from "./Announcement.module.scss";
 
 const Announcement = () => {
     return (
-        <div className={styles.announcement}>
+        <div className="font-semibold flex justify-center bg-green-300 p-3">
             <span>FREE SHIPPING ALL ACROSS MOROCCO !</span>
         </div>
     );
