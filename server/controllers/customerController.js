@@ -92,7 +92,7 @@ const CustomerController = {
     if (customer_image) {
       fixed_customer_image = customer_image.path.replace(/public\\/g, "");
     } else {
-      fixed_customer_image = `images/image_placeholder.png`;
+      fixed_customer_image = `images/image_placeholder.webp`;
     }
     const { first_name, last_name, email, password } = req.body;
 

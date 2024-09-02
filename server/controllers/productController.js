@@ -11,7 +11,7 @@ const createData = async (req, res) => {
   if (product_image) {
     fixed_product_image = product_image.path.replace(/public\\/g, "");
   } else {
-    fixed_product_image = `images/image_placeholder.png`;
+    fixed_product_image = `images/image_placeholder.webp`;
   }
 
   const {

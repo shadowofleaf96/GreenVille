@@ -18,7 +18,7 @@ const createUser = async (req, res) => {
   if (user_image) {
     fixed_user_image = user_image.path.replace(/public\\/g, "");
   } else {
-    fixed_user_image = `images/image_placeholder.png`;
+    fixed_user_image = `images/image_placeholder.webp`;
   }
   // Extract user data from the request body
   const { role, user_name, first_name, last_name, email, password } = req.body;
