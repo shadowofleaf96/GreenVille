@@ -1,6 +1,6 @@
 # GreenVille Ecommerce Shop Project
 
-![GreenVille Logo](https://github.com/shadowofleaf96/Ecommerce-Final-Project/blob/main/client/src/assets/logo.webp?raw=true)
+![GreenVille Logo](https://github.com/shadowofleaf96/Ecommerce-Final-Project/blob/main/client/src/assets/logo.png?raw=true)
 
 Welcome to GreenVille, an open-source MERN (MongoDB, Express.js, React.js, Node.js) stack ecommerce shop project. GreenVille is designed to provide a foundation for building a robust and scalable online bio Organic store. Whether you're a developer looking to learn MERN stack or an entrepreneur planning to kickstart your ecommerce venture, GreenVille is a great starting point.
 
