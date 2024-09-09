@@ -4,7 +4,6 @@ import ProfileLink from "../../../components/profileLinks/ProfileLink";
 
 import Alert from "@mui/material/Alert";
 import { useDispatch, useSelector } from "react-redux";
-import styles from "./MyOrders.module.scss";
 import { clearErrors, myOrders } from "../../../../redux/frontoffice/orderSlice";
 import { Link } from "react-router-dom";
 import Navbar from "../../../components/header/Navbar";
@@ -13,7 +12,6 @@ import MetaData from "../../../components/MetaData";
 
 const MyOrders = () => {
     const dispatch = useDispatch();
-
     const { loading, error, orders } = useSelector((state) => state.orders);
 
     useEffect(() => {
@@ -24,182 +22,68 @@ const MyOrders = () => {
             dispatch(clearErrors());
         }
     }, [dispatch, alert, error]);
+
     return (
         <Fragment>
-            <MetaData title={"My Order"} />
+            <MetaData title={"My Orders"} />
             <Navbar />
-            <div className={styles.orders}>
-                <div className="container mt-5 mb-3">
-                    <div className="row g-3">
-                        <div className="col-md-3">
+            <div className="flex flex-col bg-white min-h-screen py-5">
+                <div className="container mx-auto px-4">
+                    <div className="flex flex-wrap gap-3">
+                        <div className="w-full md:w-1/4">
                             <ProfileLink />
                         </div>
-                        <div className="col-md-9">
+                        <div className="w-full md:w-3/4">
                             {loading ? (
                                 <Loader />
                             ) : (
                                 <>
                                     {orders && (
                                         <Fragment>
-                                            <div
-                                                className={
-                                                    styles.orders_container
-                                                }
-                                            >
+                                            <div className="bg-white shadow-md p-4 rounded-lg">
                                                 {orders.length === 0 ? (
-                                                    <>
-                                                        <h4>
-                                                            No Item Order Yet
-                                                        </h4>
-                                                    </>
+                                                    <h4 className="text-center text-lg font-semibold">No Item Order Yet</h4>
                                                 ) : (
                                                     <>
-                                                        {/* <div className="d-flex align-items-center justify-content-between mb-2 ps-2 pe-2 pt-2">
-                                                <h5>
-                                                    Total Orders :
-                                                    <span className="ms-2 text-success">
-                                                        {orders.length}
-                                                    </span>
-                                                </h5>
-                                                <h5>
-                                                    Total Spend :
-                                                    <span className="ms-2 text-success">
-                                                        {orders.length}
-                                                    </span>
-                                                </h5>
-                                            </div> */}
-                                                        <div>
-                                                            <div className="row">
-                                                                <div className="col-md-4">
-                                                                    <p className="fw-bold">
-                                                                        Order ID
-                                                                    </p>
-                                                                </div>
-                                                                <div className="col-md-2">
-                                                                    <p className="fw-bold">
-                                                                        Quantity
-                                                                    </p>
-                                                                </div>
-                                                                <div className="col-md-2">
-                                                                    <p className="fw-bold">
-                                                                        Amount
-                                                                    </p>
-                                                                </div>
-                                                                <div className="col-md-2">
-                                                                    <p className="fw-bold">
-                                                                        Status
-                                                                    </p>
-                                                                </div>
-                                                                <div className="col-md-2">
-                                                                    <p className="fw-bold">
-                                                                        Actions
-                                                                    </p>
-                                                                </div>
+                                                        <div className="overflow-x-auto">
+                                                            <div className="flex flex-wrap gap-4 mb-4">
+                                                                <div className="w-1/5 font-semibold">Order ID</div>
+                                                                <div className="w-1/5 font-semibold">Quantity</div>
+                                                                <div className="w-1/5 font-semibold">Amount</div>
+                                                                <div className="w-1/5 font-semibold">Status</div>
+                                                                <div className="w-1/5 font-semibold">Actions</div>
                                                             </div>
-                                                        </div>
-                                                        <hr className="text-primary" />
-                                                        {orders.map((order) => (
-                                                            <div>
-                                                                <div className="row">
-                                                                    <div className="col-md-4">
-                                                                        <p>
-                                                                            {
-                                                                                order?._id
-                                                                            }
-                                                                        </p>
-                                                                    </div>
-                                                                    <div className="col-md-2">
-                                                                        <p>
-                                                                            {
-                                                                                order
-                                                                                    ?.orderItems
-                                                                                    .length
-                                                                            }
-                                                                        </p>
-                                                                    </div>
-                                                                    <div className="col-md-2">
-                                                                        <p>
-                                                                            $
-                                                                            {
-                                                                                order?.totalPrice
-                                                                            }
-                                                                        </p>
-                                                                    </div>
-                                                                    <div className="col-md-2">
-                                                                        {/* Delivered  */}
-                                                                        {order?.orderStatus ===
-                                                                            "Delivered" && (
-                                                                            <>
-                                                                                <p
-                                                                                    style={{
-                                                                                        color: "green",
-                                                                                    }}
-                                                                                >
-                                                                                    {
-                                                                                        order?.orderStatus
-                                                                                    }
-                                                                                </p>
-                                                                            </>
+                                                            <hr className="my-4 border-primary" />
+                                                            {orders.map((order) => (
+                                                                <div key={order._id} className="flex flex-wrap gap-4 mb-2">
+                                                                    <div className="w-1/5">{order._id}</div>
+                                                                    <div className="w-1/5">{order.orderItems.length}</div>
+                                                                    <div className="w-1/5">${order.totalPrice}</div>
+                                                                    <div className="w-1/5">
+                                                                        {order.orderStatus === "Delivered" && (
+                                                                            <p className="text-green-500">{order.orderStatus}</p>
                                                                         )}
-                                                                        {/* Shipped */}
-                                                                        {order?.orderStatus ===
-                                                                            "Shipped" && (
-                                                                            <>
-                                                                                <p
-                                                                                    style={{
-                                                                                        color: "skyblue",
-                                                                                    }}
-                                                                                >
-                                                                                    {
-                                                                                        order?.orderStatus
-                                                                                    }
-                                                                                </p>
-                                                                            </>
+                                                                        {order.orderStatus === "Shipped" && (
+                                                                            <p className="text-sky-500">{order.orderStatus}</p>
                                                                         )}
-                                                                        {/* Processing  */}
-                                                                        {order?.orderStatus ===
-                                                                            "On The Way" && (
-                                                                            <>
-                                                                                <p
-                                                                                    style={{
-                                                                                        color: "#DCAB2F",
-                                                                                    }}
-                                                                                >
-                                                                                    {
-                                                                                        order?.orderStatus
-                                                                                    }
-                                                                                </p>
-                                                                            </>
+                                                                        {order.orderStatus === "On The Way" && (
+                                                                            <p className="text-yellow-500">{order.orderStatus}</p>
                                                                         )}
-                                                                        {/* Processing  */}
-                                                                        {order?.orderStatus ===
-                                                                            "Processing" && (
-                                                                            <>
-                                                                                <p
-                                                                                    style={{
-                                                                                        color: "#DCAB2F",
-                                                                                    }}
-                                                                                >
-                                                                                    {
-                                                                                        order?.orderStatus
-                                                                                    }
-                                                                                </p>
-                                                                            </>
+                                                                        {order.orderStatus === "Processing" && (
+                                                                            <p className="text-yellow-500">{order.orderStatus}</p>
                                                                         )}
                                                                     </div>
-                                                                    <div className="col-md-2">
+                                                                    <div className="w-1/5">
                                                                         <Link
-                                                                            to={`/order/${order?._id}`}
-                                                                            className={
-                                                                                styles.view_button
-                                                                            }
+                                                                            to={`/order/${order._id}`}
+                                                                            className="inline-block bg-gray-200 text-blue-600 py-2 px-4 rounded-full hover:bg-gray-300 transition duration-300"
                                                                         >
                                                                             View
                                                                         </Link>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                        ))}
+                                                            ))}
+                                                        </div>
                                                     </>
                                                 )}
                                             </div>

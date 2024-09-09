@@ -1,13 +1,9 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import {
-  getProductDetails,
-  clearErrors,
-} from "../../../redux/frontoffice/productSlice";
+import { getProductDetails, clearErrors } from "../../../redux/frontoffice/productSlice";
 import Loader from "../../components/loader/Loader";
 import Iconify from "../../../backoffice/components/iconify";
-import styles from "./SingleProduct.module.scss";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { addItemToCart } from "../../../redux/frontoffice/cartSlice";
@@ -61,87 +57,94 @@ const SingleProduct = () => {
     <Fragment>
       <MetaData title={"Product Details"} />
       <Navbar />
-      <div className={styles.product_details}>
+      <div className="w-full h-auto flex flex-col items-center justify-center p-8 my-6">
         {loading ? (
           <Loader />
         ) : (
-          <div className="container mb-5">
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-8 w-full max-w-5xl">
             {product ? (
-              <div className="row g-3">
-                <div className="col-md-6">
+              <>
+                <div className="w-full lg:w-1/2 flex flex-col items-center justify-center">
                   {product?.product_image && (
                     <>
-                      <div className={styles.preview_image}>
+                      <div className="w-full max-w-sm rounded-lg shadow-lg overflow-hidden mb-6">
                         <img
                           src={`http://localhost:3000/${product?.product_image}`}
                           alt={product.product_image}
+                          className="object-contain w-full h-[380px] sm:h-[200px]"
                         />
                       </div>
-                      <div className={styles.products_container}></div>
+                      <div className="flex overflow-x-auto space-x-4">
+                        {/* Render product images dynamically */}
+                      </div>
                     </>
                   )}
                 </div>
-                <div className="col-md-6">
-                  <div className={styles.Product_info}>
-                    <div className="product_description">
-                      <h4>{product.product_name}</h4>
-                      <p>{product.long_description}</p>
-                      <h2 className="mb-3">{product.discount_price} DH</h2>
-                    </div>
-                    <div className={styles.stock_counter}>
-                      <span className="minus" onClick={decreaseQty}>
-                        <Iconify
-                          icon="material-symbols-light:remove"
-                          width={16}
-                          height={16}
-                        />
-                      </span>
-                      <input
-                        className="count"
-                        type="number"
-                        value={quantity}
-                        readOnly
-                      />
-                      <span className="plus" onClick={increaseQty}>
-                        <Iconify
-                          icon="material-symbols-light:add"
-                          width={16}
-                          height={16}
-                        />
-                      </span>
-                    </div>
-                    <p className="mt-3">
-                      Status:
-                      <span
-                        id="stock_status"
-                        className={
-                          product.quantity > 0
-                            ? "greenColor ms-2"
-                            : "redColor ms-2"
-                        }
-                      >
-                        <b>
-                          {product.quantity > 0 ? "In Stock" : "Out of Stock"}
-                        </b>
-                      </span>
-                    </p>
-                    <p className="mt-3">
-                      Quantity: <strong>{product.quantity}</strong>
-                    </p>
-                    <div className={styles.button}>
-                      <button
-                        disabled={product.quantity === 0}
-                        onClick={addToCart}
-                      >
-                        Add To Cart
-                      </button>
-                    </div>
+
+                <div className="w-full lg:w-1/2 flex flex-col space-y-4 p-4">
+                  <div className="product_description">
+                    <h4 className="text-3xl font-bold mb-4">{product.product_name}</h4>
+                    <h2 className="text-2xl font-bold mb-4 text-green-600">
+                      {product.discount_price} DH{" "}
+                      <strike className="text-sm font-medium text-gray-400">
+                        {product.price} DH
+                      </strike>
+                    </h2>
+                    <p className="text-gray-600 mb-4">{product.long_description}</p>
+                  </div>
+
+                  <div className="flex items-center space-x-4 mt-4">
+                    <button
+                      className="border p-2 rounded-full hover:bg-red-500 hover:text-white"
+                      onClick={decreaseQty}
+                    >
+                      <Iconify icon="material-symbols-light:remove" width={16} height={16} />
+                    </button>
+                    <input
+                      className="w-12 text-center p-2 bg-white rounded-lg border-2 border-green-400"
+                      type="number"
+                      value={quantity}
+                      readOnly
+                    />
+                    <button
+                      className="border p-2 rounded-full hover:bg-green-500 hover:text-white"
+                      onClick={increaseQty}
+                    >
+                      <Iconify icon="material-symbols-light:add" width={16} height={16} />
+                    </button>
+                  </div>
+
+                  <p className="mt-4">
+                    <span
+                      className={`ml-2 font-bold ${
+                        product.quantity > 0 ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      {product.quantity > 0 ? "In Stock" : "Out of Stock"}
+                    </span>
+                  </p>
+                  <div className="flex space-x-4 mt-4">
+                    <button
+                      className="bg-[#8DC63F] text-white py-2 px-6 font-semibold rounded-lg hover:bg-green-600 transition duration-300"
+                      disabled={product.quantity === 0}
+                      onClick={addToCart}
+                    >
+                      Buy Now
+                    </button>
+                    <button
+                      className="bg-white text-[#8DC63F] py-2 px-6 font-semibold border-2 border-gray-300 rounded-lg hover:bg-gray-200 transition duration-300"
+                      disabled={product.quantity === 0}
+                      onClick={addToCart}
+                    >
+                      Add To Cart
+                    </button>
                   </div>
                 </div>
-              </div>
+              </>
             ) : (
               <p>Error loading product details.</p>
             )}
+
             <Snackbar
               open={snackbarOpen}
               autoHideDuration={5000}
@@ -150,9 +153,7 @@ const SingleProduct = () => {
             >
               <Alert
                 onClose={closeSnackbar}
-                severity={
-                  snackbarMessage.includes("Error") ? "error" : "success"
-                }
+                severity={snackbarMessage.includes("Error") ? "error" : "success"}
               >
                 {snackbarMessage}
               </Alert>

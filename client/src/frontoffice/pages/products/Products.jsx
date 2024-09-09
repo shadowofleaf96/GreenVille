@@ -6,10 +6,9 @@ import { getProducts } from "../../../redux/frontoffice/productSlice";
 import { Link, useParams } from "react-router-dom";
 import Product from "./Product";
 import Loader from "../../components/loader/Loader";
-import styles from "./Products.module.scss";
 import Pagination from "react-js-pagination";
-import "rc-slider/assets/index.css";
 import Navbar from "../../components/header/Navbar";
+import Iconify from "../../../backoffice/components/iconify/iconify";
 import Footer from "../../components/footer/Footer";
 import {
   Accordion,
@@ -25,7 +24,8 @@ const Products = () => {
   const [filteredProduct, setFilteredProduct] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [productsfiltre, setProductsFiltre] = useState([]);
+
+  const [openCategoryId, setOpenCategoryId] = useState(null);
 
   const dispatch = useDispatch();
   const { categoryId } = useParams();
@@ -44,11 +44,12 @@ const Products = () => {
   const { categories } = categoriesState;
   const { subcategories } = subcategoriesState;
 
-  const handleSubcategoryClick = async (subcategoryId) => {
+  const handleSubcategoryClick = (subcategoryId) => {
     const filter = products.filter((el) => el.subcategory_id === subcategoryId);
     setFilteredProduct(filter);
   };
-  const handleAllCategory = async () => {
+
+  const handleAllCategory = () => {
     setFilteredProduct(products);
   };
 
@@ -61,45 +62,38 @@ const Products = () => {
     setSnackbarOpen(false);
   };
 
-  let { keyword } = useParams();
-
   useEffect(() => {
-    dispatch(getProducts(keyword, currentPage));
+    dispatch(getProducts("", currentPage));
     dispatch(getCategories());
     dispatch(getSubcategories());
-  }, [dispatch, error, keyword, currentPage]);
+  }, [dispatch, currentPage]);
+
+  useEffect(() => {
+    if (categoryId) {
+      handleSubcategoryClick(categoryId);
+    } else {
+      setFilteredProduct(products);
+    }
+  }, [categoryId, products]);
 
   useEffect(() => {
     if (products.length > 0) {
-      if (keyword) {
+      if (categoryId) {
         const filteredProducts = products.filter((product) =>
-          product.product_name.toLowerCase().includes(keyword.toLowerCase())
+          product.subcategory_id === categoryId
         );
         setFilteredProduct(filteredProducts);
       } else {
         setFilteredProduct(products);
       }
     }
-  }, [products, keyword]);
-
-  useEffect(() => {
-    handlesubcategory(categoryId);
-  }, [categoryId]);
-
-  const handlesubcategory = async (subcategoryId) => {
-    const filter = products.filter((el) => el.subcategory_id === subcategoryId);
-    setProductsFiltre(filter);
-  };
-
-  const handleClick = (subcategoryId) => {
-    handleSubcategoryClick(subcategoryId);
-  };
+  }, [products, categoryId]);
 
   function setCurrentPageNo(pageNumber) {
     setCurrentPage(pageNumber);
   }
 
-  let count = keyword ? filteredProductsCount : productsCount;
+  let count = filteredProduct.length;
 
   return (
     <Fragment>
@@ -109,78 +103,68 @@ const Products = () => {
         <Loader />
       ) : (
         <>
-          <div className={styles.products}>
-            <div className="container mb-5" style={{ marginTop: "30px" }}>
-              <div className="row g-3">
-                <div className="col-lg-3 pe-5">
-                  <div className={styles.filter}>
-                    <div
-                      style={{
-                        marginTop: "70px",
-                        paddingRight: "15px",
-                        paddingLeft: "15px",
-                      }}
-                    ></div>
-                  </div>
-                  <div>
-                    <h4>Categories</h4>
-                    <hr className="mt-3 text-primary" />
-                    <Accordion open={0}>
-                      {/* "All" Category Item */}
-                      <div className={styles.accordionItem}>
-                        <AccordionHeader onClick={handleAllCategory}>
-                          <Link to="/products" style={{ textDecoration: "none", color: "inherit" }}>
-                            <span className={styles.product_span}>All</span>
-                          </Link>
-                        </AccordionHeader>
-                        {/* No AccordionBody needed for "All" since it's a link */}
-                      </div>
-
-                      {/* Categories Accordion Items */}
+          <div className="flex flex-col min-h-screen py-10">
+            <div className="container mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
+                <div>
+                  <div className="mb-5 p-4 rounded-3xl bg-yellow-200">
+                    <h4 className="text-xl font-semibold mb-3 text-black">Filter by Categories</h4>
+                    <hr className="my-3 border-t-2 border-black" />
+                    <Accordion open={false}>
+                      <AccordionHeader className="text-black border-0 h-6 my-2 text-lg hover:underline font-light" onClick={handleAllCategory}>
+                        <Link to="/products">
+                          All
+                        </Link>
+                      </AccordionHeader>
+                    </Accordion>
+                    <Accordion open={openCategoryId !== null}>
                       {categories.map((category) => (
-                        <div key={category._id} className={styles.accordionItem}>
-                          <AccordionHeader>
+                        <div key={category._id}>
+                          <AccordionHeader
+                            onClick={() =>
+                              setOpenCategoryId(openCategoryId === category._id ? null : category._id)
+                            }
+                            className="text-black h-6 my-2 flex w-full justify-start border-0 text-lg hover:underline font-light"
+                          >
                             {category.category_name}
+                            <Iconify
+                              icon="ep:arrow-right-bold" width={20}
+                              height={20}
+                              className="ml-auto"
+                            />
                           </AccordionHeader>
-                          <AccordionBody>
-                            <ul style={{ listStyle: "none", padding: 0 }}>
-                              {subcategories
-                                .filter((el) => el.category_id === category._id)
-                                .map((subcategory) => (
-                                  <li key={subcategory._id} style={{ margin: "15px 10px" }}>
-                                    <Link
-                                      to={`/products/${subcategory._id}`}
-                                      style={{
-                                        textDecoration: "none",
-                                        color: "inherit",
-                                      }}
-                                      onClick={() => handleClick(subcategory._id)}
-                                      className={styles.accordionButton}
-                                    >
-                                      {subcategory.subcategory_name}
-                                    </Link>
-                                  </li>
-                                ))}
-                            </ul>
-                          </AccordionBody>
+                          {openCategoryId === category._id && (
+                            <AccordionBody className="py-0 mb-2">
+                              <ul className="list-none p-0">
+                                {subcategories
+                                  .filter((subcategory) => subcategory.category_id === category._id)
+                                  .map((subcategory) => (
+                                    <li key={subcategory._id} className="mt-3">
+                                      <Link
+                                        to={`/products/${subcategory._id}`}
+                                        onClick={() => handleSubcategoryClick(subcategory._id)}
+                                        className="bg-gray-100 px-2 py-1 rounded-md text-gray-700 hover:bg-gray-200"
+                                      >
+                                        {subcategory.subcategory_name}
+                                      </Link>
+                                    </li>
+                                  ))}
+                              </ul>
+                            </AccordionBody>
+                          )}
                         </div>
                       ))}
                     </Accordion>
-                    <hr className="my-3" />
                   </div>
                 </div>
-                <div className="col-md-9">
-                  <div className="row g-3">
-                    {categoryId
-                      ? productsfiltre.map((product) => (
-                        <Product key={product._id} product={product} />
-                      ))
-                      : filteredProduct.map((product) => (
-                        <Product key={product._id} product={product} />
-                      ))}
+                <div className="lg:col-span-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredProduct.map((product) => (
+                      <Product key={product._id} product={product} />
+                    ))}
                   </div>
                   {resPerPage <= count && (
-                    <div className="d-flex justify-content-center mt-5">
+                    <div className="flex justify-center mt-5">
                       <Pagination
                         activePage={currentPage}
                         itemsCountPerPage={resPerPage}
@@ -206,9 +190,7 @@ const Products = () => {
             >
               <Alert
                 onClose={closeSnackbar}
-                severity={
-                  snackbarMessage.includes("Error") ? "error" : "success"
-                }
+                severity={snackbarMessage.includes("Error") ? "error" : "success"}
               >
                 {snackbarMessage}
               </Alert>

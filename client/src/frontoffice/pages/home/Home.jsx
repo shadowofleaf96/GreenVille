@@ -8,6 +8,7 @@ import MetaData from "../../components/MetaData";
 import Banner from "./banner/Banner";
 import Category from "./category/Category";
 import Promo from "./promo/Promo";
+import Benefits from "./benefits/Benefits"
 
 const Home = () => {
     const dispatch = useDispatch();
@@ -30,12 +31,11 @@ const Home = () => {
                 </>
             ) : (
                 <>
-                    <Promo products={products} type="flash sales" />
-                    <Promo products={products} type="new arrivals" />
-                    <Promo products={products} type="top deals" />
+                    <Promo products={products} />
                 </>
             )}
 
+            <Benefits />
             <Footer />
         </Fragment>
     );

@@ -130,8 +130,8 @@ const ResetPassword = () => {
                 backgroundColor: "#8dc63f",
                 color: "#fff",
                 marginTop: "10px",
-                borderRadius: "20px",
               }}
+              className="rounded-lg"
               fullWidth
               disabled={loading}
             >

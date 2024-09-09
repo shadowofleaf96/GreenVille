@@ -29,13 +29,6 @@ const Navbar = () => {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    window.addEventListener("scroll", isSticky);
-    return () => {
-      window.removeEventListener("scroll", isSticky);
-    };
-  });
-
   const openSnackbar = (message) => {
     setSnackbarMessage(message);
     setSnackbarOpen(true);
@@ -43,14 +36,6 @@ const Navbar = () => {
 
   const closeSnackbar = () => {
     setSnackbarOpen(false);
-  };
-
-  const isSticky = (e) => {
-    const header = document.querySelector(".links");
-    const scrollTop = window.scrollY;
-    scrollTop >= 150
-      ? header.classList.add("is-sticky")
-      : header.classList.remove("is-sticky");
   };
 
   const logoutHandler = async (e) => {
@@ -90,11 +75,11 @@ const Navbar = () => {
             <img className="w-24 h-auto bg-cover" src="/assets/logo.webp" alt="logo" />
           </Link>
           <div className="flex-grow">
-            <div className="flex font-semibold text-lg justify-center gap-8 ">
-              <Link to="/" className="hover:text-green-400">Home </Link>
-              <Link to="/products" className="hover:text-green-400">Products </Link>
-              <Link to="/contact" className="hover:text-green-400">Contact </Link>
-              <Link to="/about" className="hover:text-green-400">About </Link>
+            <div className="font-semibold text-lg justify-center gap-8 hidden sm:hidden md:flex">
+              <Link to="/" className="hover:text-green-400 hover:underline">Home </Link>
+              <Link to="/products" className="hover:text-green-400 hover:underline">Products </Link>
+              <Link to="/contact" className="hover:text-green-400 hover:underline">Contact </Link>
+              <Link to="/about" className="hover:text-green-400 hover:underline">About </Link>
             </div>
           </div>
           <div className="flex items-center space-x-4">
@@ -104,7 +89,7 @@ const Navbar = () => {
                 width={32}
                 height={32}
               />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full px-1 text-xs">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white w-4 max-w-4 flex flex-grow justify-center rounded-full text-xs">
                 {cartItems?.length}
               </span>
             </Link>
@@ -129,7 +114,7 @@ const Navbar = () => {
                         <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
                           <Link
                             to="/me"
-                            className="flex items-center px-4 py-2 text-sm text-black hover:text-green-400"
+                            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400"
                             onClick={(e) => {
                               e.preventDefault();
                               setDropdown(false);
@@ -145,7 +130,7 @@ const Navbar = () => {
                             Profile
                           </Link>
                           <button
-                            className="flex items-center px-4 py-2 text-sm text-black hover:text-green-400 w-full text-left"
+                            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400 w-full text-left"
                             onClick={logoutHandler}
                           >
                             <Iconify

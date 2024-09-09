@@ -2,38 +2,35 @@ import React, { Fragment } from "react";
 import Footer from "../../../components/footer/Footer";
 import Navbar from "../../../components/header/Navbar";
 import MetaData from "../../../components/MetaData";
-import styles from "./Success.module.scss";
+import { Icon } from "@material-tailwind/react";
 
 const Success = () => {
     return (
         <Fragment>
             <MetaData title={"Success"} />
             <Navbar />
-            <div className={styles.success}>
-                <div class="svg-container">
+            <div className="flex flex-col items-center justify-center min-h-screen pt-12">
+                <div className="relative flex items-center justify-center w-full max-w-md">
                     <svg
-                        class="ft-green-tick"
+                        className="w-24 h-24 absolute"
                         xmlns="http://www.w3.org/2000/svg"
-                        height="100"
-                        width="100"
                         viewBox="0 0 48 48"
                         aria-hidden="true"
                     >
                         <circle
-                            class={styles.circle}
+                            className="transition-all duration-1000 ease-in-out"
                             fill="#5bb543"
                             cx="24"
                             cy="24"
                             r="22"
                         />
                         <path
-                            class={styles.tick}
+                            className="transition-all duration-1000 ease-in-out"
                             fill="none"
                             stroke="#FFF"
-                            stroke-width="6"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-miterlimit="10"
+                            strokeWidth="6"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                             d="M14 27l5.917 4.917L34 17"
                         />
                     </svg>

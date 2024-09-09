@@ -3,19 +3,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Loader from "../loader/Loader";
-import styles from "./ProfileLink.module.scss";
 import Snackbar from "@mui/material/Snackbar";
-import { useRouter } from "../../../routes/hooks/";
 import Alert from "@mui/material/Alert";
+import { useRouter } from "../../../routes/hooks/";
 import { logout } from "../../../redux/frontoffice/customerSlice";
-import Iconify from "../../../backoffice/components/iconify"
+import Iconify from "../../../backoffice/components/iconify";
 
 const ProfileLink = () => {
   const { customer, loading } = useSelector((state) => state.customers);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const router = useRouter();
-
   const dispatch = useDispatch();
 
   const openSnackbar = (message) => {
@@ -50,56 +48,69 @@ const ProfileLink = () => {
         <Loader />
       ) : (
         <Fragment>
-          <div className={styles.profile_links}>
+          <div className="bg-white shadow-lg rounded-2xl p-4">
             <div className="text-center mt-3">
               {customer && (
                 <img
                   src={`http://localhost:3000/${customer?.customer_image}`}
                   alt={customer?.first_name + customer?.last_name}
+                  className="h-36 w-36 rounded-full border-4 border-[#e8daff] mx-auto"
                 />
               )}
 
-              <h4 className="mt-3">
+              <h4 className="mt-3 text-xl font-medium tracking-wide">
                 {customer?.first_name + " " + customer?.last_name}
               </h4>
-              <p>{customer?.email}</p>
+              <p className="text-gray-600">{customer?.email}</p>
             </div>
-            <hr className="text-primary" />
+            <hr className="my-4 border-t border-gray-200" />
 
-            <div className={`mt-3 ${styles.links}`}>
-              <Link to="/me">
+            <div className="flex flex-col mt-3">
+              <Link
+                to="/me"
+                className="flex items-center text-gray-600 py-2 px-4 rounded-lg hover:bg-[#8DC63F] hover:text-white transition duration-300"
+              >
                 <Iconify
                   icon="material-symbols-light:supervised-user-circle-outline"
                   width={28}
                   height={28}
-                  className="me-3"
+                  className="mr-3"
                 />
                 Profile
               </Link>
-              <Link to="/me/update">
+              <Link
+                to="/me/update"
+                className="flex items-center text-gray-600 py-2 px-4 rounded-lg hover:bg-[#8DC63F] hover:text-white transition duration-300"
+              >
                 <Iconify
                   icon="material-symbols-light:edit-rounded"
                   width={28}
                   height={28}
-                  className="me-3"
+                  className="mr-3"
                 />
                 Edit Profile
               </Link>
-              <Link to="/orders/me">
+              <Link
+                to="/orders/me"
+                className="flex items-center text-gray-600 py-2 px-4 rounded-lg hover:bg-[#8DC63F] hover:text-white transition duration-300"
+              >
                 <Iconify
                   icon="material-symbols-light:orders-outline-rounded"
                   width={28}
                   height={28}
-                  className="me-3"
+                  className="mr-3"
                 />
                 My Order
               </Link>
-              <button onClick={logoutHandler}>
+              <button
+                onClick={logoutHandler}
+                className="flex items-center text-gray-600 py-2 px-4 rounded-lg hover:bg-[#8DC63F] hover:text-white transition duration-300 border-none bg-white text-start"
+              >
                 <Iconify
                   icon="material-symbols-light:logout-rounded"
                   width={28}
                   height={28}
-                  className="me-3"
+                  className="mr-3"
                 />
                 Logout
               </button>
