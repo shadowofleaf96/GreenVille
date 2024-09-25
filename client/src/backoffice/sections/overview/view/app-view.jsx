@@ -10,7 +10,6 @@ import AppWebsiteVisits from "../app-website-visits";
 import AppWidgetSummary from "../app-widget-summary";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import Divider from "@mui/material/Divider";
 import { useEffect, useState } from "react";
 
 import { fDate } from "../../../../utils/format-time";
@@ -35,17 +34,17 @@ export default function AppView() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const customersResponse = await axios.get("/v1/customers");
+        const userssResponse = await axios.get("/v1/users");
         const ordersResponse = await axios.get("/v1/orders");
         setData({
-          customers: customersResponse.data.data,
+          users: usersResponse.data.data,
           orders: ordersResponse.data.data,
           loading: false,
         });
       } catch (error) {
         console.error("Error fetching data:", error);
         setData({
-          customers: [],
+          users: [],
           orders: [],
           loading: false,
         });

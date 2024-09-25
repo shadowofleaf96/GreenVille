@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
 import Box from "@mui/material/Box";
@@ -29,9 +29,21 @@ import TranslatedNavConfig from "../dashboard/config-navigation";
 
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
-  const user = useSelector((state) => state.adminAuth.adminUser);
-  const token = useSelector((state) => state.adminAuth.adminToken);
+  const [user, setUser] = useState(null);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const fetchAdminProfile = async () => {
+      try {
+        const response = await axios.get("/v1/users/profile");
+        setUser(response.data);
+      } catch (error) {
+        console.error("Error fetching admin profile:", error);
+      }
+    };
+
+    fetchAdminProfile();
+  }, []);
 
   const upLg = useResponsive("up", "lg");
 

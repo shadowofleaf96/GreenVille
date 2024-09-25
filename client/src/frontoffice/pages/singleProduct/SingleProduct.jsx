@@ -116,23 +116,15 @@ const SingleProduct = () => {
 
                   <p className="mt-4">
                     <span
-                      className={`ml-2 font-bold ${
-                        product.quantity > 0 ? "text-green-600" : "text-red-600"
-                      }`}
+                      className={`ml-2 font-bold ${product.quantity > 0 ? "text-green-600" : "text-red-600"
+                        }`}
                     >
                       {product.quantity > 0 ? "In Stock" : "Out of Stock"}
                     </span>
                   </p>
                   <div className="flex space-x-4 mt-4">
                     <button
-                      className="bg-[#8DC63F] text-white py-2 px-6 font-semibold rounded-lg hover:bg-green-600 transition duration-300"
-                      disabled={product.quantity === 0}
-                      onClick={addToCart}
-                    >
-                      Buy Now
-                    </button>
-                    <button
-                      className="bg-white text-[#8DC63F] py-2 px-6 font-semibold border-2 border-gray-300 rounded-lg hover:bg-gray-200 transition duration-300"
+                      className="bg-[#8DC63F] text-white py-3 px-6 font-medium rounded-lg hover:bg-green-600 transition duration-300"
                       disabled={product.quantity === 0}
                       onClick={addToCart}
                     >

@@ -26,20 +26,17 @@ function EditOrderForm({ order, onSave, onCancel, open, onClose }) {
   const [loadingSave, setLoadingSave] = useState(false);
   const [loadingSubcategories, setLoadingSubcategories] = useState(true);
 
-  const { t } = useTranslation(); // Using translation hook
+  const { t } = useTranslation();
 
   useEffect(() => {
-    // Fetch customers and other necessary data when the component mounts
     const fetchData = async () => {
       try {
         const customersResponse = await axios.get("/v1/customers");
         setCustomers(customersResponse.data.data);
-        // You can fetch other data if needed for the form
       } catch (error) {
         console.error("Error fetching data:", error);
-        // Handle the error as needed (display an error message, etc.)
       } finally {
-        setLoadingSubcategories(false); // Set loading to false when data is fetched
+        setLoadingSubcategories(false);
       }
     };
 

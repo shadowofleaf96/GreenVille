@@ -9,8 +9,30 @@ import Footer from "../../../components/footer/Footer";
 import MetaData from "../../../components/MetaData";
 
 const Shipping = () => {
+    const dispatch = useDispatch();
+    const history = useNavigate()
     const countriesList = Object.values(countries);
-    const { shippingInfo } = useSelector((state) => state.cart);
+    const { cartItems, shippingInfo } = useSelector((state) => state.carts);
+
+    const itemsPrice = cartItems.reduce(
+        (acc, item) => acc + item.discountPrice * item.quantity,
+        0
+    );
+
+    if (itemsPrice === 0) {
+        history("/products")
+    }
+
+    let shippingPrice;
+
+    if (itemsPrice <= 1500) {
+        shippingPrice = 15;
+    } else {
+        shippingPrice = 0
+    }
+
+    const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
+    const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
 
     const [address, setAddress] = useState(shippingInfo.address);
     const [city, setCity] = useState(shippingInfo.city);
@@ -18,113 +40,157 @@ const Shipping = () => {
     const [phoneNo, setPhoneNo] = useState(shippingInfo.phoneNo);
     const [country, setCountry] = useState(shippingInfo.country);
 
-    const dispatch = useDispatch();
-    const history = useNavigate()
 
     const submitHandler = (e) => {
         e.preventDefault();
 
         dispatch(saveShippingInfo({ address, city, phoneNo, postalCode, country }));
-        history.push("/confirm");
+        history("/confirm");
     };
 
     return (
-        <Fragment>
+        <div className="flex flex-col gap-6 w-full">
             <MetaData title={"Shipping"} />
             <Navbar />
-            <div className="flex flex-col justify-center items-center mb-8">
-                <CheckoutSteps shipping />
+            <div className="py-2 my-8">
+                <div className="flex flex-col">
+                    <CheckoutSteps shipping />
+                </div>
+                <div className="flex justify-center">
+                    <div className="flex bg-white justify-center shadow-lg rounded-xl p-8 mt-4 w-full lg:w-1/3 mr-8">
+                        <form onSubmit={submitHandler}>
+                            <h4 className="text-xl font-semibold mb-6">Shipping Credentials</h4>
+                            <div className="grid grid-cols-1 gap-4 mb-4 mt-4">
+                                {/* Address Field */}
+                                <div className="grid grid-cols-4 gap-2 items-center">
+                                    <label
+                                        htmlFor="address_field"
+                                        className="col-span-1 text-gray-800 font-semibold"
+                                    >
+                                        Address
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="address_field"
+                                        value={address}
+                                        onChange={(e) => setAddress(e.target.value)}
+                                        required
+                                        className="col-span-3 h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
+                                    />
+                                </div>
 
-                <div className="bg-gray-100 shadow-lg rounded-xl p-8 mt-4 w-full max-w-md">
-                    <form onSubmit={submitHandler}>
-                        <div className="flex flex-col gap-2 mb-4">
-                            <label htmlFor="address_field" className="text-gray-800 font-semibold">
-                                Address
-                            </label>
-                            <input
-                                type="text"
-                                id="address_field"
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                                required
-                                className="h-10 rounded-full border border-gray-300 px-4 bg-gray-200"
-                            />
-                        </div>
+                                {/* City Field */}
+                                <div className="grid grid-cols-4 gap-2 items-center">
+                                    <label
+                                        htmlFor="city_field"
+                                        className="col-span-1 text-gray-800 font-semibold"
+                                    >
+                                        City
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="city_field"
+                                        value={city}
+                                        onChange={(e) => setCity(e.target.value)}
+                                        required
+                                        className="col-span-3 h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
+                                    />
+                                </div>
 
-                        <div className="flex flex-col gap-2 mb-4">
-                            <label htmlFor="city_field" className="text-gray-800 font-semibold">
-                                City
-                            </label>
-                            <input
-                                type="text"
-                                id="city_field"
-                                value={city}
-                                onChange={(e) => setCity(e.target.value)}
-                                required
-                                className="h-10 rounded-full border border-gray-300 px-4 bg-gray-200"
-                            />
-                        </div>
+                                {/* Phone Field */}
+                                <div className="grid grid-cols-4 gap-2 items-center">
+                                    <label
+                                        htmlFor="phone_field"
+                                        className="col-span-1 text-gray-800 font-semibold"
+                                    >
+                                        Phone
+                                    </label>
+                                    <input
+                                        type="phone"
+                                        id="phone_field"
+                                        value={phoneNo}
+                                        onChange={(e) => setPhoneNo(e.target.value)}
+                                        required
+                                        className="col-span-3 h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
+                                    />
+                                </div>
 
-                        <div className="flex flex-col gap-2 mb-4">
-                            <label htmlFor="phone_field" className="text-gray-800 font-semibold">
-                                Phone
-                            </label>
-                            <input
-                                type="phone"
-                                id="phone_field"
-                                value={phoneNo}
-                                onChange={(e) => setPhoneNo(e.target.value)}
-                                required
-                                className="h-10 rounded-full border border-gray-300 px-4 bg-gray-200"
-                            />
-                        </div>
+                                {/* Postal Code Field */}
+                                <div className="grid grid-cols-4 gap-2 items-center">
+                                    <label
+                                        htmlFor="postal_code_field"
+                                        className="col-span-1 text-gray-800 font-semibold"
+                                    >
+                                        Postal Code
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="postal_code_field"
+                                        value={postalCode}
+                                        onChange={(e) => setPostalCode(e.target.value)}
+                                        required
+                                        className="col-span-3 h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
+                                    />
+                                </div>
 
-                        <div className="flex flex-col gap-2 mb-4">
-                            <label htmlFor="postal_code_field" className="text-gray-800 font-semibold">
-                                Postal Code
-                            </label>
-                            <input
-                                type="number"
-                                id="postal_code_field"
-                                value={postalCode}
-                                onChange={(e) => setPostalCode(e.target.value)}
-                                required
-                                className="h-10 rounded-full border border-gray-300 px-4 bg-gray-200"
-                            />
-                        </div>
+                                {/* Country Field */}
+                                <div className="grid grid-cols-4 gap-2 items-center">
+                                    <label
+                                        htmlFor="country_field"
+                                        className="col-span-1 text-gray-800 font-semibold"
+                                    >
+                                        Country
+                                    </label>
+                                    <select
+                                        id="country_field"
+                                        value={country}
+                                        onChange={(e) => setCountry(e.target.value)}
+                                        required
+                                        className="col-span-3 h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
+                                    >
+                                        {countriesList.map((country) => (
+                                            <option key={country.name} value={country.name}>
+                                                {country.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
 
-                        <div className="flex flex-col gap-2 mb-4">
-                            <label htmlFor="country_field" className="text-gray-800 font-semibold">
-                                Country
-                            </label>
-                            <select
-                                id="country_field"
-                                value={country}
-                                onChange={(e) => setCountry(e.target.value)}
-                                required
-                                className="h-10 rounded-full border border-gray-300 px-4 bg-gray-200"
-                            >
-                                {countriesList.map((country) => (
-                                    <option key={country.name} value={country.name}>
-                                        {country.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                            <div className="flex justify-center">
+                                <button
+                                    type="submit"
+                                    className="bg-[#8DC63F] text-white font-medium py-3 px-8 rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
+                                >
+                                    Continue
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div className="w-full lg:w-1/3 mr-8 my-4">
+                        <div className="bg-blue-50 p-4 rounded-lg shadow">
+                            <h4 className="text-lg font-semibold mb-4">Order Summary</h4>
+                            <hr className="mb-4" />
+                            <p className="flex justify-between mb-2">
+                                Subtotal <span>{itemsPrice} DH</span>
+                            </p>
+                            <p className="flex justify-between mb-2">
+                                Shipping <span>{shippingPrice} DH</span>
+                            </p>
+                            <p className="flex justify-between mb-2">
+                                Tax <span>{taxPrice} DH</span>
+                            </p>
+                            <hr className="my-4" />
+                            <p className="flex justify-between text-xl font-bold">
+                                Total <span>{totalPrice} DH</span>
+                            </p>
 
-                        <div className="flex justify-center">
-                            <button
-                                type="submit"
-                                className="bg-orange-500 text-white py-2 px-8 rounded-full uppercase tracking-wide font-semibold transition-all hover:w-full"
-                            >
-                                Continue
-                            </button>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
             <Footer />
-        </Fragment>
+        </div>
     );
 };
 

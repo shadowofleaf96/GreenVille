@@ -1,22 +1,52 @@
-// Shadow Of Leaf was Here
-require('dotenv').config({ path: '../.env' });
-const secretKey = process.env.SECRETKEY;
-const secretRefreshKey = process.env.REFRESHSECRETLEY;
+require("dotenv").config({ path: "../.env" });
+const { User } = require("../models/User");
+const { Customer } = require("../models/Customer");
 const jwt = require("jsonwebtoken");
 
 const verifyToken = (req, res, next) => {
-  const userToken = req.cookies.user_access_token || req.cookies.customer_access_token;
-
-  if (!userToken) {
-    return res.status(403).send("A token is required for authentication, login again and repeat");
-  }
-  
   try {
-    const decoded = jwt.verify(userToken, secretKey);
-    req.user = decoded;
-    next();
+    const authHeader = req.headers["authorization"];
+    if (!authHeader || !authHeader.startsWith("Bearer")) {
+      return res.sendStatus(401);
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    jwt.verify(token, process.env.SECRETKEY, async (err, decoded) => {
+      if (err) {
+        return res
+          .status(401)
+          .json({
+            message: "This session has expired. Please login",
+          });
+      }
+
+      const { id, role } = decoded;
+      let user;
+
+      if (!role) {
+        user = await Customer.findById(id);
+      } else if (role) {
+        user = await User.findById(id);
+      } else {
+        return res.status(401).json({ message: "Invalid user role" });
+      }
+
+      if (!user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+
+      const { password, ...data } = user._doc;
+      req.user = data;
+      next();
+    });
   } catch (err) {
-    return res.status(401).send("Invalid Token");
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      data: [],
+      message: "Internal Server Error",
+    });
   }
 };
 
@@ -43,6 +73,3 @@ module.exports = {
   requireAdmin,
   requireAdminOrManager,
 };
-
-
-module.exports = { verifyToken, requireAdmin, requireAdminOrManager };

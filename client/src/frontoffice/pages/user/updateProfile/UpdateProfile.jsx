@@ -92,12 +92,12 @@ const UpdateProfile = () => {
     <Fragment>
       <MetaData title={"Update Profile"} />
       <Navbar />
-      <div className="flex bg-white min-h-screen py-6 px-4">
+      <div className="flex bg-white py-6 px-4">
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-1">
             <ProfileLink />
           </div>
-          <div className="md:col-span-3 bg-white shadow-lg rounded-lg p-6">
+          <div className="md:col-span-3 bg-white shadow-lg rounded-lg p-8">
             <h4 className="text-xl font-bold mb-4">Update Profile</h4>
             <form
               className="space-y-4"
@@ -191,8 +191,7 @@ const UpdateProfile = () => {
 
               <Button
                 type="submit"
-                color="green"
-                className="w-full mt-4 text-white"
+                className="w-full mt-4 mb-4 bg-[#8DC63F] text-white flex justify-center rounded-lg text-md font-medium normal-case shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
               >
                 Update
               </Button>

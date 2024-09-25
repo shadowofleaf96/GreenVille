@@ -1,60 +1,33 @@
-// Shadow Of Leaf was Here
-
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 
-const CreateOrders = (req, res) => {
-  const orderItems = req.body.order_items.map((item) => ({
-    product_id: item.product_id,
-    quantity: item.quantity,
-  }));
-
-  // Fetch product details and calculate total price for each item
-  const promises = orderItems.map(async (item) => {
-    try {
-      const product = await Product.findById(item.product_id); // Assuming you have a Product model
-      const total_price = product.price * item.quantity;
-      return total_price;
-    } catch (err) {
-      throw new Error(`Error fetching product details: ${err.message}`);
-    }
-  });
-
-  // Wait for all promises to resolve
-  Promise.all(promises)
-    .then((totalPrices) => {
-      // Sum up the total prices to get cart_total_price
-      const cartTotalPrice = totalPrices.reduce((acc, price) => acc + price, 0);
-
-      const orders = new Order({
-        customer_id: req.body.customer_id,
-        order_items: orderItems,
-        order_date: req.body.order_date,
-        cart_total_price: cartTotalPrice,
-        status: req.body.status,
-      });
-
-      orders
-        .save()
-        .then((data) => {
-          res.status(200).json({
-            message: "Order created successfully",
-            data: data,
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-          res.status(500).json({
-            error: err.message,
-          });
-        });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({
-        error: err.message,
-      });
+const CreateOrders = async (req, res) => {
+  const orderItems = req.body.order_items;
+  try {
+    const newOrder = new Order({
+      customer_id: req.body.customer_id,
+      order_items: orderItems,
+      order_date: req.body.order_date,
+      cart_total_price: req.body.cart_total_price,
+      status: req.body.status || "open",
+      shipping_address: req.body.shipping_address,
+      shipping_method: req.body.shipping_method,
+      shipping_status: req.body.shipping_status || "not_shipped",
+      order_notes: req.body.order_notes,
     });
+
+    const savedOrder = await newOrder.save();
+
+    res.status(200).json({
+      message: "Order created successfully",
+      order: savedOrder,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: err.message,
+    });
+  }
 };
 
 const RetrievingOrders = async (req, res) => {
@@ -84,14 +57,20 @@ const RetrievingOrders = async (req, res) => {
       order_date: order.order_date,
       cart_total_price: order.cart_total_price,
       status: order.status,
+      shipping_address: order.shipping_address,
+      shipping_method: order.shipping_method,
+      shipping_status: order.shipping_status,
+      order_notes: order.order_notes,
       order_items: order.order_items.map((item) => ({
         product: item.product_id,
         quantity: item.quantity,
+        price: item.price,
       })),
     }));
 
     res.status(200).json({
       data: modifiedOrders,
+      total: totalOrders,
     });
   } catch (error) {
     console.error(error);
@@ -99,13 +78,58 @@ const RetrievingOrders = async (req, res) => {
   }
 };
 
+const getUserOrders = async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const userOrders = await Order.find({ customer_id: userId })
+      .populate("customer_id", "first_name last_name email")
+      .populate({
+        path: "order_items.product_id",
+        select: "product_name discount_price product_image",
+      })
+      .lean();
+
+    if (userOrders.length === 0) {
+      return res.status(404).json({ error: "No orders found for this user" });
+    }
+
+    const modifiedOrders = userOrders.map((order) => ({
+      _id: order._id,
+      customer: order.customer_id,
+      order_date: order.order_date,
+      cart_total_price: order.cart_total_price,
+      status: order.status,
+      shipping_address: order.shipping_address,
+      shipping_method: order.shipping_method,
+      shipping_status: order.shipping_status,
+      order_notes: order.order_notes,
+      order_items: order.order_items.map((item) => ({
+        product: item.product_id,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+    }));
+
+    return res.status(200).json({ orders: modifiedOrders });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 const searchingOrders = async (req, res) => {
   const id = req.params.id;
   try {
-    const orderById = await Order.findById(id);
+    const orderById = await Order.findById(id)
+      .populate("customer_id", "first_name last_name email")
+      .populate({
+        path: "order_items.product_id",
+        select: "product_name price",
+      });
 
     if (!orderById) {
-      return res.status(404).json({ error: "Product not found" });
+      return res.status(404).json({ error: "Order not found" });
     }
 
     return res.status(200).json(orderById);
@@ -120,14 +144,16 @@ const UpdateOrdersById = async (req, res) => {
   const newData = req.body;
 
   try {
-    // Extracting only the relevant fields from the request body
-    const { customer_id, status, cart_total_price } = newData;
     const updatedOrder = await Order.findByIdAndUpdate(
       id,
       {
-        customer_id,
-        status,
-        cart_total_price,
+        customer_id: newData.customer_id,
+        status: newData.status,
+        cart_total_price: newData.cart_total_price,
+        shipping_address: newData.shipping_address,
+        shipping_method: newData.shipping_method,
+        shipping_status: newData.shipping_status,
+        order_notes: newData.order_notes,
       },
       { new: true }
     );
@@ -137,8 +163,8 @@ const UpdateOrdersById = async (req, res) => {
     }
 
     return res.status(200).json({
-      status: 200,
       message: "Order updated successfully",
+      data: updatedOrder,
     });
   } catch (error) {
     console.error(error);
@@ -150,5 +176,6 @@ module.exports = {
   CreateOrders,
   RetrievingOrders,
   searchingOrders,
+  getUserOrders,
   UpdateOrdersById,
 };

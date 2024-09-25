@@ -4,7 +4,6 @@ const bcrypt = require("bcrypt");
 require('dotenv').config({ path: '../.env' });
 const mongoose = require("mongoose");
 
-// Define Joi schema for product data validation
 const userJoiSchema = Joi.object({
   _id: Joi.any().strip(),
   user_image: Joi.string(),
@@ -82,20 +81,16 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Add a pre-save hook to validate and sanitize data using Joi
 userSchema.pre("save", async function (next) {
   try {
-    // Hash the password with bcrypt
     if (this.isModified("password")) {
-      const saltRounds = 10; // You can adjust the number of salt rounds
+      const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(this.password, saltRounds);
       this.password = hashedPassword;
     }
 
-    // Validate the rest of the data against the Joi schema
     const validatedData = await userJoiSchema.validateAsync(this.toObject());
 
-    // Update the schema fields with validated data
     this.user_image = validatedData.user_image;
     this.first_name = validatedData.first_name;
     this.last_name = validatedData.last_name;
@@ -115,7 +110,6 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-// Define the validatePassword method for user model
 userSchema.methods.validatePassword = async function (candidatePassword) {
   const isMatch = await bcrypt.compare(candidatePassword, this.password);
   return isMatch;

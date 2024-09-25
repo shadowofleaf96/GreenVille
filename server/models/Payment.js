@@ -1,17 +1,20 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
 
-// Define Joi schema for payment data validation
 const paymentJoiSchema = Joi.object({
-  orderId: Joi.string().required(),
-  amount: Joi.number().required(),
-  paymentDate: Joi.date(),
-  // Add more fields as needed
-});
+  _id: Joi.any().optional().strip(),
+  order_id: Joi.any().required(),
+  amount: Joi.number().positive().required(),
+  paymentMethod: Joi.string().valid("credit_card", "paypal", "cod").required(),
+  paymentStatus: Joi.string()
+    .valid("pending", "completed", "failed", "refunded")
+    .default("pending"),
+  currency: Joi.string().default("USD"),
+}).options({ stripUnknown: true });
 
 const paymentSchema = new mongoose.Schema(
   {
-    orderId: {
+    order_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Order",
       required: true,
@@ -19,29 +22,39 @@ const paymentSchema = new mongoose.Schema(
     amount: {
       type: Number,
       required: true,
+      min: [0, "Amount must be a positive value"],
     },
-    paymentDate: {
-      type: Date,
-      default: Date.now,
+    paymentMethod: {
+      type: String,
+      enum: ["credit_card", "paypal", "cod"],
+      required: true,
     },
-    // Add more fields as needed
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "completed", "failed", "refunded"],
+      default: "pending",
+    },
+    currency: {
+      type: String,
+      default: "USD",
+    },
   },
-  { timestamps: true,
+  {
+    timestamps: true,
     collection: "Payments",
     versionKey: false,
   }
 );
 
-// Add a pre-save hook to validate and sanitize data using Joi
 paymentSchema.pre("save", async function (next) {
   try {
-    // Validate the data against the Joi schema
     const validatedData = await paymentJoiSchema.validateAsync(this.toObject());
 
-    // Update the schema fields with validated data
-    this.orderId = validatedData.orderId;
+    this.order_id = validatedData.order_id;
     this.amount = validatedData.amount;
-    this.paymentDate = validatedData.paymentDate;
+    this.paymentMethod = validatedData.paymentMethod;
+    this.paymentStatus = validatedData.paymentStatus;
+    this.currency = validatedData.currency || this.currency;
 
     next();
   } catch (error) {
@@ -50,12 +63,11 @@ paymentSchema.pre("save", async function (next) {
 });
 
 const Payment = mongoose.model("Payment", paymentSchema);
+
 if (Payment) {
   console.log("Payment Schema created");
 } else {
   console.log("Error creating Payment Schema");
 }
 
-module.exports = {
-  Payment,
-};
+module.exports = Payment;

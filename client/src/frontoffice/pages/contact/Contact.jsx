@@ -1,5 +1,6 @@
 import React, { Fragment } from "react";
 import Iconify from "../../../backoffice/components/iconify";
+import { Link } from "react-router-dom";
 import Navbar from "../../components/header/Navbar";
 import Footer from "../../components/footer/Footer";
 import MetaData from "../../components/MetaData";
@@ -13,7 +14,7 @@ const Contact = () => {
 
         <div class="grid md:grid-cols-2 gap-8 py-8 px-6">
           <div class="text-center flex flex-col items-center justify-center">
-            <img src="../../../../public/assets/contact.webp" class="shrink-0 w-5/6" />
+            <img src="../../../../assets/contact.webp" class="shrink-0 w-5/6" />
           </div>
 
           <form class="rounded-tl-3xl rounded-bl-3xl">
@@ -29,7 +30,7 @@ const Contact = () => {
                 class="w-full bg-gray-100 rounded-md px-4 text-sm pt-3 outline-green-400 focus-within:bg-transparent"></textarea>
               <input id="checkbox1" type="checkbox"
                 class="w-4 h-4 mr-3 accent-green-400" />
-              <label for="checkbox1" class="text-sm text-gray-500">I agree to the <a href="javascript:void(0);" class="underline">Terms and Conditions</a> and <a href="javascript:void(0);" class="underline">Privacy Policy</a></label>
+              <label for="checkbox1" class="text-sm text-gray-500">I agree to the <Link to="javascript:void(0);" class="underline">Terms and Conditions</Link> and <Link to="javascript:void(0);" class="underline">Privacy Policy</Link></label>
               <button type='button'
                 class="text-white w-full relative bg-[#8DC63F] shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 rounded-md text-sm px-6 py-3 !mt-6">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" fill='#fff' class="mr-2 inline" viewBox="0 0 548.244 548.244">

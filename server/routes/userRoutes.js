@@ -16,7 +16,7 @@ const {
   updateUser,
   deleteUser,
   loginUser,
-  logOut,
+  getAdminProfile,
   forgotPassword,
   resetPassword,
 } = require("../controllers/userController");
@@ -40,8 +40,8 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 router.delete("/:id", verifyToken, requireAdmin, deleteUser);
 router.get("/", verifyToken, requireAdminOrManager, getAllUsers);
+router.get("/profile", verifyToken, getAdminProfile);
 router.get("/search", verifyToken, requireAdminOrManager, searchUser);
 router.get("/:id", verifyToken, requireAdminOrManager, getUserDetails);
-router.post("/logout", verifyToken, requireAdminOrManager, logOut);
 
 module.exports = router;

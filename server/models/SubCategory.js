@@ -11,7 +11,7 @@ const subcategorieSchema = new Schema(
       maxlength: 25,
       required: true,
       unique: true,
-    }, //this needs to be unique
+    },
     category_id: { type: ObjectId, ref: "Categories", required: true },
     active: { type: Boolean, default: false },
   },

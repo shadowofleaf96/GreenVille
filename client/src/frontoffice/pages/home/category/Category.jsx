@@ -46,13 +46,6 @@ const Category = () => {
                 />
                 <div className="absolute bottom-0 bg-white/15 backdrop-blur-md border border-white/15 w-full p-4">
                   <h4 className="font-semibold text-xl text-center text-yellow-400">{item.title}</h4>
-                  <p className="text-center mt-2">
-                    <Link
-                      to={`/products/${item._id}`}
-                      className="text-lg font-medium text-yellow-400 hover:text-gray-700 transition duration-300 ease-in-out"
-                    >
-                    </Link>
-                  </p>
                 </div>
               </Link>
             </div>

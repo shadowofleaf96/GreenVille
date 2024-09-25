@@ -4,11 +4,10 @@ import {
   loginStart,
   loginSuccess,
   loginFailure,
-  setCustomer,
 } from "../../../../redux/frontoffice/customerSlice";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { useRouter } from "../../../../routes/hooks";
@@ -32,6 +31,8 @@ import InputAdornment from "@mui/material/InputAdornment";
 
 const Login = () => {
   const dispatch = useDispatch();
+  const history = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -40,7 +41,7 @@ const Login = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [loadingSave, setLoadingSave] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const router = useRouter();
+  const [loginSuccessFlag, setLoginSuccessFlag] = useState(false);
 
   useEffect(() => {
     const storedRememberMe = localStorage.getItem("rememberMe");
@@ -48,6 +49,13 @@ const Login = () => {
       setRememberMe(JSON.parse(storedRememberMe));
     }
   }, []);
+
+  useEffect(() => {
+    if (loginSuccessFlag) {
+      const redirect = searchParams.get("redirect");
+      history(redirect || "/", { replace: true });
+    }
+  }, [loginSuccessFlag, searchParams, history]);
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -60,17 +68,12 @@ const Login = () => {
   const handleRememberMeChange = () => {
     const newRememberMe = !rememberMe;
     setRememberMe(newRememberMe);
-
     localStorage.setItem("rememberMe", JSON.stringify(newRememberMe));
   };
-  const responseMessage = (response) => {
-    console.log(response);
-  };
-  const errorMessage = (error) => {
-    console.log(error);
-  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoadingSave(true);
     dispatch(loginStart());
 
     try {
@@ -81,36 +84,24 @@ const Login = () => {
       });
 
       if (response.status === 200) {
+        localStorage.setItem('customer_access_token', response.data.access_token);
+        localStorage.setItem('customer_refresh_token', response.data.refresh_token);
+
         dispatch(
           loginSuccess({
-            customer: response.data.customer,
             token: response.data.access_token,
             refresh_token: response.data.refresh_token,
           })
         );
-        router.push("/");
+
+        setLoginSuccessFlag(true);
+
+        openSnackbar(response.data.message);
       }
-
-      openSnackbar(response.data.message);
     } catch (error) {
-      openSnackbar("Error: " + error.response.data.message);
-    }
-  };
-
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await axios.post("/v1/customers/forgot-password", {
-        email: enteredEmail,
-      });
-
-      console.log(response.data);
-      openSnackbar(response.data.message);
-      setOpenDialog(false);
-    } catch (error) {
-      console.error(error.message);
-      openSnackbar("Error: " + error.response.data.message);
+      openSnackbar("Error: " + error.response?.data?.message || "Login failed.");
+    } finally {
+      setLoadingSave(false);
     }
   };
 
@@ -123,14 +114,36 @@ const Login = () => {
     setSnackbarOpen(false);
   };
 
+  const responseMessage = (response) => {
+    console.log(response);
+  };
+
+  const errorMessage = (error) => {
+    console.log(error);
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post("/v1/customers/forgot-password", {
+        email: enteredEmail,
+      });
+
+      openSnackbar(response.data.message);
+      setOpenDialog(false);
+    } catch (error) {
+      console.error(error.message);
+      openSnackbar("Error: " + error.response.data.message);
+    }
+  };
+
   return (
     <div className="backImage">
       <motion.div
         initial={{ scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{
-          duration: 0.3,
-        }}
+        transition={{ duration: 0.3 }}
       >
         <Paper
           elevation={3}
@@ -173,9 +186,7 @@ const Login = () => {
               placeholder="Password"
               InputProps={{
                 autoComplete: "new-password",
-                form: {
-                  autoComplete: "off",
-                },
+                form: { autoComplete: "off" },
                 endAdornment: (
                   <InputAdornment position="end">
                     <MuiLink
@@ -211,8 +222,9 @@ const Login = () => {
               }}
               fullWidth
               className="rounded-lg"
+              disabled={loadingSave}
             >
-              Login
+              {loadingSave ? 'Logging In...' : 'Login'}
             </Button>
             <GoogleLogin
               onSuccess={responseMessage}

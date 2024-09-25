@@ -1,9 +1,9 @@
 import { lazy, Suspense, useState, useEffect } from "react";
-import { Outlet, Navigate, useRoutes, Route, Routes } from "react-router-dom";
+import { Outlet, Navigate, Routes, Route } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import DashboardLayout from "../backoffice/layouts/dashboard";
-import axios from "axios"
+import axios from "axios";
 
 import Login from "../frontoffice/pages/auth/login/Login";
 import Register from "../frontoffice/pages/auth/register/Register";
@@ -17,12 +17,12 @@ import Success from "../frontoffice/pages/cart/success/Success";
 import Profile from "../frontoffice/pages/user/Profile";
 import UpdateProfile from "../frontoffice/pages/user/updateProfile/UpdateProfile";
 import MyOrders from "../frontoffice/pages/user/myOrders/MyOrders";
-import OrderDetails from "../frontoffice/pages/user/orderDetails/OrderDetails";
 import About from "../frontoffice/pages/about/About";
 import Home from "../frontoffice/pages/home/Home";
 import Products from "../frontoffice/pages/products/Products";
 import Category from "../frontoffice/pages/home/category/Category";
 import Contact from "../frontoffice/pages/contact/Contact";
+
 export const IndexPage = lazy(() => import("../backoffice/pages/app"));
 export const CategoryPage = lazy(() => import("../backoffice/pages/category"));
 export const SubCategoryPage = lazy(() =>
@@ -41,90 +41,61 @@ export const Page404 = lazy(() => import("../backoffice/pages/page-not-found"));
 export const ResetPasswordPage = lazy(() =>
   import("../backoffice/pages/reset-password")
 );
-import { useCookies } from "react-cookie";
-import { isExpired } from "react-jwt";
-const SECRETKEY = import.meta.env.VITE_SECRETKEY;
+
+const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
+
+const initialOptions = {
+  clientId: paypalClientId,
+  currency: "USD",
+  intent: "capture",
+};
 
 export default function Router() {
-  const user = useSelector((state) => state.adminAuth.adminUser);
-  const customer = useSelector((state) => state.customers);
-  const [cookies] = useCookies(["user_access_token", "customer_access_token"]);
-  const userTokenCookies = cookies.user_access_token;
-  const customerTokenCookies = cookies.customer_access_token;
-  const [stripeApiKey, setStripeApiKey] = useState("");
+
+  const [customer, setCustomer] = useState({});
+  const [user, setUser] = useState({});
+
 
   useEffect(() => {
-    async function getStripApiKey() {
-      const { data } = await axios.get("/api/v1/stripeapi");
+    const userToken = localStorage.getItem("user_access_token");
+    const customerToken = localStorage.getItem("customer_access_token")
 
-      setStripeApiKey(data.stripeApiKey);
-    }
+    const fetchUserData = async () => {
+      if (userToken) {
+        try {
+          const { data } = await axios.get("/v1/users/profile", {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          });
+          setUser(data);
+        } catch (err) {
+          localStorage.removeItem("user_access_token");
+        }
+      }
+    };
 
-    getStripApiKey();
+    const fetchCustomerData = async () => {
+      if (customerToken) {
+        try {
+          const { data } = await axios.get("/v1/customers/profile", {
+            headers: {
+              Authorization: `Bearer ${customerToken}`,
+            },
+          });
+          setCustomer(data);
+        } catch (err) {
+          localStorage.removeItem("customer_access_token");
+        }
+      }
+    };
+
+    fetchUserData();
+    fetchCustomerData();
   }, []);
 
-  const isUserTokenValid = () => {
-    if (userTokenCookies) {
-      try {
-        return !isExpired(userTokenCookies, SECRETKEY);
-      } catch (error) {
-        return false;
-      }
-    }
-    return false;
-  };
-
-  const isCustomerTokenValid = () => {
-    if (customerTokenCookies) {
-      try {
-        return !isExpired(customerTokenCookies, SECRETKEY);
-      } catch (error) {
-        return false;
-      }
-    }
-    return false;
-  };
-  
   return (
     <Routes>
-      <Route
-        path="/admin/"
-        element={
-          isUserTokenValid() && user ? (
-            <DashboardLayout>
-              <Suspense>
-                <Outlet />
-              </Suspense>
-            </DashboardLayout>
-          ) : (
-            <Navigate to="/admin/login" replace />
-          )
-        }
-      >
-        <Route path="/admin/" element={<IndexPage />} index />
-        <Route path="/admin/profile" element={<ProfilePage />} />
-        <Route path="/admin/user" element={<UserPage />} />
-        <Route path="/admin/category" element={<CategoryPage />} />
-        <Route path="/admin/subcategory" element={<SubCategoryPage />} />
-        <Route path="/admin/order" element={<OrderPage />} />
-        <Route path="/admin/products" element={<ProductPage />} />
-        <Route path="/admin/paymentlist" element={<PaymentListPage />} />
-        <Route path="/admin/customer" element={<CustomerPage />} />
-      </Route>
-      <Route
-        path="/admin/reset-password/:token"
-        element={<ResetPasswordPage />}
-      />
-      <Route
-        path="/admin/login"
-        element={
-          isUserTokenValid() && user ? (
-            <Navigate to="/admin/" replace />
-          ) : (
-            <LoginPage />
-          )
-        }
-      />
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} exact />
       <Route path="/register" element={<Register />} exact />
@@ -137,23 +108,51 @@ export default function Router() {
       <Route path="/products/:categoryId/*" element={<Products />} />
       <Route path="/products/search/:keyword" element={<Products />} />
       <Route path="/product/:id" element={<SingleProduct />} />
+      <Route path="*" element={<Page404 />} />
 
-      {isCustomerTokenValid() && customer ? (
+      {user ? (
+        <Route
+          path="/"
+          element={
+            <DashboardLayout>
+              <Suspense>
+                <Outlet />
+              </Suspense>
+            </DashboardLayout>
+          }
+        >
+          <Route index element={<IndexPage />} />
+          <Route path="/admin/profile" element={<ProfilePage />} />
+          <Route path="/admin/user" element={<UserPage />} />
+          <Route path="/admin/category" element={<CategoryPage />} />
+          <Route path="/admin/subcategory" element={<SubCategoryPage />} />
+          <Route path="/admin/order" element={<OrderPage />} />
+          <Route path="/admin/products" element={<ProductPage />} />
+          <Route path="/admin/paymentlist" element={<PaymentListPage />} />
+          <Route path="/admin/customer" element={<CustomerPage />} />
+        </Route>
+      ) : (
+        <Route path="/admin/login" element={<LoginPage />} />
+      )}
+
+      {customer ? (
         <>
           <Route path="/me" element={<Profile />} />
           <Route path="/me/update" element={<UpdateProfile />} />
           <Route path="/orders/me" element={<MyOrders />} />
-          <Route path="/order/:id" element={<OrderDetails />} />
           <Route path="/shipping" element={<Shipping />} />
           <Route path="/confirm" element={<ConfirmOrder />} />
-          {stripeApiKey && <Route path="/payment" element={<Payment />} />}
+          <Route
+            path="/payment"
+            element={
+              <PayPalScriptProvider options={initialOptions}>
+                <Payment />
+              </PayPalScriptProvider>
+            }
+          />
           <Route path="/success" element={<Success />} />
         </>
-      ) : (
-        <Route path="/*" element={<Navigate to="/" replace />} />
-      )}
-
-      <Route path="*" element={<Page404 />} />
+      ) : null}
     </Routes>
   );
 }

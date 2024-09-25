@@ -15,29 +15,16 @@ import orderReducer from "./frontoffice/orderSlice";
 import productReducer from "./frontoffice/productSlice";
 import customerReducer from "./frontoffice/customerSlice";
 
-const authPersistConfig = {
-  key: "adminAuth",
-  storage,
-};
-
-const customerAuthPersistConfig = {
-  key: "customerAuth",
-  storage,
-};
-
 const cartPersistConfig = {
   key: "cart",
   storage,
 };
 
-const persistedAuthReducer = persistReducer(authPersistConfig, adminAuthReducer);
-const persistedCustomerAuthReducer = persistReducer(customerAuthPersistConfig, customerReducer);
 const persistedCartReducer = persistReducer(cartPersistConfig, cartReducer);
-
 
 const store = configureStore({
   reducer: {
-    adminAuth: persistedAuthReducer,
+    adminAuth: adminAuthReducer,
     adminUser: adminUserReducer,
     adminProduct: adminProductReducer,
     adminCategory: adminCategoryReducer,
@@ -49,7 +36,7 @@ const store = configureStore({
     subcategories: subcategoriesReducer,
     orders: orderReducer,
     products: productReducer,
-    customers: persistedCustomerAuthReducer,
+    customers: customerReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

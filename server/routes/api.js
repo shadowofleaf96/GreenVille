@@ -8,7 +8,6 @@ const productRoute = require("../routes/productRoute");
 const paymentRoute = require("../routes/paymentRoute");
 const app = express();
 
-
 app.use("/v1/products", productRoute);
 app.use("/v1/orders", ordersRoute);
 app.use("/v1/users", userRoute);

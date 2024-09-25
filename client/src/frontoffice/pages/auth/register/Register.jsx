@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { setCustomer } from "../../../../redux/frontoffice/customerSlice";
 import { TextField, Button, Paper, Typography } from "@mui/material";
 import Logo from "../../../components/logo";
 import axios from "axios";

@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { createTransport } = require("nodemailer");
 const { log } = require("console");
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config();
 const crypto = require("crypto");
 const secretKey = process.env.SECRETKEY;
 const secretRefreshKey = process.env.REFRESHSECRETLEY;
@@ -20,10 +20,8 @@ const createUser = async (req, res) => {
   } else {
     fixed_user_image = `images/image_placeholder.webp`;
   }
-  // Extract user data from the request body
   const { role, user_name, first_name, last_name, email, password } = req.body;
 
-  // Check if the user already exists based on user_name or email
   const existingUser = await User.findOne({
     $or: [{ user_name }, { email }],
   });
@@ -37,9 +35,8 @@ const createUser = async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Create a new user using the create() method
   User.create({
-    user_image: fixed_user_image, // Store the file path in the database
+    user_image: fixed_user_image,
     role,
     user_name,
     first_name,
@@ -82,7 +79,6 @@ const createUser = async (req, res) => {
       });
     })
     .catch((error) => {
-      // Handle any errors that occur during document creation
       console.error(error);
       res.status(500).json({
         status: 500,
@@ -93,12 +89,10 @@ const createUser = async (req, res) => {
 
 const getAllUsers = async (req, res, next) => {
   const { page, sort } = req.query;
-  const perPage = 10; // Number of users per page
+  const perPage = 10;
 
-  // Calculate the skip value to implement pagination
   const skip = (page - 1) * perPage;
 
-  // Define the sorting order based on the "sort" parameter
   const sortOrder = sort === "DESC" ? -1 : 1;
   if (page) {
     try {
@@ -133,13 +127,10 @@ const searchUser = async (req, res, next) => {
     let { query, page = 1, sort = "DESC" } = req.query;
     const perPage = 10; // Number of users per page
 
-    // Calculate the skip value to implement pagination
     const skip = (page - 1) * perPage;
 
-    // Define the sorting order based on the "sort" parameter
     const sortOrder = sort === "DESC" ? -1 : 1;
 
-    // Build the Mongoose query for searching users
     const searchQuery = {
       $or: [
         { first_name: { $regex: new RegExp(query, "i") } }, // Case-insensitive search
@@ -148,13 +139,11 @@ const searchUser = async (req, res, next) => {
         { email: { $regex: new RegExp(query, "i") } },
       ],
     };
-    // Build the complete query
     query = User.find(searchQuery)
       .skip(skip)
       .limit(perPage)
       .sort({ creation_date: sortOrder });
 
-    // Execute the query
     const users = await query.exec();
 
     res.status(200).json({ data: users });
@@ -198,7 +187,6 @@ const updateUser = async (req, res) => {
       req.body;
     const invalidFields = [];
 
-    // Find the existing user by their ID
     const existingUser = await User.findById(userId);
 
     if (!existingUser) {
@@ -210,10 +198,9 @@ const updateUser = async (req, res) => {
     if (user_image) {
       fixed_user_image = user_image.path.replace(/public\\/g, "");
     } else {
-      fixed_user_image = existingUser.user_image; 
+      fixed_user_image = existingUser.user_image;
     }
 
-    // Validate the request body to ensure data types
     if (typeof role !== "string") {
       invalidFields.push("user_image");
     }
@@ -244,7 +231,6 @@ const updateUser = async (req, res) => {
       });
     }
 
-    // Update the user properties
     existingUser.user_image = fixed_user_image;
     existingUser.role = role;
     existingUser.first_name = first_name;
@@ -293,61 +279,48 @@ const loginUser = async (req, res, next) => {
   try {
     const user = await User.findOne({ user_name });
 
-    if (user && user.active === true) {
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-
-      if (isPasswordValid) {
-        const payload = {
-          id: user._id,
-          role: user.role,
-        };
-
-        const accessToken = jwt.sign(payload, secretKey, {
-          expiresIn: "8h",
-        });
-
-        res.cookie("user_access_token", accessToken, {
-          httpOnly: false,
-          secure: false,
-        });
-
-        // Generate Refresh Token
-        const refreshTokenPayload = {
-          id: user._id,
-          role: user.role,
-        };
-        const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
-          expiresIn: "7d",
-        });
-
-        res.cookie("user_refresh_token", refreshToken, {
-          httpOnly: false, //--> Fix this Later with react
-          secure: false, //--> SET TO TRUE ON PRODUCTION
-        });
-
-        // Update last_login
-        user.last_login = new Date();
-        await user.save();
-
-        // User is now authenticated and session is established
-        return res.status(200).json({
-          message: "Login success",
-          access_token: accessToken,
-          token_type: "Bearer",
-          expires_in: "8h",
-          refresh_token: refreshToken,
-          user: user,
-        });
-      } else {
-        res
-          .status(401)
-          .json({ message: "Invalid credentials or inactive account" });
-      }
-    } else {
-      res
-        .status(401)
-        .json({ message: "Invalid credentials or inactive account" });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
+
+    if (user && !user.active) {
+      return res.status(403).json({ message: "Account is inactive" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const payload = {
+      id: user._id,
+      role: user.role,
+    };
+
+    const accessToken = jwt.sign(payload, secretKey, {
+      expiresIn: "8h",
+    });
+
+    const refreshTokenPayload = {
+      id: user._id,
+      role: user.role,
+    };
+    const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
+      expiresIn: "7d",
+    });
+
+    user.last_login = new Date();
+    await user.save();
+
+    return res.status(200).json({
+      message: "Login success",
+      access_token: accessToken,
+      token_type: "Bearer",
+      expires_in: "8h",
+      refresh_token: refreshToken,
+      user: user,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -358,25 +331,19 @@ const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // Find the user by email
     const user = await User.findOne({ email });
 
-    // If user not found, return an error
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Generate a unique token for password reset
     const resetToken = crypto.randomBytes(20).toString("hex");
 
-    // Set the token and expiration time in the user's document
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = Date.now() + 3600000; // Token expires in 1 hour
+    user.resetPasswordExpires = Date.now() + 3600000;
 
-    // Save the user with the updated token information
     await user.save();
 
-    // Send an email with the reset link
     const transporter = createTransport({
       host: process.env.STMPHOST,
       port: 2525,
@@ -412,6 +379,21 @@ const forgotPassword = async (req, res) => {
   }
 };
 
+const getAdminProfile = async (req, res) => {
+  const { _id } = req.user;
+  try {
+    const user = await User.findById(_id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+};
+
 const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
@@ -439,28 +421,15 @@ const resetPassword = async (req, res) => {
   }
 };
 
-const logOut = async (req, res) => {
-  if (req.cookies["user_access_token"]) {
-    res.clearCookie("user_access_token").status(200);
-    res.clearCookie("user_refresh_token").status(200).json({
-      message: "Logout successful",
-    });
-  } else {
-    res.status(401).json({
-      error: "Invalid jwt",
-    });
-  }
-};
-
 module.exports = {
   createUser,
   getAllUsers,
   getUserDetails,
   searchUser,
   updateUser,
+  getAdminProfile,
   deleteUser,
   loginUser,
-  logOut,
   forgotPassword,
   resetPassword,
 };

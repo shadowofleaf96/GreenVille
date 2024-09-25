@@ -27,15 +27,10 @@ const ProfileLink = () => {
 
   const logoutHandler = async () => {
     try {
-      const response = await axios.post("/v1/customers/logout");
-
-      if (response.data.message === "Logout successful") {
-        dispatch(logout({}));
-        openSnackbar(response.data.message);
-        router.push("/");
-      } else {
-        openSnackbar("Error: " + response.data.message);
-      }
+      localStorage.removeItem("customer_access_token");
+      dispatch(logout());
+      openSnackbar("You have been Logged out");
+      router.push("/");
     } catch (error) {
       console.log(error);
       openSnackbar("Error: " + error.response.data.message);
@@ -100,7 +95,7 @@ const ProfileLink = () => {
                   height={28}
                   className="mr-3"
                 />
-                My Order
+                My Orders
               </Link>
               <button
                 onClick={logoutHandler}

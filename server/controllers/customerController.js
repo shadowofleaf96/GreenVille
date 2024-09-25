@@ -4,22 +4,12 @@ const { Customer } = require("../models/Customer");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-require('dotenv').config({ path: '../.env' });
+require("dotenv").config();
 const { createTransport } = require("nodemailer");
 const { log } = require("console");
 const secretKey = process.env.SECRETKEY;
 const secretRefreshKey = process.env.REFRESHSECRETLEY;
 const expiration = process.env.EXPIRATIONDATE;
-
-function verifyToken(token, callback) {
-  jwt.verify(token, secretKey, (err, decoded) => {
-    if (err) {
-      callback(err);
-    } else {
-      callback(decoded);
-    }
-  });
-}
 
 const CustomerController = {
   async login(req, res) {
@@ -35,30 +25,14 @@ const CustomerController = {
         );
 
         if (isPasswordValid) {
-          // Generate JWT token
-          const payload = {
-            id: customer._id,
-          };
+          const payload = { id: customer._id, role: customer.role };
           const accessToken = jwt.sign(payload, secretKey, {
             expiresIn: "8h",
           });
 
-          res.cookie("customer_access_token", accessToken, {
-            httpOnly: false,
-            secure: false,
-          });
-
-          const refreshTokenPayload = {
-            id: customer._id,
-          };
-
+          const refreshTokenPayload = { id: customer._id, role: customer.role };
           const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
             expiresIn: "7d",
-          });
-
-          res.cookie("customer_refresh_token", refreshToken, {
-            httpOnly: false,
-            secure: false,
           });
 
           return res.status(200).json({
@@ -108,7 +82,7 @@ const CustomerController = {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const newCustomer = new Customer({
-        customer_image: fixed_customer_image, // Store the file path in the database
+        customer_image: fixed_customer_image,
         first_name,
         last_name,
         email,
@@ -129,26 +103,7 @@ const CustomerController = {
     }
   },
 
-  async getCustomerProfile(req, res) {
-    //Get the customer's profile
-    const token = req.cookies.customer_access_token;
-
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    verifyToken(token, async (decoded) => {
-      if (decoded) {
-        const customer = await Customer.find({ _id: decoded.id });
-        res.json(customer);
-      } else {
-        res.status(401).json({ message: "Invalid token" });
-      }
-    });
-  },
-
   async getAllCustomers(req, res) {
-    //Get all the Customer list & Search for a customer
     const page = parseInt(req.query.page);
     const query = req.query.query || "";
     const sort = req.query.sort || "DESC";
@@ -220,6 +175,21 @@ const CustomerController = {
       }
     }
   },
+  async getCustomerProfile(req, res) {
+    const { _id } = req.user;
+    try {
+      const customer = await Customer.findById(_id).select("-password");
+      if (!customer) {
+        return res.status(404).json({ message: "Customer not found" });
+      }
+      delete customer.password;
+      res.json(customer);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Internal server error", error: error.message });
+    }
+  },
   async getCustomerById(req, res) {
     //Get a customer by ID
     const customerId = req.params.id;
@@ -237,7 +207,6 @@ const CustomerController = {
   },
 
   async validateCustomer(req, res) {
-    //Validate the customer's account or email
     const _id = req.params.id;
 
     try {
@@ -364,18 +333,6 @@ const CustomerController = {
     }
   },
 
-  async logout(req, res) {
-    if (req.cookies["customer_access_token"]) {
-      res.clearCookie("customer_access_token").status(200);
-      res.clearCookie("customer_refresh_token").status(200).json({
-        message: "Logout successful",
-      });
-    } else {
-      res.status(401).json({
-        error: "Invalid jwt",
-      });
-    }
-  },
   async forgotPassword(req, res) {
     try {
       const { email } = req.body;

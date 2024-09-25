@@ -1,33 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Iconify from "../../../backoffice/components/iconify";
 import { motion } from "framer-motion";
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { Spinner } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import { logout } from "../../../redux/frontoffice/customerSlice";
+import { logout, fetchCustomerProfile } from "../../../redux/frontoffice/customerSlice";
 import Announcement from "../announcement/Announcement";
-import { useCookies } from "react-cookie";
 import { useRouter } from "../../../routes/hooks";
-import { isExpired } from "react-jwt";
-
-const SECRETKEY = import.meta.env.VITE_SECRETKEY;
 
 const Navbar = () => {
   const [toggle, setToggle] = useState(false);
   const [dropdown, setDropdown] = useState(false);
-  const { customer, token, loading } = useSelector((state) => state.customers);
-  const [cookies] = useCookies(["customer_access_token"]);
-  const tokenCookies = cookies.customer_access_token;
+  const dropdownRef = useRef(null); // Ref to track the dropdown menu
+  const { customer, token, isLoading } = useSelector((state) => state.customers);
   const { cartItems } = useSelector((state) => state.carts);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [loadingSave, setLoadingSave] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const router = useRouter();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!customer) {
+      dispatch(fetchCustomerProfile());
+    }
+  }, [dispatch]);
 
   const openSnackbar = (message) => {
     setSnackbarMessage(message);
@@ -38,33 +37,35 @@ const Navbar = () => {
     setSnackbarOpen(false);
   };
 
+  const totalQuantity = cartItems.reduce((accumulator, item) => {
+    return accumulator + item.quantity;
+  }, 0);
+
   const logoutHandler = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post("/v1/customers/logout");
+    localStorage.removeItem("customer_access_token");
+    dispatch(logout());
+    openSnackbar("You have been Logged out");
+    router.push("/");
+  };
 
-      if (response.data.message === "Logout successful") {
-        dispatch(logout({}));
-        router.push("/");
-        openSnackbar(response.data.message);
-      } else {
-        openSnackbar("Error: " + response.data.message);
-      }
-    } catch (error) {
-      openSnackbar("Error: " + error.response.data.message);
+  const handleClickOutside = (event) => {
+    // Check if the click is outside the dropdown
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setDropdown(false); // Close the dropdown
     }
   };
 
-  const isTokenValid = () => {
-    if (tokenCookies) {
-      try {
-        return !isExpired(tokenCookies, SECRETKEY);
-      } catch (error) {
-        return false;
-      }
+  useEffect(() => {
+    if (dropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
     }
-    return false;
-  };
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdown]);
 
   return (
     <div className="relative">
@@ -76,10 +77,10 @@ const Navbar = () => {
           </Link>
           <div className="flex-grow">
             <div className="font-semibold text-lg justify-center gap-8 hidden sm:hidden md:flex">
-              <Link to="/" className="hover:text-green-400 hover:underline">Home </Link>
-              <Link to="/products" className="hover:text-green-400 hover:underline">Products </Link>
-              <Link to="/contact" className="hover:text-green-400 hover:underline">Contact </Link>
-              <Link to="/about" className="hover:text-green-400 hover:underline">About </Link>
+              <Link to="/" className="hover:text-green-400 hover:underline">Home</Link>
+              <Link to="/products" className="hover:text-green-400 hover:underline">Products</Link>
+              <Link to="/contact" className="hover:text-green-400 hover:underline">Contact</Link>
+              <Link to="/about" className="hover:text-green-400 hover:underline">About</Link>
             </div>
           </div>
           <div className="flex items-center space-x-4">
@@ -90,61 +91,59 @@ const Navbar = () => {
                 height={32}
               />
               <span className="absolute -top-1 -right-1 bg-red-500 text-white w-4 max-w-4 flex flex-grow justify-center rounded-full text-xs">
-                {cartItems?.length}
+                {totalQuantity}
               </span>
             </Link>
-            {loading ? (
+            {isLoading ? (
               <Spinner className="mt-2" />
             ) : (
               <>
-                {isTokenValid() && token && customer ? (
-                  <>
-                    <div className="relative">
-                      <button
-                        className="focus:outline-none"
-                        onClick={() => setDropdown(!dropdown)}
-                      >
-                        <img
-                          className="h-12 w-12 rounded-full border-5 border-black"
-                          src={`http://localhost:3000/${customer?.customer_image}`}
-                          alt={customer?.first_name + customer?.last_name}
-                        />
-                      </button>
-                      {dropdown && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
-                          <Link
-                            to="/me"
-                            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setDropdown(false);
-                              router.push("/me");
-                            }}
-                          >
-                            <Iconify
-                              className="mx-2"
-                              icon="material-symbols-light:supervised-user-circle-outline"
-                              width={30}
-                              height={30}
-                            />{" "}
-                            Profile
-                          </Link>
-                          <button
-                            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400 w-full text-left"
-                            onClick={logoutHandler}
-                          >
-                            <Iconify
-                              className="mx-2"
-                              icon="material-symbols-light:logout-rounded"
-                              width={30}
-                              height={30}
-                            />{" "}
-                            Logout
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </>
+                {customer ? (
+                  <div className="relative" ref={dropdownRef}>
+                    <button
+                      className="focus:outline-none"
+                      onClick={() => setDropdown(!dropdown)}
+                    >
+                      <img
+                        className="h-12 w-12 rounded-full border-5 border-black"
+                        src={`http://localhost:3000/${customer.customer_image}`}
+                        alt={`${customer.first_name} ${customer.last_name}`}
+                      />
+                    </button>
+                    {dropdown && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
+                        <Link
+                          to="/me"
+                          className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setDropdown(false);
+                            router.push("/me");
+                          }}
+                        >
+                          <Iconify
+                            className="mx-2"
+                            icon="material-symbols-light:supervised-user-circle-outline"
+                            width={30}
+                            height={30}
+                          />{" "}
+                          Profile
+                        </Link>
+                        <button
+                          className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400 w-full text-left"
+                          onClick={logoutHandler}
+                        >
+                          <Iconify
+                            className="mx-2"
+                            icon="material-symbols-light:logout-rounded"
+                            width={30}
+                            height={30}
+                          />{" "}
+                          Logout
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <Link to="/login" className="text-sm">
                     Login

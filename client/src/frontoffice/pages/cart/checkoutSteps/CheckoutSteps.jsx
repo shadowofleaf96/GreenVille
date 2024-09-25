@@ -3,48 +3,84 @@ import { Link } from "react-router-dom";
 
 const CheckoutSteps = ({ shipping, confirmOrder, payment }) => {
   return (
-    <div className="flex justify-center mt-5">
-      {shipping ? (
-        <Link to="/shipping" className="flex items-center space-x-2">
-          <div className="triangle2-active w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[24px] border-b-green-500"></div>
-          <div className="step active-step text-green-500 font-medium">Shipping</div>
-          <div className="triangle-active w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[24px] border-t-green-500"></div>
-        </Link>
-      ) : (
-        <div className="flex items-center space-x-2 cursor-not-allowed">
-          <div className="triangle2-incomplete w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[24px] border-b-gray-300"></div>
-          <div className="step incomplete text-gray-400">Shipping</div>
-          <div className="triangle-incomplete w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[24px] border-t-gray-300"></div>
-        </div>
-      )}
+    <div className="flex items-center justify-center">
+      <nav>
+        <ol className="flex flex-col md:flex-row md:space-x-4">
+          {shipping ? (
+            <Link to="/shipping">
+              <li className="md:flex-1">
+                <div
+                  className="group cursor-pointer flex flex-col items-center py-2 px-4 md:pb-0 md:pt-4 border-l-4 border-[#8DC63F] md:border-l-0 md:border-t-4 w-full text-center"
+                  aria-current="step"
+                >
+                  <span className="text-sm font-medium text-[#8DC63F]">Step 1</span>
+                  <span className="text-sm font-medium">Shipping</span>
+                </div>
+              </li>
+            </Link>
+          ) : (
+            <li className="md:flex-1">
+              <div
+                className="group cursor-pointer flex flex-col items-center py-2 px-4 md:pb-0 md:pt-4 border-l-4 border-gray-200 md:border-l-0 md:border-t-4 w-full text-center"
+                aria-current="step"
+              >
+                <span className="text-sm font-medium text-gray-500 group-hover:text-gray-700">
+                  Step 1
+                </span>
+                <span className="text-sm font-medium">Shipping</span>
+              </div>
+            </li>
+          )}
 
-      {confirmOrder ? (
-        <Link to="/order/confirm" className="flex items-center space-x-2 mx-4">
-          <div className="triangle2-active w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[24px] border-b-green-500"></div>
-          <div className="step active-step text-green-500 font-medium">Confirm Order</div>
-          <div className="triangle-active w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[24px] border-t-green-500"></div>
-        </Link>
-      ) : (
-        <div className="flex items-center space-x-2 cursor-not-allowed mx-4">
-          <div className="triangle2-incomplete w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[24px] border-b-gray-300"></div>
-          <div className="step incomplete text-gray-400">Confirm Order</div>
-          <div className="triangle-incomplete w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[24px] border-t-gray-300"></div>
-        </div>
-      )}
+          {confirmOrder ? (
+            <Link to="/confirm">
+              <li className="md:flex-1">
+                <div
+                  className="group cursor-pointer flex flex-col items-center py-2 px-4 md:pb-0 md:pt-4 border-l-4 border-[#8DC63F] md:border-l-0 md:border-t-4 w-full text-center"
+                >
+                  <span className="text-sm font-medium text-[#8DC63F]">Step 2</span>
+                  <span className="text-sm font-medium">Confirm Order</span>
+                </div>
+              </li>
+            </Link>
+          ) : (
+            <li className="md:flex-1">
+              <div
+                className="group cursor-pointer flex flex-col items-center py-2 px-4 md:pb-0 md:pt-4 border-l-4 border-gray-200 hover:border-gray-300 md:border-l-0 md:border-t-4 w-full text-center"
+              >
+                <span className="text-sm font-medium text-gray-500 group-hover:text-gray-700">
+                  Step 2
+                </span>
+                <span className="text-sm font-medium">Confirm Order</span>
+              </div>
+            </li>
+          )}
 
-      {payment ? (
-        <Link to="/payment" className="flex items-center space-x-2">
-          <div className="triangle2-active w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[24px] border-b-green-500"></div>
-          <div className="step active-step text-green-500 font-medium">Payment</div>
-          <div className="triangle-active w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[24px] border-t-green-500"></div>
-        </Link>
-      ) : (
-        <div className="flex items-center space-x-2 cursor-not-allowed">
-          <div className="triangle2-incomplete w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[24px] border-b-gray-300"></div>
-          <div className="step incomplete text-gray-400">Payment</div>
-          <div className="triangle-incomplete w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[24px] border-t-gray-300"></div>
-        </div>
-      )}
+          {payment ? (
+            <Link to="/payment">
+              <li className="md:flex-1">
+                <div
+                  className="group cursor-pointer flex flex-col items-center py-2 px-4 md:pb-0 md:pt-4 border-l-4 border-[#8DC63F] md:border-l-0 md:border-t-4 w-full text-center"
+                >
+                  <span className="text-sm font-medium text-[#8DC63F]">Step 3</span>
+                  <span className="text-sm font-medium">Payment</span>
+                </div>
+              </li>
+            </Link>
+          ) : (
+            <li className="md:flex-1">
+              <div
+                className="group cursor-pointer flex flex-col items-center py-2 px-4 md:pb-0 md:pt-4 border-l-4 border-gray-200 hover:border-gray-300 md:border-l-0 md:border-t-4 w-full text-center"
+              >
+                <span className="text-sm font-medium text-gray-500 group-hover:text-gray-700">
+                  Step 3
+                </span>
+                <span className="text-sm font-medium">Payment</span>
+              </div>
+            </li>
+          )}
+        </ol>
+      </nav>
     </div>
   );
 };

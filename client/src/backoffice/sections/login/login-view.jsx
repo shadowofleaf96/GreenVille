@@ -54,7 +54,7 @@ export default function LoginView() {
   const handleCloseForgotPasswordDialog = () => {
     setOpenForgotPasswordDialog(false);
   };
-  
+
   const openSnackbar = (message) => {
     setSnackbarMessage(message);
     setSnackbarOpen(true);
@@ -74,7 +74,6 @@ export default function LoginView() {
 
       openSnackbar(response.data.message);
 
-      // Close the dialog
       handleCloseForgotPasswordDialog();
     } catch (error) {
       console.error("Forgot Password error:", error.response.data.error);
@@ -95,14 +94,14 @@ export default function LoginView() {
         password,
       };
 
-      const response = await axios.post("/v1/users/login", requestBody, {
-        withCredentials: true,
-      });
+      const response = await axios.post("/v1/users/login", requestBody);
 
       if (response.status === 200) {
+        localStorage.setItem('user_access_token', response.data.access_token);
+        localStorage.setItem('user_refresh_token', response.data.refresh_token);
+
         dispatch(
           loginSuccess({
-            adminUser: response.data.user,
             adminToken: response.data.access_token,
           })
         );

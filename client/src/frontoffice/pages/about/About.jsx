@@ -47,12 +47,12 @@ const About = () => {
               <div className="container mx-auto py-4">
                 <h3 className="text-2xl font-semibold underline decoration-green-400 decoration-4 underline-offset-8">About Us</h3>
               </div>
-              <h4 className="flex items-end font-medium text-xl tracking-wide">We are <img className="w-28 ml-1 h-auto flex items-start" src="../../../../assets/logo-text.webp"/></h4>
+              <h4 className="flex items-end font-medium text-xl tracking-wide">We are <img className="w-28 ml-1 h-auto flex items-start" src="../../../../assets/logo-text.webp" /></h4>
               <p className="font-medium tracking-wide text-gray-600 mt-4">
                 A collective of young entrepreneurs making their way to the world of E-commerce, promoting our local products, and working in depth with our community.
               </p>
               <Link to="/contact">
-                <button className="mt-6 py-2 px-6 bg-[#8DC63F] text-white font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400">
+                <button className="mt-6 py-3 px-6 bg-[#8DC63F] text-white font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400">
                   Contact Us
                 </button>
               </Link>

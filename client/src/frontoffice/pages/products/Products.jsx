@@ -18,6 +18,7 @@ import {
 import MetaData from "../../components/MetaData";
 import { getCategories } from "../../../redux/frontoffice/categoriesSlice";
 import { getSubcategories } from "../../../redux/frontoffice/subcategoriesSlice";
+import { sub } from "date-fns";
 
 const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,9 +64,16 @@ const Products = () => {
   };
 
   useEffect(() => {
-    dispatch(getProducts("", currentPage));
-    dispatch(getCategories());
-    dispatch(getSubcategories());
+    if (products.length === 0) {
+      dispatch(getProducts("", currentPage));
+    }
+
+    if (categories.length === 0) {
+      dispatch(getCategories());
+    }
+    if (subcategories.length === 0) {
+      dispatch(getSubcategories());
+    }
   }, [dispatch, currentPage]);
 
   useEffect(() => {

@@ -4,6 +4,7 @@ const router = express.Router();
 const {
   CreateOrders,
   RetrievingOrders,
+  getUserOrders,
   searchingOrders,
   UpdateOrdersById,
 } = require("../controllers/ordersController");
@@ -14,12 +15,8 @@ const {
 
 router.post("/", CreateOrders);
 router.get("/", RetrievingOrders);
+router.get("/:userId", getUserOrders);
 router.get("/:id", verifyToken, requireAdminOrManager, searchingOrders);
-router.put(
-  "/:id",
-  verifyToken,
-  requireAdminOrManager,
-  UpdateOrdersById
-);
+router.put("/:id", verifyToken, requireAdminOrManager, UpdateOrdersById);
 
 module.exports = router;

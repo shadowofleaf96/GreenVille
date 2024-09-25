@@ -1,165 +1,328 @@
-import React, { Fragment, useEffect } from "react";
-import CheckoutSteps from "../checkoutSteps/CheckoutSteps";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from "@stripe/react-stripe-js";
-import axios from "axios";
+import { PayPalButtons, usePayPalScriptReducer, FUNDING } from "@paypal/react-paypal-js";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
 
-import { clearErrors, createOrder } from "../../../../redux/frontoffice/orderSlice";
+import MetaData from "../../../components/MetaData";
+import Iconify from "../../../../backoffice/components/iconify";
 import Navbar from "../../../components/header/Navbar";
 import Footer from "../../../components/footer/Footer";
-import MetaData from "../../../components/MetaData";
+import CheckoutSteps from "../../../pages/cart/checkoutSteps/CheckoutSteps";
+import axios from "axios";
+import {
+  addItemToCart,
+  removeItemFromCart,
+} from "../../../../redux/frontoffice/cartSlice";
+import { Button, Typography } from "@material-tailwind/react";
+import CheckoutForm from "./CheckoutForm";
 
-const options = {
-  style: {
-    base: {
-      fontSize: "16px",
-    },
-    invalid: {
-      color: "#9e2146",
-    },
-  },
-};
+const Payment = () => {
+  const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+  const stripePromise = loadStripe(stripeKey)
 
-const Payment = ({ history }) => {
-  const stripe = useStripe();
-  const elements = useElements();
   const dispatch = useDispatch();
+  let orderId
 
-  const { customer } = useSelector((state) => state.customer);
-  const { cartItems, shippingInfo } = useSelector((state) => state.cart);
-  const { error } = useSelector((state) => state.newOrder);
+  const { customer } = useSelector((state) => state.customers);
+  const { cartItems, shippingInfo } = useSelector((state) => state.carts);
+  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [clientSecret, setClientSecret] = useState("");
+  const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (error) {
-      alert.error(error);
-      dispatch(clearErrors());
-    }
-  }, [dispatch, error]);
+  const navigate = useNavigate();
 
-  const order = {
-    orderItems: cartItems,
-    shippingInfo,
-  };
 
-  const orderInfo = JSON.parse(sessionStorage.getItem("orderInfo"));
-  if (orderInfo) {
-    order.itemsPrice = orderInfo.itemsPrice;
-    order.shippingPrice = orderInfo.shippingPrice;
-    order.taxPrice = orderInfo.taxPrice;
-    order.totalPrice = orderInfo.totalPrice;
+  // if (itemsPrice === 0) {
+  //   navigate("/products")
+  // }
+
+  const itemsPrice = cartItems.reduce(
+    (acc, item) => acc + item.discountPrice * item.quantity,
+    0
+  );
+
+  let shippingPrice;
+
+  if (itemsPrice <= 1500) {
+    shippingPrice = 15;
+  } else {
+    shippingPrice = 0
   }
 
-  const paymentData = {
-    amount: Math.round(orderInfo.totalPrice * 100),
+  const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
+  const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
+  const priceInUSD = (totalPrice * 10.5 / 100).toFixed(2)
+
+  const handlePaymentMethodChange = (e) => {
+    setPaymentMethod(e.target.value);
   };
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    document.querySelector("#pay_btn").disabled = true;
+  useEffect(() => {
+    const fetchStripeKey = async () => {
+      try {
+        const response = await axios.post("/v1/payments/create-stripe-payment", { amount: totalPrice, currency: "mad" },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
 
-    let res;
+        const result = response.data;
+        if (result.clientSecret) {
+          setClientSecret(result.clientSecret);
+        } else {
+          console.error("Client secret not found in response");
+        }
+      } catch (error) {
+        console.log("Error fetching client secret:", error);
+      }
+    };
+
+    fetchStripeKey();
+  }, []);
+
+  const createOrder = async () => {
+    setLoading(true);
     try {
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const shipping_address = {
+        street: shippingInfo.address,
+        city: shippingInfo.city,
+        postal_code: shippingInfo.postalCode,
+        country: shippingInfo.country,
+        state: shippingInfo.state || "",
+      };
+      const orderData = {
+        customer_id: customer._id,
+        order_items: cartItems.map(item => ({
+          product_id: item.product,
+          quantity: item.quantity,
+          price: item.discountPrice
+        })),
+        cart_total_price: totalPrice,
+        order_date: new Date(),
+        shipping_address,
+        shipping_method: "standard",
+        shipping_status: "not_shipped",
+        order_notes: "testing for now",
+        status: "processing",
       };
 
-      res = await axios.post("/api/v1/payment/process", paymentData, config);
-      const clientSecret = res.data.client_secret;
+      const orderResponse = await axios.post("/v1/orders", orderData);
 
-      if (!stripe || !elements) return;
+      return orderResponse.data.order._id;
+    } catch (error) {
+      console.error("Error creating order:", error);
+      throw error;
+    }
+  };
 
-      const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardNumberElement),
-          billing_details: {
-            name: customer.name,
-            email: customer.email,
+  const onCreateOrder = async (data, actions) => {
+    orderId = await createOrder();
+    return actions.order.create({
+      purchase_units: [
+        {
+          amount: {
+            value: priceInUSD,
           },
         },
+      ],
+    });
+  }
+
+  const onApproveOrder = async (data, actions) => {
+    return actions.order.capture().then(async (details) => {
+      try {
+        const paymentData = {
+          order_id: orderId,
+          amount: totalPrice,
+          paymentMethod: "paypal",
+          paymentStatus: "completed",
+          currency: "mad"
+        };
+
+        await axios.post("/v1/payments/save-payment-info", paymentData);
+
+        cartItems.forEach(item => {
+          dispatch(removeItemFromCart(item.product));
+        });
+        navigate("/success")
+      }
+      catch (error) {
+        console.error("Error creating payment:", error);
+      }
+    });
+  }
+
+  const createPayment = async (operation, orderId, currency) => {
+    try {
+      const paymentData = {
+        order_id: orderId,
+        amount: totalPrice,
+        paymentMethod: paymentMethod,
+        paymentStatus: "pending",
+        currency: currency
+      };
+
+      await axios.post("/v1/payments" + operation, paymentData);
+
+      cartItems.forEach(item => {
+        dispatch(removeItemFromCart(item.product));
       });
 
-      if (result.error) {
-        alert.error(result.error.message);
-        document.querySelector("#pay_btn").disabled = false;
-      } else {
-        if (result.paymentIntent.status === "succeeded") {
-          order.paymentInfo = {
-            id: result.paymentIntent.id,
-            status: result.paymentIntent.status,
-          };
-
-          dispatch(createOrder(order));
-          history.push("/success");
-        } else {
-          alert.error("There is some issue while payment processing");
-        }
-      }
+      setLoading(false);
+      navigate("/success");
     } catch (error) {
-      document.querySelector("#pay_btn").disabled = false;
-      alert.error(error.response.data.message);
+      console.error("Error creating payment:", error);
+    }
+  };
+
+  const handleCODPayment = async (e) => {
+    e.preventDefault();
+    try {
+      orderId = await createOrder();
+
+      await createPayment("/save-payment-info", orderId, "mad");
+    } catch (error) {
+      console.error("Error processing payment:", error);
     }
   };
 
   return (
-    <Fragment>
+    <div className="flex flex-col gap-6 w-full">
       <MetaData title={"Payment"} />
       <Navbar />
-      <div className="flex flex-col items-center mt-10">
-        <div className="container mx-auto">
+      <div className="container py-2 my-8 mx-auto">
+        <div className="flex flex-col">
           <CheckoutSteps shipping confirmOrder payment />
+        </div>
+        <div className="flex justify-center ml-8 mt-8">
+          <div className="mb-8 lg:mb-0 bg-white shadow-lg p-8 rounded-2xl mx-auto border border-gray-200 w-full">
+            <h4 className="mb-4 text-lg font-semibold text-center">Select a Payment Method</h4>
+            <div className="flex justify-center mb-4">
+              <label className="flex mr-4 items-center">
+                <Iconify
+                  icon="mdi:cod" width={30}
+                  height={30}
+                  className="mr-2 flex-1"
+                />
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  className="w-5 h-5"
+                  value="cod"
+                  checked={paymentMethod === "cod"}
+                  onChange={handlePaymentMethodChange}
+                />
+                <span className="ml-2">Cash on Delivery (COD)</span>
+              </label>
+              <label className="flex mr-4 items-center">
+                <Iconify
+                  icon="ic:baseline-paypal" width={30}
+                  height={30}
+                  className="mr-2 flex-1"
+                />
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  className="w-5 h-5"
+                  value="paypal"
+                  checked={paymentMethod === "paypal"}
+                  onChange={handlePaymentMethodChange}
+                />
+                <span className="ml-2">PayPal</span>
+              </label>
+              <label className="flex mr-2 items-center">
+                <Iconify
+                  icon="material-symbols-light:credit-card" width={30}
+                  height={30}
+                  className="mr-2 flex-1"
+                />
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  className="w-5 h-5"
+                  value="creditCard"
+                  checked={paymentMethod === "creditCard"}
+                  onChange={handlePaymentMethodChange}
+                />
+                <span className="ml-2">Credit Card</span>
+              </label>
+            </div>
 
-          <div className="bg-white shadow-lg p-8 rounded-2xl max-w-md mx-auto mt-10 border border-gray-200">
-            <form onSubmit={submitHandler}>
-              <h4 className="mb-4 text-xl font-semibold text-center">Card Info</h4>
-              
-              <div className="flex flex-col gap-3 mt-4">
-                <label htmlFor="card_num_field" className="font-medium text-gray-700">Card Number</label>
-                <CardNumberElement
-                  type="text"
-                  id="card_num_field"
-                  options={options}
-                  className="h-12 px-4 border border-gray-300 rounded-lg"
+            {paymentMethod === "cod" && (
+              <div>
+                <hr className="my-4" />
+                <div className="flex justify-center mt-6">
+                  {loading ?
+                    <Button
+                      loading={loading}
+                      onClick={handleCODPayment}
+                      className="h-12 w-3/4 bg-[#b3b4b1] text-white rounded-lg text-md font-medium normal-case shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 flex justify-center items-center"
+                    >
+                      <div className="flex justify-center items-center space-x-2">
+                        <Typography className="!text-center text-md normal-case font-medium">Loading</Typography>
+                      </div>
+                    </Button> :
+                    <Button
+                      loading={loading}
+                      onClick={handleCODPayment}
+                      className="h-12 w-3/4 bg-[#8DC63F]  text-white rounded-lg !text-center text-md normal-case font-meduim shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
+                    >
+                      <Typography className="!text-center text-md normal-case font-medium">Confirm Pay</Typography>
+                    </Button>}
+                </div>
+              </div>
+            )}
+
+            {paymentMethod === "paypal" && (
+              <div className="flex justify-center mt-8">
+                <PayPalButtons
+                  style={{ layout: "vertical", label: "pay", height: 50 }}
+                  createOrder={(data, actions) => onCreateOrder(data, actions)}
+                  onApprove={(data, actions) => onApproveOrder(data, actions)}
+                  fundingSource={FUNDING.PAYPAL}
                 />
               </div>
+            )}
 
-              <div className="flex flex-col gap-3 mt-4">
-                <label htmlFor="card_exp_field" className="font-medium text-gray-700">Card Expiry</label>
-                <CardExpiryElement
-                  type="text"
-                  id="card_exp_field"
-                  options={options}
-                  className="h-12 px-4 border border-gray-300 rounded-lg"
-                />
+            {paymentMethod === "creditCard" && (
+              <div className="flex justify-center">
+                {clientSecret && (
+                  <Elements options={{ clientSecret }} stripe={stripePromise}>
+                    <CheckoutForm />
+                  </Elements>
+                )}
               </div>
+            )}
+          </div>
 
-              <div className="flex flex-col gap-3 mt-4">
-                <label htmlFor="card_cvc_field" className="font-medium text-gray-700">Card CVC</label>
-                <CardCvcElement
-                  type="text"
-                  id="card_cvc_field"
-                  options={options}
-                  className="h-12 px-4 border border-gray-300 rounded-lg"
-                />
-              </div>
 
-              <div className="flex justify-center mt-6">
-                <button
-                  id="pay_btn"
-                  type="submit"
-                  className="h-12 w-3/4 bg-yellow-500 text-white rounded-full uppercase font-medium tracking-wider hover:bg-yellow-600 transition duration-300"
-                >
-                  Pay {` - ${orderInfo && orderInfo.totalPrice}`}
-                </button>
-              </div>
-            </form>
+          <div className="w-full ml-8">
+            <div className="bg-blue-50 p-4 rounded-lg shadow">
+              <h4 className="text-lg font-semibold mb-4">Order Summary</h4>
+              <hr className="mb-4" />
+              <p className="flex justify-between mb-2">
+                Subtotal <span>{itemsPrice} DH</span>
+              </p>
+              <p className="flex justify-between mb-2">
+                Shipping <span>{shippingPrice} DH</span>
+              </p>
+              <p className="flex justify-between mb-2">
+                Tax <span>{taxPrice} DH</span>
+              </p>
+              <hr className="my-4" />
+              <p className="flex justify-between text-xl font-bold">
+                Total <span>{totalPrice} DH</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
       <Footer />
-    </Fragment>
-  );
-};
+    </div>
+  )
+}
 
-export default Payment;
+export default Payment

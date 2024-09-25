@@ -1,24 +1,22 @@
 const api = require("./routes/api");
 const cookieParser = require("cookie-parser");
 const express = require("express");
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config();
 const path = require("path");
 const cors = require("cors");
 
 const app = express();
-// Enable CORS for all routes
 app.use(cors({
   origin: 'http://localhost:5173', 
   credentials: true
 }))
 
 const staticPath = path.join(__dirname, "public", "images");
-// Serve static files (images) with caching headers
 app.use(
   "/images",
   express.static(staticPath, {
-    maxAge: "1d", // Set the maximum age for caching (1 day in this example)
-    etag: true, // Enable ETag for RESTful API
+    maxAge: "1d", 
+    etag: true,
   })
 );
 

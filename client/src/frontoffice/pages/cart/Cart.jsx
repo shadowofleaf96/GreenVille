@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import Iconify from "../../../backoffice/components/iconify";
+import { useCookies } from "react-cookie";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addItemToCart,
@@ -19,6 +20,8 @@ const Cart = () => {
   const { cartItems } = useSelector((state) => state.carts);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  const token = localStorage.getItem('customer_access_token');
 
   const removeCartItemHandler = (id) => {
     dispatch(removeItemFromCart(id));
@@ -38,7 +41,11 @@ const Cart = () => {
   };
 
   const checkoutHandler = () => {
-    history.push("/login?redirect=shipping");
+    if (token) {
+      history("/shipping");
+    } else {
+      history("/login?redirect=/shipping");
+    }
   };
 
   const openSnackbar = (message) => {
@@ -66,7 +73,7 @@ const Cart = () => {
               <div className="container mx-auto p-4">
                 {cartItems.length === 0 ? (
                   <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-                    <Iconify icon="mdi:shopping" width={24} height={24} />
+                    <Iconify className="mb-2" icon="mdi:shopping" width={100} height={100} />
                     <h2 className="text-2xl font-semibold mb-2">Your Cart is Empty</h2>
                     <p className="text-gray-600 mb-6">Looks like you haven't added anything to your cart yet.</p>
                     <Link
@@ -89,7 +96,7 @@ const Cart = () => {
                           <Link to={`/product/${item.product}`} className="text-blue-500 hover:underline">
                             {item.name}
                           </Link>
-                          <p className="text-green-400 font-semibold text-lg mt-2">{item.price} DH</p>
+                          <p className="text-green-400 font-semibold text-lg mt-2">{item.discountPrice} DH</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
@@ -113,7 +120,7 @@ const Cart = () => {
                         </div>
                         <button
                           onClick={() => removeCartItemHandler(item.product)}
-                          className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
+                          className="bg-red-500 text-white py-3 px-8 rounded-md hover:bg-red-600 shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-red-600"
                         >
                           Remove
                         </button>
@@ -132,18 +139,18 @@ const Cart = () => {
               <span>Subtotal</span>
               <span>{cartItems.reduce((acc, item) => acc + Number(item.quantity), 0)} (Units or KG)</span>
             </p>
-            <p className="flex justify-between my-2">
-              <span>Total Price</span>
-              <span>{cartItems.reduce((acc, item) => acc + item.quantity * item.price, 0).toFixed(2)} DH</span>
+            <p className="font-semibold flex justify-between my-2">
+              <span >Total Price</span>
+              <span>{cartItems.reduce((acc, item) => acc + item.quantity * item.discountPrice, 0).toFixed(2)} DH</span>
             </p>
             <hr />
             {cartItems.length != 0 ? (
               <div className="text-center mt-4">
-                <button onClick={checkoutHandler} className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600">
+                <button onClick={checkoutHandler} className="bg-[#8DC63F] text-white py-3 px-8 rounded-md shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-600">
                   Checkout
                 </button>
               </div>) : (<div className="text-center mt-4">
-                <button disabled onClick={checkoutHandler} className="bg-gray-100 text-gray-400 py-2 px-4 rounded-md">
+                <button disabled onClick={checkoutHandler} className="bg-gray-100 py-3 px-8 text-gray-400 rounded-md">
                   Checkout
                 </button>
               </div>)}

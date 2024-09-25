@@ -52,7 +52,7 @@ const Profile = () => {
                         />
                       )}
                     </div>
-                    <div>
+                    <div className="flex items-center">
                       <table className="min-w-full divide-y divide-gray-200">
                         <tbody className="bg-white divide-y divide-gray-200">
                           <tr>

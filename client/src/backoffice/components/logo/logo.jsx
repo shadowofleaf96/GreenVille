@@ -23,7 +23,7 @@ const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
   }
 
   return (
-    <Link href="/admin" sx={{ display: 'contents' }}>
+    <Link to="/admin" sx={{ display: 'contents' }}>
       {logo}
     </Link>
   );
