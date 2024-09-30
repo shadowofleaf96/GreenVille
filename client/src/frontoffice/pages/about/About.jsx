@@ -32,7 +32,6 @@ const About = () => {
   return (
     <Fragment>
       <MetaData title={"About"} />
-      <Navbar />
       <div className="py-8">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-6 my-8">
@@ -73,7 +72,6 @@ const About = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </Fragment>
   );
 };

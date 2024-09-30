@@ -7,7 +7,6 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import Typography from "@mui/material/Typography";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import CircularProgress from "@mui/material/CircularProgress";
 import Switch from "@mui/material/Switch";
 import InputLabel from "@mui/material/InputLabel";
 import axios from "axios";
@@ -15,8 +14,9 @@ import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import UploadButton from "../../components/button/UploadButton";
 
-// Importing translation hook
 import { useTranslation } from "react-i18next";
+import Loader from "../../../frontoffice/components/loader/Loader";
+import createAxiosInstance from "../../../utils/axiosConfig";
 
 function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
   const { t } = useTranslation(); // Using translation hook
@@ -31,29 +31,22 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
   useEffect(() => {
     const fetchSubcategories = async () => {
       try {
-        const response = await axios.get("/v1/subcategories");
+        const axiosInstance = createAxiosInstance("admin");
+        const response = await axiosInstance.get("/subcategories");
         setSubcategories(response.data.data);
       } catch (error) {
         console.error("Error fetching subcategories:", error);
       } finally {
-        setLoadingSubcategories(false); // Set loading to false when data is fetched
+        setLoadingSubcategories(false);
       }
     };
 
     fetchSubcategories();
   }, []);
 
-  const containerStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh",
-  };
-
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
 
-    // If the field is 'option', convert the comma-separated string to an array
     const newValue =
       name === "option"
         ? value.split(",").map((option) => option.trim())
@@ -259,9 +252,7 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
           </Stack>
         </Stack>
       ) : (
-        <Stack style={containerStyle}>
-          <CircularProgress />
-        </Stack>
+        <Loader />
       )}
     </Modal>
   );

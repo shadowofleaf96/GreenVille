@@ -16,6 +16,7 @@ import Button from "@mui/material/Button";
 import axios from "axios";
 import Iconify from "../../components/iconify";
 import { useTranslation } from 'react-i18next';
+import createAxiosInstance from "../../../utils/axiosConfig";
 
 export default function OrderTableToolbar({
   numSelected,
@@ -42,14 +43,14 @@ export default function OrderTableToolbar({
     try {
       setLoadingDelete(true);
 
-      let response; // Declare the response variable outside the loop
+      let response;
       const deletedOrderIds = [];
       for (const orderId of selected) {
-        response = await axios.delete(`/v1/subcategories/${orderId}`);
+        const axiosInstance = createAxiosInstance("admin")
+        response = await axiosInstance.delete(`/subcategories/${orderId}`);
         deletedOrderIds.push(orderId);
       }
 
-      // Dispatch the deleteOrder action to update the state
       dispatch(deleteOrder(deletedOrderIds));
 
       setPopoverAnchor(null);

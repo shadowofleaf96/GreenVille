@@ -56,7 +56,6 @@ const SingleProduct = () => {
   return (
     <Fragment>
       <MetaData title={"Product Details"} />
-      <Navbar />
       <div className="w-full h-auto flex flex-col items-center justify-center p-8 my-6">
         {loading ? (
           <Loader />
@@ -153,7 +152,6 @@ const SingleProduct = () => {
           </div>
         )}
       </div>
-      <Footer />
     </Fragment>
   );
 };

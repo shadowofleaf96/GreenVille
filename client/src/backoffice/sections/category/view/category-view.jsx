@@ -13,8 +13,8 @@ import TableContainer from "@mui/material/TableContainer";
 import Snackbar from "@mui/material/Snackbar";
 import Fab from "@mui/material/Fab";
 import Alert from "@mui/material/Alert";
-import CircularProgress from "@mui/material/CircularProgress";
 import TablePagination from "@mui/material/TablePagination";
+import createAxiosInstance from "../../../../utils/axiosConfig.jsx";
 
 import Iconify from "../../../components/iconify";
 import Scrollbar from "../../../components/scrollbar";
@@ -38,6 +38,7 @@ import {
   setError,
   setFilterName,
 } from "../../../../redux/backoffice/categorySlice.js";
+import Loader from "../../../../frontoffice/components/loader/Loader.jsx";
 
 // ----------------------------------------------------------------------
 
@@ -64,17 +65,16 @@ export default function CategoryPage() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [loadingDelete, setLoadingDelete] = useState(false);
-  const { t } = useTranslation(); // Initialize the useTranslation hook
+  const { t } = useTranslation();
+  const axiosInstance = createAxiosInstance('customer');
 
   const fetchData = async () => {
     try {
       dispatch(setLoading(true));
 
-      // Use axios to fetch data
-      const response = await axios.get("/v1/categories");
+      const response = await axiosInstance.get("/categories");
       const data = response.data.data;
 
-      // Update the state with the fetched data
       dispatch(setData(data));
     } catch (err) {
       dispatch(setError(err));
@@ -88,18 +88,9 @@ export default function CategoryPage() {
     dispatch(setData(data));
   }, [dispatch]);
 
-  const containerStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh", // Adjust this if needed
-  };
-
   if (loading) {
     return (
-      <Stack style={containerStyle}>
-        <CircularProgress />
-      </Stack>
+      <Loader />
     );
   }
 
@@ -107,7 +98,6 @@ export default function CategoryPage() {
     return <Typography variant="body2">Error : {error.message} </Typography>;
   }
 
-  // Render CircularProgress only when data is null
   if (!data && !loading) {
     return <Typography variant="body2">No Data found</Typography>;
   }
@@ -191,8 +181,8 @@ export default function CategoryPage() {
   const handleSaveEditedCategory = async (editedCategory) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.put(
-        `/v1/categories/${editedCategory._id}`,
+      const response = await axiosInstance.put(
+        `/categories/${editedCategory._id}`,
         editedCategory
       );
 
@@ -221,13 +211,13 @@ export default function CategoryPage() {
   };
 
   const handleCancelEdit = () => {
-    setEditingCategory(null); // Close the edit form
+    setEditingCategory(null);
   };
 
   const handleDeleteCategory = async (categoryId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`/v1/categories/${categoryId}`);
+      const response = await axiosInstance.delete(`/categories/${categoryId}`);
       const updatedCategories = data.filter(
         (category) => category._id !== categoryId
       );
@@ -263,7 +253,7 @@ export default function CategoryPage() {
     setLoadingDelete(true);
 
     try {
-      const response = await axios.post("/v1/categories", newCategory);
+      const response = await axiosInstance.post("/categories", newCategory);
       const categorydata = response.data.data;
       const AddedCategory = {
         key: categorydata._id,
@@ -441,7 +431,7 @@ export default function CategoryPage() {
           onClose={closeSnackbar}
           severity={
             typeof snackbarMessage === "string" &&
-            snackbarMessage.includes("Error")
+              snackbarMessage.includes("Error")
               ? "error"
               : "success"
           }

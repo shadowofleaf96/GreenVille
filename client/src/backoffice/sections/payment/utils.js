@@ -35,7 +35,13 @@ export function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-export function applyFilter({ inputData, comparator, filterName }) {
+export function applyFilter({
+  inputData,
+  comparator,
+  filterName,
+  itemsFilter,
+  totalPriceFilter,
+}) {
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -45,15 +51,38 @@ export function applyFilter({ inputData, comparator, filterName }) {
   });
 
   inputData = stabilizedThis.map((el) => el[0]);
-
   if (filterName) {
-    inputData = inputData.filter((user) => {
-      const firstNameMatch =
-        user.first_name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1;
-      const lastNameMatch =
-        user.last_name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1;
+    inputData = inputData.filter((order) => {
+      const firstCustomerNameMatch =
+        order?.customer.first_name
+          .toLowerCase()
+          .indexOf(filterName.toLowerCase()) !== -1;
+      const lastCustomerNameMatch =
+        order?.customer.last_name
+          .toLowerCase()
+          .indexOf(filterName.toLowerCase()) !== -1;
+      return firstCustomerNameMatch || lastCustomerNameMatch;
+    });
+  }
 
-      return firstNameMatch || lastNameMatch;
+  if (itemsFilter) {
+    inputData = inputData.filter((order) => {
+      const orderItemsMatch = order.order_items.some((item) =>
+        item.product.product_name
+          .toLowerCase()
+          .includes(itemsFilter.toLowerCase())
+      );
+      return orderItemsMatch;
+    });
+  }
+
+  if (totalPriceFilter) {
+    inputData = inputData.filter((order) => {
+      const orderTotalPriceMatch = order.cart_total_price
+        .toString()
+        .toLowerCase()
+        .includes(totalPriceFilter.toLowerCase());
+      return orderTotalPriceMatch;
     });
   }
 

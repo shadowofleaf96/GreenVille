@@ -47,7 +47,8 @@ export default function ProductTableToolbar({
       let response;
       const deletedProductIds = [];
       for (const userId of selected) {
-        response = await axios.delete(`/v1/users/${userId}`);
+        const axiosInstance = createAxiosInstance("admin")
+        response = await axiosInstance.delete(`/users/${userId}`);
         deletedProductIds.push(userId);
       }
 

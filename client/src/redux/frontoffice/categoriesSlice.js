@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios"
+import createAxiosInstance from "../../utils/axiosConfig";
 
 const initialState = {
   loading: false,
@@ -39,18 +40,17 @@ export const {
   clearErrors,
 } = categoriesSlice.actions;
 
-// Get all categories
 export const getCategories = (category_Id) => async (dispatch) => {
   dispatch(categoriesRequest());
 
   try {
-    let link = `/v1/categories`;
+    let link = `/categories`;
 
     if (category_Id) {
       link = `/${category_Id}`;
     }
-
-    const { data } = await axios.get(link);
+    const axiosInstance = createAxiosInstance("customer")
+    const { data } = await axiosInstance.get(link);
 
     dispatch(categoriesSuccess(data));
   } catch (error) {

@@ -15,8 +15,8 @@ import {
   addItemToCart,
   removeItemFromCart,
 } from "../../../../redux/frontoffice/cartSlice";
-import { Button, Typography } from "@material-tailwind/react";
 import CheckoutForm from "./CheckoutForm";
+import createAxiosInstance from "../../../../utils/axiosConfig";
 
 const Payment = () => {
   const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
@@ -30,6 +30,8 @@ const Payment = () => {
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false)
+  const axiosInstance = createAxiosInstance("customer")
+
 
   const navigate = useNavigate();
 
@@ -62,7 +64,7 @@ const Payment = () => {
   useEffect(() => {
     const fetchStripeKey = async () => {
       try {
-        const response = await axios.post("/v1/payments/create-stripe-payment", { amount: totalPrice, currency: "mad" },
+        const response = await axiosInstance.post("/payments/create-stripe-payment", { amount: totalPrice, currency: "mad" },
           {
             headers: {
               "Content-Type": "application/json",
@@ -109,7 +111,7 @@ const Payment = () => {
         status: "processing",
       };
 
-      const orderResponse = await axios.post("/v1/orders", orderData);
+      const orderResponse = await axiosInstance.post("/orders", orderData);
 
       return orderResponse.data.order._id;
     } catch (error) {
@@ -142,7 +144,7 @@ const Payment = () => {
           currency: "mad"
         };
 
-        await axios.post("/v1/payments/save-payment-info", paymentData);
+        await axiosInstance.post("/payments/save-payment-info", paymentData);
 
         cartItems.forEach(item => {
           dispatch(removeItemFromCart(item.product));
@@ -165,7 +167,7 @@ const Payment = () => {
         currency: currency
       };
 
-      await axios.post("/v1/payments" + operation, paymentData);
+      await axiosInstance.post("/payments" + operation, paymentData);
 
       cartItems.forEach(item => {
         dispatch(removeItemFromCart(item.product));
@@ -190,9 +192,8 @@ const Payment = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full">
+    <div className="flex flex-col gap-6 py-8 w-full">
       <MetaData title={"Payment"} />
-      <Navbar />
       <div className="container py-2 my-8 mx-auto">
         <div className="flex flex-col">
           <CheckoutSteps shipping confirmOrder payment />
@@ -256,22 +257,22 @@ const Payment = () => {
                 <hr className="my-4" />
                 <div className="flex justify-center mt-6">
                   {loading ?
-                    <Button
+                    <button
                       loading={loading}
                       onClick={handleCODPayment}
                       className="h-12 w-3/4 bg-[#b3b4b1] text-white rounded-lg text-md font-medium normal-case shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 flex justify-center items-center"
                     >
                       <div className="flex justify-center items-center space-x-2">
-                        <Typography className="!text-center text-md normal-case font-medium">Loading</Typography>
+                        <p className="!text-center text-md normal-case font-medium">Loading</p>
                       </div>
-                    </Button> :
-                    <Button
+                    </button> :
+                    <button
                       loading={loading}
                       onClick={handleCODPayment}
                       className="h-12 w-3/4 bg-[#8DC63F]  text-white rounded-lg !text-center text-md normal-case font-meduim shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
                     >
-                      <Typography className="!text-center text-md normal-case font-medium">Confirm Pay</Typography>
-                    </Button>}
+                      <p className="!text-center text-md normal-case font-medium">Confirm Pay</p>
+                    </button>}
                 </div>
               </div>
             )}
@@ -320,7 +321,6 @@ const Payment = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   )
 }

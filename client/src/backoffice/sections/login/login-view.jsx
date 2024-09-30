@@ -27,6 +27,7 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import Logo from "../../components/logo";
 import Iconify from "../../components/iconify";
+import createAxiosInstance from "../../../utils/axiosConfig";
 
 
 export default function LoginView() {
@@ -46,6 +47,7 @@ export default function LoginView() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [loadingSave, setLoadingSave] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const axiosInstance = createAxiosInstance("admin")
 
   const handleOpenForgotPasswordDialog = () => {
     setOpenForgotPasswordDialog(true);
@@ -67,8 +69,7 @@ export default function LoginView() {
   const handleForgotPassword = async () => {
     try {
       setResetPasswordLoading(true);
-
-      const response = await axios.post("/v1/users/forgot-password", {
+      const response = await axiosInstance.post("/users/forgot-password", {
         email: resetEmail,
       });
 
@@ -93,8 +94,7 @@ export default function LoginView() {
         user_name,
         password,
       };
-
-      const response = await axios.post("/v1/users/login", requestBody);
+      const response = await axiosInstance.post("/users/login", requestBody);
 
       if (response.status === 200) {
         localStorage.setItem('user_access_token', response.data.access_token);
@@ -102,7 +102,8 @@ export default function LoginView() {
 
         dispatch(
           loginSuccess({
-            adminToken: response.data.access_token,
+            token: response.data.access_token,
+            refresh_token: response.data.refresh_token,
           })
         );
         router.push("/admin");
@@ -180,14 +181,14 @@ export default function LoginView() {
           justifyContent="flex-end"
           sx={{ my: 3 }}
         >
-          <Link
+          {/* <Link
             style={{ cursor: "pointer" }}
             variant="subtitle2"
             underline="hover"
             onClick={handleOpenForgotPasswordDialog}
           >
             {t("Forgot password?")}
-          </Link>
+          </Link> */}
         </Stack>
 
         <LoadingButton

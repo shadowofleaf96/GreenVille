@@ -32,16 +32,18 @@ const CreateOrders = async (req, res) => {
 
 const RetrievingOrders = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
+    const page = req.query.page ? parseInt(req.query.page) : null;
     const perPage = 10;
 
     const findQuery = Order.find();
     const countQuery = Order.countDocuments();
 
+    if (page) {
+      findQuery.skip((page - 1) * perPage).limit(perPage);
+    }
+
     const [orders, totalOrders] = await Promise.all([
       findQuery
-        .skip((page - 1) * perPage)
-        .limit(perPage)
         .populate("customer_id", "first_name last_name email")
         .populate({
           path: "order_items.product_id",

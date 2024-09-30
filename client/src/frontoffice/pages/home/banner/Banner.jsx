@@ -1,5 +1,5 @@
 import { React, useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"
 import { Swiper, SwiperSlide } from "swiper/react";
 import Iconify from "../../../../backoffice/components/iconify/iconify";
 
@@ -44,9 +44,15 @@ const Banner = () => {
                   <p className="text-white font-semibold text-lg uppercase tracking-widest mb-16">FROM NATURE TO YOUR HOME</p>
                   <h1 className="text-white text-5xl md:text-6xl font-extrabold leading-tight mb-12">Embrace the Best of Organic Living</h1>
                   <p className="text-white text-lg mb-20">Experience the pure essence of nature with our handpicked products that nurture your wellbeing.</p>
-                  <div className="mt-6">
-                    <Link to="/products" className="inline-block bg-[#8DC63F] text-white py-3 px-8 rounded-md font-semibold shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400">Shop Now</Link>
-                  </div>
+                  <button className="flex bg-[#8DC63F] text-white py-3 px-8 rounded-md justify-center items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400">
+                    <Link to="/products">Shop Now</Link>
+                    <Iconify
+                      icon="ep:right"
+                      width={20}
+                      height={20}
+                      className="ml-2"
+                    />
+                  </button>
                 </div>
               </div>
             </div>
@@ -63,9 +69,15 @@ const Banner = () => {
                   <p className="text-white font-semibold text-lg uppercase tracking-widest mb-16">OUR COSMETIC WORLD IS YOURS</p>
                   <h1 className="text-white text-5xl md:text-6xl font-extrabold leading-tight mb-12">Your Wellbeing is Our Priority</h1>
                   <p className="text-white text-lg mb-20">Discover our range of organic products designed to enhance your beauty and health naturally.</p>
-                  <div className="mt-6">
-                    <Link to="/products" className="inline-block bg-[#8DC63F] text-white py-3 px-8 rounded-md font-semibold shadow-lg transition-all duration-300 hover:bg-green-500 hover:scale-105">Shop Now</Link>
-                  </div>
+                  <button className="flex bg-[#8DC63F] text-white py-3 px-8 rounded-md shadow-none justify-center items-center transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400">
+                    <Link to="/products">Shop Now</Link>
+                    <Iconify
+                      icon="ep:right"
+                      width={20}
+                      height={20}
+                      className="ml-2"
+                    />
+                  </button>
                 </div>
               </div>
             </div>

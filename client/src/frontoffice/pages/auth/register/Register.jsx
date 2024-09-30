@@ -5,12 +5,14 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { useRouter } from "../../../../routes/hooks";
 import { motion } from "framer-motion";
+import createAxiosInstance from "../../../../utils/axiosConfig";
 
 const RegistrationForm = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const axiosInstance = createAxiosInstance("customer")
 
   const [profileImage, setProfileImage] = useState(null);
   const router = useRouter();
@@ -28,8 +30,8 @@ const RegistrationForm = () => {
         formData.append("customer_image", profileImage);
       }
 
-      const response = await axios.post(
-        "http://localhost:3000/v1/customers/",
+      const response = await axiosInstance.post(
+        "/customers",
         formData
       );
 

@@ -6,7 +6,7 @@ import Iconify from "../../../backoffice/components/iconify";
 import { useCookies } from "react-cookie";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addItemToCart,
+  updateCartItemQuantity,
   removeItemFromCart,
 } from "../../../redux/frontoffice/cartSlice";
 
@@ -31,13 +31,15 @@ const Cart = () => {
   const increaseQty = (id, quantity, stock) => {
     const newQty = quantity + 1;
     if (newQty > stock) return;
-    dispatch(addItemToCart({ id, quantity: newQty }));
+
+    dispatch(updateCartItemQuantity({ productId: id, quantity: newQty }));
   };
 
   const decreaseQty = (id, quantity) => {
     const newQty = quantity - 1;
     if (newQty <= 0) return;
-    dispatch(addItemToCart({ id, quantity: newQty }));
+
+    dispatch(updateCartItemQuantity({ productId: id, quantity: newQty }));
   };
 
   const checkoutHandler = () => {
@@ -60,7 +62,6 @@ const Cart = () => {
   return (
     <Fragment>
       <MetaData title={"Cart"} />
-      <Navbar />
       <div className="min-h-screen flex flex-col mt-8 px-4">
         <div className="container mx-auto grid gap-4 grid-cols-1 md:grid-cols-3">
           <div className="md:col-span-2">
@@ -132,7 +133,7 @@ const Cart = () => {
               </div>
             </div>
           </div>
-          <div className="order_summary p-4 bg-white shadow rounded-lg">
+          <div className="h-60 order_summary p-4 bg-white shadow rounded-lg">
             <h4 className="text-lg font-bold mb-4">Order Summary</h4>
             <hr />
             <p className="flex justify-between my-2">
@@ -170,7 +171,6 @@ const Cart = () => {
           </Alert>
         </Snackbar>
       </div>
-      <Footer />
     </Fragment>
   );
 };

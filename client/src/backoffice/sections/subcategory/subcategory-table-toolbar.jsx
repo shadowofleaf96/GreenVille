@@ -16,6 +16,7 @@ import Button from "@mui/material/Button";
 import axios from "axios";
 import Iconify from "../../components/iconify";
 import { useTranslation } from "react-i18next";
+import createAxiosInstance from "../../../utils/axiosConfig";
 
 export default function SubCategoryTableToolbar({
   numSelected,
@@ -36,14 +37,14 @@ export default function SubCategoryTableToolbar({
     try {
       setLoadingDelete(true);
 
-      let response; // Declare the response variable outside the loop
+      let response;
       const deletedSubCategoryIds = [];
       for (const subcategoryId of selected) {
-        response = await axios.delete(`/v1/subcategories/${subcategoryId}`);
+        const axiosInstance = createAxiosInstance("admin")
+        response = await axiosInstance.delete(`/subcategories/${subcategoryId}`);
         deletedSubCategoryIds.push(subcategoryId);
       }
 
-      // Dispatch the deleteSubCategory action to update the state
       dispatch(deleteSubCategory(deletedSubCategoryIds));
 
       setPopoverAnchor(null);

@@ -1,36 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-
-export const login = (credentials) => async (dispatch) => {
-  dispatch(loginStart());
-  try {
-    const response = await axios.post('/v1/customers/login', credentials);
-    const { token, customer } = response.data;
-
-    localStorage.setItem('customer_access_token', token);
-    
-    dispatch(loginSuccess({ token, customer }));
-  } catch (error) {
-    dispatch(loginFailure(error.response ? error.response.data : error.message));
-  }
-};
+import createAxiosInstance from "../../utils/axiosConfig";
 
 export const fetchCustomerProfile = () => async (dispatch) => {
-  const token = localStorage.getItem('customer_access_token');
-  if (!token) {
-    return;
-  }
-  
   dispatch(loginStart());
-  
-  try {
-    const response = await axios.get('/v1/customers/profile', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      withCredentials: true,
-    });
 
+  try {
+    const axiosInstance = createAxiosInstance("customer");
+    const response = await axiosInstance.get("/customers/profile");
     dispatch(setCustomer(response.data));
   } catch (error) {
     dispatch(loginFailure(error.message));

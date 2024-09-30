@@ -23,14 +23,16 @@ export default function AppWebsiteVisits({ title, subheader, chart, ...other }) 
     },
     labels,
     xaxis: {
-      type: 'datetime',
+      type: 'date',
     },
     yaxis: {
       labels: {
         formatter: function (value) {
-          return value ;
+          return Math.floor(value);
         }
       },
+      tickAmount: 5,
+      min: 0,
     },
     tooltip: {
       shared: true,

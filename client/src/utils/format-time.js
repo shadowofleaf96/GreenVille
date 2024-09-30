@@ -2,7 +2,14 @@ import { format, getTime, formatDistanceToNow } from "date-fns";
 
 // ----------------------------------------------------------------------
 
-// Import the new formatDate function
+const formatDayMonth = (dateString) => {
+  const options = {
+    day: "2-digit",
+    month: "2-digit",
+  };
+  return new Date(dateString).toLocaleDateString("fr-FR", options);
+};
+
 const formatDate = (dateString) => {
   const options = {
     day: "numeric",
@@ -21,7 +28,6 @@ export function fDate(date, newFormat) {
   return date ? format(new Date(date), fm) : "";
 }
 
-// Modify the fDateTime function
 export function fDateTime(date, newFormat) {
   return date ? formatDate(new Date(date)) : "";
 }
@@ -36,4 +42,8 @@ export function fToNow(date) {
         addSuffix: true,
       })
     : "";
+}
+
+export function fDayMonth(date) {
+  return date ? formatDayMonth(date) : "";
 }

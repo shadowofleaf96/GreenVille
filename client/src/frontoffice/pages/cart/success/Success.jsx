@@ -6,9 +6,8 @@ import { Link } from "react-router-dom";
 
 const Success = () => {
     return (
-        <div className="bg-gray-100">
+        <div className="bg-gray-100 py-6">
             <MetaData title={"Order Success"} />
-            <Navbar />
             <div className="flex flex-col items-center py-8 my-8 justify-center">
                 <div className="flex flex-col items-center py-6">
                     <div className="relative flex items-center justify-center mb-8">
@@ -57,7 +56,6 @@ const Success = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
         </div>
     );
 };

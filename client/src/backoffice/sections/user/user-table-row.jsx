@@ -38,7 +38,7 @@ export default function UserTableRow({
 
   const [open, setOpen] = useState(null);
   const { t } = useTranslation();
-  const user = useSelector((state) => state.adminAuth.adminUser);
+  const admin = useSelector((state) => state.adminAuth);
   const isActive = active;
   const color = isActive ? "primary" : "secondary";
 
@@ -96,7 +96,7 @@ export default function UserTableRow({
             />
           </IconButton>
 
-          {user.role !== "manager" && (
+          {admin.role !== "manager" && (
             <IconButton
               onClick={() => {
                 onEdit && onEdit();
@@ -110,7 +110,7 @@ export default function UserTableRow({
             </IconButton>
           )}
 
-          {user.role !== "manager" && (
+          {admin.role !== "manager" && (
             <IconButton
               onClick={(event) => {
                 onDelete && onDelete(event);

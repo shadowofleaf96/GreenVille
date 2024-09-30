@@ -12,7 +12,6 @@ import TableContainer from "@mui/material/TableContainer";
 import Fab from "@mui/material/Fab";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
-import CircularProgress from "@mui/material/CircularProgress";
 import TablePagination from "@mui/material/TablePagination";
 
 import Iconify from "../../../components/iconify";
@@ -39,6 +38,8 @@ import {
   setError,
   setFilterName,
 } from "../../../../redux/backoffice/productSlice.js";
+import Loader from "../../../../frontoffice/components/loader/Loader.jsx";
+import createAxiosInstance from "../../../../utils/axiosConfig.jsx";
 
 // ----------------------------------------------------------------------
 
@@ -69,16 +70,14 @@ export default function ProductPage() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const axiosInstance = createAxiosInstance("admin");
 
   const fetchData = async () => {
     try {
       dispatch(setLoading(true));
-
-      // Use axios to fetch data
-      const response = await axios.get("/v1/products");
+      const response = await axiosInstance.get("/products");
       const data = response.data.data;
 
-      // Update the state with the fetched data
       dispatch(setData(data));
     } catch (err) {
       dispatch(setError(err));
@@ -101,9 +100,7 @@ export default function ProductPage() {
 
   if (loading) {
     return (
-      <Stack style={containerStyle}>
-        <CircularProgress />
-      </Stack>
+      <Loader />
     );
   }
 
@@ -111,7 +108,6 @@ export default function ProductPage() {
     return <Typography variant="body2">Error : {error.message} </Typography>;
   }
 
-  // Render CircularProgress only when data is null
   if (!data && !loading) {
     return <Typography variant="body2">No Data found</Typography>;
   }
@@ -228,8 +224,8 @@ export default function ProductPage() {
         formData.append("product_image", selectedImage);
       }
 
-      const response = await axios.put(
-        `/v1/products/${editedProduct._id}`,
+      const response = await axiosInstance.put(
+        `/products/${editedProduct._id}`,
         formData
       );
 
@@ -271,13 +267,13 @@ export default function ProductPage() {
   };
 
   const handleCancelEdit = () => {
-    setEditingProduct(null); // Close the edit form
+    setEditingProduct(null);
   };
 
   const handleDeleteProduct = async (productId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`/v1/products/${productId}`);
+      const response = await axiosInstance.delete(`/products/${productId}`);
       const updatedProducts = data.filter(
         (product) => product._id !== productId
       );
@@ -331,8 +327,7 @@ export default function ProductPage() {
         newProduct.product_image = "images/image_placeholder.webp";
       }
 
-      // Make API call to create a new product
-      const response = await axios.post("/v1/products", formData);
+      const response = await axiosInstance.post("/products", formData);
       const productdata = response.data.data;
       const AddedProducts = {
         key: productdata._id,
@@ -544,7 +539,7 @@ export default function ProductPage() {
           onClose={closeSnackbar}
           severity={
             typeof snackbarMessage === "string" &&
-            snackbarMessage.includes("Error")
+              snackbarMessage.includes("Error")
               ? "error"
               : "success"
           }

@@ -16,6 +16,7 @@ import Popover from "@mui/material/Popover";
 import Button from "@mui/material/Button";
 import axios from "axios";
 import Iconify from "../../components/iconify";
+import createAxiosInstance from "../../../utils/axiosConfig";
 
 export default function CategoryTableToolbar({
   numSelected,
@@ -28,7 +29,7 @@ export default function CategoryTableToolbar({
   const [snackbarMessage, setSnackbarMessage] = useState(null);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const { t } = useTranslation(); // Initialize the useTranslation hook
+  const { t } = useTranslation();
 
   const dispatch = useDispatch();
 
@@ -39,11 +40,11 @@ export default function CategoryTableToolbar({
       let response;
       const deletedUserIds = [];
       for (const userId of selected) {
-        response = await axios.delete(`/v1/users/${userId}`);
+        const axiosInstance = createAxiosInstance("admin")
+        response = await axiosInstance.delete(`/users/${userId}`);
         deletedUserIds.push(userId);
       }
 
-      // Dispatch the deleteUser action to update the state
       dispatch(deleteUser(deletedUserIds));
 
       setPopoverAnchor(null);

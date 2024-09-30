@@ -6,11 +6,12 @@ import Stack from "@mui/material/Stack";
 import Drawer from "@mui/material/Drawer";
 import Button from "@mui/material/Button";
 import Avatar from "@mui/material/Avatar";
+import { logout, fetchUserProfile } from "../../../redux/backoffice/authSlice";
 import { alpha } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import ListItemButton from "@mui/material/ListItemButton";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { usePathname } from "../../../routes/hooks";
 import Divider from "@mui/material/Divider";
@@ -29,21 +30,16 @@ import TranslatedNavConfig from "../dashboard/config-navigation";
 
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
-  const [user, setUser] = useState(null);
+  const { admin } = useSelector((state) => state.adminAuth);
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const fetchAdminProfile = async () => {
-      try {
-        const response = await axios.get("/v1/users/profile");
-        setUser(response.data);
-      } catch (error) {
-        console.error("Error fetching admin profile:", error);
-      }
-    };
+  const dispatch = useDispatch();
 
-    fetchAdminProfile();
-  }, []);
+  useEffect(() => {
+    if (!admin) {
+      dispatch(fetchUserProfile());
+    }
+  }, [dispatch]);
 
   const upLg = useResponsive("up", "lg");
 
@@ -66,7 +62,7 @@ export default function Nav({ openNav, onCloseNav }) {
       }}
     >
       <Avatar
-        src={`http://127.0.0.1:3000/${user.user_image}`}
+        src={`http://127.0.0.1:3000/${admin?.user_image}`}
         alt="photoURL"
         sx={{ width: 120, height: 120, my: 2 }}
       />
@@ -76,11 +72,11 @@ export default function Nav({ openNav, onCloseNav }) {
       </Typography>
 
       <Typography variant="body2" sx={{ my: 0.5 }}>
-        {user.first_name + " " + user.last_name}
+        {admin?.first_name + " " + admin?.last_name}
       </Typography>
 
       <Typography variant="body2" sx={{ my: 0.5 }}>
-        {user.role}
+        {admin?.role}
       </Typography>
     </Stack>
   );

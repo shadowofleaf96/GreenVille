@@ -2,21 +2,23 @@ import { useTranslation } from "react-i18next";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
-import Grid from "@mui/material/Unstable_Grid2";
+import Grid from "@mui/material/Grid2";
 import Typography from "@mui/material/Typography";
 import Iconify from "../../../components/iconify";
-import CircularProgress from "@mui/material/CircularProgress";
+import createAxiosInstance from "../../../../utils/axiosConfig";
 import AppWebsiteVisits from "../app-website-visits";
 import AppWidgetSummary from "../app-widget-summary";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
-import { fDate } from "../../../../utils/format-time";
+import { fDate, fDayMonth } from "../../../../utils/format-time";
+import { format, isSameDay } from "date-fns";
+import Loader from "../../../../frontoffice/components/loader/Loader";
 
 export default function AppView() {
   const { t } = useTranslation();
-  const user = useSelector((state) => state.adminAuth.adminUser);
+  const admin = useSelector((state) => state.adminAuth);
   const [data, setData] = useState({
     customers: [],
     orders: [],
@@ -24,27 +26,22 @@ export default function AppView() {
   });
 
   let totalQuantity = 0;
-  const containerStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh",
-  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userssResponse = await axios.get("/v1/users");
-        const ordersResponse = await axios.get("/v1/orders");
+        const axiosInstance = createAxiosInstance('admin');
+        const customersResponse = await axiosInstance.get("/customers");
+        const ordersResponse = await axiosInstance.get("/orders");
         setData({
-          users: usersResponse.data.data,
+          customers: customersResponse.data.data,
           orders: ordersResponse.data.data,
           loading: false,
         });
       } catch (error) {
         console.error("Error fetching data:", error);
         setData({
-          users: [],
+          customers: [],
           orders: [],
           loading: false,
         });
@@ -54,52 +51,48 @@ export default function AppView() {
     fetchData();
   }, []);
 
-  function generateLabelsForHalfOfMonth() {
+  function generateLabelsFromOrders(orders) {
     const labels = [];
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth();
-    const daysInCurrentMonth = new Date(
-      currentYear,
-      currentMonth + 1,
-      0
-    ).getDate();
-    const daysToGenerate = Math.min(20, daysInCurrentMonth);
 
-    for (let day = 1; day <= daysToGenerate; day++) {
-      const formattedMonth = String(currentMonth + 1).padStart(2, "0");
-      const formattedDay = String(day).padStart(2, "0");
-      const formattedDate = `${formattedMonth}/${formattedDay}/${currentYear}`;
-      labels.push(formattedDate);
+    const uniqueOrderDates = new Set(
+      orders.map(order => {
+        return new Date(order.order_date).setHours(0, 0, 0, 0);
+      })
+    );
+
+    const sortedDates = Array.from(uniqueOrderDates).sort((a, b) => a - b);
+
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      const currentDate = new Date(currentYear, currentMonth, i).setHours(0, 0, 0, 0);
+
+      const formattedDate = format(currentDate, 'dd/MM');
+
+      if (sortedDates.some(date => isSameDay(date, currentDate))) {
+        labels.push(formattedDate);
+      } else {
+        labels.push(formattedDate);
+      }
     }
 
     return labels;
   }
 
-  const labels = generateLabelsForHalfOfMonth();
+  const labels = generateLabelsFromOrders(data.orders);
 
   const chartData = {
     labels: labels,
     series: [
       {
-        name: t("Customers"),
-        type: "line",
-        fill: "solid",
-        data: labels.map((date) => {
-          const formattedDate = fDate(date);
-          return data.customers.filter(
-            (entry) => fDate(entry.last_login) === formattedDate
-          ).length;
-        }),
-      },
-      {
         name: t("Orders"),
         type: "area",
         fill: "gradient",
         data: labels.map((date) => {
-          const formattedDate = fDate(date);
           return data.orders.filter(
-            (entry) => fDate(entry.order_date) === formattedDate
+            (entry) => fDayMonth(entry.order_date) === date
           ).length;
         }),
       },
@@ -119,13 +112,11 @@ export default function AppView() {
   return (
     <Container maxWidth="xl">
       {data.loading ? (
-        <Stack style={containerStyle}>
-          <CircularProgress />
-        </Stack>
+        <Loader />
       ) : (
         <>
           <Typography variant="h4" sx={{ mb: 5 }}>
-            {t("Welcome")}, {user.first_name}
+            {t("Welcome")}, {admin.first_name}
           </Typography>
 
           <Box
@@ -196,8 +187,8 @@ export default function AppView() {
           <Box sx={{ borderRadius: "16px", boxShadow: 1 }}>
             <Grid xs={12} md={6} lg={8}>
               <AppWebsiteVisits
-                title={t("Last Sign in Customers and New Orders Added")}
-                subheader={t("Customers sign in and orders added each day")}
+                title={t("New Orders")}
+                subheader={t("Orders added each day")}
                 chart={chartData}
               />
             </Grid>

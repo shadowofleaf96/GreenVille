@@ -27,11 +27,12 @@ import Iconify from "../../../components/iconify";
 import { bgGradient } from "../../../theme/css";
 import { useRouter } from "../../../../routes/hooks";
 import Alert from "@mui/material/Alert";
+import createAxiosInstance from "../../../../utils/axiosConfig";
 
 const ResetPasswordPage = () => {
   const theme = useTheme();
   const router = useRouter();
-  const { t } = useTranslation(); // Translation hook
+  const { t } = useTranslation();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const { token } = useParams();
@@ -40,15 +41,16 @@ const ResetPasswordPage = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const axiosInstance = createAxiosInstance("admin")
+
 
   const handleResetPassword = async () => {
     try {
       setResetPasswordLoading(true);
       const newPasswordJson = { newPassword };
 
-      // Send a request to your server to update the password
-      const response = await axios.post(
-        "/v1/users/reset-password/" + token,
+      const response = await axiosInstance.post(
+        "/users/reset-password/" + token,
         newPasswordJson
       );
 

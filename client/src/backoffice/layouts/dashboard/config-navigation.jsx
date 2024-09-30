@@ -79,12 +79,11 @@ const navConfig = [
       />
     ),
   },
-  // Completing it Later
-  // {
-  //   title: "payment list",
-  //   path: "/paymentlist",
-  //   icon: <Iconify icon="material-symbols-light:payments-outline-rounded" width={30} height={30} />,
-  // },
+  {
+    title: "payment list",
+    path: "/admin/paymentlist",
+    icon: <Iconify icon="material-symbols-light:payments-outline-rounded" width={30} height={30} />,
+  },
 ];
 
 const TranslatedNavConfig = () => {

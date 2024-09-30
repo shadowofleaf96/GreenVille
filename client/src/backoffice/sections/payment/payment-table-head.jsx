@@ -1,5 +1,5 @@
+// Shadow Of Leaf was Here
 import PropTypes from 'prop-types';
-
 import Box from '@mui/material/Box';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
@@ -9,9 +9,11 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 
 import { visuallyHidden } from './utils';
 
+import { useTranslation } from 'react-i18next'; // Importing translation hook
+
 // ----------------------------------------------------------------------
 
-export default function UserTableHead({
+export default function OrderTableHead({
   order,
   orderBy,
   rowCount,
@@ -20,6 +22,8 @@ export default function UserTableHead({
   onRequestSort,
   onSelectAllClick,
 }) {
+  const { t } = useTranslation(); // Using translation hook
+
   const onSort = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -48,10 +52,12 @@ export default function UserTableHead({
               direction={orderBy === headCell.id ? order : 'asc'}
               onClick={onSort(headCell.id)}
             >
-              {headCell.label}
+              {t(headCell.label)} {/* Translating the label */}
               {orderBy === headCell.id ? (
                 <Box sx={{ ...visuallyHidden }}>
-                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                  {order === 'desc'
+                    ? t('sorted descending')
+                    : t('sorted ascending')}
                 </Box>
               ) : null}
             </TableSortLabel>
@@ -62,7 +68,7 @@ export default function UserTableHead({
   );
 }
 
-UserTableHead.propTypes = {
+OrderTableHead.propTypes = {
   order: PropTypes.oneOf(['asc', 'desc']),
   orderBy: PropTypes.string,
   rowCount: PropTypes.number,

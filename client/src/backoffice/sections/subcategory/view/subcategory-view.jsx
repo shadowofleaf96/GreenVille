@@ -13,7 +13,6 @@ import TableContainer from "@mui/material/TableContainer";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { useTranslation } from "react-i18next";
-import CircularProgress from "@mui/material/CircularProgress";
 import TablePagination from "@mui/material/TablePagination";
 
 import Iconify from "../../../components/iconify/index.js";
@@ -38,6 +37,8 @@ import {
   setError,
   setFilterName,
 } from "../../../../redux/backoffice/subCategorySlice.js";
+import Loader from "../../../../frontoffice/components/loader/Loader.jsx";
+import createAxiosInstance from "../../../../utils/axiosConfig.jsx";
 
 // ----------------------------------------------------------------------
 
@@ -63,12 +64,13 @@ export default function SubCategoryPage() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [loadingDelete, setLoadingDelete] = useState(false);
+  const axiosInstance = createAxiosInstance("admin")
 
   const fetchData = async () => {
     try {
       dispatch(setLoading(true));
 
-      const response = await axios.get("/v1/subcategories");
+      const response = await axiosInstance.get("/subcategories");
       const data = response.data.data;
       dispatch(setData(data));
     } catch (err) {
@@ -83,18 +85,11 @@ export default function SubCategoryPage() {
     dispatch(setData(data));
   }, [dispatch]);
 
-  const containerStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh",
-  };
+
 
   if (loading) {
     return (
-      <Stack style={containerStyle}>
-        <CircularProgress />
-      </Stack>
+      <Loader />
     );
   }
 
@@ -185,8 +180,8 @@ export default function SubCategoryPage() {
   const handleSaveEditedSubCategory = async (editedSubCategory) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.put(
-        `/v1/subcategories/${editedSubCategory._id}`,
+      const response = await axiosInstance.put(
+        `/subcategories/${editedSubCategory._id}`,
         editedSubCategory
       );
 
@@ -221,13 +216,13 @@ export default function SubCategoryPage() {
   };
 
   const handleCancelEdit = () => {
-    setEditingSubCategory(null); // Close the edit form
+    setEditingSubCategory(null);
   };
 
   const handleDeleteSubCategory = async (subcategoryId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`/v1/subcategories/${subcategoryId}`);
+      const response = await axiosInstance.delete(`/subcategories/${subcategoryId}`);
       const updatedSubCategories = data.filter(
         (subcategory) => subcategory._id !== subcategoryId
       );
@@ -253,9 +248,7 @@ export default function SubCategoryPage() {
     setLoadingDelete(true);
 
     try {
-      // Make API call to create a new subcategory
-      console.log(newSubCategory);
-      const response = await axios.post("/v1/subcategories", newSubCategory);
+      const response = await axiosInstance.post("/subcategories", newSubCategory);
       const { category_name } = newSubCategory.category;
       const subcategorydata = response.data.data;
       const AddedSubCategories = {
@@ -272,7 +265,6 @@ export default function SubCategoryPage() {
       dispatch(setData([...data, AddedSubCategories]));
       openSnackbar(response.data.message);
 
-      // Optionally, update the subcategories state or perform any other necessary actions
     } catch (error) {
       console.error("Error creating new subcategory:", error);
       openSnackbar("Error: " + error.response.data.message);
@@ -440,7 +432,7 @@ export default function SubCategoryPage() {
           onClose={closeSnackbar}
           severity={
             typeof snackbarMessage === "string" &&
-            snackbarMessage.includes("Error")
+              snackbarMessage.includes("Error")
               ? "error"
               : "success"
           }

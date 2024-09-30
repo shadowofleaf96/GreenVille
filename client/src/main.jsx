@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
@@ -19,13 +19,13 @@ root.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       <HelmetProvider>
-      <GoogleOAuthProvider clientId="60176889311-345slh8brbtu2s6ct0lvc2f29mb5h66l.apps.googleusercontent.com">
-        <BrowserRouter>
-          <Suspense>
-            <App />
-          </Suspense>
-        </BrowserRouter>
-        </GoogleOAuthProvider>  
+        <GoogleOAuthProvider clientId="60176889311-345slh8brbtu2s6ct0lvc2f29mb5h66l.apps.googleusercontent.com">
+          <BrowserRouter>
+            <Suspense>
+              <App />
+            </Suspense>
+          </BrowserRouter>
+        </GoogleOAuthProvider>
       </HelmetProvider>
     </PersistGate>
   </Provider>

@@ -2,19 +2,19 @@ import React, { useEffect, useState, useRef } from "react";
 import Iconify from "../../../backoffice/components/iconify";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { Spinner } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { logout, fetchCustomerProfile } from "../../../redux/frontoffice/customerSlice";
 import Announcement from "../announcement/Announcement";
 import { useRouter } from "../../../routes/hooks";
+import Loader from "../loader/Loader";
 
 const Navbar = () => {
   const [toggle, setToggle] = useState(false);
   const [dropdown, setDropdown] = useState(false);
-  const dropdownRef = useRef(null); // Ref to track the dropdown menu
-  const { customer, token, isLoading } = useSelector((state) => state.customers);
+  const dropdownRef = useRef(null);
+  const { customer, isLoading } = useSelector((state) => state.customers);
   const { cartItems } = useSelector((state) => state.carts);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -49,9 +49,8 @@ const Navbar = () => {
   };
 
   const handleClickOutside = (event) => {
-    // Check if the click is outside the dropdown
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setDropdown(false); // Close the dropdown
+      setDropdown(false);
     }
   };
 
@@ -68,7 +67,7 @@ const Navbar = () => {
   }, [dropdown]);
 
   return (
-    <div className="relative">
+    <div className="fixed w-full z-50">
       <Announcement />
       <nav className="bg-white shadow-md py-4">
         <div className="container mx-auto flex items-center justify-between px-4">
@@ -95,7 +94,7 @@ const Navbar = () => {
               </span>
             </Link>
             {isLoading ? (
-              <Spinner className="mt-2" />
+              <Loader className="mt-2" />
             ) : (
               <>
                 {customer ? (
@@ -146,13 +145,17 @@ const Navbar = () => {
                   </div>
                 ) : (
                   <Link to="/login" className="text-sm">
-                    Login
+                    <Iconify
+                      icon="material-symbols-light:person-outline"
+                      width={41}
+                      height={41}
+                    />
                   </Link>
                 )}
               </>
             )}
           </div>
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center ml-4">
             <Iconify
               icon="material-symbols-light:menu-rounded"
               width={28}
@@ -164,42 +167,50 @@ const Navbar = () => {
       </nav>
 
       {toggle && (
-        <motion.div
-          className="fixed top-0 right-0 bottom-0 w-2/3 bg-white shadow-md z-50 p-6"
-          whileInView={{ x: [300, 0] }}
-          transition={{ duration: 0.85, ease: "easeOut" }}
-        >
-          <div className="flex justify-end">
-            <Iconify
-              icon="material-symbols-light:cancel-outline-rounded"
-              width={28}
-              height={28}
-              onClick={() => setToggle(false)}
-            />
-          </div>
-          <ul className="mt-8 space-y-4">
-            <li>
-              <Link to="/" onClick={() => setToggle(false)}>
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to="/products" onClick={() => setToggle(false)}>
-                Products
-              </Link>
-            </li>
-            <li>
-              <Link to="/contact" onClick={() => setToggle(false)}>
-                Contact
-              </Link>
-            </li>
-            <li>
-              <Link to="/about" onClick={() => setToggle(false)}>
-                About
-              </Link>
-            </li>
-          </ul>
-        </motion.div>
+        <>
+          <motion.div
+            className="fixed top-0 right-0 bottom-0 w-1/3 bg-white shadow-md z-50 p-6"
+            whileInView={{ x: [140, 0] }}
+            transition={{ duration: 0.85, ease: "easeOut" }}
+          >
+            <div className="flex justify-end">
+              <Iconify
+                icon="material-symbols-light:cancel-outline-rounded"
+                width={28}
+                height={28}
+                onClick={() => setToggle(false)}
+              />
+            </div>
+            <ul className="mt-8 space-y-4">
+              <li>
+                <Link to="/" onClick={() => setToggle(false)}>
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/products" onClick={() => setToggle(false)}>
+                  Products
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" onClick={() => setToggle(false)}>
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" onClick={() => setToggle(false)}>
+                  About
+                </Link>
+              </li>
+            </ul>
+          </motion.div>
+
+          {/* Overlay for dimming */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={() => setToggle(false)}
+          ></div>
+        </>
       )}
 
       <Snackbar

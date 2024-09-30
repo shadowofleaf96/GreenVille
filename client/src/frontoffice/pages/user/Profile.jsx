@@ -3,7 +3,6 @@ import ProfileLink from "../../components/profileLinks/ProfileLink";
 import { useSelector } from "react-redux";
 import Iconify from "../../../backoffice/components/iconify";
 import { Link } from "react-router-dom";
-import { Typography } from "@material-tailwind/react";
 import Loader from "../../components/loader/Loader";
 import Navbar from "../../components/header/Navbar";
 import Footer from "../../components/footer/Footer";
@@ -15,7 +14,6 @@ const Profile = () => {
   return (
     <Fragment>
       <MetaData title={"Profile"} />
-      <Navbar />
       <div className="flex bg-white">
         <div className="container mx-auto mt-5 mb-3 px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -60,7 +58,7 @@ const Profile = () => {
                               <Iconify icon="material-symbols-light:face" width={30} height={30} />
                             </td>
                             <td className="px-4 py-2 font-semibold text-gray-600">
-                              <Typography variant="small">First Name</Typography>
+                              <p variant="small">First Name</p>
                             </td>
                             <td className="px-4 py-2">{customer?.first_name}</td>
                           </tr>
@@ -69,7 +67,7 @@ const Profile = () => {
                               <Iconify icon="material-symbols-light:face-6" width={30} height={30} />
                             </td>
                             <td className="px-4 py-2 font-semibold text-gray-600">
-                              <Typography variant="small">Last Name</Typography>
+                              <p variant="small">Last Name</p>
                             </td>
                             <td className="px-4 py-2">{customer?.last_name}</td>
                           </tr>
@@ -78,7 +76,7 @@ const Profile = () => {
                               <Iconify icon="material-symbols-light:mail-outline" width={30} height={30} />
                             </td>
                             <td className="px-4 py-2 font-semibold text-gray-600">
-                              <Typography variant="small">Email</Typography>
+                              <p variant="small">Email</p>
                             </td>
                             <td className="px-4 py-2">{customer?.email}</td>
                           </tr>
@@ -92,7 +90,6 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </Fragment>
   );
 };

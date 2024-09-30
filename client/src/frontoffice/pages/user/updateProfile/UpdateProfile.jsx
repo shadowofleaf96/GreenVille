@@ -12,7 +12,7 @@ import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import TextField from "@mui/material/TextField";
 import UploadButton from "../../../../backoffice/components/button/UploadButton";
-import { Button } from "@material-tailwind/react";
+import createAxiosInstance from "../../../../utils/axiosConfig";
 
 const UpdateProfile = () => {
   const [firstname, setFirstName] = useState("");
@@ -27,6 +27,7 @@ const UpdateProfile = () => {
   const router = useRouter();
 
   const { customer } = useSelector((state) => state.customers);
+  const axiosInstance = createAxiosInstance("customer")
 
   const openSnackbar = (message) => {
     setSnackbarMessage(message);
@@ -79,7 +80,7 @@ const UpdateProfile = () => {
         formData.append("customer_image", selectedImage);
       }
 
-      const response = await axios.put(`/v1/customers/${customerId}`, formData);
+      const response = await axiosInstance.put(`/customers/${customerId}`, formData);
       openSnackbar(response.data.message);
       router.push("/me");
     } catch (error) {
@@ -91,7 +92,6 @@ const UpdateProfile = () => {
   return (
     <Fragment>
       <MetaData title={"Update Profile"} />
-      <Navbar />
       <div className="flex bg-white py-6 px-4">
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-1">
@@ -189,12 +189,12 @@ const UpdateProfile = () => {
                 </div>
               </div>
 
-              <Button
+              <button
                 type="submit"
-                className="w-full mt-4 mb-4 bg-[#8DC63F] text-white flex justify-center rounded-lg text-md font-medium normal-case shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
+                className="w-full mt-4 mb-4 py-3 bg-[#8DC63F] text-white flex justify-center rounded-lg text-md font-medium normal-case shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
               >
                 Update
-              </Button>
+              </button>
             </form>
           </div>
         </div>
@@ -212,7 +212,6 @@ const UpdateProfile = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-      <Footer />
     </Fragment>
   );
 };

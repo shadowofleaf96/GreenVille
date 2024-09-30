@@ -28,6 +28,7 @@ import {
 import Logo from "../../../components/logo";
 import Link from "@mui/material/Link";
 import InputAdornment from "@mui/material/InputAdornment";
+import createAxiosInstance from "../../../../utils/axiosConfig";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -42,6 +43,7 @@ const Login = () => {
   const [loadingSave, setLoadingSave] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [loginSuccessFlag, setLoginSuccessFlag] = useState(false);
+  const axiosInstance = createAxiosInstance("customer")
 
   useEffect(() => {
     const storedRememberMe = localStorage.getItem("rememberMe");
@@ -77,7 +79,7 @@ const Login = () => {
     dispatch(loginStart());
 
     try {
-      const response = await axios.post("/v1/customers/login", {
+      const response = await axiosInstance.post("/customers/login", {
         email,
         password,
         rememberMe,
@@ -89,8 +91,8 @@ const Login = () => {
 
         dispatch(
           loginSuccess({
-            token: response.data.access_token,
-            refresh_token: response.data.refresh_token,
+            customerToken: response.data.access_token,
+            isLoggedIn: true
           })
         );
 
@@ -126,7 +128,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("/v1/customers/forgot-password", {
+      const response = await axiosInstance.post("/customers/forgot-password", {
         email: enteredEmail,
       });
 

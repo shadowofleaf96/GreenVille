@@ -23,6 +23,13 @@ import Products from "../frontoffice/pages/products/Products";
 import Category from "../frontoffice/pages/home/category/Category";
 import Contact from "../frontoffice/pages/contact/Contact";
 
+import ProtectedRoute from "../routes/components/ProtectedRoute";
+import { LoginView } from "../backoffice/sections/login";
+import createAxiosInstance from "../utils/axiosConfig";
+import Loader from "../frontoffice/components/loader/Loader";
+import FrontProtectedRoute from "./components/FrontProtectedRoute";
+import MainLayout from "../frontoffice/pages/layout/Layout";
+
 export const IndexPage = lazy(() => import("../backoffice/pages/app"));
 export const CategoryPage = lazy(() => import("../backoffice/pages/category"));
 export const SubCategoryPage = lazy(() =>
@@ -30,7 +37,7 @@ export const SubCategoryPage = lazy(() =>
 );
 export const ProfilePage = lazy(() => import("../backoffice/pages/profile"));
 export const PaymentListPage = lazy(() =>
-  import("../backoffice/pages/paymentlist")
+  import("../backoffice/pages/payment")
 );
 export const CustomerPage = lazy(() => import("../backoffice/pages/customer"));
 export const OrderPage = lazy(() => import("../backoffice/pages/order"));
@@ -51,23 +58,19 @@ const initialOptions = {
 };
 
 export default function Router() {
-
-  const [customer, setCustomer] = useState({});
-  const [user, setUser] = useState({});
-
+  const [customer, setCustomer] = useState(null);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     const userToken = localStorage.getItem("user_access_token");
-    const customerToken = localStorage.getItem("customer_access_token")
+    const customerToken = localStorage.getItem("customer_access_token");
 
     const fetchUserData = async () => {
       if (userToken) {
         try {
-          const { data } = await axios.get("/v1/users/profile", {
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-            },
-          });
+          const axiosInstance = createAxiosInstance("admin");
+          const { data } = await axiosInstance.get("/users/profile");
           setUser(data);
         } catch (err) {
           localStorage.removeItem("user_access_token");
@@ -78,11 +81,8 @@ export default function Router() {
     const fetchCustomerData = async () => {
       if (customerToken) {
         try {
-          const { data } = await axios.get("/v1/customers/profile", {
-            headers: {
-              Authorization: `Bearer ${customerToken}`,
-            },
-          });
+          const axiosInstance = createAxiosInstance("customer");
+          const { data } = await axiosInstance.get("/customers/profile");
           setCustomer(data);
         } catch (err) {
           localStorage.removeItem("customer_access_token");
@@ -90,69 +90,63 @@ export default function Router() {
       }
     };
 
-    fetchUserData();
-    fetchCustomerData();
+    Promise.all([fetchUserData(), fetchCustomerData()]).finally(() => {
+      setLoading(false);
+    });
   }, []);
+
+  if (loading) {
+    return <Loader />
+  }
 
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} exact />
+      <Route path="/" element={<MainLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/categories" element={<Category />} />
+        <Route path="/products/:categoryId/*" element={<Products />} />
+        <Route path="/products/search/:keyword" element={<Products />} />
+        <Route path="/product/:id" element={<SingleProduct />} />
+      </Route>
+
       <Route path="/register" element={<Register />} exact />
       <Route path="/reset-password/:token" element={<ResetPassword />} exact />
-      <Route path="/about" element={<About />} />
-      <Route path="/cart" element={<Cart />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/products" element={<Products />} />
-      <Route path="/categories" element={<Category />} />
-      <Route path="/products/:categoryId/*" element={<Products />} />
-      <Route path="/products/search/:keyword" element={<Products />} />
-      <Route path="/product/:id" element={<SingleProduct />} />
+      <Route path="/login" element={<Login />} exact />
       <Route path="*" element={<Page404 />} />
 
-      {user ? (
-        <Route
-          path="/"
-          element={
-            <DashboardLayout>
-              <Suspense>
-                <Outlet />
-              </Suspense>
-            </DashboardLayout>
-          }
-        >
-          <Route index element={<IndexPage />} />
-          <Route path="/admin/profile" element={<ProfilePage />} />
-          <Route path="/admin/user" element={<UserPage />} />
-          <Route path="/admin/category" element={<CategoryPage />} />
-          <Route path="/admin/subcategory" element={<SubCategoryPage />} />
-          <Route path="/admin/order" element={<OrderPage />} />
-          <Route path="/admin/products" element={<ProductPage />} />
-          <Route path="/admin/paymentlist" element={<PaymentListPage />} />
-          <Route path="/admin/customer" element={<CustomerPage />} />
-        </Route>
-      ) : (
-        <Route path="/admin/login" element={<LoginPage />} />
-      )}
+      <Route path="/admin" element={<ProtectedRoute />}>
+        <Route index element={<IndexPage />} />
+        <Route path="profile" element={<ProfilePage />} />
+        <Route path="user" element={<UserPage />} />
+        <Route path="category" element={<CategoryPage />} />
+        <Route path="subcategory" element={<SubCategoryPage />} />
+        <Route path="order" element={<OrderPage />} />
+        <Route path="products" element={<ProductPage />} />
+        <Route path="paymentlist" element={<PaymentListPage />} />
+        <Route path="customer" element={<CustomerPage />} />
+      </Route>
+      <Route path="admin/login" element={<LoginView />} />
 
-      {customer ? (
-        <>
-          <Route path="/me" element={<Profile />} />
-          <Route path="/me/update" element={<UpdateProfile />} />
-          <Route path="/orders/me" element={<MyOrders />} />
-          <Route path="/shipping" element={<Shipping />} />
-          <Route path="/confirm" element={<ConfirmOrder />} />
-          <Route
-            path="/payment"
-            element={
-              <PayPalScriptProvider options={initialOptions}>
-                <Payment />
-              </PayPalScriptProvider>
-            }
-          />
-          <Route path="/success" element={<Success />} />
-        </>
-      ) : null}
+      <Route path="/" element={<FrontProtectedRoute />}>
+        <Route path="/me" element={<Profile />} />
+        <Route path="/me/update" element={<UpdateProfile />} />
+        <Route path="/orders/me" element={<MyOrders />} />
+        <Route path="/shipping" element={<Shipping />} />
+        <Route path="/confirm" element={<ConfirmOrder />} />
+        <Route
+          path="/payment"
+          element={
+            <PayPalScriptProvider options={initialOptions}>
+              <Payment />
+            </PayPalScriptProvider>
+          }
+        />
+        <Route path="/success" element={<Success />} />
+      </Route>
     </Routes>
   );
 }

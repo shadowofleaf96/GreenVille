@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Typography } from "@material-tailwind/react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
@@ -8,10 +7,12 @@ import {
     addItemToCart,
     removeItemFromCart,
 } from "../../../../redux/frontoffice/cartSlice";
+import createAxiosInstance from '../../../../utils/axiosConfig';
 
 const CheckoutForm = () => {
     const { cartItems, shippingInfo } = useSelector((state) => state.carts);
     const { customer } = useSelector((state) => state.customers);
+    const axiosInstance = createAxiosInstance("customer")
 
     const [loading, setLoading] = useState(false)
 
@@ -81,7 +82,7 @@ const CheckoutForm = () => {
                 status: "processing",
             };
 
-            const orderResponse = await axios.post("/v1/orders", orderData);
+            const orderResponse = await axiosInstance.post("/orders", orderData);
 
             return orderResponse.data.order._id;
         } catch (error) {
@@ -114,7 +115,7 @@ const CheckoutForm = () => {
                 currency: "mad"
             };
 
-            await axios.post("/v1/payments/save-payment-info", paymentData);
+            await axiosInstance.post("/payments/save-payment-info", paymentData);
 
             cartItems.forEach(item => {
                 dispatch(removeItemFromCart(item.product));
@@ -141,28 +142,24 @@ const CheckoutForm = () => {
                     <PaymentElement options={paymentElementOptions} />
                 </div>
 
-                <div className="flex justify-center mt-8">
+                <div className="flex justify-center  mt-8">
                     {loading ?
-                        <Button
+                        <button
                             loading={loading}
                             type="submit"
                             disabled={!stripe}
                             className="h-12 w-3/4 bg-[#8DC63F] text-white rounded-lg flex justify-center text-md font-medium normal-case shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
                         >
-                            <div className="flex justify-center items-center space-x-2">
-                                <Typography className="!text-center text-md normal-case font-medium">Loading</Typography>
-                            </div>
-                        </Button> :
-                        <Button
+                            <p className="!text-center text-md normal-case font-medium">Loading</p>
+                        </button> :
+                        <button
                             loading={loading}
                             type="submit"
                             disabled={!stripe}
                             className="h-12 w-3/4 bg-[#8DC63F] text-white flex justify-center rounded-lg text-md font-medium normal-case shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
                         >
-                            <div className="flex justify-center items-center space-x-2">
-                                <Typography className="!text-center text-md normal-case font-medium">Pay with Bank Card</Typography>
-                            </div>
-                        </Button>
+                            <p className="w-full flex h-full items-center justify-center text-center text-md normal-case font-medium">Pay with Bank Card</p>
+                        </button>
                     }
                 </div>
             </form>

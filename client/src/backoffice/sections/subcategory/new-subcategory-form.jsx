@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import UploadButton from "../../components/button/UploadButton";
 import { useTranslation } from "react-i18next";
+import createAxiosInstance from "../../../utils/axiosConfig";
 
 function NewSubCategoryForm({ onSave, onCancel, open, onClose }) {
   const { t } = useTranslation();
@@ -35,7 +36,8 @@ function NewSubCategoryForm({ onSave, onCancel, open, onClose }) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("/v1/categories");
+        const axiosInstance = createAxiosInstance("admin");
+        const response = await axiosInstance.get("/categories");
         setCategories(response.data.data);
       } catch (error) {
         console.error("Error fetching categories:", error);

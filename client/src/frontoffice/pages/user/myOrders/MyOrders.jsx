@@ -32,7 +32,6 @@ const MyOrders = () => {
     return (
         <Fragment>
             <MetaData title={"My Orders"} />
-            <Navbar />
             <div className="min-h-screen bg-gray-100 py-10">
                 <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div className="md:col-span-1">
@@ -132,7 +131,6 @@ const MyOrders = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
         </Fragment >
     );
 };

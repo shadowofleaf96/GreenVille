@@ -9,16 +9,13 @@ const verifyToken = (req, res, next) => {
     if (!authHeader || !authHeader.startsWith("Bearer")) {
       return res.sendStatus(401);
     }
-
     const token = authHeader.split(" ")[1];
 
     jwt.verify(token, process.env.SECRETKEY, async (err, decoded) => {
       if (err) {
-        return res
-          .status(401)
-          .json({
-            message: "This session has expired. Please login",
-          });
+        return res.status(401).json({
+          message: "This session has expired. Please login",
+        });
       }
 
       const { id, role } = decoded;
@@ -51,20 +48,70 @@ const verifyToken = (req, res, next) => {
 };
 
 const requireAdmin = (req, res, next) => {
-  const { role } = req.user;
-  if (role && role.includes("admin")) {
-    next();
-  } else {
-    return res.status(403).json({ message: "You don't have enough privilege" });
+  try {
+    const authHeader = req.headers["authorization"];
+    if (!authHeader || !authHeader.startsWith("Bearer")) {
+      return res.sendStatus(401);
+    }
+    const token = authHeader.split(" ")[1];
+
+    jwt.verify(token, process.env.SECRETKEY, async (err, decoded) => {
+      if (err) {
+        return res.status(401).json({
+          message: "This session has expired. Please login",
+        });
+      }
+
+      const { role } = decoded;
+      if (role && role.includes("admin")) {
+        next();
+      } else {
+        return res
+          .status(403)
+          .json({ message: "You don't have enough privilege" });
+      }
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      data: [],
+      message: "Internal Server Error",
+    });
   }
 };
 
 const requireAdminOrManager = (req, res, next) => {
-  const { role } = req.user;
-  if (role && (role.includes("admin") || role.includes("manager"))) {
-    next();
-  } else {
-    return res.status(403).json({ message: "You don't have enough privilege" });
+  try {
+    const authHeader = req.headers["authorization"];
+    if (!authHeader || !authHeader.startsWith("Bearer")) {
+      return res.sendStatus(401);
+    }
+    const token = authHeader.split(" ")[1];
+
+    jwt.verify(token, process.env.SECRETKEY, async (err, decoded) => {
+      if (err) {
+        return res.status(401).json({
+          message: "This session has expired. Please login",
+        });
+      }
+
+      const { role } = decoded;
+      if (role && (role.includes("admin") || role.includes("manager"))) {
+        next();
+      } else {
+        return res
+          .status(403)
+          .json({ message: "You don't have enough privilege" });
+      }
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      data: [],
+      message: "Internal Server Error",
+    });
   }
 };
 

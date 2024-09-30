@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import axios from "axios";
+import createAxiosInstance from "../../utils/axiosConfig";
 
 const ADD_TO_CART = "cart/addItem";
 
@@ -14,7 +15,8 @@ export const addItemToCart = createAsyncThunk(
       productData = state.products.products.find((item) => item._id === id);
 
       if (!productData) {
-        const response = await axios.get(`/v1/products/${id}`);
+        const axiosInstance = createAxiosInstance("customer");
+        const response = await axiosInstance.get(`/products/${id}`);
         productData = response.data.data;
         console.log("Using external API");
       } else {
@@ -55,6 +57,7 @@ const cartSlice = createSlice({
       const existingItem = state.cartItems.find(
         (item) => item.product === productId
       );
+
       if (existingItem) {
         existingItem.quantity = quantity;
       }

@@ -33,21 +33,12 @@ const ConfirmOrder = () => {
     const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
 
     const processToPayment = () => {
-        const data = {
-            itemsPrice: itemsPrice.toFixed(2),
-            shippingPrice,
-            taxPrice,
-            totalPrice,
-        };
-
-        sessionStorage.setItem("orderInfo", JSON.stringify(data));
         history("/payment");
     };
 
     return (
         <div className="flex flex-col gap-6 w-full">
             <MetaData title={"Confirm Order"} />
-            <Navbar />
             <div className="container py-2 my-8 mx-auto">
                 <div className="flex flex-col">
                     <CheckoutSteps shipping confirmOrder />
@@ -128,7 +119,6 @@ const ConfirmOrder = () => {
                     </div >
                 </div>
             </div>
-            <Footer />
         </div >
     );
 };

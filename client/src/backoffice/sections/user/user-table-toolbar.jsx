@@ -17,6 +17,7 @@ import Button from "@mui/material/Button";
 import axios from "axios";
 import Iconify from "../../components/iconify";
 import { useTranslation } from "react-i18next";
+import createAxiosInstance from "../../../utils/axiosConfig";
 
 export default function UserTableToolbar({
   numSelected,
@@ -35,6 +36,8 @@ export default function UserTableToolbar({
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const user = useSelector((state) => state.adminAuth.adminUser);
+  const axiosInstance = createAxiosInstance("admin")
+
 
   const dispatch = useDispatch();
 
@@ -42,14 +45,13 @@ export default function UserTableToolbar({
     try {
       setLoadingDelete(true);
 
-      let response; // Declare the response variable outside the loop
+      let response;
       const deletedUserIds = [];
       for (const userId of selected) {
-        response = await axios.delete(`/v1/users/${userId}`);
+        response = await axiosInstance.delete(`/users/${userId}`);
         deletedUserIds.push(userId);
       }
 
-      // Dispatch the deleteUser action to update the state
       dispatch(deleteUser(deletedUserIds));
 
       setPopoverAnchor(null);

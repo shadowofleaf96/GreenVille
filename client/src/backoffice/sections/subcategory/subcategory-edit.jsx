@@ -6,7 +6,6 @@ import Stack from "@mui/material/Stack";
 import axios from "axios";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Typography from "@mui/material/Typography";
-import CircularProgress from "@mui/material/CircularProgress";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import DOMPurify from "dompurify";
@@ -17,6 +16,8 @@ import { useSelector } from "react-redux";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import UploadButton from "../../components/button/UploadButton";
 import { useTranslation } from "react-i18next"; // Import translation hook
+import Loader from "../../../frontoffice/components/loader/Loader";
+import createAxiosInstance from "../../../utils/axiosConfig";
 
 function EditSubCategoryForm({ subcategory, onSave, onCancel, open, onClose }) {
   const { t } = useTranslation(); // Use translation hook
@@ -30,7 +31,8 @@ function EditSubCategoryForm({ subcategory, onSave, onCancel, open, onClose }) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("/v1/categories");
+        const axiosInstance = createAxiosInstance("admin");
+        const response = await axiosInstance.get("/categories");
         setCategories(response.data.data);
       } catch (error) {
         console.error("Error fetching categories:", error);
@@ -42,12 +44,7 @@ function EditSubCategoryForm({ subcategory, onSave, onCancel, open, onClose }) {
     fetchCategories();
   }, []);
 
-  const containerStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh",
-  };
+
 
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
@@ -198,9 +195,7 @@ function EditSubCategoryForm({ subcategory, onSave, onCancel, open, onClose }) {
           </Stack>
         </Stack>
       ) : (
-        <Stack style={containerStyle}>
-          <CircularProgress />
-        </Stack>
+        <Loader />
       )}
     </Modal>
   );

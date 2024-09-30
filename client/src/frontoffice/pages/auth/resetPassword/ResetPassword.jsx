@@ -5,6 +5,7 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { useParams, useNavigate } from "react-router-dom";
 import Logo from "../../../components/logo";
+import createAxiosInstance from "../../../../utils/axiosConfig";
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -15,6 +16,7 @@ const ResetPassword = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [resetError, setResetError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const axiosInstance = createAxiosInstance("customer")
 
   const history = useNavigate();
 
@@ -35,8 +37,8 @@ const ResetPassword = () => {
     try {
       setLoading(true);
 
-      const response = await axios.post(
-        `http://localhost:3000/v1/customers/reset-password/${token}`,
+      const response = await axiosInstance.post(
+        `/customers/reset-password/${token}`,
         {
           newPassword,
         }

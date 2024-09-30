@@ -14,6 +14,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import UploadButton from "../../components/button/UploadButton";
 import axios from "axios";
+import createAxiosInstance from "../../../utils/axiosConfig";
 
 function NewProductForm({ onSave, onCancel, open, onClose }) {
   const [subcategories, setSubcategories] = useState([]);
@@ -31,17 +32,15 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
     active: false,
   });
   const [loadingSave, setLoadingSave] = useState(false);
-  const [loadingSubcategories, setLoadingSubcategories] = useState(true);
 
   useEffect(() => {
-    // Fetch subcategories when the component mounts
     const fetchSubcategories = async () => {
       try {
-        const response = await axios.get("/v1/subcategories");
+        const axiosInstance = createAxiosInstance('admin');
+        const response = await axiosInstance.get("/subcategories");
         setSubcategories(response.data.data);
       } catch (error) {
         console.error("Error fetching subcategories:", error);
-        // Handle the error as needed (display an error message, etc.)
       }
     };
 

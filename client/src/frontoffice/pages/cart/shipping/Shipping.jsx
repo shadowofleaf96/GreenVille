@@ -51,7 +51,6 @@ const Shipping = () => {
     return (
         <div className="flex flex-col gap-6 w-full">
             <MetaData title={"Shipping"} />
-            <Navbar />
             <div className="py-2 my-8">
                 <div className="flex flex-col">
                     <CheckoutSteps shipping />
@@ -189,7 +188,6 @@ const Shipping = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
         </div>
     );
 };

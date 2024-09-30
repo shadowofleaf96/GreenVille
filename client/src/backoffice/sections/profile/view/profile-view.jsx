@@ -7,12 +7,12 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import { useSelector } from "react-redux";
 import Badge from "@mui/material/Badge";
-import { useTranslation } from "react-i18next"; // Importing translations
+import { useTranslation } from "react-i18next";
 
 const ProfilePage = () => {
-  const { t } = useTranslation(); // Using translation hook
-  const user = useSelector((state) => state.adminAuth.adminUser);
-  const isActive = user.active;
+  const { t } = useTranslation();
+  const { admin } = useSelector((state) => state.adminAuth);
+  const isActive = admin.active;
   const color = isActive ? "primary" : "secondary";
 
   return (
@@ -22,8 +22,8 @@ const ProfilePage = () => {
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <Avatar
-                src={`http://127.0.0.1:3000/${user.user_image}`}
-                alt={`${user.first_name} ${user.last_name}`}
+                src={`http://127.0.0.1:3000/${admin.user_image}`}
+                alt={`${admin.first_name} ${admin.last_name}`}
                 sx={{
                   width: 220,
                   height: 220,
@@ -34,7 +34,7 @@ const ProfilePage = () => {
                   marginRight: "auto",
                 }}
               >
-                {`${user.first_name.charAt(0).toUpperCase()}${user.last_name
+                {`${admin.first_name.charAt(0).toUpperCase()}${admin.last_name
                   .charAt(0)
                   .toUpperCase()}`}
               </Avatar>
@@ -48,39 +48,39 @@ const ProfilePage = () => {
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
                   <Typography variant="body1">
-                    {t("Full Name")}: {user.first_name} {user.last_name}
+                    {t("Full Name")}: {admin.first_name} {admin.last_name}
                   </Typography>
                 </Grid>
 
                 <Grid item xs={12} md={6}>
                   <Typography variant="body1">
-                    {t("Email Address")}: {user.email}
+                    {t("Email Address")}: {admin.email}
                   </Typography>
                 </Grid>
 
                 <Grid item xs={12} md={6}>
                   <Typography variant="body1">
-                    {t("Role")}: {user.role}
+                    {t("Role")}: {admin.role}
                   </Typography>
                 </Grid>
 
                 <Grid item xs={12} md={6}>
                   <Typography variant="body1">
-                    {t("Username")}: {user.user_name}
+                    {t("Username")}: {admin.user_name}
                   </Typography>
                 </Grid>
 
                 <Grid item xs={12} md={6}>
                   <Typography variant="body1">
                     {t("Creation Date")}:{" "}
-                    {new Date(user.creation_date).toLocaleString()}
+                    {new Date(admin.creation_date).toLocaleString()}
                   </Typography>
                 </Grid>
 
                 <Grid item xs={12} md={6}>
                   <Typography variant="body1">
                     {t("Last Login")}:{" "}
-                    {new Date(user.last_login).toLocaleString()}
+                    {new Date(admin.last_login).toLocaleString()}
                   </Typography>
                   <Badge
                     sx={{ mt: 5, minWidth: 24 }}

@@ -6,27 +6,18 @@ import { getProducts } from "../../../redux/frontoffice/productSlice";
 import { Link, useParams } from "react-router-dom";
 import Product from "./Product";
 import Loader from "../../components/loader/Loader";
-import Pagination from "react-js-pagination";
 import Navbar from "../../components/header/Navbar";
-import Iconify from "../../../backoffice/components/iconify/iconify";
 import Footer from "../../components/footer/Footer";
-import {
-  Accordion,
-  AccordionHeader,
-  AccordionBody,
-} from "@material-tailwind/react";
 import MetaData from "../../components/MetaData";
 import { getCategories } from "../../../redux/frontoffice/categoriesSlice";
 import { getSubcategories } from "../../../redux/frontoffice/subcategoriesSlice";
-import { sub } from "date-fns";
 
 const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage] = useState(9);
   const [filteredProduct, setFilteredProduct] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
-  const [openCategoryId, setOpenCategoryId] = useState(null);
 
   const dispatch = useDispatch();
   const { categoryId } = useParams();
@@ -36,14 +27,17 @@ const Products = () => {
     products,
     error,
     productsCount,
-    resPerPage,
-    filteredProductsCount,
   } = useSelector((state) => state.products);
+
   const categoriesState = useSelector((state) => state.categories);
   const subcategoriesState = useSelector((state) => state.subcategories);
-
   const { categories } = categoriesState;
   const { subcategories } = subcategoriesState;
+
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProduct.slice(indexOfFirstProduct, indexOfLastProduct);
+  const totalPages = Math.ceil(filteredProduct.length / productsPerPage);
 
   const handleSubcategoryClick = (subcategoryId) => {
     const filter = products.filter((el) => el.subcategory_id === subcategoryId);
@@ -87,8 +81,8 @@ const Products = () => {
   useEffect(() => {
     if (products.length > 0) {
       if (categoryId) {
-        const filteredProducts = products.filter((product) =>
-          product.subcategory_id === categoryId
+        const filteredProducts = products.filter(
+          (product) => product.subcategory_id === categoryId
         );
         setFilteredProduct(filteredProducts);
       } else {
@@ -97,16 +91,35 @@ const Products = () => {
     }
   }, [products, categoryId]);
 
-  function setCurrentPageNo(pageNumber) {
-    setCurrentPage(pageNumber);
-  }
 
-  let count = filteredProduct.length;
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
+  const toggleAccordion = (id) => {
+    const content = document.getElementById(`content - ${id}`);
+    const icon = document.getElementById(`icon - ${id}`);
+
+    if (content.style.maxHeight) {
+      content.style.maxHeight = null;
+      icon.style.transform = "rotate(0deg)";
+    } else {
+      content.style.maxHeight = content.scrollHeight + "px";
+      icon.style.transform = "rotate(45deg)";
+    }
+  };
 
   return (
     <Fragment>
       <MetaData title={"All Products"} />
-      <Navbar />
       {loading ? (
         <Loader />
       ) : (
@@ -116,75 +129,96 @@ const Products = () => {
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
                 <div>
                   <div className="mb-5 p-4 rounded-3xl bg-yellow-200">
-                    <h4 className="text-xl font-semibold mb-3 text-black">Filter by Categories</h4>
+                    <h4 className="text-xl font-semibold mb-3 text-black">
+                      Filter by Categories
+                    </h4>
                     <hr className="my-3 border-t-2 border-black" />
-                    <Accordion open={false}>
-                      <AccordionHeader className="text-black border-0 h-6 my-2 text-lg hover:underline font-light" onClick={handleAllCategory}>
-                        <Link to="/products">
-                          All
-                        </Link>
-                      </AccordionHeader>
-                    </Accordion>
-                    <Accordion open={openCategoryId !== null}>
-                      {categories.map((category) => (
-                        <div key={category._id}>
-                          <AccordionHeader
-                            onClick={() =>
-                              setOpenCategoryId(openCategoryId === category._id ? null : category._id)
-                            }
-                            className="text-black h-6 my-2 flex w-full justify-start border-0 text-lg hover:underline font-light"
-                          >
-                            {category.category_name}
-                            <Iconify
-                              icon="ep:arrow-right-bold" width={20}
-                              height={20}
-                              className="ml-auto"
-                            />
-                          </AccordionHeader>
-                          {openCategoryId === category._id && (
-                            <AccordionBody className="py-0 mb-2">
-                              <ul className="list-none p-0">
-                                {subcategories
-                                  .filter((subcategory) => subcategory.category_id === category._id)
-                                  .map((subcategory) => (
-                                    <li key={subcategory._id} className="mt-3">
-                                      <Link
-                                        to={`/products/${subcategory._id}`}
-                                        onClick={() => handleSubcategoryClick(subcategory._id)}
-                                        className="bg-gray-100 px-2 py-1 rounded-md text-gray-700 hover:bg-gray-200"
-                                      >
-                                        {subcategory.subcategory_name}
-                                      </Link>
-                                    </li>
-                                  ))}
-                              </ul>
-                            </AccordionBody>
-                          )}
+                    <div className="border-b border-slate-200">
+                      <button onClick={() => handleAllCategory()} className="w-full flex justify-between items-center py-3 text-slate-800">
+                        <span>All Categories</span>
+                      </button>
+                      <div id="content-1" className="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div className="pb-5 text-sm text-slate-500">
+                          <ul className="list-none p-0">
+                            {categories.map((category) => (
+                              <li key={category._id} className="mt-3">
+                                <Link
+                                  to={`/products/${category._id}`}
+                                  className="bg-gray-100 px-2 py-1 rounded-md text-gray-700 hover:bg-gray-200"
+                                >
+                                  {category.category_name}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-                      ))}
-                    </Accordion>
+                      </div>
+                    </div>
+                    {categories.map((category) => (
+                      <div className="border-b border-slate-200" key={category._id}>
+                        <button onClick={() => toggleAccordion(category._id)} className="w-full flex justify-between items-center py-3 text-slate-800">
+                          <span>{category.category_name}</span>
+                          <span id={`icon - ${category._id}`} className="text-slate-800 transition-transform duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-5 h-5">
+                              <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
+                            </svg>
+                          </span>
+                        </button>
+                        <div id={`content - ${category._id}`} className="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                          <div className="pb-5 text-sm text-slate-500">
+                            <ul className="list-none p-0">
+                              {subcategories
+                                .filter((subcategory) => subcategory.category_id === category._id)
+                                .map((subcategory) => (
+                                  <li key={subcategory._id} className="mt-3">
+                                    <Link
+                                      to={`/products/${subcategory._id}`}
+                                      onClick={() => handleSubcategoryClick(subcategory._id)}
+                                      className="bg-gray-100 px-2 py-1 rounded-md text-gray-700 hover:bg-gray-200"
+                                    >
+                                      {subcategory.subcategory_name}
+                                    </Link>
+                                  </li>
+                                ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
                 <div className="lg:col-span-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredProduct.map((product) => (
+                    {currentProducts.map((product) => (
                       <Product key={product._id} product={product} />
                     ))}
                   </div>
-                  {resPerPage <= count && (
-                    <div className="flex justify-center mt-5">
-                      <Pagination
-                        activePage={currentPage}
-                        itemsCountPerPage={resPerPage}
-                        totalItemsCount={productsCount}
-                        onChange={setCurrentPageNo}
-                        nextPageText={"Next"}
-                        prevPageText={"Prev"}
-                        firstPageText={"First"}
-                        lastPageText={"Last"}
-                        itemClass="page-item"
-                        linkClass="page-link"
-                      />
+
+                  {totalPages > 1 && (
+                    <div className="flex justify-center mt-5 space-x-2">
+                      <button
+                        onClick={handlePrevPage}
+                        className="rounded-full border py-2 px-4 text-sm text-slate-600 hover:bg-[#8DC63F] hover:text-white"
+                        disabled={currentPage === 1}
+                      >
+                        Prev
+                      </button>
+                      {Array.from({ length: totalPages }, (_, index) => (
+                        <button
+                          key={index + 1}
+                          onClick={() => setCurrentPage(index + 1)}
+                          className={`rounded-full py-2 px-4 text-sm ${currentPage === index + 1 ? 'bg-[#8DC63F] text-white' : 'border text-slate-600'}`}
+                        >
+                          {index + 1}
+                        </button>
+                      ))}
+                      <button
+                        onClick={handleNextPage}
+                        className="rounded-full border py-2 px-4 text-sm text-slate-600 hover:bg-[#8DC63F] hover:text-white"
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                      </button>
                     </div>
                   )}
                 </div>
@@ -196,18 +230,15 @@ const Products = () => {
               onClose={closeSnackbar}
               anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
             >
-              <Alert
-                onClose={closeSnackbar}
-                severity={snackbarMessage.includes("Error") ? "error" : "success"}
-              >
+              <Alert onClose={closeSnackbar} severity={snackbarMessage.includes("Error") ? "error" : "success"}>
                 {snackbarMessage}
               </Alert>
             </Snackbar>
-          </div>
+          </div >
         </>
-      )}
-      <Footer />
-    </Fragment>
+      )
+      }
+    </Fragment >
   );
 };
 

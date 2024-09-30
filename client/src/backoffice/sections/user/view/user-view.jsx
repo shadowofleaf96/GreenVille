@@ -13,7 +13,6 @@ import Snackbar from "@mui/material/Snackbar";
 import { useTranslation } from "react-i18next";
 import Fab from "@mui/material/Fab";
 import Alert from "@mui/material/Alert";
-import CircularProgress from "@mui/material/CircularProgress";
 import TablePagination from "@mui/material/TablePagination";
 
 import Iconify from "../../../components/iconify";
@@ -39,6 +38,8 @@ import {
   setError,
   setFilterName,
 } from "../../../../redux/backoffice/userSlice";
+import Loader from "../../../../frontoffice/components/loader/Loader";
+import createAxiosInstance from "../../../../utils/axiosConfig";
 
 // ----------------------------------------------------------------------
 
@@ -68,18 +69,17 @@ export default function UserPage() {
   const [deleteConfirmationAnchorEl, setDeleteConfirmationAnchorEl] =
     useState(null);
   const [showFilters, setShowFilters] = useState(false);
-  const user = useSelector((state) => state.adminAuth.adminUser);
+  const { admin } = useSelector((state) => state.adminAuth);
   const { t } = useTranslation();
+  const axiosInstance = createAxiosInstance("admin");
 
   const fetchData = async () => {
     try {
       dispatch(setLoading(true));
 
-      // Use axios to fetch data
-      const response = await axios.get("/v1/users");
+      const response = await axiosInstance.get("/users")
       const data = response.data.data;
 
-      // Update the state with the fetched data
       dispatch(setData(data));
     } catch (err) {
       dispatch(setError(err));
@@ -90,21 +90,14 @@ export default function UserPage() {
 
   useEffect(() => {
     fetchData();
-    dispatch(setData(data));
   }, [dispatch]);
 
-  const containerStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh", // Adjust this if needed
-  };
+
+
 
   if (loading) {
     return (
-      <Stack style={containerStyle}>
-        <CircularProgress />
-      </Stack>
+      <Loader />
     );
   }
 
@@ -155,7 +148,7 @@ export default function UserPage() {
 
   const openDeleteConfirmation = (userId, event) => {
     setSelectedDeleteUserId(userId);
-    setDeleteConfirmationAnchorEl(event.currentTarget); // Set the anchor element
+    setDeleteConfirmationAnchorEl(event.currentTarget);
     setDeleteConfirmationOpen(true);
   };
 
@@ -213,11 +206,10 @@ export default function UserPage() {
       formData.append("active", editedUser.active);
 
       if (selectedImage) {
-        // Append "user_image" to formData only if selectedImage is provided
         formData.append("user_image", selectedImage);
       }
 
-      const response = await axios.put(`/v1/users/${editedUser._id}`, formData);
+      const response = await axiosInstance.put(`/users/${editedUser._id}`, formData);
 
       const index = data.findIndex((user) => user._id === editedUser._id);
 
@@ -257,7 +249,7 @@ export default function UserPage() {
   const handleDeleteUser = async (userId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`/v1/users/${userId}`);
+      const response = await axiosInstance.delete(`/users/${userId}`);
       const updatedUsers = data.filter((user) => user._id !== userId);
       dispatch(setData(updatedUsers));
       openSnackbar(response.data.message);
@@ -307,8 +299,7 @@ export default function UserPage() {
         newUser.user_image = "images/image_placeholder.webp";
       }
 
-      // Make API call to create a new user
-      const response = await axios.post("/v1/users", formData);
+      const response = await axiosInstance.post("/users", formData);
       const userdata = response.data.data;
       const AddedUsers = {
         key: userdata._id,
@@ -345,6 +336,7 @@ export default function UserPage() {
   });
 
   const notFound = !dataFiltered.length;
+  console.log(data)
 
   return (
     <Container>
@@ -355,7 +347,7 @@ export default function UserPage() {
         mb={5}
       >
         <Typography variant="h4">{t("Users")}</Typography>
-        {user.role !== "manager" && (
+        {admin.role !== "manager" && (
           <Fab
             variant="contained"
             onClick={handleOpenNewUserForm}
@@ -501,7 +493,7 @@ export default function UserPage() {
           {t("Confirm")}
         </LoadingButton>
         <Button color="secondary" onClick={closeDeleteConfirmation}>
-        {t("Cancel")}
+          {t("Cancel")}
         </Button>
       </Popover>
       <Snackbar

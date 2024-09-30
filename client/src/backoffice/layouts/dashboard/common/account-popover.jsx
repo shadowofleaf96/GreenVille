@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
-import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import Divider from "@mui/material/Divider";
 import Popover from "@mui/material/Popover";
 import { alpha } from "@mui/material/styles";
 import MenuItem from "@mui/material/MenuItem";
 import { Link as RouterLink } from "react-router-dom";
-import Typography from "@mui/material/Typography";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "../../../../routes/hooks";
 import { logout } from "../../../../redux/backoffice/authSlice";
 import axios from "axios";
@@ -16,22 +15,11 @@ import IconButton from "@mui/material/IconButton";
 
 export default function AccountPopover() {
   const [open, setOpen] = useState(null);
-  const [adminInfo, setAdminInfo] = useState(null);
-  const { t } = useTranslation();
-  const router = useRouter();
-  
-  useEffect(() => {
-    const fetchAdminProfile = async () => {
-      try {
-        const response = await axios.get("/v1/users/profile");
-        setAdminInfo(response.data);
-      } catch (error) {
-        console.error("Error fetching admin profile:", error);
-      }
-    };
+  const { admin } = useSelector((state) => state.adminAuth);
 
-    fetchAdminProfile();
-  }, []);
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const { t } = useTranslation();
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
@@ -43,14 +31,10 @@ export default function AccountPopover() {
 
   const logOut = async () => {
     try {
-      const response = await axios.post("/v1/users/logout");
-
-      if (response.data.message === "Logout successful") {
-        dispatch(logout({}));
-        router.push("/admin/login");
-      } else {
-        alert("Logout failed\n" + response.data.message);
-      }
+      localStorage.removeItem("user_access_token");
+      localStorage.removeItem("user_refresh_token");
+      dispatch(logout({}));
+      router.push("/admin/login");
     } catch (error) {
       console.log(error);
       alert("Logout error\n" + error);
@@ -72,15 +56,15 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
-          src={adminInfo ? `http://127.0.0.1:3000/${adminInfo.user_image}` : ""}
-          alt={adminInfo ? adminInfo.user_name : "Admin"}
+          src={admin ? `http://127.0.0.1:3000/${admin.user_image}` : ""}
+          alt={admin ? admin.user_name : "Admin"}
           sx={{
             width: 48,
             height: 48,
             border: (theme) => `solid 2px ${theme.palette.background.default}`,
           }}
         >
-          {adminInfo ? adminInfo.user_name.charAt(0).toUpperCase() : "A"}
+          {admin ? admin.user_name.charAt(0).toUpperCase() : "A"}
         </Avatar>
       </IconButton>
 

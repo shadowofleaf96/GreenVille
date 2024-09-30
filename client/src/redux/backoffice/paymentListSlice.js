@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const productSlice = createSlice({
+const PaymentSlice = createSlice({
   name: "adminPaymentList",
   initialState: {
     data: null,
@@ -21,9 +21,9 @@ const productSlice = createSlice({
     setFilterName: (state, action) => {
       state.filterName = action.payload;
     },
-    deleteProduct: (state, action) => {
+    deletePayment: (state, action) => {
       state.data = state.data.filter(
-        (product) => !action.payload.includes(product._id)
+        (payment) => !action.payload.includes(payment._id)
       );
     },
   },
@@ -34,7 +34,7 @@ export const {
   setLoading,
   setError,
   setFilterName,
-  deleteProduct,
-} = productSlice.actions;
+  deletePayment,
+} = PaymentSlice.actions;
 
-export default productSlice.reducer;
+export default PaymentSlice.reducer;

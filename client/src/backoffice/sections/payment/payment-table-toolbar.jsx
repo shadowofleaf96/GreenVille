@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteUser } from "../../../../redux/userSlice";
+import { deleteOrder } from "../../../redux/backoffice/orderSlice";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Alert from "@mui/material/Alert";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -15,13 +15,21 @@ import Popover from "@mui/material/Popover";
 import Button from "@mui/material/Button";
 import axios from "axios";
 import Iconify from "../../components/iconify";
+import { useTranslation } from 'react-i18next';
+import createAxiosInstance from "../../../utils/axiosConfig";
 
-export default function UserTableToolbar({
+export default function OrderTableToolbar({
   numSelected,
   selected,
   setSelected,
   filterName,
   onFilterName,
+  itemsFilter,
+  onItemsFilter,
+  totalPriceFilter,
+  onTotalPriceFilter,
+  showFilters,
+  setShowFilters,
 }) {
   const [popoverAnchor, setPopoverAnchor] = useState(null);
   const [snackbarMessage, setSnackbarMessage] = useState(null);
@@ -29,32 +37,33 @@ export default function UserTableToolbar({
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const handleDelete = async () => {
     try {
       setLoadingDelete(true);
 
-      let response; // Declare the response variable outside the loop
-      const deletedUserIds = [];
-      for (const userId of selected) {
-        response = await axios.delete(`/v1/users/${userId}`);
-        deletedUserIds.push(userId);
+      let response;
+      const deletedOrderIds = [];
+      for (const orderId of selected) {
+        const axiosInstance = createAxiosInstance("admin")
+        response = await axiosInstance.delete(`/subcategories/${orderId}`);
+        deletedOrderIds.push(orderId);
       }
 
-      // Dispatch the deleteUser action to update the state
-      dispatch(deleteUser(deletedUserIds));
+      dispatch(deleteOrder(deletedOrderIds));
 
       setPopoverAnchor(null);
       setSelected([]);
       const snackbarMessage =
         selected.length === 1
           ? response.data.message
-          : `Selected ${selected.length} users are deleted`;
+          : `${t('Selected')} ${selected.length} ${t('selected elements')} ${t('are deleted')}`;
 
       openSnackbar(snackbarMessage);
     } catch (error) {
       setPopoverAnchor(null);
-      openSnackbar("Error deleting users:", error);
+      openSnackbar(`${t('Error deleting orders:')} ${error}`);
     } finally {
       setLoadingDelete(false);
     }
@@ -93,29 +102,58 @@ export default function UserTableToolbar({
       >
         {numSelected > 0 ? (
           <Typography component="div" variant="subtitle1" color="secondary">
-            {numSelected} selected
+            {numSelected} {t('selected')}
           </Typography>
         ) : (
-          <OutlinedInput
-            value={filterName}
-            onChange={onFilterName}
-            placeholder="Search Product..."
-            startAdornment={
-              <InputAdornment position="start">
-                <Iconify
-                  icon="material-symbols-light:search-outline-rounded"
-                  sx={{ color: "text.disabled", width: 20, height: 20 }}
+          <>
+            {showFilters ? (
+              <>
+                <OutlinedInput
+                  value={filterName}
+                  onChange={onFilterName}
+                  placeholder={t('Filter by Customer')}
                 />
-              </InputAdornment>
-            }
-          />
+                <OutlinedInput
+                  value={itemsFilter}
+                  onChange={onItemsFilter}
+                  placeholder={t('Filter by Order Items')}
+                />
+                <OutlinedInput
+                  value={totalPriceFilter}
+                  onChange={onTotalPriceFilter}
+                  placeholder={t('Filter by Total Cart Price')}
+                />
+              </>
+            ) : (
+              <>
+                <OutlinedInput
+                  value={filterName}
+                  onChange={onFilterName}
+                  placeholder={t('Search for Orders...')}
+                  startAdornment={
+                    <InputAdornment position="start">
+                      <Iconify
+                        icon="material-symbols-light:search-rounded"
+                        width={30}
+                        height={30}
+                      />
+                    </InputAdornment>
+                  }
+                />
+              </>
+            )}
+          </>
         )}
 
         {numSelected > 0 ? (
           <>
-            <Tooltip title="Delete">
+            <Tooltip title={t('Delete')} color="secondary">
               <IconButton onClick={handleOpenPopover}>
-                <Iconify icon="material-symbols-light:delete-outline-rounded" />
+                <Iconify
+                  icon="material-symbols-light:delete-sweep-outline-rounded"
+                  width={40}
+                  height={40}
+                />
               </IconButton>
             </Tooltip>
 
@@ -137,7 +175,7 @@ export default function UserTableToolbar({
               }}
             >
               <Typography sx={{ mb: 1 }} component="div" variant="subtitle1">
-                Are you sure you want to delete {numSelected} selected users ?
+                {`${t('Are you sure you want to delete')} ${numSelected} ${t('selected elements')} ?`}
               </Typography>
 
               <LoadingButton
@@ -145,20 +183,28 @@ export default function UserTableToolbar({
                 onClick={handleDelete}
                 loading={loadingDelete}
               >
-                Yes
+                {t('Yes')}
               </LoadingButton>
               <Button color="secondary" onClick={handleClosePopover}>
-                No
+                {t('No')}
               </Button>
             </Popover>
           </>
         ) : (
-          <></>
+          <>
+            <IconButton onClick={() => setShowFilters(!showFilters)}>
+              <Iconify
+                icon="material-symbols-light:filter-list-rounded"
+                width={30}
+                height={30}
+              />{" "}
+            </IconButton>
+          </>
         )}
 
         <Snackbar
           open={snackbarOpen}
-          autoHideDuration={5000} // Adjust as needed
+          autoHideDuration={5000}
           onClose={closeSnackbar}
           anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         >
@@ -171,7 +217,7 @@ export default function UserTableToolbar({
   );
 }
 
-UserTableToolbar.propTypes = {
+OrderTableToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,

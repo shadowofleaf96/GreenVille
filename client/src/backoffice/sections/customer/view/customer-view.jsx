@@ -11,11 +11,8 @@ import Popover from "@mui/material/Popover";
 import TableContainer from "@mui/material/TableContainer";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
-import Fab from "@mui/material/Fab";
-import CircularProgress from "@mui/material/CircularProgress";
 import TablePagination from "@mui/material/TablePagination";
 
-import Iconify from "../../../components/iconify";
 import Scrollbar from "../../../components/scrollbar";
 
 import TableNoDataFilter from "../table-no-data";
@@ -38,6 +35,8 @@ import {
   setError,
   setFilterName,
 } from "../../../../redux/backoffice/customerSlice";
+import Loader from "../../../../frontoffice/components/loader/Loader";
+import createAxiosInstance from "../../../../utils/axiosConfig";
 
 // ----------------------------------------------------------------------
 
@@ -68,16 +67,16 @@ export default function CustomerPage() {
     useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const { t } = useTranslation();
+  const axiosInstance = createAxiosInstance('admin');
 
   const fetchData = async () => {
     try {
       dispatch(setLoading(true));
 
-      // Use axios to fetch data
-      const response = await axios.get("/v1/customers");
+      const response = await axiosInstance.get("/customers");
+
       const data = response.data.data;
 
-      // Update the state with the fetched data
       dispatch(setData(data));
     } catch (err) {
       dispatch(setError(err));
@@ -91,25 +90,15 @@ export default function CustomerPage() {
     dispatch(setData(data));
   }, [dispatch]);
 
-  const containerStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh", // Adjust this if needed
-  };
-
   if (loading) {
     return (
-      <Stack style={containerStyle}>
-        <CircularProgress />
-      </Stack>
+      <Loader />
     );
   }
 
   if (error) {
     return <Typography variant="body2">Error : {error.message} </Typography>;
   }
-  // Render CircularProgress only when data is null
   if (!data && !loading) {
     return <Typography variant="body2">No Data found</Typography>;
   }
@@ -209,12 +198,10 @@ export default function CustomerPage() {
       formData.append("active", editedCustomer.active);
 
       if (selectedImage) {
-        // Append "user_image" to formData only if selectedImage is provided
         formData.append("customer_image", selectedImage);
       }
-
-      const response = await axios.put(
-        `/v1/customers/${editedCustomer._id}`,
+      const response = await axiosInstance.put(
+        `/customers/${editedCustomer._id}`,
         formData
       );
 
@@ -258,7 +245,7 @@ export default function CustomerPage() {
   const handleDeleteCustomer = async (customerId) => {
     setLoadingDelete(true);
     try {
-      const response = await axios.delete(`/v1/customers/${customerId}`);
+      const response = await axiosInstance.delete(`/customers/${customerId}`);
       const updatedCustomers = data.filter(
         (customer) => customer._id !== customerId
       );

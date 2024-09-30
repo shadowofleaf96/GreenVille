@@ -17,6 +17,7 @@ import Popover from "@mui/material/Popover";
 import Button from "@mui/material/Button";
 import axios from "axios";
 import Iconify from "../../components/iconify";
+import createAxiosInstance from "../../../utils/axiosConfig";
 
 export default function CustomerTableToolbar({
   numSelected,
@@ -41,14 +42,14 @@ export default function CustomerTableToolbar({
     try {
       setLoadingDelete(true);
 
-      let response; // Declare the response variable outside the loop
+      let response;
       const deletedCustomerIds = [];
       for (const customerId of selected) {
-        response = await axios.delete(`/v1/customers/${customerId}`);
+        const axiosInstance = createAxiosInstance("admin")
+        response = await axiosInstance.delete(`/customers/${customerId}`);
         deletedCustomerIds.push(customerId);
       }
 
-      // Dispatch the deleteCustomer action to update the state
       dispatch(deleteCustomer(deletedCustomerIds));
 
       setPopoverAnchor(null);
