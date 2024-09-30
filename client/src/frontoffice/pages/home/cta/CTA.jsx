@@ -12,7 +12,7 @@ export default function CTA() {
                     </span>
                     <span className="flex justify-center items-center mt-4">
                         at
-                        <img className="h-24 w-auto bg-cover mx-4" src="/assets/logo.webp" alt="GreenVille logo" />
+                        <img className="h-24 w-auto bg-cover mx-4" src="/assets/logo-text.webp" alt="GreenVille logo" />
                     </span>
                 </h1>
                 <p className="px-0 mb-6 text-lg text-gray-600 md:text-xl lg:px-24">

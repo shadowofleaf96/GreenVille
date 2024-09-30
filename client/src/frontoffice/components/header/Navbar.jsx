@@ -2,12 +2,11 @@ import React, { useEffect, useState, useRef } from "react";
 import Iconify from "../../../backoffice/components/iconify";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { logout, fetchCustomerProfile } from "../../../redux/frontoffice/customerSlice";
 import Announcement from "../announcement/Announcement";
-import { useRouter } from "../../../routes/hooks";
 import Loader from "../loader/Loader";
 
 const Navbar = () => {
@@ -19,7 +18,7 @@ const Navbar = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const router = useRouter();
+  const location = useLocation();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -41,11 +40,10 @@ const Navbar = () => {
     return accumulator + item.quantity;
   }, 0);
 
-  const logoutHandler = async (e) => {
+  const logoutHandler = async () => {
     localStorage.removeItem("customer_access_token");
     dispatch(logout());
     openSnackbar("You have been Logged out");
-    router.push("/");
   };
 
   const handleClickOutside = (event) => {
@@ -66,6 +64,8 @@ const Navbar = () => {
     };
   }, [dropdown]);
 
+  const isActive = (path) => location.pathname === path;
+
   return (
     <div className="fixed w-full z-50">
       <Announcement />
@@ -76,10 +76,30 @@ const Navbar = () => {
           </Link>
           <div className="flex-grow">
             <div className="font-semibold text-lg justify-center gap-8 hidden sm:hidden md:flex">
-              <Link to="/" className="hover:text-green-400 hover:underline">Home</Link>
-              <Link to="/products" className="hover:text-green-400 hover:underline">Products</Link>
-              <Link to="/contact" className="hover:text-green-400 hover:underline">Contact</Link>
-              <Link to="/about" className="hover:text-green-400 hover:underline">About</Link>
+              <Link
+                to="/"
+                className={`hover:text-green-400 hover:underline ${isActive("/") ? "text-green-400" : "text-black"}`}
+              >
+                Home
+              </Link>
+              <Link
+                to="/products"
+                className={`hover:text-green-400 hover:underline ${isActive("/products") ? "text-green-400" : "text-black"}`}
+              >
+                Products
+              </Link>
+              <Link
+                to="/contact"
+                className={`hover:text-green-400 hover:underline ${isActive("/contact") ? "text-green-400" : "text-black"}`}
+              >
+                Contact
+              </Link>
+              <Link
+                to="/about"
+                className={`hover:text-green-400 hover:underline ${isActive("/about") ? "text-green-400" : "text-black"}`}
+              >
+                About
+              </Link>
             </div>
           </div>
           <div className="flex items-center space-x-4">
@@ -114,18 +134,14 @@ const Navbar = () => {
                         <Link
                           to="/me"
                           className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setDropdown(false);
-                            router.push("/me");
-                          }}
+                          onClick={() => setDropdown(false)}
                         >
                           <Iconify
                             className="mx-2"
                             icon="material-symbols-light:supervised-user-circle-outline"
                             width={30}
                             height={30}
-                          />{" "}
+                          />
                           Profile
                         </Link>
                         <button
@@ -137,7 +153,7 @@ const Navbar = () => {
                             icon="material-symbols-light:logout-rounded"
                             width={30}
                             height={30}
-                          />{" "}
+                          />
                           Logout
                         </button>
                       </div>
