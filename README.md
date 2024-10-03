@@ -21,9 +21,9 @@ GreenVille is a bio-organic eCommerce store that offers eco-friendly products, c
 
 - **User Authentication**: Secure user authentication and authorization. (Completed)
 - **Product Management**: Easily manage products, categories, subcategories. (Completed)
-- **Shopping Cart**: Intuitive shopping cart functionality for users. (Completed, but need some improvements)
-- **Payment Integration**: Seamless integration with popular payment gateways. (In Progress)
-- **Order Management**: Track and manage customer orders efficiently. (In Progress)
+- **Shopping Cart**: Intuitive shopping cart functionality for users. (Completed)
+- **Payment Integration**: Seamless integration with popular payment gateways (Cash on delivery, Paypal, Stripe). (Completed)
+- **Order Management**: Track and manage customer orders efficiently. (Completed)
 - **Responsive Design**: Mobile-friendly and responsive UI for a great user experience. (In Progress)
 
 ## Getting Started
