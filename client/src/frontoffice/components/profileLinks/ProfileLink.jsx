@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom"; // Import useLocation
 import axios from "axios";
 import Loader from "../loader/Loader";
 import Snackbar from "@mui/material/Snackbar";
@@ -15,27 +15,21 @@ const ProfileLink = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const router = useRouter();
   const dispatch = useDispatch();
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
-  };
+  const location = useLocation();
 
   const logoutHandler = async () => {
     try {
       localStorage.removeItem("customer_access_token");
       dispatch(logout());
-      openSnackbar("You have been Logged out");
+      toast.success("You have been Logged out");
       router.push("/");
     } catch (error) {
       console.log(error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     }
   };
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <Fragment>
@@ -60,10 +54,13 @@ const ProfileLink = () => {
             </div>
             <hr className="my-4 border-t border-gray-200" />
 
-            <div className="flex flex-col mt-3">
+            <div className="flex flex-col mt-4 gap-3">
               <Link
                 to="/me"
-                className="flex items-center text-gray-600 py-2 px-4 rounded-lg hover:bg-[#8DC63F] hover:text-white transition duration-300"
+                className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/me")
+                    ? "bg-[#8DC63F] text-white"
+                    : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
+                  }`}
               >
                 <Iconify
                   icon="material-symbols-light:supervised-user-circle-outline"
@@ -75,7 +72,10 @@ const ProfileLink = () => {
               </Link>
               <Link
                 to="/me/update"
-                className="flex items-center text-gray-600 py-2 px-4 rounded-lg hover:bg-[#8DC63F] hover:text-white transition duration-300"
+                className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/me/update")
+                    ? "bg-[#8DC63F] text-white"
+                    : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
+                  }`}
               >
                 <Iconify
                   icon="material-symbols-light:edit-rounded"
@@ -87,7 +87,10 @@ const ProfileLink = () => {
               </Link>
               <Link
                 to="/orders/me"
-                className="flex items-center text-gray-600 py-2 px-4 rounded-lg hover:bg-[#8DC63F] hover:text-white transition duration-300"
+                className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/orders/me")
+                    ? "bg-[#8DC63F] text-white"
+                    : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
+                  }`}
               >
                 <Iconify
                   icon="material-symbols-light:orders-outline-rounded"
@@ -113,19 +116,7 @@ const ProfileLink = () => {
           </div>
         </Fragment>
       )}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={snackbarMessage.includes("Error") ? "error" : "success"}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+     
     </Fragment>
   );
 };

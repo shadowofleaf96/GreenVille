@@ -17,8 +17,8 @@ const {
 
 router.post("/create-stripe-payment", createStripePayment);
 router.post("/save-payment-info", savePaymentInfo);
-router.post("/update-payment", updatePayment);
-router.post("/remove-payment", removePayment);
+router.put("/:id", updatePayment);
+router.delete("/:id", removePayment);
 router.get(
   "/",
   // verifyToken,

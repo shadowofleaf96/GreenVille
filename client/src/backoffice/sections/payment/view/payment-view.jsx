@@ -5,7 +5,7 @@ import Table from "@mui/material/Table";
 import Button from "@mui/material/Button";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Container from "@mui/material/Container";
-import Fab from "@mui/material/Fab";
+import Backdrop from "@mui/material/Backdrop";
 import TableBody from "@mui/material/TableBody";
 import Typography from "@mui/material/Typography";
 import Popover from "@mui/material/Popover";
@@ -23,12 +23,11 @@ import axios from "axios";
 
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import OrderTableRow from "../order-table-row.jsx";
-import OrderTableHead from "../order-table-head.jsx";
+import PaymentTableRow from "../payment-table-row.jsx";
+import PaymentTableHead from "../payment-table-head.jsx";
 import TableEmptyRows from "../table-empty-rows.jsx";
-import OrderTableToolbar from "../order-table-toolbar.jsx";
-import EditOrderForm from "../order-edit.jsx";
-import OrderDetailsPopup from "../order-details.jsx";
+import PaymentTableToolbar from "../payment-table-toolbar.jsx";
+import EditPaymentForm from "../payment-edit.jsx";
 
 import { emptyRows, applyFilter, getComparator } from "../utils.js";
 import {
@@ -36,35 +35,33 @@ import {
   setLoading,
   setError,
   setFilterName,
-} from "../../../../redux/backoffice/orderSlice.js";
+} from "../../../../redux/backoffice/paymentListSlice.js";
 import Loader from "../../../../frontoffice/components/loader/Loader.jsx";
 import createAxiosInstance from "../../../../utils/axiosConfig.jsx";
+import { toast } from "react-toastify";
 
 // ----------------------------------------------------------------------
 
-export default function OrderPage() {
+export default function PaymentPage() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  const data = useSelector((state) => state.adminOrder.data);
-  const error = useSelector((state) => state.adminOrder.error);
-  const loading = useSelector((state) => state.adminOrder.loading);
-  const filterName = useSelector((state) => state.adminOrder.filterName);
-  const [itemsFilter, setItemsFilter] = useState("");
+  const data = useSelector((state) => state.adminPaymentList.data);
+  const error = useSelector((state) => state.adminPaymentList.error);
+  const loading = useSelector((state) => state.adminPaymentList.loading);
+  const filterName = useSelector((state) => state.adminPaymentList.filterName);
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState("");
   const [totalPriceFilter, setTotalPriceFilter] = useState("");
+  const [selectedDeletePaymentId, setSelectedDeletePaymentId] = useState(null);
   const [page, setPage] = useState(0);
-  const [order, setOrder] = useState("asc");
+  const [payment, setPayment] = useState("asc");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [isDeleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [selected, setSelected] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  const [editingOrder, setEditingOrder] = useState(null);
-  const [orderBy, setOrderBy] = useState("name");
+  const [editingPayment, setEditingPayment] = useState(null);
+  const [paymentBy, setPaymentBy] = useState("name");
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [isDetailsPopupOpen, setDetailsPopupOpen] = useState(false);
-  const [isDeleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
-  const [selectedDeleteOrderId, setSelectedDeleteOrderId] = useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const axiosInstance = createAxiosInstance('admin');
@@ -73,7 +70,7 @@ export default function OrderPage() {
     try {
       dispatch(setLoading(true));
 
-      const response = await axiosInstance.get("/orders");
+      const response = await axiosInstance.get("/payments");
       const data = response.data.data;
       dispatch(setData(data));
     } catch (err) {
@@ -103,10 +100,10 @@ export default function OrderPage() {
   }
 
   const handleSort = (event, id) => {
-    const isAsc = orderBy === id && order === "asc";
+    const isAsc = paymentBy === id && payment === "asc";
     if (id !== "") {
-      setOrder(isAsc ? "desc" : "asc");
-      setOrderBy(id);
+      setPayment(isAsc ? "desc" : "asc");
+      setPaymentBy(id);
     }
   };
 
@@ -139,14 +136,16 @@ export default function OrderPage() {
     setSelected(newSelected);
   };
 
-  const openDeleteConfirmation = (orderId) => {
-    setSelectedDeleteOrderId(orderId);
+  const openDeleteConfirmation = (event, paymentId) => {
+    setSelectedDeletePaymentId(paymentId);
+    setAnchorEl(event.currentTarget);
     setDeleteConfirmationOpen(true);
   };
 
   const closeDeleteConfirmation = () => {
-    setSelectedDeleteOrderId(null);
+    setSelectedDeletePaymentId(null);
     setDeleteConfirmationOpen(false);
+    setAnchorEl(null);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -164,9 +163,9 @@ export default function OrderPage() {
     setPage(0);
   };
 
-  const handleFilterByItems = (event) => {
+  const handleFilterByMethod = (event) => {
     const value = event.target.value;
-    setItemsFilter(value);
+    setPaymentMethodFilter(value);
     setPage(0);
   };
 
@@ -176,66 +175,46 @@ export default function OrderPage() {
     setPage(0);
   };
 
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
-  };
-
-  const handleEditOrder = (order) => {
-    setEditingOrder(order);
+  const handleEditPayment = (payment) => {
+    setEditingPayment(payment);
     setOpenModal(true);
   };
 
-  const handleSaveEditedOrder = async (editedOrder) => {
+  const handleSaveEditedPayment = async (editedPayment) => {
     setLoadingDelete(true);
 
     try {
-      const { _id, customer, status, cart_total_price } = editedOrder;
-
-      const { _id: customer_id, first_name, last_name } = customer;
+      const { _id, paymentStatus, amount, paymentMethod } = editedPayment;
 
       const payload = {
-        customer_id,
-        customer_name: `${first_name} ${last_name}`,
-        status,
-        cart_total_price,
+        paymentStatus,
+        amount,
+        paymentMethod,
       };
 
-      const response = await axiosInstance.put(`/orders/${_id}`, payload);
+      const response = await axiosInstance.put(`/payments/${_id}`, payload);
 
-      const index = data.findIndex((order) => order._id === _id);
+      const index = data.findIndex((payment) => payment._id === _id);
 
       if (index !== -1) {
-        const updatedOrders = [...data];
-        updatedOrders[index] = {
-          ...updatedOrders[index],
-          customer_id,
-          customer: {
-            _id: customer_id,
-            first_name,
-            last_name,
-          },
-          status,
-          cart_total_price,
+        const updatedPayments = [...data];
+        updatedPayments[index] = {
+          ...updatedPayments[index],
+          paymentStatus,
+          amount,
+          paymentMethod,
         };
 
-        // Assuming you have a dispatch function to update the state
-        dispatch(setData(updatedOrders));
+        dispatch(setData(updatedPayments));
 
-        // You may need to update the snackbar and modal handling based on your UI requirements
-        openSnackbar(response.data.message);
-        setEditingOrder(null);
+        toast.success(response.data.message);
+        setEditingPayment(null);
         setOpenModal(false);
       }
     } catch (error) {
-      console.error("Error editing order:" + error);
+      console.error("Error editing payment:" + error);
 
-      // You may need to update the snackbar handling based on your UI requirements
-      openSnackbar(
+      toast.error(
         "Error: " + error.response?.data.message || "An error occurred"
       );
     } finally {
@@ -244,41 +223,31 @@ export default function OrderPage() {
   };
 
   const handleCancelEdit = () => {
-    setEditingOrder(null);
+    setEditingPayment(null);
   };
 
-  const handleDeleteOrder = async (orderId) => {
+  const handleDeletePayment = async (paymentId) => {
     setLoadingDelete(true);
     try {
-      const response = await axiosInstance.delete(`/orders/${orderId}`);
-      const updatedSubCategories = data.filter(
-        (order) => order._id !== orderId
+      const response = await axiosInstance.delete(`/payments/${paymentId}`);
+      const updatedPayments = data.filter(
+        (payment) => payment._id !== paymentId
       );
-      dispatch(setData(updatedSubCategories));
-      openSnackbar(response.data.message);
+      dispatch(setData(updatedPayments));
+      toast.success(response.data.message);
     } catch (error) {
-      console.error("Error deleting order:", error);
-      openSnackbar("Error: " + error.response.data.message);
+      console.error("Error deleting payment:", error);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       setLoadingDelete(false);
     }
   };
 
-  //-------
-  const handleOpenDetailsPopup = (order) => {
-    setSelectedOrder(order);
-    setDetailsPopupOpen(true);
-  };
-
-  const handleCloseDetailsPopup = () => {
-    setDetailsPopupOpen(false);
-  };
-
   const dataFiltered = applyFilter({
     inputData: data,
-    comparator: getComparator(order, orderBy),
+    comparator: getComparator(payment, paymentBy),
     filterName,
-    itemsFilter,
+    paymentMethodFilter,
     totalPriceFilter,
   });
 
@@ -291,16 +260,16 @@ export default function OrderPage() {
         justifyContent="space-between"
         mb={5}
       >
-        <Typography variant="h4">{t('Orders')}</Typography>
+        <Typography variant="h4">{t('Payments')}</Typography>
       </Stack>
 
       <Card>
-        <OrderTableToolbar
+        <PaymentTableToolbar
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
-          itemsFilter={itemsFilter}
-          onItemsFilter={handleFilterByItems}
+          paymentMethodFilter={paymentMethodFilter}
+          onMethodFilter={handleFilterByMethod}
           totalPriceFilter={totalPriceFilter}
           onTotalPriceFilter={handleFilterByTotalPrice}
           showFilters={showFilters}
@@ -313,19 +282,21 @@ export default function OrderPage() {
         <Scrollbar>
           <TableContainer sx={{ overflow: "unset" }}>
             <Table sx={{ minWidth: 800 }}>
-              <OrderTableHead
-                order={order}
-                orderBy={orderBy}
+              <PaymentTableHead
+                payment={payment}
+                paymentBy={paymentBy}
                 rowCount={data.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: "customer", label: t("Customer Name") },
-                  { id: "order_items", label: t("Order Items") },
-                  { id: "cart_total_price", label: t("Cart Total Price") },
-                  { id: "order_date", label: t("Order Date") },
-                  { id: "status", label: t("Status") },
+                  { id: "ordererName", label: t("Orderer Name") },
+                  { id: "amount", label: t("Amount") },
+                  { id: "paymentMethod", label: t("Payment Method") },
+                  { id: "currency", label: t("Currency") },
+                  { id: "createdAt", label: t("Payment Date") },
+                  { id: "paymentStatus", label: t("Payment Status") },
+                  // { id: "paymentCredentials", label: t("Payment Credentials") },
                   { id: " " },
                 ]}
               />
@@ -333,20 +304,19 @@ export default function OrderPage() {
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => {
-                    const orderItemsArray = Object.values(row.order_items);
                     return (
-                      <OrderTableRow
+                      <PaymentTableRow
                         key={row._id}
-                        customer={row.customer}
-                        order_items={orderItemsArray}
-                        cart_total_price={row.cart_total_price}
-                        order_date={row.order_date}
-                        status={row.status}
+                        ordererName={`${row.order.customer.first_name + " " + row.order.customer.last_name}`}
+                        amount={row.amount}
+                        paymentMethod={row.paymentMethod}
+                        currency={row.currency}
+                        createdAt={row.createdAt}
+                        paymentStatus={row.paymentStatus}
                         selected={selected.indexOf(row._id) !== -1}
                         handleClick={(event) => handleClick(event, row._id)}
-                        onEdit={() => handleEditOrder(row)}
-                        onDelete={() => openDeleteConfirmation(row._id)}
-                        onDetails={() => handleOpenDetailsPopup(row)}
+                        onEdit={() => handleEditPayment(row)}
+                        onDelete={(event) => openDeleteConfirmation(event, row._id)}
                       />
                     );
                   })}
@@ -372,73 +342,62 @@ export default function OrderPage() {
         />
       </Card>
 
-      <OrderDetailsPopup
-        order={selectedOrder}
-        open={isDetailsPopupOpen}
-        onClose={handleCloseDetailsPopup}
-      />
-
-      {editingOrder && (
-        <EditOrderForm
-          order={editingOrder}
-          onSave={handleSaveEditedOrder}
+      {editingPayment && (
+        <EditPaymentForm
+          payment={editingPayment}
+          onSave={handleSaveEditedPayment}
           onCancel={handleCancelEdit}
           open={openModal}
           onClose={() => setOpenModal(false)}
         />
       )}
+
+      <Backdrop
+        open={isDeleteConfirmationOpen}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }}
+        onClick={closeDeleteConfirmation}
+      />
+
       <Popover
-        anchorEl={isDeleteConfirmationOpen}
+        anchorEl={anchorEl}
         open={isDeleteConfirmationOpen}
         onClose={closeDeleteConfirmation}
         anchorOrigin={{
-          vertical: "center",
-          horizontal: "right",
+          vertical: 'bottom',
+          horizontal: 'center',
         }}
         transformOrigin={{
-          vertical: "center",
-          horizontal: "right",
+          vertical: 'top',
+          horizontal: 'center',
         }}
         PaperProps={{
           sx: {
             width: 250,
             p: 2,
+            zIndex: (theme) => theme.zIndex.drawer + 2,
           },
         }}
       >
         <Typography sx={{ mb: 1 }} component="div" variant="subtitle1">
-          {t('Are you sure you want to delete this element ?')}
+          {t('Are you sure you want to delete this element?')}
         </Typography>
         <LoadingButton
           color="primary"
           loading={loadingDelete}
           onClick={() => {
-            handleDeleteOrder(selectedDeleteOrderId);
+            handleDeletePayment(selectedDeletePaymentId);
             closeDeleteConfirmation();
           }}
         >
           {t('Confirm')}
         </LoadingButton>
-        <Button color="secondary" onClick={closeDeleteConfirmation}>{t('Cancel')}</Button>
+        <Button color="secondary" onClick={closeDeleteConfirmation}>
+          {t('Cancel')}
+        </Button>
       </Popover>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000} // Adjust as needed
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={
-            typeof snackbarMessage === "string" &&
-              snackbarMessage.includes("Error")
-              ? "error"
-              : "success"
-          }
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Container>
   );
 }

@@ -12,34 +12,43 @@ import Badge from "@mui/material/Badge";
 import TableCell from "@mui/material/TableCell";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import axios from "axios";
 
 import { fDateTime } from "../../../utils/format-time";
-
 import Label from "../../components/label";
 import Iconify from "../../components/iconify";
 
+// Function to convert payment methods to readable text
+const getPaymentMethodLabel = (paymentMethod) => {
+  switch (paymentMethod) {
+    case 'credit_card':
+      return 'Credit Card';
+    case 'cod':
+      return 'Cash on Delivery';
+    case 'paypal':
+      return 'Paypal';
+    default:
+      return paymentMethod;
+  }
+};
+
 // ----------------------------------------------------------------------
 
-export default function OrderTableRow({
+export default function PaymentTableRow({
   selected,
-  customer,
-  order_items,
-  cart_total_price,
-  order_date,
-  status,
+  ordererName,
+  amount,
+  paymentMethod,
+  paymentStatus,
+  currency,
+  createdAt,
   handleClick,
   onEdit,
   onDelete,
-  onDetails,
 }) {
-  // Toggle the selection
   const [open, setOpen] = useState(null);
   const { t } = useTranslation();
-  const isActive = status;
+  const isActive = paymentStatus;
   const color = isActive ? "primary" : "secondary";
-
-  const customerFullName = `${customer.first_name} ${customer.last_name}`;
 
   return (
     <>
@@ -47,24 +56,11 @@ export default function OrderTableRow({
         <TableCell padding="checkbox">
           <Checkbox disableRipple checked={selected} onChange={handleClick} />
         </TableCell>
-        <TableCell>{customerFullName}</TableCell>
-        <TableCell>
-          {order_items.map((orderItem, index) => (
-            <Stack key={index}>
-              <Stack>
-                <Typography sx={{ fontSize: "small" }}>
-                  <strong>{t('Product N°')} {index + 1}</strong>
-                </Typography>
-                <Typography sx={{ fontSize: "small" }}>
-                  <strong>{t('Name')}: </strong> {orderItem.product.product_name}
-                </Typography>
-              </Stack>
-              {index < order_items.length - 1 && <div style={{ height: 8 }} />}
-            </Stack>
-          ))}
-        </TableCell>
-        <TableCell>{cart_total_price} DH</TableCell>
-        <TableCell>{fDateTime(order_date)}</TableCell>
+        <TableCell>{ordererName}</TableCell>
+        <TableCell>{amount} DH</TableCell>
+        <TableCell>{getPaymentMethodLabel(paymentMethod)}</TableCell>
+        <TableCell className="uppercase">{currency}</TableCell>
+        <TableCell>{fDateTime(createdAt)}</TableCell>
         <TableCell>
           <Badge
             sx={{
@@ -73,26 +69,8 @@ export default function OrderTableRow({
             badgeContent={isActive ? t('Active') : t('Inactive')}
             color={color}
           ></Badge>
-        </TableCell>{" "}
+        </TableCell>
         <TableCell align="center">
-          <IconButton
-            onClick={() =>
-              onDetails({
-                customer,
-                order_items,
-                cart_total_price,
-                order_date,
-                status,
-              })
-            }
-          >
-            <Iconify
-              icon="material-symbols-light:visibility-outline-rounded"
-              width={26}
-              height={26}
-            />
-          </IconButton>
-
           <IconButton
             onClick={() => {
               onEdit && onEdit();
@@ -123,16 +101,14 @@ export default function OrderTableRow({
   );
 }
 
-
-OrderTableRow.propTypes = {
+PaymentTableRow.propTypes = {
   handleClick: PropTypes.func,
-  customer: PropTypes.object,
-  order_items: PropTypes.array,
-  cart_total_price: PropTypes.number,
-  order_date: PropTypes.number,
-  status: PropTypes.string,
+  ordererName: PropTypes.string,
+  amount: PropTypes.number,
+  paymentMethod: PropTypes.string,
+  currency: PropTypes.string,
+  createdAt: PropTypes.string,
   selected: PropTypes.bool,
   onDelete: PropTypes.func,
   onEdit: PropTypes.func,
-  onDetails: PropTypes.func,
 };

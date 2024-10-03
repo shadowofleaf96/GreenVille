@@ -29,6 +29,7 @@ import Logo from "../../../components/logo";
 import Link from "@mui/material/Link";
 import InputAdornment from "@mui/material/InputAdornment";
 import createAxiosInstance from "../../../../utils/axiosConfig";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -95,25 +96,13 @@ const Login = () => {
             isLoggedIn: true
           })
         );
-
         setLoginSuccessFlag(true);
-
-        openSnackbar(response.data.message);
       }
     } catch (error) {
-      openSnackbar("Error: " + error.response?.data?.message || "Login failed.");
+      toast.error("Error: " + error.response?.data?.message || "Login failed.");
     } finally {
       setLoadingSave(false);
     }
-  };
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
   };
 
   const responseMessage = (response) => {
@@ -132,11 +121,11 @@ const Login = () => {
         email: enteredEmail,
       });
 
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
       setOpenDialog(false);
     } catch (error) {
       console.error(error.message);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     }
   };
 
@@ -295,19 +284,7 @@ const Login = () => {
           </Dialog>
         </Paper>
       </motion.div>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={snackbarMessage.includes("Error") ? "error" : "success"}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+     
     </div>
   );
 };

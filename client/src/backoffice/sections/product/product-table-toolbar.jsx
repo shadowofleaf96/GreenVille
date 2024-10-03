@@ -61,22 +61,13 @@ export default function ProductTableToolbar({
           ? response.data.message
           : t(`Selected ${selected.length} users are deleted`);
 
-      openSnackbar(snackbarMessage);
+      toast.success(snackbarMessage);
     } catch (error) {
       setPopoverAnchor(null);
-      openSnackbar(t("Error deleting users:", error));
+      toast.error(t("Error deleting users:", error));
     } finally {
       setLoadingDelete(false);
     }
-  };
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
   };
 
   const handleOpenPopover = (event) => {
@@ -209,17 +200,6 @@ export default function ProductTableToolbar({
             </IconButton>
           </>
         )}
-
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={5000}
-          onClose={closeSnackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-        >
-          <Alert onClose={closeSnackbar} severity="success">
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
       </Toolbar>
     </>
   );

@@ -17,6 +17,7 @@ import Button from "@mui/material/Button";
 import axios from "axios";
 import Iconify from "../../components/iconify";
 import createAxiosInstance from "../../../utils/axiosConfig";
+import { toast } from "react-toastify";
 
 export default function CategoryTableToolbar({
   numSelected,
@@ -54,22 +55,13 @@ export default function CategoryTableToolbar({
           ? response.data.message
           : t(`Selected ${selected.length} users are deleted`); // Translate the string
 
-      openSnackbar(snackbarMessage);
+      toast.success(snackbarMessage);
     } catch (error) {
       setPopoverAnchor(null);
-      openSnackbar(t("Error deleting users:") + " " + error); // Translate the string
+      toast.error(t("Error deleting users:") + " " + error); // Translate the string
     } finally {
       setLoadingDelete(false);
     }
-  };
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
   };
 
   const handleOpenPopover = (event) => {
@@ -163,17 +155,6 @@ export default function CategoryTableToolbar({
         ) : (
           <></>
         )}
-
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={5000}
-          onClose={closeSnackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-        >
-          <Alert onClose={closeSnackbar} severity="success">
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
       </Toolbar>
     </>
   );

@@ -10,6 +10,17 @@ const paymentJoiSchema = Joi.object({
     .valid("pending", "completed", "failed", "refunded")
     .default("pending"),
   currency: Joi.string().default("USD"),
+
+  paymentCredentials: Joi.when("paymentMethod", {
+    is: "credit_card",
+    then: Joi.object({
+      cardNumber: Joi.string().creditCard().required(),
+      expiryDate: Joi.string().required(),
+      cvv: Joi.string().required().length(3),
+      cardCountry: Joi.string().required(),
+    }),
+    otherwise: Joi.forbidden(),
+  }),
 }).options({ stripUnknown: true });
 
 const paymentSchema = new mongoose.Schema(
@@ -38,6 +49,13 @@ const paymentSchema = new mongoose.Schema(
       type: String,
       default: "USD",
     },
+
+    paymentCredentials: {
+      cardNumber: { type: String },
+      expiryDate: { type: String },
+      cvv: { type: String },
+      cardCountry: { type: String },
+    },
   },
   {
     timestamps: true,
@@ -55,6 +73,10 @@ paymentSchema.pre("save", async function (next) {
     this.paymentMethod = validatedData.paymentMethod;
     this.paymentStatus = validatedData.paymentStatus;
     this.currency = validatedData.currency || this.currency;
+
+    if (validatedData.paymentMethod === "credit_card") {
+      this.paymentCredentials = validatedData.paymentCredentials;
+    }
 
     next();
   } catch (error) {

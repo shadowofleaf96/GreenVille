@@ -61,23 +61,15 @@ export default function UserTableToolbar({
           ? response.data.message
           : t(`Selected ${selected.length} users are deleted`);
 
-      openSnackbar(snackbarMessage);
+      toast.success(snackbarMessage);
     } catch (error) {
       setPopoverAnchor(null);
-      openSnackbar(t("Error deleting users:") + " " + error);
+      toast.error(t("Error deleting users:") + " " + error);
     } finally {
       setLoadingDelete(false);
     }
   };
 
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
-  };
 
   const handleOpenPopover = (event) => {
     setPopoverAnchor(event.currentTarget);
@@ -198,17 +190,6 @@ export default function UserTableToolbar({
             </IconButton>
           </>
         )}
-
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={5000} // Adjust as needed
-          onClose={closeSnackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-        >
-          <Alert onClose={closeSnackbar} severity="success">
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
       </Toolbar>
     </>
   );

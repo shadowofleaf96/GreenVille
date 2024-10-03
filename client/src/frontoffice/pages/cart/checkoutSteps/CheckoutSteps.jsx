@@ -5,7 +5,7 @@ const CheckoutSteps = ({ shipping, confirmOrder, payment }) => {
   return (
     <div className="flex items-center justify-center">
       <nav>
-        <ol className="flex flex-col md:flex-row md:space-x-4">
+        <ol className="flex flex-row md:space-x-4">
           {shipping ? (
             <Link to="/shipping">
               <li className="md:flex-1">

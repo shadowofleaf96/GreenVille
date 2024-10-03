@@ -8,6 +8,7 @@ import {
     removeItemFromCart,
 } from "../../../../redux/frontoffice/cartSlice";
 import createAxiosInstance from '../../../../utils/axiosConfig';
+import { toast } from 'react-toastify';
 
 const CheckoutForm = () => {
     const { cartItems, shippingInfo } = useSelector((state) => state.carts);
@@ -54,6 +55,8 @@ const CheckoutForm = () => {
         stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
             setMessage(paymentIntent.status === "succeeded" ? "Your payment succeeded" : "Unexpected error occurred");
         });
+
+        console.log(clientSecret)
     }, [stripe]);
 
     const createOrder = async () => {
@@ -99,31 +102,46 @@ const CheckoutForm = () => {
             orderId = await createOrder();
 
             e.preventDefault();
-            const { error } = await stripe.confirmPayment({
+            const { error, paymentIntent } = await stripe.confirmPayment({
                 elements,
                 redirect: "if_required",
             });
 
+            if (error) {
+                console.error("Error during payment confirmation:", error.message);
+            } else {
+                console.log("Payment Intent:", paymentIntent);
+            }
+
+
             if (error && (error.type === "card_error" || error.type === "validation_error")) {
                 console.log(error.message);
             }
-            const paymentData = {
-                order_id: orderId,
-                amount: totalPrice,
-                paymentMethod: "credit_card",
-                paymentStatus: "completed",
-                currency: "mad"
-            };
 
-            await axiosInstance.post("/payments/save-payment-info", paymentData);
 
-            cartItems.forEach(item => {
-                dispatch(removeItemFromCart(item.product));
-            });
-            setLoading(false);
-            navigate("/success")
+            console.log(paymentIntent.status)
+            if (paymentIntent.status === "succeeded") {
+                const paymentData = {
+                    order_id: orderId,
+                    amount: totalPrice,
+                    paymentMethod: "credit_card",
+                    paymentStatus: "completed",
+                    currency: "mad"
+                };
+
+                await axiosInstance.post("/payments/save-payment-info", paymentData);
+
+                cartItems.forEach(item => {
+                    dispatch(removeItemFromCart(item.product));
+                });
+                setLoading(false);
+                navigate("/success", { replace: true })
+            }
+
         } catch (error) {
-            console.error("Error processing payment:", error);
+            console.error("Error confirming payment", error);
+            toast.error("There was an error processing the payment.");
+        } finally {
             setLoading(false);
         }
     };
@@ -150,7 +168,7 @@ const CheckoutForm = () => {
                             disabled={!stripe}
                             className="h-12 w-3/4 bg-[#8DC63F] text-white rounded-lg flex justify-center text-md font-medium normal-case shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
                         >
-                            <p className="!text-center text-md normal-case font-medium">Loading</p>
+                            <p className="w-full flex h-full items-center justify-center text-center text-md normal-case font-medium">Loading</p>
                         </button> :
                         <button
                             loading={loading}

@@ -40,6 +40,8 @@ import {
 } from "../../../../redux/backoffice/productSlice.js";
 import Loader from "../../../../frontoffice/components/loader/Loader.jsx";
 import createAxiosInstance from "../../../../utils/axiosConfig.jsx";
+import { toast } from "react-toastify";
+import { Backdrop } from "@mui/material";
 
 // ----------------------------------------------------------------------
 
@@ -56,6 +58,7 @@ export default function ProductPage() {
   const [quantityFilter, setQuantityFilter] = useState("");
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
+  const [anchorEl, setAnchorEl] = useState(null);
   const [selected, setSelected] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -66,8 +69,6 @@ export default function ProductPage() {
   const [isNewProductFormOpen, setNewProductFormOpen] = useState(false);
   const [isDeleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [selectedDeleteProductId, setSelectedDeleteProductId] = useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const axiosInstance = createAxiosInstance("admin");
@@ -90,13 +91,6 @@ export default function ProductPage() {
     fetchData();
     dispatch(setData(data));
   }, [dispatch]);
-
-  const containerStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh", // Adjust this if needed
-  };
 
   if (loading) {
     return (
@@ -149,14 +143,16 @@ export default function ProductPage() {
     setSelected(newSelected);
   };
 
-  const openDeleteConfirmation = (productId) => {
+  const openDeleteConfirmation = (event, productId) => {
     setSelectedDeleteProductId(productId);
+    setAnchorEl(event.currentTarget);
     setDeleteConfirmationOpen(true);
   };
 
   const closeDeleteConfirmation = () => {
     setSelectedDeleteProductId(null);
     setDeleteConfirmationOpen(false);
+    setAnchorEl(null);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -190,15 +186,6 @@ export default function ProductPage() {
     const value = event.target.value;
     setQuantityFilter(value);
     setPage(0);
-  };
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
   };
 
   const handleEditProduct = (product) => {
@@ -254,13 +241,13 @@ export default function ProductPage() {
           last_update: editedProduct.last_update,
         };
         dispatch(setData(updatedProducts));
-        openSnackbar(response.data.message);
+        toast.success(response.data.message);
         setEditingProduct(null);
         setOpenModal(false);
       }
     } catch (error) {
       console.error("Error editing product:" + error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       setLoadingDelete(false);
     }
@@ -278,10 +265,10 @@ export default function ProductPage() {
         (product) => product._id !== productId
       );
       dispatch(setData(updatedProducts));
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
     } catch (error) {
       console.error("Error deleting product:", error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       setLoadingDelete(false);
     }
@@ -347,12 +334,11 @@ export default function ProductPage() {
       };
 
       dispatch(setData([...data, AddedProducts]));
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
 
-      // Optionally, update the products state or perform any other necessary actions
     } catch (error) {
       console.error("Error creating new product:", error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       handleCloseNewProductForm();
       setLoadingDelete(false);
@@ -445,7 +431,7 @@ export default function ProductPage() {
                         selected={selected.indexOf(row._id) !== -1}
                         handleClick={(event) => handleClick(event, row._id)}
                         onEdit={() => handleEditProduct(row)}
-                        onDelete={() => openDeleteConfirmation(row._id)}
+                        onDelete={(event) => openDeleteConfirmation(event, row._id)}
                         onDetails={() => handleOpenDetailsPopup(row)}
                       />
                     );
@@ -493,17 +479,25 @@ export default function ProductPage() {
           onClose={() => setOpenModal(false)}
         />
       )}
+      <Backdrop
+        open={isDeleteConfirmationOpen}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }}
+        onClick={closeDeleteConfirmation}
+      />
       <Popover
-        anchorEl={isDeleteConfirmationOpen}
+        anchorEl={anchorEl}
         open={isDeleteConfirmationOpen}
         onClose={closeDeleteConfirmation}
         anchorOrigin={{
-          vertical: "center",
-          horizontal: "right",
+          vertical: 'bottom',
+          horizontal: 'center',
         }}
         transformOrigin={{
-          vertical: "center",
-          horizontal: "right",
+          vertical: 'top',
+          horizontal: 'center',
         }}
         PaperProps={{
           sx: {
@@ -529,24 +523,7 @@ export default function ProductPage() {
           {t("Cancel")}
         </Button>
       </Popover>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={
-            typeof snackbarMessage === "string" &&
-              snackbarMessage.includes("Error")
-              ? "error"
-              : "success"
-          }
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+
     </Container>
   );
 }

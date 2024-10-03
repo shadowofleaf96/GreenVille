@@ -18,7 +18,7 @@ const ConfirmOrder = () => {
     );
 
     if (itemsPrice === 0) {
-        navigate("/products")
+        history("/products")
     }
 
     let shippingPrice;
@@ -33,7 +33,7 @@ const ConfirmOrder = () => {
     const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
 
     const processToPayment = () => {
-        history("/payment");
+        history("/payment",  { replace: true });
     };
 
     return (

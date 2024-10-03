@@ -5,24 +5,14 @@ import Alert from "@mui/material/Alert";
 import Iconify from "../../../backoffice/components/iconify";
 import { Link } from "react-router-dom";
 import { addItemToCart } from "../../../redux/frontoffice/cartSlice";
+import { toast } from "react-toastify";
 
 const Product = ({ product }) => {
   const dispatch = useDispatch();
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
-  };
 
   const addToCart = () => {
     dispatch(addItemToCart({ id: product._id, quantity: 1 }));
-    openSnackbar("Item Added to Cart");
+    toast.success("Item Added to Cart")
   };
 
   return (
@@ -55,19 +45,6 @@ const Product = ({ product }) => {
           Add to Cart
         </button>
       </div>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={snackbarMessage.includes("Error") ? "error" : "success"}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </div>
   );
 };

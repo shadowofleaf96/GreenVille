@@ -7,25 +7,38 @@ import MenuItem from "@mui/material/MenuItem";
 import IconButton from "@mui/material/IconButton";
 
 import i18n from "../../../../locales/i18n";
+import Iconify from "../../../components/iconify";
 
 const LANGS = [
   {
     value: "en",
     labelKey: "language",
     name: "English",
-    icon: "/assets/icons/ic_flag_en.svg",
+    icon: (
+      <Iconify
+        icon="flagpack:gb-ukm"
+      />
+    ),
   },
   {
     value: "ar",
     labelKey: "language",
     name: "Arabic",
-    icon: "/assets/icons/ic_flag_ar.svg",
+    icon: (
+      <Iconify
+        icon="flagpack:ma"
+      />
+    ),
   },
   {
     value: "fr",
     labelKey: "language",
     name: "French",
-    icon: "/assets/icons/ic_flag_fr.svg",
+    icon: (
+      <Iconify
+        icon="flagpack:fr"
+      />
+    ),
   },
 ];
 
@@ -36,7 +49,6 @@ export default function LanguagePopover() {
   const [open, setOpen] = useState(null);
 
   useEffect(() => {
-    // Set initial state once i18n is ready
     setLanguage(i18n.language);
     const initialIcon =
       LANGS.find((lang) => lang.value === i18n.language)?.icon ||
@@ -62,7 +74,7 @@ export default function LanguagePopover() {
   return (
     <>
       <IconButton onClick={handleOpen} sx={{ width: 40, height: 40 }}>
-        <img src={icon} alt={t(LANGS[0].labelKey)} />
+        {icon}
       </IconButton>
 
       <Popover
@@ -87,12 +99,7 @@ export default function LanguagePopover() {
             onClick={() => handleLanguageChange(option)}
             sx={{ typography: "body2", py: 1 }}
           >
-            <Box
-              component="img"
-              alt={t(option.labelKey)}
-              src={option.icon}
-              sx={{ width: 28, mr: 2 }}
-            />
+            <div className="mr-2">{option.icon}</div>
             {t(option.name)}
           </MenuItem>
         ))}

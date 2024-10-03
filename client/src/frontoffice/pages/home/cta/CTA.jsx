@@ -8,11 +8,11 @@ export default function CTA() {
             <div className="w-full mx-auto text-left md:w-11/12 xl:w-9/12 md:text-center">
                 <h1 className="flex flex-col justify-center items-center mb-6 text-4xl font-extrabold leading-none tracking-normal text-gray-900 md:text-6xl md:tracking-tight">
                     <span className="block">
-                        Discover <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8DC63F] to-green-500">the Power of Organic Living</span>
+                        Discover <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8DC63F] to-yellow-500">the Power of Organic Living</span>
                     </span>
                     <span className="flex justify-center items-center mt-4">
                         at
-                        <img className="h-24 w-auto bg-cover mx-4" src="/assets/logo-text.webp" alt="GreenVille logo" />
+                        <img className="h-24 w-auto bg-cover mx-4 animate-pulse" src="/assets/logo-text.webp" alt="GreenVille logo" />
                     </span>
                 </h1>
                 <p className="px-0 mb-6 text-lg text-gray-600 md:text-xl lg:px-24">

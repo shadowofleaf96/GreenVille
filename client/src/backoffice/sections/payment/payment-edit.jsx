@@ -1,5 +1,3 @@
-// Shadow Of Leaf was Here
-
 import React, { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -10,68 +8,48 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import Typography from "@mui/material/Typography";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import Switch from "@mui/material/Switch";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import { useTranslation } from 'react-i18next'; // Importing translation hook
+import { useTranslation } from 'react-i18next';
 import Loader from "../../../frontoffice/components/loader/Loader";
 import createAxiosInstance from "../../../utils/axiosConfig";
 
-function EditOrderForm({ order, onSave, onCancel, open, onClose }) {
-  const [customers, setCustomers] = useState([]);
-  const [statuses, setStatuses] = useState(["open", "processing", "completed"]);
-  const [editedOrder, setEditedOrder] = useState({
-    ...order,
+function EditPaymentForm({ payment, onSave, onCancel, open, onClose }) {
+  const [paymentMethods, setPaymentMethods] = useState([
+    { key: "credit_card", label: "Credit Card" },
+    { key: "paypal", label: "PayPal" },
+    { key: "cod", label: "Cash on Delivery" }
+  ]);
+  const [statuses, setStatuses] = useState(
+    [
+      { key: "pending", label: "Pending" },
+      { key: "completed", label: "Completed" },
+      { key: "failed", label: "Failed" },
+      { key: "refunded", label: "Refunded" }
+    ]);
+  const [editedPayment, setEditedPayment] = useState({
+    ...payment,
   });
   const [loadingSave, setLoadingSave] = useState(false);
-  const [loadingSubcategories, setLoadingSubcategories] = useState(true);
 
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-
-        const axiosInstance = createAxiosInstance('admin');
-        const customersResponse = await axiosInstance.get("/customers");
-        setCustomers(customersResponse.data.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoadingSubcategories(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
-    setEditedOrder({ ...editedOrder, [name]: value });
-  };
-
-  const handleCustomerChange = (event) => {
-    const selectedCustomer = customers.find(
-      (customer) => customer._id === event.target.value
-    );
-
-    const { first_name, last_name, email } = selectedCustomer;
-    setEditedOrder((prev) => ({
-      ...prev,
-      customer: {
-        _id: selectedCustomer._id,
-        first_name: first_name,
-        last_name: last_name,
-        email: email,
-      },
-    }));
+    setEditedPayment({ ...editedPayment, [name]: value });
   };
 
   const handleStatusChange = (event) => {
-    setEditedOrder({
-      ...editedOrder,
-      status: event.target.value,
+    setEditedPayment({
+      ...editedPayment,
+      paymentStatus: event.target.value,
+    });
+  };
+
+  const handlePaymentMethodChange = (event) => {
+    setEditedPayment({
+      ...editedPayment,
+      paymentMethod: event.target.value,
     });
   };
 
@@ -79,23 +57,19 @@ function EditOrderForm({ order, onSave, onCancel, open, onClose }) {
     setLoadingSave(true);
 
     try {
-      // Validate and format the data as needed
-      const { _id, customer, order_date, cart_total_price, status } =
-        editedOrder;
+      const { _id, amount, paymentMethod, paymentStatus } = editedPayment;
 
-      const updatedOrder = {
+      const updatedPayment = {
         _id,
-        customer,
-        order_date,
-        cart_total_price,
-        status,
+        amount,
+        paymentMethod,
+        paymentStatus,
       };
 
-      await onSave(updatedOrder);
-      onClose(); // Close the modal after a successful save
+      await onSave(updatedPayment);
+      onClose();
     } catch (error) {
-      console.error("Error saving order:", error);
-      // Handle the error as needed (display an error message, etc.)
+      console.error("Error saving payment:", error);
     } finally {
       setLoadingSave(false);
     }
@@ -103,7 +77,7 @@ function EditOrderForm({ order, onSave, onCancel, open, onClose }) {
 
   return (
     <Modal open={open} onClose={onClose}>
-      {!loadingSubcategories ? (
+      {payment ? (
         <Stack
           style={{
             position: "absolute",
@@ -128,54 +102,55 @@ function EditOrderForm({ order, onSave, onCancel, open, onClose }) {
             gutterBottom
             sx={{ color: "#3f51b5", marginBottom: 2 }}
           >
-            {t('Edit Order')}
+            {t('Edit Payment')}
           </Typography>
 
-          <FormControl fullWidth sx={{ marginBottom: 2 }}>
-            <InputLabel htmlFor="customer">{t('Customer')}</InputLabel>
-            <Select
-              label={t('Customer')}
-              id="customer"
-              name="customer_id"
-              value={editedOrder.customer._id}
-              onChange={handleCustomerChange}
-              fullWidth
-            >
-              {customers.map((customer) => (
-                <MenuItem key={customer._id} value={customer._id}>
-                  {`${customer.first_name} ${customer.last_name}`}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
           <TextField
-            label={t('Cart Total Price')}
-            name="cart_total_price"
+            label={t('Amount')}
+            name="amount"
             type="number"
-            value={editedOrder.cart_total_price}
+            value={editedPayment.amount}
             onChange={handleFieldChange}
             fullWidth
             sx={{ marginBottom: 2 }}
           />
 
           <FormControl fullWidth sx={{ marginBottom: 2 }}>
-            <InputLabel htmlFor="status">{t('Status')}</InputLabel>
+            <InputLabel htmlFor="paymentMethod">{t('Payment Method')}</InputLabel>
             <Select
-              label={t('Status')}
-              id="status"
-              name="status"
-              value={editedOrder.status}
-              onChange={handleStatusChange}
+              label={t('Payment Method')}
+              id="paymentMethod"
+              name="paymentMethod"
+              value={editedPayment.paymentMethod}
+              onChange={handlePaymentMethodChange}
               fullWidth
             >
-              {statuses.map((status) => (
-                <MenuItem key={status} value={status}>
-                  {t(status)}
+              {paymentMethods.map((method) => (
+                <MenuItem key={method.key} value={method.key}>
+                  {`${t(method.label)}`}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
+
+          <FormControl fullWidth sx={{ marginBottom: 2 }}>
+            <InputLabel htmlFor="paymentStatus">{t('Payment Status')}</InputLabel>
+            <Select
+              label={t('Payment Status')}
+              id="paymentStatus"
+              name="paymentStatus"
+              value={editedPayment.paymentStatus}
+              onChange={handleStatusChange}
+              fullWidth
+            >
+              {statuses.map((status) => (
+                <MenuItem key={status.key} value={status.key}>
+                  {t(status.label)}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
           <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
             <LoadingButton
               loading={loadingSave}
@@ -201,4 +176,4 @@ function EditOrderForm({ order, onSave, onCancel, open, onClose }) {
   );
 }
 
-export default EditOrderForm;
+export default EditPaymentForm;

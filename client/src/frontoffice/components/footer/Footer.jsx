@@ -4,15 +4,16 @@ import Iconify from "../../../backoffice/components/iconify";
 
 const Footer = () => {
   return (
-    <div className="bg-yellow-100 mt-auto">
+    <div className="bg-white mt-auto">
       <div className="container mx-auto py-8 px-4">
+        <hr className="mb-6" />
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
           <div className="max-w-xs space-y-4">
             <Link to="/">
               <img className="w-24 h-auto bg-cover" src="/assets/logo.webp" alt="logo" />
             </Link>
             <p className="text-gray-600 text-sm">
-              Moroccan E shop provides all kinds of organic goods. Our services are designed and made to fit your healthy lifestyles.
+              Moroccan E-Shop provides all kinds of organic goods. Our services are designed and made to fit your healthy lifestyles.
             </p>
           </div>
           <div className="max-w-xs space-y-4">
@@ -26,9 +27,6 @@ const Footer = () => {
               </li>
               <li className="text-gray-600">
                 <Link className="text-gray-600" to="/refund">Refund Policy</Link>
-              </li>
-              <li className="text-gray-600">
-                <Link className="text-gray-600" to="/cookie">Cookie Policy</Link>
               </li>
             </ul>
           </div>

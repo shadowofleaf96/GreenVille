@@ -10,6 +10,7 @@ import TableBody from "@mui/material/TableBody";
 import Typography from "@mui/material/Typography";
 import Popover from "@mui/material/Popover";
 import TableContainer from "@mui/material/TableContainer";
+import Backdrop from "@mui/material/Backdrop";
 import Snackbar from "@mui/material/Snackbar";
 import { useTranslation } from 'react-i18next';
 import Alert from "@mui/material/Alert";
@@ -39,6 +40,7 @@ import {
 } from "../../../../redux/backoffice/orderSlice.js";
 import Loader from "../../../../frontoffice/components/loader/Loader.jsx";
 import createAxiosInstance from "../../../../utils/axiosConfig.jsx";
+import { toast } from "react-toastify";
 
 // ----------------------------------------------------------------------
 
@@ -51,6 +53,7 @@ export default function OrderPage() {
   const loading = useSelector((state) => state.adminOrder.loading);
   const filterName = useSelector((state) => state.adminOrder.filterName);
   const [itemsFilter, setItemsFilter] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
   const [totalPriceFilter, setTotalPriceFilter] = useState("");
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
@@ -139,7 +142,8 @@ export default function OrderPage() {
     setSelected(newSelected);
   };
 
-  const openDeleteConfirmation = (orderId) => {
+  const openDeleteConfirmation = (event, orderId) => {
+    setAnchorEl(event.currentTarget);
     setSelectedDeleteOrderId(orderId);
     setDeleteConfirmationOpen(true);
   };
@@ -147,6 +151,7 @@ export default function OrderPage() {
   const closeDeleteConfirmation = () => {
     setSelectedDeleteOrderId(null);
     setDeleteConfirmationOpen(false);
+    setAnchorEl(null);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -174,15 +179,6 @@ export default function OrderPage() {
     const value = event.target.value;
     setTotalPriceFilter(value);
     setPage(0);
-  };
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
   };
 
   const handleEditOrder = (order) => {
@@ -223,19 +219,16 @@ export default function OrderPage() {
           cart_total_price,
         };
 
-        // Assuming you have a dispatch function to update the state
         dispatch(setData(updatedOrders));
 
-        // You may need to update the snackbar and modal handling based on your UI requirements
-        openSnackbar(response.data.message);
+        toast.success(response.data.message);
         setEditingOrder(null);
         setOpenModal(false);
       }
     } catch (error) {
       console.error("Error editing order:" + error);
 
-      // You may need to update the snackbar handling based on your UI requirements
-      openSnackbar(
+      toast.error(
         "Error: " + error.response?.data.message || "An error occurred"
       );
     } finally {
@@ -255,10 +248,10 @@ export default function OrderPage() {
         (order) => order._id !== orderId
       );
       dispatch(setData(updatedSubCategories));
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
     } catch (error) {
       console.error("Error deleting order:", error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       setLoadingDelete(false);
     }
@@ -345,7 +338,7 @@ export default function OrderPage() {
                         selected={selected.indexOf(row._id) !== -1}
                         handleClick={(event) => handleClick(event, row._id)}
                         onEdit={() => handleEditOrder(row)}
-                        onDelete={() => openDeleteConfirmation(row._id)}
+                        onDelete={(event) => openDeleteConfirmation(event, row._id)}
                         onDetails={() => handleOpenDetailsPopup(row)}
                       />
                     );
@@ -387,17 +380,26 @@ export default function OrderPage() {
           onClose={() => setOpenModal(false)}
         />
       )}
+
+      <Backdrop
+        open={isDeleteConfirmationOpen}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }}
+        onClick={closeDeleteConfirmation}
+      />
       <Popover
-        anchorEl={isDeleteConfirmationOpen}
+        anchorEl={anchorEl}
         open={isDeleteConfirmationOpen}
         onClose={closeDeleteConfirmation}
-        anchorOrigin={{
-          vertical: "center",
-          horizontal: "right",
+      anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
         }}
         transformOrigin={{
-          vertical: "center",
-          horizontal: "right",
+          vertical: 'top',
+          horizontal: 'center',
         }}
         PaperProps={{
           sx: {
@@ -421,24 +423,6 @@ export default function OrderPage() {
         </LoadingButton>
         <Button color="secondary" onClick={closeDeleteConfirmation}>{t('Cancel')}</Button>
       </Popover>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000} // Adjust as needed
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={
-            typeof snackbarMessage === "string" &&
-              snackbarMessage.includes("Error")
-              ? "error"
-              : "success"
-          }
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Container>
   );
 }

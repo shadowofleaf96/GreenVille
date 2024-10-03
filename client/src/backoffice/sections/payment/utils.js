@@ -29,8 +29,8 @@ function descendingComparator(a, b, orderBy) {
   }
   return 0;
 }
-export function getComparator(order, orderBy) {
-  return order === "desc"
+export function getComparator(payment, orderBy) {
+  return payment === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
@@ -39,46 +39,44 @@ export function applyFilter({
   inputData,
   comparator,
   filterName,
-  itemsFilter,
+  paymentMethodFilter,
   totalPriceFilter,
 }) {
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
+    const payment = comparator(a[0], b[0]);
+    if (payment !== 0) return payment;
     return a[1] - b[1];
   });
 
   inputData = stabilizedThis.map((el) => el[0]);
   if (filterName) {
-    inputData = inputData.filter((order) => {
-      const firstCustomerNameMatch =
-        order?.customer.first_name
+    inputData = inputData.filter((payment) => {
+      const firstNameMatch =
+        payment.order.customer_id.first_name
           .toLowerCase()
           .indexOf(filterName.toLowerCase()) !== -1;
-      const lastCustomerNameMatch =
-        order?.customer.last_name
+      const lastNameMatch =
+        payment.order.customer_id.last_name
           .toLowerCase()
           .indexOf(filterName.toLowerCase()) !== -1;
-      return firstCustomerNameMatch || lastCustomerNameMatch;
+
+      return firstNameMatch || lastNameMatch;
     });
   }
 
-  if (itemsFilter) {
-    inputData = inputData.filter((order) => {
-      const orderItemsMatch = order.order_items.some((item) =>
-        item.product.product_name
-          .toLowerCase()
-          .includes(itemsFilter.toLowerCase())
-      );
-      return orderItemsMatch;
+  if (paymentMethodFilter) {
+    inputData = inputData.filter((payment) => {
+      const MethodMatch = payment.paymentMethod
+        .includes(paymentMethodFilter);
+      return MethodMatch;
     });
   }
 
   if (totalPriceFilter) {
-    inputData = inputData.filter((order) => {
-      const orderTotalPriceMatch = order.cart_total_price
+    inputData = inputData.filter((payment) => {
+      const orderTotalPriceMatch = payment.amount
         .toString()
         .toLowerCase()
         .includes(totalPriceFilter.toLowerCase());

@@ -54,26 +54,17 @@ const ResetPasswordPage = () => {
         newPasswordJson
       );
 
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
       setTimeout(() => {
         router.push("/admin/login");
       }, 2000);
     } catch (error) {
-      openSnackbar(t("Error") + ": " + error.response.data.message);
+      toast.error(t("Error") + ": " + error.response.data.message);
       console.error("Reset Password error:", error);
       console.log(error);
     } finally {
       setResetPasswordLoading(false);
     }
-  };
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
   };
 
   const handleClickShowPassword = () => {
@@ -179,20 +170,6 @@ const ResetPasswordPage = () => {
           </Stack>
         </Card>
       </Stack>
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={snackbarMessage.includes("Error") ? "error" : "success"}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

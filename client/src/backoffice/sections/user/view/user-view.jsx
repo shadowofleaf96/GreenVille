@@ -9,7 +9,7 @@ import TableBody from "@mui/material/TableBody";
 import Typography from "@mui/material/Typography";
 import Popover from "@mui/material/Popover";
 import TableContainer from "@mui/material/TableContainer";
-import Snackbar from "@mui/material/Snackbar";
+import Backdrop from "@mui/material/Backdrop";
 import { useTranslation } from "react-i18next";
 import Fab from "@mui/material/Fab";
 import Alert from "@mui/material/Alert";
@@ -178,15 +178,6 @@ export default function UserPage() {
     setPage(0);
   };
 
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
-  };
-
   const handleEditUser = (user) => {
     setEditingUser(user);
     setOpenModal(true);
@@ -230,13 +221,13 @@ export default function UserPage() {
         };
 
         dispatch(setData(updatedUsers));
-        openSnackbar(response.data.message);
+        toast.success(response.data.message);
         setEditingUser(null);
         setOpenModal(false);
       }
     } catch (error) {
       console.error("Error editing user:" + error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       setLoadingDelete(false);
     }
@@ -252,10 +243,10 @@ export default function UserPage() {
       const response = await axiosInstance.delete(`/users/${userId}`);
       const updatedUsers = data.filter((user) => user._id !== userId);
       dispatch(setData(updatedUsers));
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
     } catch (error) {
       console.error("Error deleting user:", error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       setLoadingDelete(false);
     }
@@ -316,12 +307,11 @@ export default function UserPage() {
       };
 
       dispatch(setData([...data, AddedUsers]));
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
 
-      // Optionally, update the users state or perform any other necessary actions
     } catch (error) {
       console.error("Error creating new user:", error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       handleCloseNewUserForm();
       setLoadingDelete(false);
@@ -460,17 +450,25 @@ export default function UserPage() {
           onClose={() => setOpenModal(false)}
         />
       )}
+      <Backdrop
+        open={isDeleteConfirmationOpen}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }}
+        onClick={closeDeleteConfirmation}
+      />
       <Popover
         anchorEl={deleteConfirmationAnchorEl}
         open={isDeleteConfirmationOpen}
         onClose={closeDeleteConfirmation}
         anchorOrigin={{
-          vertical: "center",
-          horizontal: "right",
+          vertical: 'bottom',
+          horizontal: 'center',
         }}
         transformOrigin={{
-          vertical: "center",
-          horizontal: "right",
+          vertical: 'top',
+          horizontal: 'center',
         }}
         PaperProps={{
           sx: {
@@ -496,19 +494,7 @@ export default function UserPage() {
           {t("Cancel")}
         </Button>
       </Popover>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={snackbarMessage.includes("Error") ? "error" : "success"}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+
     </Container>
   );
 }

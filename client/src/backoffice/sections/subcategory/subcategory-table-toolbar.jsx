@@ -17,6 +17,7 @@ import axios from "axios";
 import Iconify from "../../components/iconify";
 import { useTranslation } from "react-i18next";
 import createAxiosInstance from "../../../utils/axiosConfig";
+import { toast } from "react-toastify";
 
 export default function SubCategoryTableToolbar({
   numSelected,
@@ -54,22 +55,13 @@ export default function SubCategoryTableToolbar({
           ? response.data.message
           : t(`Selected ${selected.length} subcategories are deleted`);
 
-      openSnackbar(snackbarMessage);
+      toast.success(snackbarMessage);
     } catch (error) {
       setPopoverAnchor(null);
-      openSnackbar(t("Error deleting subcategories:"), error);
+      toast.error(t("Error deleting subcategories:"), error);
     } finally {
       setLoadingDelete(false);
     }
-  };
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
   };
 
   const handleOpenPopover = (event) => {
@@ -163,17 +155,6 @@ export default function SubCategoryTableToolbar({
         ) : (
           <></>
         )}
-
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={5000} // Adjust as needed
-          onClose={closeSnackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-        >
-          <Alert onClose={closeSnackbar} severity="success">
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
       </Toolbar>
     </>
   );

@@ -39,6 +39,8 @@ import {
 } from "../../../../redux/backoffice/subCategorySlice.js";
 import Loader from "../../../../frontoffice/components/loader/Loader.jsx";
 import createAxiosInstance from "../../../../utils/axiosConfig.jsx";
+import { toast } from "react-toastify";
+import { Backdrop } from "@mui/material";
 
 // ----------------------------------------------------------------------
 
@@ -51,6 +53,7 @@ export default function SubCategoryPage() {
   const loading = useSelector((state) => state.adminSubcategory.loading);
   const filterName = useSelector((state) => state.adminSubcategory.filterName);
   const [page, setPage] = useState(0);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [order, setOrder] = useState("asc");
   const [selected, setSelected] = useState([]);
   const [openModal, setOpenModal] = useState(false);
@@ -61,8 +64,6 @@ export default function SubCategoryPage() {
   const [isDeleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [selectedDeleteSubCategoryId, setSelectedDeleteSubCategoryId] =
     useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [loadingDelete, setLoadingDelete] = useState(false);
   const axiosInstance = createAxiosInstance("admin")
 
@@ -138,14 +139,16 @@ export default function SubCategoryPage() {
     setSelected(newSelected);
   };
 
-  const openDeleteConfirmation = (subcategoryId) => {
+  const openDeleteConfirmation = (event, subcategoryId) => {
     setSelectedDeleteSubCategoryId(subcategoryId);
+    setAnchorEl(event.currentTarget);
     setDeleteConfirmationOpen(true);
   };
 
   const closeDeleteConfirmation = () => {
     setSelectedDeleteSubCategoryId(null);
     setDeleteConfirmationOpen(false);
+    setAnchorEl(null);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -161,15 +164,6 @@ export default function SubCategoryPage() {
     const value = event.target.value;
     dispatch(setFilterName(value));
     setPage(0);
-  };
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
   };
 
   const handleEditSubCategory = (subcategory) => {
@@ -203,13 +197,13 @@ export default function SubCategoryPage() {
           active: editedSubCategory.active,
         };
         dispatch(setData(updatedSubCategories));
-        openSnackbar(response.data.message);
+        toast.success(response.data.message);
         setEditingSubCategory(null);
         setOpenModal(false);
       }
     } catch (error) {
       console.error("Error editing subcategory:" + error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       setLoadingDelete(false);
     }
@@ -227,10 +221,10 @@ export default function SubCategoryPage() {
         (subcategory) => subcategory._id !== subcategoryId
       );
       dispatch(setData(updatedSubCategories));
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
     } catch (error) {
       console.error("Error deleting subcategory:", error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       setLoadingDelete(false);
     }
@@ -263,11 +257,11 @@ export default function SubCategoryPage() {
       };
 
       dispatch(setData([...data, AddedSubCategories]));
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
 
     } catch (error) {
       console.error("Error creating new subcategory:", error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       handleCloseNewSubCategoryForm();
       setLoadingDelete(false);
@@ -337,13 +331,12 @@ export default function SubCategoryPage() {
                       <SubCategoryTableRow
                         key={row._id}
                         subcategory_name={row.subcategory_name}
-                        // category_id={row.category_id}
                         category={category_name}
                         active={row.active}
                         selected={selected.indexOf(row._id) !== -1}
                         handleClick={(event) => handleClick(event, row._id)}
                         onEdit={() => handleEditSubCategory(row)}
-                        onDelete={() => openDeleteConfirmation(row._id)}
+                        onDelete={(event) => openDeleteConfirmation(event, row._id)}
                       />
                     );
                   })}
@@ -386,17 +379,25 @@ export default function SubCategoryPage() {
           onClose={() => setOpenModal(false)}
         />
       )}
+      <Backdrop
+        open={isDeleteConfirmationOpen}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }}
+        onClick={closeDeleteConfirmation}
+      />
       <Popover
-        anchorEl={isDeleteConfirmationOpen}
+        anchorEl={anchorEl}
         open={isDeleteConfirmationOpen}
         onClose={closeDeleteConfirmation}
         anchorOrigin={{
-          vertical: "center",
-          horizontal: "right",
+          vertical: 'bottom',
+          horizontal: 'center',
         }}
         transformOrigin={{
-          vertical: "center",
-          horizontal: "right",
+          vertical: 'top',
+          horizontal: 'center',
         }}
         PaperProps={{
           sx: {
@@ -422,24 +423,7 @@ export default function SubCategoryPage() {
           {t("Cancel")}
         </Button>
       </Popover>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={
-            typeof snackbarMessage === "string" &&
-              snackbarMessage.includes("Error")
-              ? "error"
-              : "success"
-          }
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+
     </Container>
   );
 }

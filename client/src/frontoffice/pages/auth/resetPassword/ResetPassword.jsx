@@ -6,6 +6,7 @@ import Alert from "@mui/material/Alert";
 import { useParams, useNavigate } from "react-router-dom";
 import Logo from "../../../components/logo";
 import createAxiosInstance from "../../../../utils/axiosConfig";
+import { toast } from "react-toastify";
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -45,25 +46,16 @@ const ResetPassword = () => {
       );
 
       setResetSuccess(true);
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
       setResetError(null);
     } catch (error) {
       console.error(error.response.data.error);
       setResetError("Failed to reset password. Please try again.");
       setResetSuccess(false);
-      openSnackbar("Error: " + error.response.data.error);
+      toast.error("Error: " + error.response.data.error);
     } finally {
       setLoading(false);
     }
-  };
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
   };
 
   return (
@@ -146,19 +138,7 @@ const ResetPassword = () => {
           </form>
         )}
       </Paper>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={snackbarMessage.includes("Error") ? "error" : "success"}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+     
     </div>
   );
 };

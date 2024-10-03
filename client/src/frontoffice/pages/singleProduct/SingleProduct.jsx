@@ -1,11 +1,9 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getProductDetails, clearErrors } from "../../../redux/frontoffice/productSlice";
 import Loader from "../../components/loader/Loader";
 import Iconify from "../../../backoffice/components/iconify";
-import Alert from "@mui/material/Alert";
-import Snackbar from "@mui/material/Snackbar";
 import { addItemToCart } from "../../../redux/frontoffice/cartSlice";
 import Navbar from "../../components/header/Navbar";
 import Footer from "../../components/footer/Footer";
@@ -13,21 +11,24 @@ import MetaData from "../../components/MetaData";
 
 const SingleProduct = () => {
   const [quantity, setQuantity] = useState(1);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [selectedImage, setSelectedImage] = useState(""); // State for the selected image
 
   const dispatch = useDispatch();
+  const history = useNavigate()
   const { id } = useParams();
 
   const { loading, product } = useSelector((state) => state.products);
 
   useEffect(() => {
+    if (product?.product_image) {
+      setSelectedImage(`http://localhost:3000/${product.product_image}`); // Set default image
+    }
     dispatch(getProductDetails(id));
 
     return () => {
       dispatch(clearErrors());
     };
-  }, [dispatch, id]);
+  }, [dispatch, id, product?.product_image]);
 
   const increaseQty = () => {
     if (quantity >= product.quantity) return;
@@ -39,19 +40,14 @@ const SingleProduct = () => {
     setQuantity(quantity - 1);
   };
 
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
-  };
-
   const addToCart = () => {
-    dispatch(addItemToCart({ id: product._id, quantity: quantity }));
-    openSnackbar("Item Added to Cart");
+    dispatch(addItemToCart({ id: product._id, quantity }));
   };
+
+  const buyNow = () => {
+    dispatch(addItemToCart({ id: product._id, quantity }));
+    history("/cart")
+  }
 
   return (
     <Fragment>
@@ -67,14 +63,36 @@ const SingleProduct = () => {
                   {product?.product_image && (
                     <>
                       <div className="w-full max-w-sm rounded-lg shadow-lg overflow-hidden mb-6">
+                        {/* Main image */}
                         <img
-                          src={`http://localhost:3000/${product?.product_image}`}
-                          alt={product.product_image}
+                          src={selectedImage}
+                          alt="Selected product"
                           className="object-contain w-full h-[380px] sm:h-[200px]"
                         />
                       </div>
+
+                      {/* Thumbnail images */}
                       <div className="flex overflow-x-auto space-x-4">
-                        {/* Render product images dynamically */}
+                        {/* Main product image */}
+                        <img
+                          src={`http://localhost:3000/${product.product_image}`}
+                          alt="Main product"
+                          className="w-20 h-20 object-contain cursor-pointer border-2 border-gray-200 rounded-lg hover:border-green-500"
+                          onClick={() =>
+                            setSelectedImage(`http://localhost:3000/${product.product_image}`)
+                          }
+                        />
+
+                        {/* Additional product images */}
+                        {product?.product_images?.map((image, index) => (
+                          <img
+                            key={index}
+                            src={`http://localhost:3000/${image}`}
+                            alt={`Product image ${index + 1}`}
+                            className="w-20 h-20 object-contain cursor-pointer border-2 border-gray-200 rounded-lg hover:border-green-500"
+                            onClick={() => setSelectedImage(`http://localhost:3000/${image}`)}
+                          />
+                        ))}
                       </div>
                     </>
                   )}
@@ -123,11 +141,28 @@ const SingleProduct = () => {
                   </p>
                   <div className="flex space-x-4 mt-4">
                     <button
-                      className="bg-[#8DC63F] text-white py-3 px-6 font-medium rounded-lg hover:bg-green-600 transition duration-300"
+                      className="bg-[#8DC63F] flex gap-2 text-white py-3 px-6 font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
+                      disabled={product.quantity === 0}
+                      onClick={buyNow}
+                    >
+                      Buy Now
+                      <Iconify
+                        icon="material-symbols:sell-outline"
+                        height="22px"
+                        width="22px"
+                      />
+                    </button>
+                    <button
+                      className="bg-white flex gap-2 text-grey-800 border-[#8DC63F] border-2 py-3 px-6 font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
                       disabled={product.quantity === 0}
                       onClick={addToCart}
                     >
                       Add To Cart
+                      <Iconify
+                        icon="mdi-light:cart"
+                        height="22px"
+                        width="22px"
+                      />
                     </button>
                   </div>
                 </div>
@@ -135,20 +170,6 @@ const SingleProduct = () => {
             ) : (
               <p>Error loading product details.</p>
             )}
-
-            <Snackbar
-              open={snackbarOpen}
-              autoHideDuration={5000}
-              onClose={closeSnackbar}
-              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-            >
-              <Alert
-                onClose={closeSnackbar}
-                severity={snackbarMessage.includes("Error") ? "error" : "success"}
-              >
-                {snackbarMessage}
-              </Alert>
-            </Snackbar>
           </div>
         )}
       </div>

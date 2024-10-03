@@ -17,6 +17,7 @@ import axios from "axios";
 import Iconify from "../../components/iconify";
 import { useTranslation } from 'react-i18next';
 import createAxiosInstance from "../../../utils/axiosConfig";
+import { toast } from "react-toastify";
 
 export default function OrderTableToolbar({
   numSelected,
@@ -60,22 +61,13 @@ export default function OrderTableToolbar({
           ? response.data.message
           : `${t('Selected')} ${selected.length} ${t('selected elements')} ${t('are deleted')}`;
 
-      openSnackbar(snackbarMessage);
+      toast.success(snackbarMessage);
     } catch (error) {
       setPopoverAnchor(null);
-      openSnackbar(`${t('Error deleting orders:')} ${error}`);
+      toast.error(`${t('Error deleting orders:')} ${error}`);
     } finally {
       setLoadingDelete(false);
     }
-  };
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
   };
 
   const handleOpenPopover = (event) => {
@@ -201,17 +193,6 @@ export default function OrderTableToolbar({
             </IconButton>
           </>
         )}
-
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={5000}
-          onClose={closeSnackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-        >
-          <Alert onClose={closeSnackbar} severity="success">
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
       </Toolbar>
     </>
   );

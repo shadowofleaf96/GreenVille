@@ -7,7 +7,23 @@ const axios = require("axios");
 const retrievePayments = async (req, res) => {
   try {
     const payments = await Payment.find();
-    res.status(200).json({ data: payments });
+
+    const paymentsWithOrders = await Promise.all(payments.map(async (payment) => {
+      const order = await Order.findById(payment.order_id).populate('customer_id', 'first_name last_name');
+      
+      return {
+        ...payment._doc, 
+        order: {
+          ...order._doc, 
+          customer: {
+            first_name: order.customer_id.first_name,
+            last_name: order.customer_id.last_name,
+          }
+        }
+      };
+    }));
+
+    res.status(200).json({ data: paymentsWithOrders });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -94,8 +110,7 @@ const createStripePayment = async (req, res) => {
 
 const savePaymentInfo = async (req, res) => {
   try {
-    const { order_id, amount, paymentMethod, paymentStatus, currency } =
-      req.body;
+    const { order_id, amount, paymentMethod, paymentStatus, currency, paymentCredentials } = req.body;
 
     const order = await Order.findById({ _id: order_id });
 
@@ -103,18 +118,25 @@ const savePaymentInfo = async (req, res) => {
       return res.status(404).json({ error: "Order not found" });
     }
 
+    // if (paymentMethod === "credit_card") {
+    //   if (!paymentCredentials || !paymentCredentials.cardNumber || !paymentCredentials.cardHolderName || !paymentCredentials.expiryDate || !paymentCredentials.cvv) {
+    //     return res.status(400).json({ error: "Missing credit card information" });
+    //   }
+    // }
+
     const payment = new Payment({
       order_id,
-      amount: amount,
-      paymentMethod: paymentMethod,
+      amount,
+      paymentMethod,
       paymentStatus: paymentStatus,
-      currency: currency,
+      currency: currency || "USD", 
+      ...(paymentMethod === "credit_card" && { paymentCredentials })
     });
 
     await payment.save();
 
     res.status(200).json({
-      message: "COD payment created successfully",
+      message: "Payment created successfully",
       data: payment,
     });
   } catch (error) {
@@ -122,6 +144,7 @@ const savePaymentInfo = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 module.exports = {
   retrievePayments,

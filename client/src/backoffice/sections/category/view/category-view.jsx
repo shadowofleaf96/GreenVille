@@ -6,6 +6,7 @@ import Button from "@mui/material/Button";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Container from "@mui/material/Container";
 import TableBody from "@mui/material/TableBody";
+import Backdrop from "@mui/material/Backdrop";
 import Typography from "@mui/material/Typography";
 import Popover from "@mui/material/Popover";
 import { useTranslation } from "react-i18next";
@@ -39,6 +40,7 @@ import {
   setFilterName,
 } from "../../../../redux/backoffice/categorySlice.js";
 import Loader from "../../../../frontoffice/components/loader/Loader.jsx";
+import { toast } from "react-toastify";
 
 // ----------------------------------------------------------------------
 
@@ -56,14 +58,11 @@ export default function CategoryPage() {
   const [editingCategory, setEditingCategory] = useState(null);
   const [orderBy, setOrderBy] = useState("name");
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [isDetailsPopupOpen, setDetailsPopupOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [isNewCategoryFormOpen, setNewCategoryFormOpen] = useState(false);
   const [isDeleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [selectedDeleteCategoryId, setSelectedDeleteCategoryId] =
     useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [loadingDelete, setLoadingDelete] = useState(false);
   const { t } = useTranslation();
   const axiosInstance = createAxiosInstance('customer');
@@ -139,14 +138,16 @@ export default function CategoryPage() {
     setSelected(newSelected);
   };
 
-  const openDeleteConfirmation = (categoryId) => {
+  const openDeleteConfirmation = (event, categoryId) => {
     setSelectedDeleteCategoryId(categoryId);
+    setAnchorEl(event.currentTarget);
     setDeleteConfirmationOpen(true);
   };
 
   const closeDeleteConfirmation = () => {
     setSelectedDeleteCategoryId(null);
     setDeleteConfirmationOpen(false);
+    setAnchorEl(null);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -162,15 +163,6 @@ export default function CategoryPage() {
     const value = event.target.value;
     dispatch(setFilterName(value));
     setPage(0);
-  };
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
   };
 
   const handleEditCategory = (category) => {
@@ -198,13 +190,13 @@ export default function CategoryPage() {
           active: editedCategory.active,
         };
         dispatch(setData(updatedCategory));
-        openSnackbar(response.data.message);
+        toast.success(response.data.message);
         setEditingCategory(null);
         setOpenModal(false);
       }
     } catch (error) {
       console.error("Error editing category:" + error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       setLoadingDelete(false);
     }
@@ -222,10 +214,10 @@ export default function CategoryPage() {
         (category) => category._id !== categoryId
       );
       dispatch(setData(updatedCategories));
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
     } catch (error) {
       console.error("Error deleting category:", error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       setLoadingDelete(false);
     }
@@ -263,10 +255,10 @@ export default function CategoryPage() {
       };
 
       dispatch(setData([...data, AddedCategory]));
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
     } catch (error) {
       console.error("Error creating new category:", error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       handleCloseNewCategoryForm();
       setLoadingDelete(false);
@@ -341,7 +333,7 @@ export default function CategoryPage() {
                         selected={selected.indexOf(row._id) !== -1}
                         handleClick={(event) => handleClick(event, row._id)}
                         onEdit={() => handleEditCategory(row)}
-                        onDelete={() => openDeleteConfirmation(row._id)}
+                        onDelete={(event) => openDeleteConfirmation(event, row._id)}
                         onDetails={() => handleOpenDetailsPopup(row)}
                       />
                     );
@@ -385,17 +377,25 @@ export default function CategoryPage() {
           onClose={() => setOpenModal(false)}
         />
       )}
+      <Backdrop
+        open={isDeleteConfirmationOpen}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }}
+        onClick={closeDeleteConfirmation}
+      />
       <Popover
-        anchorEl={isDeleteConfirmationOpen}
+        anchorEl={anchorEl}
         open={isDeleteConfirmationOpen}
         onClose={closeDeleteConfirmation}
         anchorOrigin={{
-          vertical: "center",
-          horizontal: "right",
+          vertical: 'bottom',
+          horizontal: 'center',
         }}
         transformOrigin={{
-          vertical: "center",
-          horizontal: "right",
+          vertical: 'top',
+          horizontal: 'center',
         }}
         PaperProps={{
           sx: {
@@ -421,24 +421,6 @@ export default function CategoryPage() {
           {t("Cancel")}
         </Button>
       </Popover>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000} // Adjust as needed
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={
-            typeof snackbarMessage === "string" &&
-              snackbarMessage.includes("Error")
-              ? "error"
-              : "success"
-          }
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Container>
   );
 }

@@ -8,6 +8,7 @@ import Snackbar from "@mui/material/Snackbar";
 import { logout, fetchCustomerProfile } from "../../../redux/frontoffice/customerSlice";
 import Announcement from "../announcement/Announcement";
 import Loader from "../loader/Loader";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const [toggle, setToggle] = useState(false);
@@ -27,15 +28,6 @@ const Navbar = () => {
     }
   }, [dispatch]);
 
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
-  };
-
   const totalQuantity = cartItems.reduce((accumulator, item) => {
     return accumulator + item.quantity;
   }, 0);
@@ -43,7 +35,7 @@ const Navbar = () => {
   const logoutHandler = async () => {
     localStorage.removeItem("customer_access_token");
     dispatch(logout());
-    openSnackbar("You have been Logged out");
+    toast.success("You have been Logged out");
   };
 
   const handleClickOutside = (event) => {
@@ -64,7 +56,12 @@ const Navbar = () => {
     };
   }, [dropdown]);
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    if (path === "/") {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <div className="fixed w-full z-50">
@@ -75,7 +72,7 @@ const Navbar = () => {
             <img className="w-24 h-auto bg-cover" src="/assets/logo.webp" alt="logo" />
           </Link>
           <div className="flex-grow">
-            <div className="font-semibold text-lg justify-center gap-8 hidden sm:hidden md:flex">
+            <div className="font-medium text-lg justify-center gap-8 hidden sm:hidden md:flex">
               <Link
                 to="/"
                 className={`hover:text-green-400 hover:underline ${isActive("/") ? "text-green-400" : "text-black"}`}
@@ -105,11 +102,11 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             <Link to="/cart" className="relative">
               <Iconify
-                icon="material-symbols-light:shopping-cart-outline-rounded"
+                icon="mdi-light:cart"
                 width={32}
                 height={32}
               />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white w-4 max-w-4 flex flex-grow justify-center rounded-full text-xs">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white font-light w-4 max-w-4 flex flex-grow justify-center rounded-full text-xs">
                 {totalQuantity}
               </span>
             </Link>
@@ -137,7 +134,7 @@ const Navbar = () => {
                           onClick={() => setDropdown(false)}
                         >
                           <Iconify
-                            className="mx-2"
+                            className="m-2"
                             icon="material-symbols-light:supervised-user-circle-outline"
                             width={30}
                             height={30}
@@ -160,11 +157,11 @@ const Navbar = () => {
                     )}
                   </div>
                 ) : (
-                  <Link to="/login" className="text-sm">
+                  <Link to="/login" className="text-sm flex items-center space-x-4">
                     <Iconify
                       icon="material-symbols-light:person-outline"
-                      width={41}
-                      height={41}
+                      width={42}
+                      height={42}
                     />
                   </Link>
                 )}
@@ -221,7 +218,6 @@ const Navbar = () => {
             </ul>
           </motion.div>
 
-          {/* Overlay for dimming */}
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40"
             onClick={() => setToggle(false)}
@@ -229,19 +225,7 @@ const Navbar = () => {
         </>
       )}
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={snackbarMessage.includes("Error") ? "error" : "success"}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+
     </div>
   );
 };

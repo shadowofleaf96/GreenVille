@@ -3,11 +3,14 @@ import { Link } from "react-router-dom"
 import { Swiper, SwiperSlide } from "swiper/react";
 import Iconify from "../../../../backoffice/components/iconify/iconify";
 
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/navigation";
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/scrollbar';
+import 'swiper/css/effect-fade';
 
-import { Autoplay, Pagination, Navigation } from "swiper/modules";
+
+import { Autoplay, Pagination, Navigation, EffectFade, Parallax } from "swiper/modules";
 
 const Banner = () => {
   const [_, setInit] = useState(false);
@@ -20,7 +23,7 @@ const Banner = () => {
         rewind={true}
         autoplay={{
           pauseOnMouseEnter: true,
-          delay: 4000,
+          delay: 7000,
           disableOnInteraction: false,
         }}
         pagination={{
@@ -31,7 +34,8 @@ const Banner = () => {
           nextEl: nextRef.current,
         }}
         onInit={() => setInit(true)}
-        modules={[Autoplay, Pagination, Navigation]}
+        modules={[Autoplay, Pagination, Navigation, EffectFade, Parallax ]}
+        effect="fade"
         className="mySwiper h-full"
       >
         <SwiperSlide>
@@ -42,7 +46,7 @@ const Banner = () => {
               <div className="flex flex-col items-center md:flex-row md:items-start text-center md:text-left space-y-4 md:space-y-0">
                 <div className="w-full md:w-1/2">
                   <p className="text-white font-semibold text-lg uppercase tracking-widest mb-16">FROM NATURE TO YOUR HOME</p>
-                  <h1 className="text-white text-5xl md:text-6xl font-extrabold leading-tight mb-12">Embrace the Best of Organic Living</h1>
+                  <h1 className="text-white text-5xl md:text-6xl font-bold leading-tight mb-12">Embrace the Best of Organic Living</h1>
                   <p className="text-white text-lg mb-20">Experience the pure essence of nature with our handpicked products that nurture your wellbeing.</p>
                   <button className="flex bg-[#8DC63F] text-white py-3 px-8 rounded-md justify-center items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400">
                     <Link to="/products">Shop Now</Link>
@@ -67,7 +71,7 @@ const Banner = () => {
               <div className="flex flex-col items-center md:flex-row md:items-start text-center md:text-left space-y-4 md:space-y-0">
                 <div className="w-full md:w-1/2">
                   <p className="text-white font-semibold text-lg uppercase tracking-widest mb-16">OUR COSMETIC WORLD IS YOURS</p>
-                  <h1 className="text-white text-5xl md:text-6xl font-extrabold leading-tight mb-12">Your Wellbeing is Our Priority</h1>
+                  <h1 className="text-white text-5xl md:text-6xl font-bold leading-tight mb-12">Your Wellbeing is Our Priority</h1>
                   <p className="text-white text-lg mb-20">Discover our range of organic products designed to enhance your beauty and health naturally.</p>
                   <button className="flex bg-[#8DC63F] text-white py-3 px-8 rounded-md shadow-none justify-center items-center transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400">
                     <Link to="/products">Shop Now</Link>

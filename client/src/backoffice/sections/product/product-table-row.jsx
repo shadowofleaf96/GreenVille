@@ -29,7 +29,7 @@ export default function ProductTableRow({
   onDelete,
   onDetails,
 }) {
-  const { t } = useTranslation(); // Using translation hook
+  const { t } = useTranslation();
   const [open, setOpen] = useState(null);
   const isActive = active;
   const color = isActive ? 'primary' : 'secondary';

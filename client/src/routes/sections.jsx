@@ -4,6 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import DashboardLayout from "../backoffice/layouts/dashboard";
 import axios from "axios";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Slide, Zoom, Flip, Bounce } from 'react-toastify';
 
 import Login from "../frontoffice/pages/auth/login/Login";
 import Register from "../frontoffice/pages/auth/register/Register";
@@ -32,22 +35,16 @@ import MainLayout from "../frontoffice/pages/layout/Layout";
 
 export const IndexPage = lazy(() => import("../backoffice/pages/app"));
 export const CategoryPage = lazy(() => import("../backoffice/pages/category"));
-export const SubCategoryPage = lazy(() =>
-  import("../backoffice/pages/subcategory")
-);
+export const SubCategoryPage = lazy(() => import("../backoffice/pages/subcategory"));
 export const ProfilePage = lazy(() => import("../backoffice/pages/profile"));
-export const PaymentListPage = lazy(() =>
-  import("../backoffice/pages/payment")
-);
+export const PaymentListPage = lazy(() => import("../backoffice/pages/payment"));
 export const CustomerPage = lazy(() => import("../backoffice/pages/customer"));
 export const OrderPage = lazy(() => import("../backoffice/pages/order"));
 export const UserPage = lazy(() => import("../backoffice/pages/user"));
 export const LoginPage = lazy(() => import("../backoffice/pages/login"));
 export const ProductPage = lazy(() => import("../backoffice/pages/product"));
 export const Page404 = lazy(() => import("../backoffice/pages/page-not-found"));
-export const ResetPasswordPage = lazy(() =>
-  import("../backoffice/pages/reset-password")
-);
+export const ResetPasswordPage = lazy(() => import("../backoffice/pages/reset-password"));
 
 const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
 
@@ -60,7 +57,7 @@ const initialOptions = {
 export default function Router() {
   const [customer, setCustomer] = useState(null);
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const userToken = localStorage.getItem("user_access_token");
@@ -74,6 +71,7 @@ export default function Router() {
           setUser(data);
         } catch (err) {
           localStorage.removeItem("user_access_token");
+          toast.error("Failed to fetch user data!"); // Use toast for error
         }
       }
     };
@@ -86,6 +84,7 @@ export default function Router() {
           setCustomer(data);
         } catch (err) {
           localStorage.removeItem("customer_access_token");
+          toast.error("Failed to fetch customer data!"); // Use toast for error
         }
       }
     };
@@ -96,57 +95,63 @@ export default function Router() {
   }, []);
 
   if (loading) {
-    return <Loader />
+    return <Loader />;
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<MainLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/categories" element={<Category />} />
-        <Route path="/products/:categoryId/*" element={<Products />} />
-        <Route path="/products/search/:keyword" element={<Products />} />
-        <Route path="/product/:id" element={<SingleProduct />} />
-      </Route>
+    <>
+      <ToastContainer autoClose={2000}
+        hideProgressBar={true}
+        position="bottom-left" transition={Slide}
+      />
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/categories" element={<Category />} />
+          <Route path="/products/:categoryId/*" element={<Products />} />
+          <Route path="/products/search/:keyword" element={<Products />} />
+          <Route path="/product/:id" element={<SingleProduct />} />
+        </Route>
 
-      <Route path="/register" element={<Register />} exact />
-      <Route path="/reset-password/:token" element={<ResetPassword />} exact />
-      <Route path="/login" element={<Login />} exact />
-      <Route path="*" element={<Page404 />} />
+        <Route path="/register" element={<Register />} exact />
+        <Route path="/reset-password/:token" element={<ResetPassword />} exact />
+        <Route path="/login" element={<Login />} exact />
+        <Route path="*" element={<Page404 />} />
 
-      <Route path="/admin" element={<ProtectedRoute />}>
-        <Route index element={<IndexPage />} />
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="user" element={<UserPage />} />
-        <Route path="category" element={<CategoryPage />} />
-        <Route path="subcategory" element={<SubCategoryPage />} />
-        <Route path="order" element={<OrderPage />} />
-        <Route path="products" element={<ProductPage />} />
-        <Route path="paymentlist" element={<PaymentListPage />} />
-        <Route path="customer" element={<CustomerPage />} />
-      </Route>
-      <Route path="admin/login" element={<LoginView />} />
+        <Route path="/admin" element={<ProtectedRoute />}>
+          <Route index element={<IndexPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="user" element={<UserPage />} />
+          <Route path="category" element={<CategoryPage />} />
+          <Route path="subcategory" element={<SubCategoryPage />} />
+          <Route path="order" element={<OrderPage />} />
+          <Route path="products" element={<ProductPage />} />
+          <Route path="paymentlist" element={<PaymentListPage />} />
+          <Route path="customer" element={<CustomerPage />} />
+        </Route>
+        <Route path="admin/login" element={<LoginView />} />
 
-      <Route path="/" element={<FrontProtectedRoute />}>
-        <Route path="/me" element={<Profile />} />
-        <Route path="/me/update" element={<UpdateProfile />} />
-        <Route path="/orders/me" element={<MyOrders />} />
-        <Route path="/shipping" element={<Shipping />} />
-        <Route path="/confirm" element={<ConfirmOrder />} />
-        <Route
-          path="/payment"
-          element={
-            <PayPalScriptProvider options={initialOptions}>
-              <Payment />
-            </PayPalScriptProvider>
-          }
-        />
-        <Route path="/success" element={<Success />} />
-      </Route>
-    </Routes>
+        <Route path="/" element={<FrontProtectedRoute />}>
+          <Route path="/me" element={<Profile />} />
+          <Route path="/me/update" element={<UpdateProfile />} />
+          <Route path="/orders/me" element={<MyOrders />} />
+          <Route path="/shipping" element={<Shipping />} />
+          <Route path="/confirm" element={<ConfirmOrder />} />
+          <Route
+            path="/payment"
+            element={
+              <PayPalScriptProvider options={initialOptions}>
+                <Payment />
+              </PayPalScriptProvider>
+            }
+          />
+          <Route path="/success" element={<Success />} />
+        </Route>
+      </Routes>
+    </>
   );
 }

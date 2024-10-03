@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { loginSuccess } from "../../../redux/backoffice/authSlice";
 import {
   Box,
@@ -28,6 +28,8 @@ import axios from "axios";
 import Logo from "../../components/logo";
 import Iconify from "../../components/iconify";
 import createAxiosInstance from "../../../utils/axiosConfig";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 
 export default function LoginView() {
@@ -49,21 +51,22 @@ export default function LoginView() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const axiosInstance = createAxiosInstance("admin")
 
+  const navigate = useNavigate()
+  
+  useEffect(() => {
+    const isloggedin = localStorage.getItem("user_access_token");
+
+    if (isloggedin) {
+      navigate("/admin/")
+    }
+  }, [])
+
   const handleOpenForgotPasswordDialog = () => {
     setOpenForgotPasswordDialog(true);
   };
 
   const handleCloseForgotPasswordDialog = () => {
     setOpenForgotPasswordDialog(false);
-  };
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
   };
 
   const handleForgotPassword = async () => {
@@ -73,13 +76,13 @@ export default function LoginView() {
         email: resetEmail,
       });
 
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
 
       handleCloseForgotPasswordDialog();
     } catch (error) {
       console.error("Forgot Password error:", error.response.data.error);
 
-      openSnackbar("Error: " + error.response.data.error);
+      toast.error("Error: " + error.response.data.error);
     } finally {
       setResetPasswordLoading(false);
     }
@@ -102,15 +105,14 @@ export default function LoginView() {
 
         dispatch(
           loginSuccess({
-            token: response.data.access_token,
-            refresh_token: response.data.refresh_token,
+            adminToken: response.data.access_token,
           })
         );
-        router.push("/admin");
+        router.push("/admin/");
       }
     } catch (error) {
       console.log(error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       setLoadingSave(false);
     }
@@ -233,19 +235,7 @@ export default function LoginView() {
         </Card>
       </Stack>
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={snackbarMessage.includes("Error") ? "error" : "success"}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+
 
       <Dialog
         PaperProps={{

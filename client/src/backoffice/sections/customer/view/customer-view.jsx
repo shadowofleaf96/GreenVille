@@ -9,6 +9,7 @@ import TableBody from "@mui/material/TableBody";
 import Typography from "@mui/material/Typography";
 import Popover from "@mui/material/Popover";
 import TableContainer from "@mui/material/TableContainer";
+import Backdrop from "@mui/material/Backdrop";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import TablePagination from "@mui/material/TablePagination";
@@ -37,6 +38,7 @@ import {
 } from "../../../../redux/backoffice/customerSlice";
 import Loader from "../../../../frontoffice/components/loader/Loader";
 import createAxiosInstance from "../../../../utils/axiosConfig";
+import { toast } from "react-toastify";
 
 // ----------------------------------------------------------------------
 
@@ -172,15 +174,6 @@ export default function CustomerPage() {
     setPage(0);
   };
 
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
-  };
-
   const handleEditCustomer = (customer) => {
     setEditingCustomer(customer);
     setOpenModal(true);
@@ -226,13 +219,13 @@ export default function CustomerPage() {
           active: editedCustomer.active,
         };
         dispatch(setData(updatedCustomers));
-        openSnackbar(response.data.message);
+        toast.success(response.data.message);
         setEditingCustomer(null);
         setOpenModal(false);
       }
     } catch (error) {
       console.error("Error editing customer:" + error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       setLoadingDelete(false);
     }
@@ -250,10 +243,10 @@ export default function CustomerPage() {
         (customer) => customer._id !== customerId
       );
       dispatch(setData(updatedCustomers));
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
     } catch (error) {
       console.error("Error deleting customer:", error);
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
     } finally {
       setLoadingDelete(false);
     }
@@ -384,17 +377,25 @@ export default function CustomerPage() {
           onClose={() => setOpenModal(false)}
         />
       )}
+      <Backdrop
+        open={isDeleteConfirmationOpen}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }}
+        onClick={closeDeleteConfirmation}
+      />
       <Popover
         anchorEl={deleteConfirmationAnchorEl}
         open={isDeleteConfirmationOpen}
         onClose={closeDeleteConfirmation}
         anchorOrigin={{
-          vertical: "center",
-          horizontal: "right",
+          vertical: 'bottom',
+          horizontal: 'center',
         }}
         transformOrigin={{
-          vertical: "center",
-          horizontal: "right",
+          vertical: 'top',
+          horizontal: 'center',
         }}
         PaperProps={{
           sx: {
@@ -420,19 +421,6 @@ export default function CustomerPage() {
           {t("Cancel")}
         </Button>
       </Popover>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000} // Adjust as needed
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={snackbarMessage.includes("Error") ? "error" : "success"}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Container>
   );
 }

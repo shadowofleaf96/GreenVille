@@ -13,6 +13,7 @@ import Snackbar from "@mui/material/Snackbar";
 import TextField from "@mui/material/TextField";
 import UploadButton from "../../../../backoffice/components/button/UploadButton";
 import createAxiosInstance from "../../../../utils/axiosConfig";
+import { toast } from "react-toastify";
 
 const UpdateProfile = () => {
   const [firstname, setFirstName] = useState("");
@@ -28,15 +29,6 @@ const UpdateProfile = () => {
 
   const { customer } = useSelector((state) => state.customers);
   const axiosInstance = createAxiosInstance("customer")
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
-  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -81,10 +73,10 @@ const UpdateProfile = () => {
       }
 
       const response = await axiosInstance.put(`/customers/${customerId}`, formData);
-      openSnackbar(response.data.message);
+      toast.success(response.data.message);
       router.push("/me");
     } catch (error) {
-      openSnackbar("Error: " + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
       console.error(error);
     }
   };
@@ -199,19 +191,7 @@ const UpdateProfile = () => {
           </div>
         </div>
       </div>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={closeSnackbar}
-          severity={snackbarMessage.includes("Error") ? "error" : "success"}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+    
     </Fragment>
   );
 };

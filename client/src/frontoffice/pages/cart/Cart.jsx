@@ -13,6 +13,7 @@ import {
 import Navbar from "../../components/header/Navbar";
 import Footer from "../../components/footer/Footer";
 import MetaData from "../../components/MetaData";
+import { toast } from "react-toastify";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -25,7 +26,7 @@ const Cart = () => {
 
   const removeCartItemHandler = (id) => {
     dispatch(removeItemFromCart(id));
-    openSnackbar("Item Removed Successfully");
+    toast.success("Item Removed Successfully");
   };
 
   const increaseQty = (id, quantity, stock) => {
@@ -48,15 +49,6 @@ const Cart = () => {
     } else {
       history("/login?redirect=/shipping");
     }
-  };
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
   };
 
   return (
@@ -157,19 +149,6 @@ const Cart = () => {
               </div>)}
           </div>
         </div>
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={5000}
-          onClose={closeSnackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-        >
-          <Alert
-            onClose={closeSnackbar}
-            severity={snackbarMessage.includes("Error") ? "error" : "success"}
-          >
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
       </div>
     </Fragment>
   );

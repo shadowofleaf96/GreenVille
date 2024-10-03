@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteOrder } from "../../../redux/backoffice/orderSlice";
+import { deletePayment } from "../../../redux/backoffice/paymentListSlice";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Alert from "@mui/material/Alert";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -17,15 +17,16 @@ import axios from "axios";
 import Iconify from "../../components/iconify";
 import { useTranslation } from 'react-i18next';
 import createAxiosInstance from "../../../utils/axiosConfig";
+import { toast } from "react-toastify";
 
-export default function OrderTableToolbar({
+export default function PaymentTableToolbar({
   numSelected,
   selected,
   setSelected,
   filterName,
   onFilterName,
-  itemsFilter,
-  onItemsFilter,
+  paymentMethodFilter,
+  onMethodFilter,
   totalPriceFilter,
   onTotalPriceFilter,
   showFilters,
@@ -44,14 +45,14 @@ export default function OrderTableToolbar({
       setLoadingDelete(true);
 
       let response;
-      const deletedOrderIds = [];
-      for (const orderId of selected) {
+      const deletedPaymentIds = [];
+      for (const paymentId of selected) {
         const axiosInstance = createAxiosInstance("admin")
-        response = await axiosInstance.delete(`/subcategories/${orderId}`);
-        deletedOrderIds.push(orderId);
+        response = await axiosInstance.delete(`/payments/${paymentId}`);
+        deletedPaymentIds.push(paymentId);
       }
 
-      dispatch(deleteOrder(deletedOrderIds));
+      dispatch(deletePayment(deletedPaymentIds));
 
       setPopoverAnchor(null);
       setSelected([]);
@@ -60,22 +61,13 @@ export default function OrderTableToolbar({
           ? response.data.message
           : `${t('Selected')} ${selected.length} ${t('selected elements')} ${t('are deleted')}`;
 
-      openSnackbar(snackbarMessage);
+      toast.success(snackbarMessage);
     } catch (error) {
       setPopoverAnchor(null);
-      openSnackbar(`${t('Error deleting orders:')} ${error}`);
+      toast.error(`${t('Error deleting payments:')} ${error}`);
     } finally {
       setLoadingDelete(false);
     }
-  };
-
-  const openSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
   };
 
   const handleOpenPopover = (event) => {
@@ -114,14 +106,14 @@ export default function OrderTableToolbar({
                   placeholder={t('Filter by Customer')}
                 />
                 <OutlinedInput
-                  value={itemsFilter}
-                  onChange={onItemsFilter}
-                  placeholder={t('Filter by Order Items')}
+                  value={paymentMethodFilter}
+                  onChange={onMethodFilter}
+                  placeholder={t('Filter by Payment Method')}
                 />
                 <OutlinedInput
                   value={totalPriceFilter}
                   onChange={onTotalPriceFilter}
-                  placeholder={t('Filter by Total Cart Price')}
+                  placeholder={t('Filter by Total Price')}
                 />
               </>
             ) : (
@@ -129,7 +121,7 @@ export default function OrderTableToolbar({
                 <OutlinedInput
                   value={filterName}
                   onChange={onFilterName}
-                  placeholder={t('Search for Orders...')}
+                  placeholder={t('Search for Payments...')}
                   startAdornment={
                     <InputAdornment position="start">
                       <Iconify
@@ -201,23 +193,12 @@ export default function OrderTableToolbar({
             </IconButton>
           </>
         )}
-
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={5000}
-          onClose={closeSnackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-        >
-          <Alert onClose={closeSnackbar} severity="success">
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
       </Toolbar>
     </>
   );
 }
 
-OrderTableToolbar.propTypes = {
+PaymentTableToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,

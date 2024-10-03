@@ -7,10 +7,7 @@ import { Elements } from "@stripe/react-stripe-js";
 
 import MetaData from "../../../components/MetaData";
 import Iconify from "../../../../backoffice/components/iconify";
-import Navbar from "../../../components/header/Navbar";
-import Footer from "../../../components/footer/Footer";
 import CheckoutSteps from "../../../pages/cart/checkoutSteps/CheckoutSteps";
-import axios from "axios";
 import {
   addItemToCart,
   removeItemFromCart,
@@ -64,7 +61,7 @@ const Payment = () => {
   useEffect(() => {
     const fetchStripeKey = async () => {
       try {
-        const response = await axiosInstance.post("/payments/create-stripe-payment", { amount: totalPrice, currency: "mad" },
+        const response = await axiosInstance.post("/payments/create-stripe-payment", { amount: totalPrice, currency: "mad", isSavingCard: true },
           {
             headers: {
               "Content-Type": "application/json",

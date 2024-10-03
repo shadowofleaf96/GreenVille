@@ -38,14 +38,14 @@ const Shipping = () => {
     const [city, setCity] = useState(shippingInfo.city);
     const [postalCode, setPostalCode] = useState(shippingInfo.postalCode);
     const [phoneNo, setPhoneNo] = useState(shippingInfo.phoneNo);
-    const [country, setCountry] = useState(shippingInfo.country);
+    const [country, setCountry] = useState("Morocco");
 
 
     const submitHandler = (e) => {
         e.preventDefault();
 
         dispatch(saveShippingInfo({ address, city, phoneNo, postalCode, country }));
-        history("/confirm");
+        history("/confirm", { replace: true });
     };
 
     return (
@@ -142,8 +142,9 @@ const Shipping = () => {
                                     </label>
                                     <select
                                         id="country_field"
-                                        value={country}
-                                        onChange={(e) => setCountry(e.target.value)}
+                                        disabled={true}
+                                        value={"Morocco"}
+                                        // onChange={(e) => setCountry("Morocco")}
                                         required
                                         className="col-span-3 h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
                                     >

@@ -29,6 +29,8 @@ const MyOrders = () => {
         setActiveOrder((prev) => (prev === orderId ? null : orderId));
     };
 
+    console.log(orders)
+
     return (
         <Fragment>
             <MetaData title={"My Orders"} />
@@ -81,22 +83,18 @@ const MyOrders = () => {
 
                                                                 <div className="col-span-7">
                                                                     <h3 className="font-semibold text-lg text-gray-800">
-                                                                        Order ID: <span className="text-gray-600">{order._id}</span>
+                                                                        Order on {new Date(order.order_date).toLocaleDateString()}
                                                                     </h3>
                                                                     <p className="text-sm text-gray-500">
-                                                                        Date: {new Date(order.order_date).toLocaleDateString()}
+                                                                        First Item: {order?.order_items[0].product.product_name}
                                                                     </p>
                                                                 </div>
 
                                                                 <div className="col-span-4 text-right">
-                                                                    <p className={`inline-block px-3 py-1 rounded-md text-sm font-medium capitalize ${order.status === "delivered"
-                                                                        ? "bg-green-100 text-green-700"
-                                                                        : order.status === "processing"
-                                                                            ? "bg-yellow-100 text-yellow-600"
-                                                                            : order.status === "shipped"
-                                                                                ? "bg-blue-100 text-blue-700"
-                                                                                : order.status === "canceled"
-                                                                                    ? "bg-red-100 text-red-600"
+                                                                    <p className={`inline-block px-3 py-1 rounded-md text-sm font-medium capitalize ${order.status === "delivered" ? "bg-green-100 text-green-700"
+                                                                        : order.status === "processing" ? "bg-yellow-100 text-yellow-600"
+                                                                            : order.status === "shipped" ? "bg-blue-100 text-blue-700"
+                                                                                : order.status === "canceled" ? "bg-red-100 text-red-600"
                                                                                     : "bg-gray-100 text-gray-600"
                                                                         }`}>
                                                                         {order.status}
@@ -110,13 +108,23 @@ const MyOrders = () => {
                                                             {activeOrder === order._id && (
                                                                 <div className="space-y-3 mt-3">
                                                                     {order.order_items.map((item) => (
-                                                                        <div key={item._id} className="flex justify-between items-center bg-white p-3 rounded-md shadow-sm">
-                                                                            <img className="w-12 h-12 object-contain" src={`http://localhost:3000/${item.product.product_image}`} alt="ProductImg" />
+                                                                        <div
+                                                                            key={item._id}
+                                                                            className="flex justify-between items-center bg-white p-3 rounded-md shadow-sm"
+                                                                        >
+                                                                            <img
+                                                                                className="w-12 h-12 object-contain"
+                                                                                src={`http://localhost:3000/${item.product.product_image}`}
+                                                                                alt={item.product.product_name}
+                                                                            />
                                                                             <p className="text-gray-700 font-medium">{item.product.product_name}</p>
                                                                             <p className="text-gray-500">x{item.quantity}</p>
                                                                             <p className="font-semibold text-gray-700">{item.price} DH</p>
                                                                         </div>
                                                                     ))}
+                                                                    <p className="text-sm text-gray-500">
+                                                                        Order ID: {order._id}
+                                                                    </p>
                                                                 </div>
                                                             )}
                                                         </div>

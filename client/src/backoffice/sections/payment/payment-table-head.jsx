@@ -9,13 +9,13 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 
 import { visuallyHidden } from './utils';
 
-import { useTranslation } from 'react-i18next'; // Importing translation hook
+import { useTranslation } from 'react-i18next';
 
 // ----------------------------------------------------------------------
 
-export default function OrderTableHead({
-  order,
-  orderBy,
+export default function PaymentTableHead({
+  payment,
+  paymentBy,
   rowCount,
   headLabel,
   numSelected,
@@ -43,19 +43,19 @@ export default function OrderTableHead({
           <TableCell
             key={headCell.id}
             align={headCell.align || 'left'}
-            sortDirection={orderBy === headCell.id ? order : false}
+            sortDirection={paymentBy === headCell.id ? payment : false}
             sx={{ width: headCell.width, minWidth: headCell.minWidth }}
           >
             <TableSortLabel
               hideSortIcon
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : 'asc'}
+              active={paymentBy === headCell.id}
+              direction={paymentBy === headCell.id ? payment : 'asc'}
               onClick={onSort(headCell.id)}
             >
               {t(headCell.label)} {/* Translating the label */}
-              {orderBy === headCell.id ? (
+              {paymentBy === headCell.id ? (
                 <Box sx={{ ...visuallyHidden }}>
-                  {order === 'desc'
+                  {payment === 'desc'
                     ? t('sorted descending')
                     : t('sorted ascending')}
                 </Box>
@@ -68,9 +68,9 @@ export default function OrderTableHead({
   );
 }
 
-OrderTableHead.propTypes = {
-  order: PropTypes.oneOf(['asc', 'desc']),
-  orderBy: PropTypes.string,
+PaymentTableHead.propTypes = {
+  payment: PropTypes.oneOf(['asc', 'desc']),
+  paymentBy: PropTypes.string,
   rowCount: PropTypes.number,
   headLabel: PropTypes.array,
   numSelected: PropTypes.number,
