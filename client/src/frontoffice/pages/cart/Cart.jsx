@@ -14,6 +14,8 @@ import Navbar from "../../components/header/Navbar";
 import Footer from "../../components/footer/Footer";
 import MetaData from "../../components/MetaData";
 import { toast } from "react-toastify";
+const backend = import.meta.env.VITE_BACKEND_URL;
+
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -81,7 +83,7 @@ const Cart = () => {
                     <Fragment key={item.product}>
                       <div className="flex items-center gap-4 my-4">
                         <img
-                          src={`http://localhost:3000/${item.image}`}
+                          src={typeof item?.image === "string" ? `${backend}/${item?.image}` : `${backend}/${item?.image[0]}`}
                           alt={item.name}
                           className="w-24 h-24 object-cover rounded-md"
                         />

@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/v1/": {
-        target: "http://localhost:3000",
+        target: "${backend}",
         changeOrigin: true,
         secure: false,
         ws: true,

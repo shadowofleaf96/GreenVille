@@ -1,22 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
 import Stack from "@mui/material/Stack";
-import Avatar from "@mui/material/Avatar";
-import Popover from "@mui/material/Popover";
 import TableRow from "@mui/material/TableRow";
 import Checkbox from "@mui/material/Checkbox";
 import { useTranslation } from 'react-i18next';
-import MenuItem from "@mui/material/MenuItem";
 import Badge from "@mui/material/Badge";
 import TableCell from "@mui/material/TableCell";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import axios from "axios";
 
 import { fDateTime } from "../../../utils/format-time";
 
-import Label from "../../components/label";
 import Iconify from "../../components/iconify";
 
 // ----------------------------------------------------------------------
@@ -27,19 +22,31 @@ export default function OrderTableRow({
   order_items,
   cart_total_price,
   order_date,
+  shipping_method,
+  shipping_status,
   status,
   handleClick,
   onEdit,
   onDelete,
   onDetails,
 }) {
-  // Toggle the selection
   const [open, setOpen] = useState(null);
   const { t } = useTranslation();
-  const isActive = status;
-  const color = isActive ? "primary" : "secondary";
 
   const customerFullName = `${customer.first_name} ${customer.last_name}`;
+  const [shippingStatus, setShippingStatus] = useState("");
+
+  useEffect(() => {
+    if (shipping_status === "not_shipped") {
+      setShippingStatus("Not Shipped")
+    } else if (shipping_status === "shipped") {
+      setShippingStatus("Shipped")
+    } else if (shipping_status === "in_transit") {
+      setShippingStatus("In Transit")
+    } else if (shipping_status === "delivered") {
+      setShippingStatus("Delivered")
+    }
+  }, [shipping_status])
 
   return (
     <>
@@ -65,15 +72,9 @@ export default function OrderTableRow({
         </TableCell>
         <TableCell>{cart_total_price} DH</TableCell>
         <TableCell>{fDateTime(order_date)}</TableCell>
-        <TableCell>
-          <Badge
-            sx={{
-              minWidth: 24,
-            }}
-            badgeContent={isActive ? t('Active') : t('Inactive')}
-            color={color}
-          ></Badge>
-        </TableCell>{" "}
+        <TableCell className="capitalize">{shipping_method}</TableCell>
+        <TableCell>{shippingStatus}</TableCell>
+        <TableCell className="capitalize">{status}</TableCell>
         <TableCell align="center">
           <IconButton
             onClick={() =>
@@ -129,7 +130,9 @@ OrderTableRow.propTypes = {
   customer: PropTypes.object,
   order_items: PropTypes.array,
   cart_total_price: PropTypes.number,
-  order_date: PropTypes.number,
+  order_date: PropTypes.string,
+  shipping_method: PropTypes.string,
+  shipping_status: PropTypes.string,
   status: PropTypes.string,
   selected: PropTypes.bool,
   onDelete: PropTypes.func,

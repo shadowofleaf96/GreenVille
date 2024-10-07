@@ -1,6 +1,8 @@
 import React, { useRef, useEffect } from "react";
 import Iconify from "../../../../backoffice/components/iconify";
 import { Link } from "react-router-dom";
+const backend = import.meta.env.VITE_BACKEND_URL;
+
 
 const Promo = ({ products }) => {
   const scrollRef1 = useRef(null);
@@ -38,8 +40,8 @@ const Promo = ({ products }) => {
     product.option.includes("Top Deals")
   );
 
-  setupAutoScroll(scrollRef1, 3500); 
-  setupAutoScroll(scrollRef2, 5500); 
+  setupAutoScroll(scrollRef1, 3500);
+  setupAutoScroll(scrollRef2, 5500);
   setupAutoScroll(scrollRef3, 7500);
 
   return (
@@ -73,7 +75,7 @@ const Promo = ({ products }) => {
                       className="no-underline text-black font-semibold text-lg hover:text-gray-500"
                     >
                       <img
-                        src={`http://localhost:3000/${product?.product_image}`}
+                        src={typeof product?.product_images === "string" ? `${backend}/${product?.product_images}` : `${backend}/${product?.product_images[0]}`}
                         alt={product?.product_name}
                         className="h-52 w-full m-4 rounded-t-lg object-contain"
                       />
@@ -82,7 +84,7 @@ const Promo = ({ products }) => {
                       </p>
                       <div className="flex flex-grow justify-center text-center mb-2">
                         {product?.discount_price &&
-                        product?.discount_price !== product?.price ? (
+                          product?.discount_price !== product?.price ? (
                           <div className="flex">
                             <div className="flex items-center font-bold text-xl mr-2 text-green-500">
                               {product?.discount_price} DH
@@ -149,7 +151,7 @@ const Promo = ({ products }) => {
                       className="no-underline text-black font-semibold text-lg hover:text-grey-500"
                     >
                       <img
-                        src={`http://localhost:3000/${product?.product_image}`}
+                        src={typeof product?.product_images === "string" ? `${backend}/${product?.product_images}` : `${backend}/${product?.product_images[0]}`}
                         alt={product?.product_name}
                         className="h-52 w-full m-4 rounded-t-lg object-contain"
                       />
@@ -158,7 +160,7 @@ const Promo = ({ products }) => {
                       </p>
                       <div className="flex flex-grow justify-center text-center mb-2">
                         {product?.discount_price &&
-                        product?.discount_price !== product?.price ? (
+                          product?.discount_price !== product?.price ? (
                           <div className="flex">
                             <div className="flex items-center font-bold text-xl mr-2 text-green-500">
                               {product?.discount_price} DH
@@ -225,7 +227,7 @@ const Promo = ({ products }) => {
                       className="no-underline text-black font-semibold text-lg hover:text-gray-500"
                     >
                       <img
-                        src={`http://localhost:3000/${product?.product_image}`}
+                        src={typeof product?.product_images === "string" ? `${backend}/${product?.product_images}` : `${backend}/${product?.product_images[0]}`}
                         alt={product?.product_name}
                         className="h-52 w-full m-4 rounded-t-lg object-contain"
                       />
@@ -234,7 +236,7 @@ const Promo = ({ products }) => {
                       </p>
                       <div className="flex flex-grow justify-center text-center mb-2">
                         {product?.discount_price &&
-                        product?.discount_price !== product?.price ? (
+                          product?.discount_price !== product?.price ? (
                           <div className="flex">
                             <div className="flex items-center font-bold text-xl mr-2 text-green-500">
                               {product?.discount_price} DH

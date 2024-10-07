@@ -5,15 +5,14 @@ import Modal from "@mui/material/Modal";
 import Stack from "@mui/material/Stack";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Typography from "@mui/material/Typography";
-import Select from "@mui/material/Select";
-import { useTranslation } from "react-i18next";
-import MenuItem from "@mui/material/MenuItem";
-import DOMPurify from "dompurify";
 import Switch from "@mui/material/Switch";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import IconButton from "@mui/material/IconButton";
+import { useTranslation } from "react-i18next";
+import Iconify from "../../components/iconify";
 import UploadButton from "../../components/button/UploadButton";
+import DOMPurify from "dompurify";
+const backend = import.meta.env.VITE_BACKEND_URL
 
 function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
   const [editedCustomer, setEditedCustomer] = useState({
@@ -21,6 +20,7 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
     password: "",
   });
   const [selectedImage, setSelectedImage] = useState(null);
+  const [avatarRemoved, setAvatarRemoved] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordsMatch, setPasswordsMatch] = useState(true);
   const [loadingSave, setLoadingSave] = useState(false);
@@ -29,20 +29,13 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
 
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
-
-    // Sanitize the value using DOMPurify before updating the state
     const sanitizedValue = DOMPurify.sanitize(value);
     if (name === "email") {
       setEmailValid(isEmailValid(sanitizedValue));
     }
 
-    if (name === "password") {
-      setEditedCustomer({ ...editedCustomer, password: sanitizedValue });
-      setPasswordsMatch(sanitizedValue === confirmPassword);
-    } else {
-      setEditedCustomer({ ...editedCustomer, [name]: sanitizedValue });
-      setPasswordsMatch(editedCustomer.password === confirmPassword);
-    }
+    setEditedCustomer({ ...editedCustomer, [name]: sanitizedValue });
+    setPasswordsMatch(editedCustomer.password === confirmPassword);
   };
 
   const isEmailValid = (email) => {
@@ -72,11 +65,10 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
     if (editedCustomer.password.length < 8 || !passwordsMatch) {
       return;
     }
-
     setLoadingSave(true);
 
     try {
-      await onSave(editedCustomer, selectedImage);
+      await onSave(editedCustomer, selectedImage, avatarRemoved);
       setConfirmPassword("");
       onClose();
     } catch (error) {
@@ -84,6 +76,11 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
     } finally {
       setLoadingSave(false);
     }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarRemoved(true);
+    setSelectedImage(null);
   };
 
   return (
@@ -94,16 +91,16 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          backgroundColor: "#fff", // Background color set to white
+          backgroundColor: "#fff",
           boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
           p: 4,
           width: 500,
-          color: "#333", // Text color
+          color: "#333",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          borderRadius: "16px", // Adjust the radius value as needed
-          margin: "0 16px", // Left and right margins
+          borderRadius: "16px",
+          margin: "0 16px",
           padding: "20px",
         }}
       >
@@ -114,7 +111,36 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
         >
           {t("Edit Customer")}
         </Typography>
-        
+
+        {editedCustomer.customer_image && !avatarRemoved && (
+          <div style={{ position: "relative", marginBottom: "16px" }}>
+            <img
+              src={`${backend}/${editedCustomer.customer_image}`}
+              alt="Customer Avatar"
+              style={{
+                width: "100px",
+                height: "100px",
+                borderRadius: "50%",
+                objectFit: "cover",
+              }}
+            />
+            <IconButton
+              style={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                backgroundColor: "red",
+                color: "white",
+                borderRadius: "50%",
+                padding: "5px",
+              }}
+              onClick={handleRemoveAvatar}
+            >
+              <Iconify icon="ic:round-close" width={16} height={16} />
+            </IconButton>
+          </div>
+        )}
+
         <TextField
           label={t("First Name")}
           name="first_name"
@@ -148,13 +174,12 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
           sx={{ marginBottom: 2 }}
         />
 
+        {/* Password and Confirm Password Fields */}
         <TextField
           label={t("Password")}
           name="password"
           placeholder={t("Password")}
-          value={
-            editedCustomer.password !== undefined ? editedCustomer.password : ""
-          }
+          value={editedCustomer.password}
           onChange={handleFieldChange}
           type="password"
           fullWidth
@@ -181,62 +206,49 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
           </Typography>
         )}
 
-        <Stack direction="column" alignItems="center" sx={{ marginBottom: 2 }}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <FormControlLabel
-              labelPlacement="start"
-              label={
-                <Typography variant="body2">
-                  {editedCustomer.active ? t("Active") : t("Inactive")}
-                </Typography>
-              }
-              control={
-                <Switch
-                  name="active"
-                  checked={editedCustomer.active}
-                  onChange={handleSwitchChange}
-                />
-              }
-            />
-            <input
-              type="file"
-              id="fileInput"
-              accept="image/*"
-              onChange={handleImageChange}
-              sx={{ display: "none" }}
-              style={{ display: "none" }}
-            />
-            <label htmlFor="fileInput">
-              <UploadButton onChange={handleImageChange} />
-            </label>
-          </Stack>
-          {selectedImage && (
-            <Typography variant="caption">{selectedImage.name}</Typography>
-          )}
+        <Stack direction="row" spacing={2} alignItems="center" sx={{ marginBottom: 2 }}>
+          <FormControlLabel
+            labelPlacement="start"
+            label={
+              <Typography variant="body2">
+                {editedCustomer.active ? t("Active") : t("Inactive")}
+              </Typography>
+            }
+            control={
+              <Switch
+                name="active"
+                checked={editedCustomer.active}
+                onChange={handleSwitchChange}
+              />
+            }
+          />
+          <input
+            type="file"
+            id="fileInput"
+            accept="image/*"
+            onChange={handleImageChange}
+            style={{ display: "none" }}
+          />
+          <label htmlFor="fileInput">
+            <UploadButton onChange={handleImageChange} />
+          </label>
         </Stack>
+        {selectedImage && (
+          <Typography variant="caption">{selectedImage.name}</Typography>
+        )}
 
         <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
           <LoadingButton
             loading={loadingSave}
             onClick={handleSave}
             variant="contained"
-            sx={{
-              flex: 1,
-              "&:disabled": {
-                backgroundColor: "#c0c0c0",
-                color: "#000",
-              },
-            }}
-            disabled={
-              !emailValid ||
-              editedCustomer.password.length < 8 ||
-              !passwordsMatch
-            }
+            sx={{ flex: 1 }}
+            disabled={!emailValid || editedCustomer.password.length < 8 || !passwordsMatch}
           >
             {t("Save")}
           </LoadingButton>
           <Button onClick={onCancel} variant="outlined" sx={{ flex: 1 }}>
-          {t("Cancel")}
+            {t("Cancel")}
           </Button>
         </Stack>
       </Stack>

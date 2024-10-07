@@ -5,13 +5,15 @@ const SubCategory = require("../models/SubCategory");
 const { Category } = require("../models/Category");
 
 const createData = async (req, res) => {
-  const product_image = req.file;
-  let fixed_product_image;
+  const product_images = req.files;
+  let fixed_product_images = [];
 
-  if (product_image) {
-    fixed_product_image = product_image.path.replace(/public\\/g, "");
+  if (product_images && product_images.length > 0) {
+    fixed_product_images = product_images.map((file) =>
+      file.path.replace(/public\\/g, "")
+    );
   } else {
-    fixed_product_image = `images/image_placeholder.webp`;
+    fixed_product_images = [`images/image_placeholder.webp`];
   }
 
   const {
@@ -39,7 +41,7 @@ const createData = async (req, res) => {
 
   const product = new Product({
     sku: sku,
-    product_image: fixed_product_image,
+    product_images: fixed_product_images,
     product_name: product_name,
     subcategory_id: subcategory_id,
     short_description: short_description,
@@ -75,7 +77,7 @@ const searchingItems = async (req, res) => {
     })
       .skip(skip)
       .limit(limit)
-      .select("product_name product_image price")
+      .select("product_name product_images price")
       .populate({
         path: "subcategory_id",
         populate: { path: "category_id", select: "category_name" },
@@ -161,8 +163,8 @@ const RetrieveById = async (req, res) => {
 
 const UpdateProductById = async (req, res) => {
   const id = req.params.id;
-  const product_image = req.file;
-  let fixed_product_image;
+  const product_images = req.files;
+  let fixed_product_images;
   const newData = req.body;
 
   newData.last_update = Date.now();
@@ -170,19 +172,20 @@ const UpdateProductById = async (req, res) => {
   const product = await Product.findById(id);
 
   if (!product) {
-    return res.status(404).json({ message: "Invalid customer id" });
+    return res.status(404).json({ message: "Invalid product id" });
   }
 
-  if (product_image) {
-    fixed_product_image = product_image.path.replace(/public\\/g, "");
+  if (product_images && product_images.length > 0) {
+    fixed_product_images = product_images.map((file) =>
+      file.path.replace(/public\\/g, "")
+    );
   } else {
-    fixed_product_image = product.product_image;
+    fixed_product_images = product.product_images
   }
 
-  // Separate the product_image update
   const updateData = {
-    product_image: fixed_product_image,
-    ...newData, // Include other fields
+    product_images: fixed_product_images,
+    ...newData,
   };
 
   try {
@@ -199,6 +202,7 @@ const UpdateProductById = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 const DeleteProductById = async (req, res) => {
   const id = req.params.id;

@@ -7,13 +7,14 @@ import Stack from "@mui/material/Stack";
 import Badge from "@mui/material/Badge";
 import Avatar from "@mui/material/Avatar";
 import { fDateTime } from "../../../utils/format-time";
-import { useTranslation } from "react-i18next"; // Importing translation hook
+import { useTranslation } from "react-i18next";
+const backend = import.meta.env.VITE_BACKEND_URL
 
 const ProductDetailsPopup = ({ product, open, onClose }) => {
-  const { t } = useTranslation(); // Using translation hook
+  const { t } = useTranslation();
   const isActive = product?.active;
   const color = isActive ? "primary" : "secondary";
-
+  const imageArray = typeof product?.product_images === 'string' ? product?.product_images.split(',') : product?.product_images[0];
   return (
     <Modal open={open} onClose={onClose}>
       <Box
@@ -24,7 +25,7 @@ const ProductDetailsPopup = ({ product, open, onClose }) => {
           transform: "translate(-50%, -50%)",
           bgcolor: "background.paper",
           boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-          borderRadius: "16px", // Circular edge
+          borderRadius: "16px",
           p: 4,
           width: 400,
           textAlign: "center",
@@ -32,14 +33,14 @@ const ProductDetailsPopup = ({ product, open, onClose }) => {
       >
         <Stack direction="column" alignItems="flex-start" spacing={2}>
           <Avatar
-            src={`http://localhost:3000/${product?.product_image}`}
+            src={`${backend}/${imageArray}`}
             sx={{ alignSelf: "center", width: 100, height: 100 }}
           />
 
           <Typography
             variant="h4"
             gutterBottom
-            sx={{ alignSelf: "center", color: "#3f51b5" }} // Different color for the title
+            sx={{ alignSelf: "center", color: "#3f51b5" }}
           >
             {t("Product Details")}
           </Typography>

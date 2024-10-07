@@ -2,10 +2,8 @@
 
 const multer = require("multer");
 
-// Set up multer storage options
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Prepend the current working directory (cwd) to the path
     const path = `public/images`;
     cb(null, path);
   },
@@ -15,7 +13,6 @@ const storage = multer.diskStorage({
   },
 });
 
-// Initialize the upload variable after the storage object has been created.
 const upload = multer({ storage: storage });
 
 module.exports = { upload };

@@ -40,6 +40,9 @@ import {
 } from "../../../../redux/backoffice/userSlice";
 import Loader from "../../../../frontoffice/components/loader/Loader";
 import createAxiosInstance from "../../../../utils/axiosConfig";
+import { toast } from "react-toastify";
+const backend = import.meta.env.VITE_BACKEND_URL;
+
 
 // ----------------------------------------------------------------------
 
@@ -326,8 +329,6 @@ export default function UserPage() {
   });
 
   const notFound = !dataFiltered.length;
-  console.log(data)
-
   return (
     <Container>
       <Stack
@@ -390,7 +391,7 @@ export default function UserPage() {
                   .map((row) => (
                     <UserTableRow
                       key={row._id}
-                      user_image={`http://localhost:3000/${row.user_image}`}
+                      user_image={`${backend}/${row.user_image}`}
                       first_name={row.first_name}
                       last_name={row.last_name}
                       role={row.role}

@@ -5,7 +5,7 @@ import Iconify from "../../../backoffice/components/iconify";
 const Footer = () => {
   return (
     <div className="bg-white mt-auto">
-      <div className="container mx-auto py-8 px-4">
+      <div className="container mx-auto pb-8 px-4">
         <hr className="mb-6" />
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
           <div className="max-w-xs space-y-4">

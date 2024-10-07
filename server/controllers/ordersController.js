@@ -88,7 +88,7 @@ const getUserOrders = async (req, res) => {
       .populate("customer_id", "first_name last_name email")
       .populate({
         path: "order_items.product_id",
-        select: "product_name discount_price product_image",
+        select: "product_name discount_price product_images",
       })
       .lean();
 
@@ -174,10 +174,30 @@ const UpdateOrdersById = async (req, res) => {
   }
 };
 
+const DeleteOrdersById = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const deletedOrder = await Order.findByIdAndDelete(id);
+
+    if (!deletedOrder) {
+      res.status(404).json({ error: "Order not found" });
+    }
+
+    res.status(200).json({
+      message: "Order deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
 module.exports = {
   CreateOrders,
   RetrievingOrders,
   searchingOrders,
   getUserOrders,
   UpdateOrdersById,
+  DeleteOrdersById
 };

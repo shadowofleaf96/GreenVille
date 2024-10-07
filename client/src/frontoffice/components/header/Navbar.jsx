@@ -9,6 +9,8 @@ import { logout, fetchCustomerProfile } from "../../../redux/frontoffice/custome
 import Announcement from "../announcement/Announcement";
 import Loader from "../loader/Loader";
 import { toast } from "react-toastify";
+const backend = import.meta.env.VITE_BACKEND_URL;
+
 
 const Navbar = () => {
   const [toggle, setToggle] = useState(false);
@@ -122,7 +124,7 @@ const Navbar = () => {
                     >
                       <img
                         className="h-12 w-12 rounded-full border-5 border-black"
-                        src={`http://localhost:3000/${customer.customer_image}`}
+                        src={`${backend}/${customer.customer_image}`}
                         alt={`${customer.first_name} ${customer.last_name}`}
                       />
                     </button>

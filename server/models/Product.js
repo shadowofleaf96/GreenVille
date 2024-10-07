@@ -1,14 +1,13 @@
-// Shadow Of Leaf was Here
-
 const mongoose = require("mongoose");
+
 const productSchema = mongoose.Schema(
   {
     sku: {
       type: String,
       unique: true,
     },
-    product_image: {
-      type: String,
+    product_images: {
+      type: [String],
     },
     product_name: {
       type: String,

@@ -14,7 +14,7 @@ import { fDateTime } from '../../../utils/format-time';
 
 export default function ProductTableRow({
   selected,
-  product_image,
+  product_images,
   sku,
   product_name,
   short_description,
@@ -33,6 +33,8 @@ export default function ProductTableRow({
   const [open, setOpen] = useState(null);
   const isActive = active;
   const color = isActive ? 'primary' : 'secondary';
+  const imageArray = typeof product_images === 'string' ? product_images.split(',') : [];
+  
 
   return (
     <>
@@ -41,8 +43,8 @@ export default function ProductTableRow({
           <Checkbox disableRipple checked={selected} onChange={handleClick} />
         </TableCell>
 
-        <TableCell>
-          <Avatar align="center" alt={product_name} src={product_image} />
+        <TableCell align="center">
+          <Avatar alt={product_name} src={imageArray[0]?.trim() || product_images.trim()} />
         </TableCell>
 
         <TableCell>{sku}</TableCell>
@@ -69,7 +71,7 @@ export default function ProductTableRow({
           <IconButton
             onClick={() =>
               onDetails({
-                product_image,
+                product_images,
                 sku,
                 product_name,
                 short_description,
@@ -108,14 +110,14 @@ export default function ProductTableRow({
             />
           </IconButton>
         </TableCell>
-      </TableRow>
+      </TableRow >
     </>
   );
 }
 
 ProductTableRow.propTypes = {
   handleClick: PropTypes.func,
-  product_image: PropTypes.string,
+  product_images: PropTypes.string,
   sku: PropTypes.string,
   product_name: PropTypes.string,
   short_description: PropTypes.string,

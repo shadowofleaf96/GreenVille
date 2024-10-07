@@ -4,10 +4,9 @@ import ProfileLink from "../../../components/profileLinks/ProfileLink";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { clearErrors, myOrdersList } from "../../../../redux/frontoffice/orderSlice";
-import Navbar from "../../../components/header/Navbar";
 import Iconify from "../../../../backoffice/components/iconify";
-import Footer from "../../../components/footer/Footer";
 import MetaData from "../../../components/MetaData";
+const backend = import.meta.env.VITE_BACKEND_URL;
 
 const MyOrders = () => {
     const dispatch = useDispatch();
@@ -114,7 +113,7 @@ const MyOrders = () => {
                                                                         >
                                                                             <img
                                                                                 className="w-12 h-12 object-contain"
-                                                                                src={`http://localhost:3000/${item.product.product_image}`}
+                                                                                src={typeof item?.product.product_images === "string" ? `${backend}/${item?.product.product_images}` : `${backend}/${item?.product.product_images[0]}`}
                                                                                 alt={item.product.product_name}
                                                                             />
                                                                             <p className="text-gray-700 font-medium">{item.product.product_name}</p>

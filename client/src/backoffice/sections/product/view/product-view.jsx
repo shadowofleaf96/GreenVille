@@ -42,6 +42,7 @@ import Loader from "../../../../frontoffice/components/loader/Loader.jsx";
 import createAxiosInstance from "../../../../utils/axiosConfig.jsx";
 import { toast } from "react-toastify";
 import { Backdrop } from "@mui/material";
+const backend = import.meta.env.VITE_BACKEND_URL;
 
 // ----------------------------------------------------------------------
 
@@ -193,7 +194,7 @@ export default function ProductPage() {
     setOpenModal(true);
   };
 
-  const handleSaveEditedProduct = async (editedProduct, selectedImage) => {
+  const handleSaveEditedProduct = async (editedProduct, selectedImages) => {
     setLoadingDelete(true);
     try {
       const formData = new FormData();
@@ -207,8 +208,10 @@ export default function ProductPage() {
       formData.append("quantity", editedProduct.quantity);
       formData.append("active", editedProduct.active);
 
-      if (selectedImage) {
-        formData.append("product_image", selectedImage);
+      if (selectedImages) {
+        Array.from(selectedImages).forEach((image) => {
+          formData.append("product_images", image);
+        });
       }
 
       const response = await axiosInstance.put(
@@ -225,9 +228,9 @@ export default function ProductPage() {
         const productData = response.data.data;
         updatedProducts[index] = {
           ...updatedProducts[index],
-          product_image: selectedImage
-            ? productData.product_image
-            : updatedProducts[index].product_image,
+          product_images: selectedImages
+            ? productData.product_images
+            : updatedProducts[index].product_images,
           sku: editedProduct.sku,
           product_name: editedProduct.product_name,
           short_description: editedProduct.short_description,
@@ -292,7 +295,7 @@ export default function ProductPage() {
     setNewProductFormOpen(false);
   };
 
-  const handleSaveNewProduct = async (newProduct, selectedImage) => {
+  const handleSaveNewProduct = async (newProduct, selectedImages) => {
     setLoadingDelete(true);
 
     try {
@@ -307,11 +310,10 @@ export default function ProductPage() {
       formData.append("quantity", newProduct.quantity);
       formData.append("active", newProduct.active);
 
-      if (selectedImage) {
-        formData.append("product_image", selectedImage);
-        newProduct.product_image = "images/" + selectedImage.name;
-      } else {
-        newProduct.product_image = "images/image_placeholder.webp";
+      if (selectedImages) {
+        Array.from(selectedImages).forEach((image) => {
+          formData.append("product_images", image);
+        });
       }
 
       const response = await axiosInstance.post("/products", formData);
@@ -319,7 +321,7 @@ export default function ProductPage() {
       const AddedProducts = {
         key: productdata._id,
         _id: productdata._id,
-        product_image: productdata.product_image,
+        product_images: productdata.product_images,
         sku: newProduct.sku,
         product_name: newProduct.product_name,
         short_description: newProduct.short_description,
@@ -404,7 +406,7 @@ export default function ProductPage() {
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: "product_image", label: t("Image") },
+                  { id: "product_images", label: t("Image") },
                   { id: "sku", label: t("SKU") },
                   { id: "product_name", label: t("Product Name") },
                   { id: "price", label: t("Price") },
@@ -421,7 +423,7 @@ export default function ProductPage() {
                     return (
                       <ProductTableRow
                         key={row._id}
-                        product_image={`http://localhost:3000/${row.product_image}`}
+                        product_images={`${backend}/${row.product_images}`}
                         sku={row.sku}
                         product_name={row.product_name}
                         price={row.price}

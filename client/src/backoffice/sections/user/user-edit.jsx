@@ -12,10 +12,13 @@ import DOMPurify from "dompurify";
 import { useDispatch, useSelector } from "react-redux";
 import Switch from "@mui/material/Switch";
 import InputLabel from "@mui/material/InputLabel";
+import IconButton from "@mui/material/IconButton";
 import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import Iconify from "../../components/iconify";
 import UploadButton from "../../components/button/UploadButton";
 import { useTranslation } from "react-i18next";
+const backend = import.meta.env.VITE_BACKEND_URL;
 
 function EditUserForm({ user, onSave, onCancel, open, onClose }) {
   const { t } = useTranslation();
@@ -24,7 +27,7 @@ function EditUserForm({ user, onSave, onCancel, open, onClose }) {
   const [loadingSave, setLoadingSave] = useState(false);
   const [passwordsMatch, setPasswordsMatch] = useState(true);
   const [emailValid, setEmailValid] = useState(true);
-  const userLogin = useSelector((state) => state.adminAuth.adminUser);
+  const { admin } = useSelector((state) => state.adminAuth);
   const dispatch = useDispatch();
 
   const isEmailValid = (email) => {
@@ -68,6 +71,11 @@ function EditUserForm({ user, onSave, onCancel, open, onClose }) {
     setPasswordsMatch(editedUser.password === editedUser.confirmPassword);
   };
 
+  const handleImageDelete = () => {
+    setEditedUser({ ...editedUser, user_image: null });
+  };
+
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setSelectedImage(file);
@@ -83,7 +91,7 @@ function EditUserForm({ user, onSave, onCancel, open, onClose }) {
     if (editedUser.password.length < 8 || !passwordsMatch) {
       return;
     }
-    const loggedInUserId = userLogin._id;
+    const loggedInUserId = admin._id;
 
     setLoadingSave(true);
 
@@ -129,6 +137,35 @@ function EditUserForm({ user, onSave, onCancel, open, onClose }) {
         >
           {t("Edit User")}
         </Typography>
+
+        {editedUser.user_image && (
+          <div style={{ position: "relative", marginBottom: 20 }}>
+            <img
+              src={`${backend}/${editedUser.user_image}`}
+              alt="User Avatar"
+              style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "50%" }}
+            />
+            <IconButton
+              style={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                backgroundColor: "red",
+                color: "white",
+                borderRadius: "50%",
+                padding: "5px",
+              }}
+              onClick={handleImageDelete}
+            >
+              <Iconify
+                icon="ic:round-close"
+                width={16}
+                height={16}
+                className="mx-auto"
+              />
+            </IconButton>
+          </div>
+        )}
 
         <TextField
           label={t("First Name")}
@@ -180,18 +217,18 @@ function EditUserForm({ user, onSave, onCancel, open, onClose }) {
             editedUser.password !== undefined ? editedUser.password : ""
           }
           onChange={handleFieldChange}
-          onBlur={() => {}}
+          onBlur={() => { }}
           type="password"
           fullWidth
           sx={{ marginBottom: 2 }}
           error={editedUser.password.length < 8}
           helperText={
             editedUser.password.length > 0 &&
-            editedUser.password.length < 8
+              editedUser.password.length < 8
               ? t("Password must be at least 8 characters long")
               : ""
           }
-        /> 
+        />
 
         <TextField
           label={t("Confirm Password")}

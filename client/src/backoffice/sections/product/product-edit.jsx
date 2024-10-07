@@ -9,23 +9,25 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Switch from "@mui/material/Switch";
 import InputLabel from "@mui/material/InputLabel";
-import axios from "axios";
 import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import UploadButton from "../../components/button/UploadButton";
-
 import { useTranslation } from "react-i18next";
 import Loader from "../../../frontoffice/components/loader/Loader";
 import createAxiosInstance from "../../../utils/axiosConfig";
+import IconButton from "@mui/material/IconButton";
+import Iconify from "../../components/iconify";
+import DOMPurify from "dompurify"; // Import DOMPurify
+
+const backend = import.meta.env.VITE_BACKEND_URL;
 
 function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
-  const { t } = useTranslation(); // Using translation hook
+  const { t } = useTranslation();
 
   const [editedProduct, setEditedProduct] = useState({ ...Product });
   const [subcategories, setSubcategories] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImages, setSelectedImages] = useState([]);
   const [loadingSave, setLoadingSave] = useState(false);
-
   const [loadingSubcategories, setLoadingSubcategories] = useState(true);
 
   useEffect(() => {
@@ -44,13 +46,17 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
     fetchSubcategories();
   }, []);
 
+  const sanitizeInput = (value) => {
+    return DOMPurify.sanitize(value); // Sanitize the input using DOMPurify
+  };
+
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
 
     const newValue =
       name === "option"
         ? value.split(",").map((option) => option.trim())
-        : value;
+        : sanitizeInput(value); // Sanitize the value here
     setEditedProduct({ ...editedProduct, [name]: newValue });
   };
 
@@ -66,14 +72,25 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setSelectedImage(file);
+    const files = Array.from(e.target.files);
+    setSelectedImages(files);
   };
+
+  const handleDeleteImage = (index) => {
+    if (Array.isArray(editedProduct.product_images)) {
+      const updatedImages = [...editedProduct.product_images];
+      updatedImages.splice(index, 1);
+      setEditedProduct({ ...editedProduct, product_images: updatedImages });
+    } else {
+      setEditedProduct({ ...editedProduct, product_images: "" });
+    }
+  };
+
   const handleSave = async () => {
     setLoadingSave(true);
     try {
-      await onSave(editedProduct, selectedImage);
-      setSelectedImage(null);
+      await onSave(editedProduct, selectedImages);
+      setSelectedImages([]);
       onClose();
     } catch (error) {
       console.error("Error saving Product:", error);
@@ -112,23 +129,26 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
             {t("Edit Product")}
           </Typography>
 
-          <TextField
-            label={t("SKU")}
-            name="sku"
-            value={editedProduct.sku}
-            onChange={handleFieldChange}
-            fullWidth
-            sx={{ marginBottom: 2 }}
-          />
+          <Stack direction="row" spacing={2} sx={{ width: "100%", marginBottom: 2 }}>
+            <TextField
+              label={t("Product Name")}
+              name="product_name"
+              value={editedProduct.product_name}
+              onChange={handleFieldChange}
+              fullWidth
+              sx={{ flex: 1.2 }}
+            />
 
-          <TextField
-            label={t("Product Name")}
-            name="product_name"
-            value={editedProduct.product_name}
-            onChange={handleFieldChange}
-            fullWidth
-            sx={{ marginBottom: 2 }}
-          />
+            <TextField
+              label={t("SKU")}
+              name="sku"
+              value={editedProduct.sku}
+              onChange={handleFieldChange}
+              fullWidth
+              sx={{ flex: 0.3 }}
+            />
+          </Stack>
+
 
           <FormControl fullWidth sx={{ marginBottom: 2 }}>
             <InputLabel htmlFor="subcategory">{t("Subcategory")}</InputLabel>
@@ -158,24 +178,37 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
           />
 
           <TextField
-            label={t("Price")}
-            name="price"
-            type="number"
-            value={editedProduct.price}
+            label={t("Long Description")}
+            name="long_description"
+            value={editedProduct.long_description}
             onChange={handleFieldChange}
+            multiline
+            rows={4}
             fullWidth
             sx={{ marginBottom: 2 }}
           />
 
-          <TextField
-            label={t("Discount Price")}
-            name="discount_price"
-            type="number"
-            value={editedProduct.discount_price}
-            onChange={handleFieldChange}
-            fullWidth
-            sx={{ marginBottom: 2 }}
-          />
+
+          {/* Stack for Price and Discount Price */}
+          <Stack direction="row" spacing={2} sx={{ marginBottom: 2, width: "100%" }}>
+            <TextField
+              label={t("Price")}
+              name="price"
+              type="number"
+              value={editedProduct.price}
+              onChange={handleFieldChange}
+              fullWidth
+            />
+
+            <TextField
+              label={t("Discount Price")}
+              name="discount_price"
+              type="number"
+              value={editedProduct.discount_price}
+              onChange={handleFieldChange}
+              fullWidth
+            />
+          </Stack>
 
           <TextField
             label={t("Quantity")}
@@ -196,11 +229,73 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
             sx={{ marginBottom: 2 }}
           />
 
-          <Stack
-            direction="column"
-            alignItems="center"
-            sx={{ marginBottom: 2 }}
-          >
+          {Array.isArray(editedProduct.product_images) && editedProduct.product_images.length > 0 ? (
+            <Stack direction="row" spacing={2} justifyContent="center" sx={{ marginBottom: 2 }}>
+              {editedProduct.product_images.map((image, index) => (
+                <div key={index} style={{ position: "relative" }}>
+                  <img
+                    src={`${backend}/${image}`}
+                    alt={`Product image ${index + 1}`}
+                    style={{ width: "60px", height: "50px", objectFit: "cover" }}
+                  />
+                  <IconButton
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      backgroundColor: "red",
+                      color: "white",
+                      borderRadius: "50%",
+                      padding: "5px",
+                    }}
+                    onClick={() => handleDeleteImage(index)}
+                  >
+                    <Iconify
+                      icon="ic:round-close"
+                      width={16}
+                      height={16}
+                      className="mx-auto"
+                    />
+                  </IconButton>
+                </div>
+              ))}
+            </Stack>
+          ) : !Array.isArray(editedProduct.product_images) && editedProduct.product_images ? (
+            <div style={{ position: "relative" }}>
+              <img
+                src={`${backend}/${editedProduct.product_images}`}
+                alt="Product image"
+                style={{ width: "60px", height: "60px", objectFit: "cover" }}
+              />
+              <IconButton
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  backgroundColor: "red",
+                  color: "white",
+                  borderRadius: "50%",
+                  padding: "5px",
+                }}
+                onClick={() => handleDeleteImage(0)}
+              >
+                <Iconify
+                  icon="ic:round-close"
+                  width={16}
+                  height={16}
+                  className="mx-auto"
+                />
+              </IconButton>
+            </div>
+          ) : (
+            <UploadButton
+              onChange={handleImageChange}
+              label={t("Upload Images")}
+              multiple
+            />
+          )}
+
+          <Stack direction="column" alignItems="center" sx={{ marginBottom: 2 }}>
             <Stack direction="row" spacing={2} alignItems="center">
               <FormControlLabel
                 labelPlacement="start"
@@ -221,32 +316,40 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
                 type="file"
                 id="fileInput"
                 accept="image/*"
+                multiple
                 onChange={handleImageChange}
-                sx={{ display: "none" }}
                 style={{ display: "none" }}
               />
               <label htmlFor="fileInput">
                 <UploadButton onChange={handleImageChange} />
               </label>
             </Stack>
-            {selectedImage && (
-              <Typography variant="caption">{selectedImage.name}</Typography>
+
+            {selectedImages.length > 0 && (
+              <Stack>
+                {selectedImages.map((image, index) => (
+                  <Typography key={index} variant="caption">
+                    {image.name}
+                  </Typography>
+                ))}
+              </Stack>
             )}
+
+            <Typography variant="caption" color="textSecondary" sx={{ marginTop: 1 }}>
+              {t("You can upload a maximum of 5 images as product images.")}
+            </Typography>
           </Stack>
 
           <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
             <LoadingButton
-              color="primary"
               loading={loadingSave}
-              onClick={handleSave}
               variant="contained"
-              sx={{
-                flex: 1,
-              }}
+              onClick={handleSave}
+              sx={{ flex: 1 }}
             >
               {t("Save")}
             </LoadingButton>
-            <Button onClick={onCancel} variant="outlined" sx={{ flex: 1 }}>
+            <Button variant="outlined" onClick={onCancel} sx={{ flex: 1 }}>
               {t("Cancel")}
             </Button>
           </Stack>

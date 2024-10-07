@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import Stack from "@mui/material/Stack";
-import axios from "axios";
-import LoadingButton from "@mui/lab/LoadingButton";
+import { LoadingButton } from "@mui/lab";
 import Typography from "@mui/material/Typography";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
@@ -12,56 +11,55 @@ import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import { useTranslation } from 'react-i18next';
 import Loader from "../../../frontoffice/components/loader/Loader";
-import createAxiosInstance from "../../../utils/axiosConfig";
+import DOMPurify from 'dompurify';
 
 function EditPaymentForm({ payment, onSave, onCancel, open, onClose }) {
-  const [paymentMethods, setPaymentMethods] = useState([
+  const [paymentMethods] = useState([
     { key: "credit_card", label: "Credit Card" },
     { key: "paypal", label: "PayPal" },
     { key: "cod", label: "Cash on Delivery" }
   ]);
-  const [statuses, setStatuses] = useState(
-    [
-      { key: "pending", label: "Pending" },
-      { key: "completed", label: "Completed" },
-      { key: "failed", label: "Failed" },
-      { key: "refunded", label: "Refunded" }
-    ]);
-  const [editedPayment, setEditedPayment] = useState({
-    ...payment,
-  });
+  const [statuses] = useState([
+    { key: "pending", label: "Pending" },
+    { key: "completed", label: "Completed" },
+    { key: "failed", label: "Failed" },
+    { key: "refunded", label: "Refunded" }
+  ]);
+  const [editedPayment, setEditedPayment] = useState({ ...payment });
   const [loadingSave, setLoadingSave] = useState(false);
-
   const { t } = useTranslation();
+
+  const sanitizeInput = (value) => {
+    return DOMPurify.sanitize(value);
+  };
 
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
-    setEditedPayment({ ...editedPayment, [name]: value });
+    setEditedPayment({ ...editedPayment, [name]: sanitizeInput(value) });
   };
 
   const handleStatusChange = (event) => {
     setEditedPayment({
       ...editedPayment,
-      paymentStatus: event.target.value,
+      paymentStatus: sanitizeInput(event.target.value),
     });
   };
 
   const handlePaymentMethodChange = (event) => {
     setEditedPayment({
       ...editedPayment,
-      paymentMethod: event.target.value,
+      paymentMethod: sanitizeInput(event.target.value),
     });
   };
 
   const handleSave = async () => {
     setLoadingSave(true);
-
     try {
       const { _id, amount, paymentMethod, paymentStatus } = editedPayment;
 
       const updatedPayment = {
         _id,
-        amount,
+        amount: sanitizeInput(amount),
         paymentMethod,
         paymentStatus,
       };

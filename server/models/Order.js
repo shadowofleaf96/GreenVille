@@ -16,9 +16,7 @@ const orderJoiSchema = Joi.object({
     .required(),
   order_date: Joi.date().default(Date.now),
   cart_total_price: Joi.number().min(0).required(),
-  status: Joi.string()
-    .valid("open", "processing", "shipped", "delivered", "canceled")
-    .default("open"),
+  status: Joi.string().valid("open", "processing", "canceled").default("open"),
   shipping_address: Joi.object({
     street: Joi.string().required(),
     city: Joi.string().required(),
@@ -70,7 +68,7 @@ const ordersSchema = mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["open", "processing", "shipped", "delivered", "canceled"],
+      enum: ["open", "processing", "canceled", "completed"],
       default: "open",
     },
     shipping_address: {

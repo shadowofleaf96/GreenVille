@@ -7,9 +7,10 @@ import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
 import Badge from "@mui/material/Badge";
 import { fDateTime } from "../../../utils/format-time";
+const backend = import.meta.env.VITE_BACKEND_URL;
 
 const UserDetailsPopup = ({ user, open, onClose }) => {
-  const { t } = useTranslation(); // Using translation hook
+  const { t } = useTranslation();
   const isActive = user?.active;
   const color = isActive ? "primary" : "secondary";
 
@@ -31,7 +32,7 @@ const UserDetailsPopup = ({ user, open, onClose }) => {
       >
         <Stack direction="column" alignItems="flex-start" spacing={2}>
           <Avatar
-            src={`http://localhost:3000/${user?.user_image}`}
+            src={`${backend}/${user?.user_image}`}
             sx={{ width: 100, height: 100, alignSelf: "center" }}
           />
 

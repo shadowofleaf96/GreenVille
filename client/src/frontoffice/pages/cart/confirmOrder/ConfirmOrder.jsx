@@ -5,6 +5,8 @@ import Footer from "../../../components/footer/Footer";
 import Navbar from "../../../components/header/Navbar";
 import MetaData from "../../../components/MetaData";
 import CheckoutSteps from "../checkoutSteps/CheckoutSteps";
+const backend = import.meta.env.VITE_BACKEND_URL;
+
 
 const ConfirmOrder = () => {
     const { cartItems, shippingInfo } = useSelector((state) => state.carts);
@@ -33,7 +35,7 @@ const ConfirmOrder = () => {
     const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
 
     const processToPayment = () => {
-        history("/payment",  { replace: true });
+        history("/payment", { replace: true });
     };
 
     return (
@@ -66,7 +68,7 @@ const ConfirmOrder = () => {
                                 <div className="flex items-center py-2">
                                     <div className="w-1/4 lg:w-1/6">
                                         <img
-                                            src={`http://localhost:3000/${item.image}`}
+                                            src={typeof item?.image === "string" ? `${backend}/${item?.image}` : `${backend}/${item?.image[0]}`}
                                             alt={item.name}
                                             className="w-16 h-16 object-cover"
                                         />

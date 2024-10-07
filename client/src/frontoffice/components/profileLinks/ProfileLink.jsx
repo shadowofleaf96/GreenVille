@@ -8,6 +8,8 @@ import Alert from "@mui/material/Alert";
 import { useRouter } from "../../../routes/hooks/";
 import { logout } from "../../../redux/frontoffice/customerSlice";
 import Iconify from "../../../backoffice/components/iconify";
+const backend = import.meta.env.VITE_BACKEND_URL;
+
 
 const ProfileLink = () => {
   const { customer, loading } = useSelector((state) => state.customers);
@@ -41,7 +43,7 @@ const ProfileLink = () => {
             <div className="text-center mt-3">
               {customer && (
                 <img
-                  src={`http://localhost:3000/${customer?.customer_image}`}
+                  src={`${backend}/${customer?.customer_image}`}
                   alt={customer?.first_name + customer?.last_name}
                   className="h-36 w-36 rounded-full border-4 border-[#e8daff] mx-auto"
                 />

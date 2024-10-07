@@ -21,7 +21,7 @@ router.post(
   "/",
   verifyToken,
   requireAdminOrManager,
-  upload.single("product_image"),
+  upload.array("product_images", 5),
   createData
 );
 router.get("/", RetrievingItems);
@@ -32,7 +32,7 @@ router.put(
   "/:id",
   verifyToken,
   requireAdminOrManager,
-  upload.single("product_image"),
+  upload.array("product_images", 5),
   UpdateProductById
 );
 router.delete("/:id", verifyToken, requireAdminOrManager, DeleteProductById);

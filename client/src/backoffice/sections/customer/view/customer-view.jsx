@@ -10,14 +10,11 @@ import Typography from "@mui/material/Typography";
 import Popover from "@mui/material/Popover";
 import TableContainer from "@mui/material/TableContainer";
 import Backdrop from "@mui/material/Backdrop";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
 import TablePagination from "@mui/material/TablePagination";
 
 import Scrollbar from "../../../components/scrollbar";
 
 import TableNoDataFilter from "../table-no-data";
-import axios from "axios";
 
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -39,6 +36,8 @@ import {
 import Loader from "../../../../frontoffice/components/loader/Loader";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { toast } from "react-toastify";
+const backend = import.meta.env.VITE_BACKEND_URL;
+
 
 // ----------------------------------------------------------------------
 
@@ -323,7 +322,7 @@ export default function CustomerPage() {
                     return (
                       <CustomerTableRow
                         key={row._id}
-                        customer_image={`http://localhost:3000/${row.customer_image}`}
+                        customer_image={`${backend}/${row.customer_image}`}
                         first_name={row.first_name}
                         last_name={row.last_name}
                         email={row.email}

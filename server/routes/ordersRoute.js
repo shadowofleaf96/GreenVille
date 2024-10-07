@@ -7,6 +7,7 @@ const {
   getUserOrders,
   searchingOrders,
   UpdateOrdersById,
+  DeleteOrdersById
 } = require("../controllers/ordersController");
 const {
   verifyToken,
@@ -18,5 +19,6 @@ router.get("/", RetrievingOrders);
 router.get("/:userId", getUserOrders);
 router.get("/:id", verifyToken, requireAdminOrManager, searchingOrders);
 router.put("/:id", verifyToken, requireAdminOrManager, UpdateOrdersById);
+router.delete("/:id", verifyToken, requireAdminOrManager, DeleteOrdersById);
 
 module.exports = router;

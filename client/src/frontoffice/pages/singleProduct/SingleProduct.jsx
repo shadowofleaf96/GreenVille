@@ -5,30 +5,33 @@ import { getProductDetails, clearErrors } from "../../../redux/frontoffice/produ
 import Loader from "../../components/loader/Loader";
 import Iconify from "../../../backoffice/components/iconify";
 import { addItemToCart } from "../../../redux/frontoffice/cartSlice";
-import Navbar from "../../components/header/Navbar";
-import Footer from "../../components/footer/Footer";
 import MetaData from "../../components/MetaData";
+const backend = import.meta.env.VITE_BACKEND_URL;
 
 const SingleProduct = () => {
   const [quantity, setQuantity] = useState(1);
-  const [selectedImage, setSelectedImage] = useState(""); // State for the selected image
+  const [selectedImage, setSelectedImage] = useState("");
 
   const dispatch = useDispatch();
-  const history = useNavigate()
+  const navigate = useNavigate();
   const { id } = useParams();
 
   const { loading, product } = useSelector((state) => state.products);
 
   useEffect(() => {
-    if (product?.product_image) {
-      setSelectedImage(`http://localhost:3000/${product.product_image}`); // Set default image
-    }
     dispatch(getProductDetails(id));
-
+  
     return () => {
       dispatch(clearErrors());
     };
-  }, [dispatch, id, product?.product_image]);
+  }, [dispatch, id]);
+  
+  useEffect(() => {
+    if (product?.product_images && product?.product_images.length > 0) {
+      setSelectedImage(`${backend}/${product.product_images[0]}`);
+    }
+  }, [product?.product_images]);
+  
 
   const increaseQty = () => {
     if (quantity >= product.quantity) return;
@@ -46,8 +49,8 @@ const SingleProduct = () => {
 
   const buyNow = () => {
     dispatch(addItemToCart({ id: product._id, quantity }));
-    history("/cart")
-  }
+    navigate("/cart");
+  };
 
   return (
     <Fragment>
@@ -60,42 +63,36 @@ const SingleProduct = () => {
             {product ? (
               <>
                 <div className="w-full lg:w-1/2 flex flex-col items-center justify-center">
-                  {product?.product_image && (
-                    <>
-                      <div className="w-full max-w-sm rounded-lg shadow-lg overflow-hidden mb-6">
-                        {/* Main image */}
-                        <img
-                          src={selectedImage}
-                          alt="Selected product"
-                          className="object-contain w-full h-[380px] sm:h-[200px]"
-                        />
-                      </div>
-
-                      {/* Thumbnail images */}
-                      <div className="flex overflow-x-auto space-x-4">
-                        {/* Main product image */}
-                        <img
-                          src={`http://localhost:3000/${product.product_image}`}
-                          alt="Main product"
-                          className="w-20 h-20 object-contain cursor-pointer border-2 border-gray-200 rounded-lg hover:border-green-500"
-                          onClick={() =>
-                            setSelectedImage(`http://localhost:3000/${product.product_image}`)
-                          }
-                        />
-
-                        {/* Additional product images */}
-                        {product?.product_images?.map((image, index) => (
-                          <img
-                            key={index}
-                            src={`http://localhost:3000/${image}`}
-                            alt={`Product image ${index + 1}`}
-                            className="w-20 h-20 object-contain cursor-pointer border-2 border-gray-200 rounded-lg hover:border-green-500"
-                            onClick={() => setSelectedImage(`http://localhost:3000/${image}`)}
-                          />
-                        ))}
-                      </div>
-                    </>
+                  {selectedImage && (
+                    <div className="w-full max-w-sm rounded-lg shadow-lg overflow-hidden mb-6">
+                      <img
+                        src={selectedImage}
+                        alt="Selected product"
+                        className="object-contain w-full h-[380px] sm:h-[200px]"
+                      />
+                    </div>
                   )}
+
+                  <div className="flex overflow-x-auto space-x-4">
+                    {Array.isArray(product?.product_images) ? (
+                      product.product_images.map((image, index) => (
+                        <img
+                          key={index}
+                          src={`${backend}/${image}`}
+                          alt={`Product image ${index + 1}`}
+                          className="w-14 h-14 object-contain cursor-pointer border-2 border-gray-300 rounded-lg hover:border-green-500"
+                          onClick={() => setSelectedImage(`${backend}/${image}`)}
+                        />
+                      ))
+                    ) : (
+                      <img
+                        src={`${backend}/${product.product_images}`}
+                        alt="Main product"
+                        className="w-14 h-14 object-contain cursor-pointer border-2 shadow-lg border-gray-300 rounded-lg hover:border-green-500"
+                        onClick={() => setSelectedImage(`${backend}/${product.product_images}`)}
+                      />
+                    )}
+                  </div>
                 </div>
 
                 <div className="w-full lg:w-1/2 flex flex-col space-y-4 p-4">
@@ -107,7 +104,7 @@ const SingleProduct = () => {
                         {product.price} DH
                       </strike>
                     </h2>
-                    <p className="text-gray-600 mb-4">{product.long_description}</p>
+                    <p className="text-gray-600 mb-4 h-16">{product.short_description}</p>
                   </div>
 
                   <div className="flex items-center space-x-4 mt-4">
@@ -132,10 +129,7 @@ const SingleProduct = () => {
                   </div>
 
                   <p className="mt-4">
-                    <span
-                      className={`ml-2 font-bold ${product.quantity > 0 ? "text-green-600" : "text-red-600"
-                        }`}
-                    >
+                    <span className={`ml-2 font-bold ${product.quantity > 0 ? "text-green-600" : "text-red-600"}`}>
                       {product.quantity > 0 ? "In Stock" : "Out of Stock"}
                     </span>
                   </p>
@@ -146,11 +140,7 @@ const SingleProduct = () => {
                       onClick={buyNow}
                     >
                       Buy Now
-                      <Iconify
-                        icon="material-symbols:sell-outline"
-                        height="22px"
-                        width="22px"
-                      />
+                      <Iconify icon="material-symbols:sell-outline"  height={22} width={22} />
                     </button>
                     <button
                       className="bg-white flex gap-2 text-grey-800 border-[#8DC63F] border-2 py-3 px-6 font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
@@ -158,11 +148,7 @@ const SingleProduct = () => {
                       onClick={addToCart}
                     >
                       Add To Cart
-                      <Iconify
-                        icon="mdi-light:cart"
-                        height="22px"
-                        width="22px"
-                      />
+                      <Iconify icon="mdi-light:cart" height={22} width={22} />
                     </button>
                   </div>
                 </div>

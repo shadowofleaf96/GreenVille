@@ -7,6 +7,8 @@ import Loader from "../../components/loader/Loader";
 import Navbar from "../../components/header/Navbar";
 import Footer from "../../components/footer/Footer";
 import MetaData from "../../components/MetaData";
+const backend = import.meta.env.VITE_BACKEND_URL;
+
 
 const Profile = () => {
   const { customer, loading } = useSelector((state) => state.customers);
@@ -44,7 +46,7 @@ const Profile = () => {
                     <div className="flex justify-center">
                       {customer && (
                         <img
-                          src={`http://localhost:3000/${customer?.customer_image}`}
+                          src={`${backend}/${customer?.customer_image}`}
                           alt={`${customer?.first_name} ${customer?.last_name}`}
                           className="h-64 w-64 rounded-full"
                         />

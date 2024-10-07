@@ -66,8 +66,6 @@ export default function OrderPage() {
   const [isDetailsPopupOpen, setDetailsPopupOpen] = useState(false);
   const [isDeleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [selectedDeleteOrderId, setSelectedDeleteOrderId] = useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const axiosInstance = createAxiosInstance('admin');
@@ -190,7 +188,16 @@ export default function OrderPage() {
     setLoadingDelete(true);
 
     try {
-      const { _id, customer, status, cart_total_price } = editedOrder;
+      const {
+        _id,
+        customer,
+        status,
+        cart_total_price,
+        shipping_method,
+        shipping_status,
+        order_notes,
+        shipping_address,
+      } = editedOrder;
 
       const { _id: customer_id, first_name, last_name } = customer;
 
@@ -199,6 +206,10 @@ export default function OrderPage() {
         customer_name: `${first_name} ${last_name}`,
         status,
         cart_total_price,
+        shipping_status,
+        shipping_method,
+        shipping_address,
+        order_notes,
       };
 
       const response = await axiosInstance.put(`/orders/${_id}`, payload);
@@ -217,22 +228,26 @@ export default function OrderPage() {
           },
           status,
           cart_total_price,
+          shipping_address,
+          shipping_method,
+          shipping_status,
+          order_notes,
         };
 
-        dispatch(setData(updatedOrders));
+        dispatch(setData(updatedOrders)); 
 
-        toast.success(response.data.message);
-        setEditingOrder(null);
-        setOpenModal(false);
+        toast.success(response.data.message); 
+        setEditingOrder(null); 
+        setOpenModal(false); 
       }
     } catch (error) {
-      console.error("Error editing order:" + error);
+      console.error("Error editing order:", error);
 
       toast.error(
-        "Error: " + error.response?.data.message || "An error occurred"
+        "Error: " + (error.response?.data.message || "An error occurred")
       );
     } finally {
-      setLoadingDelete(false);
+      setLoadingDelete(false); 
     }
   };
 
@@ -318,6 +333,8 @@ export default function OrderPage() {
                   { id: "order_items", label: t("Order Items") },
                   { id: "cart_total_price", label: t("Cart Total Price") },
                   { id: "order_date", label: t("Order Date") },
+                  { id: "shipping_method", label: t("Shipping Method") },
+                  { id: "shipping_status", label: t("Shipping Status") },
                   { id: "status", label: t("Status") },
                   { id: " " },
                 ]}
@@ -334,6 +351,8 @@ export default function OrderPage() {
                         order_items={orderItemsArray}
                         cart_total_price={row.cart_total_price}
                         order_date={row.order_date}
+                        shipping_method={row.shipping_method}
+                        shipping_status={row.shipping_status}
                         status={row.status}
                         selected={selected.indexOf(row._id) !== -1}
                         handleClick={(event) => handleClick(event, row._id)}
@@ -393,7 +412,7 @@ export default function OrderPage() {
         anchorEl={anchorEl}
         open={isDeleteConfirmationOpen}
         onClose={closeDeleteConfirmation}
-      anchorOrigin={{
+        anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'center',
         }}

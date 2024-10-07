@@ -1,4 +1,6 @@
+// Other imports remain unchanged
 import React, { useState, useEffect } from "react";
+import DOMPurify from "dompurify";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
@@ -13,18 +15,18 @@ import { useTranslation } from "react-i18next";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import UploadButton from "../../components/button/UploadButton";
-import axios from "axios";
 import createAxiosInstance from "../../../utils/axiosConfig";
 
 function NewProductForm({ onSave, onCancel, open, onClose }) {
   const [subcategories, setSubcategories] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImages, setSelectedImages] = useState([]);
   const { t } = useTranslation();
   const [newProduct, setNewProduct] = useState({
     sku: "",
     product_name: "",
     subcategory_id: "",
     short_description: "",
+    long_description: "", // Add this line
     price: 0,
     discount_price: 0,
     quantity: 0,
@@ -50,11 +52,12 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
 
-    // If the field is 'option', convert the comma-separated string to an array
+    const sanitizedValue = DOMPurify.sanitize(value);
+
     const newValue =
       name === "option"
-        ? value.split(",").map((option) => option.trim())
-        : value;
+        ? sanitizedValue.split(",").map((option) => option.trim())
+        : sanitizedValue;
 
     setNewProduct({ ...newProduct, [name]: newValue });
   };
@@ -67,8 +70,15 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setSelectedImage(file);
+    const files = Array.from(e.target.files);
+    const currentImages = selectedImages.length;
+
+    if (currentImages + files.length > 5) {
+      alert("You can only upload a maximum of 5 images.");
+      return;
+    }
+
+    setSelectedImages((prevImages) => [...prevImages, ...files]);
   };
 
   const handleSelectChange = (event) => {
@@ -79,27 +89,32 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
     setLoadingSave(true);
 
     try {
-      // Perform save operation, use newProduct.subcategory_id as needed
-      await onSave(newProduct, selectedImage);
+      const sanitizedProduct = {
+        ...newProduct,
+        product_name: DOMPurify.sanitize(newProduct.product_name),
+        short_description: DOMPurify.sanitize(newProduct.short_description),
+        long_description: DOMPurify.sanitize(newProduct.long_description),
+        option: newProduct.option.map((opt) => DOMPurify.sanitize(opt)),
+      };
 
-      {
-        setNewProduct({
-          sku: "",
-          product_name: "",
-          subcategory_id: "",
-          short_description: "",
-          price: 0,
-          discount_price: 0,
-          quantity: 0,
-          option: [],
-          active: false,
-        });
-      }
-      setSelectedImage(null);
-      onClose(); // Close the modal after a successful save
+      await onSave(sanitizedProduct, selectedImages);
+
+      setNewProduct({
+        sku: "",
+        product_name: "",
+        subcategory_id: "",
+        short_description: "",
+        long_description: "",
+        price: 0,
+        discount_price: 0,
+        quantity: 0,
+        option: [],
+        active: false,
+      });
+      setSelectedImages([]);
+      onClose();
     } catch (error) {
       console.error("Error saving product:", error);
-      // Handle the error as needed (display an error message, etc.)
     } finally {
       setLoadingSave(false);
     }
@@ -134,23 +149,26 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
           {t("New Product")}
         </Typography>
 
-        <TextField
-          label={t("SKU")}
-          name="sku"
-          value={newProduct.sku}
-          onChange={handleFieldChange}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-        />
+        {/* Stack to hold SKU and Product Name inputs side by side */}
+        <Stack direction="row" spacing={2} sx={{ width: "100%", marginBottom: 2 }}>
+          <TextField
+            label={t("Product Name")}
+            name="product_name"
+            value={newProduct.product_name}
+            onChange={handleFieldChange}
+            sx={{ flex: 1.2 }}
+            fullWidth
+          />
 
-        <TextField
-          label={t("Product Name")}
-          name="product_name"
-          value={newProduct.product_name}
-          onChange={handleFieldChange}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-        />
+          <TextField
+            label={t("SKU")}
+            name="sku"
+            value={newProduct.sku}
+            onChange={handleFieldChange}
+            sx={{ flex: 0.3 }}
+            fullWidth
+          />
+        </Stack>
 
         <FormControl fullWidth sx={{ marginBottom: 2 }}>
           <InputLabel htmlFor="subcategory">{t("Subcategory")}</InputLabel>
@@ -179,25 +197,38 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
           sx={{ marginBottom: 2 }}
         />
 
+        {/* Add the long description input field here */}
         <TextField
-          label={t("Price")}
-          name="price"
-          type="number"
-          value={newProduct.price}
+          label={t("Long Description")}
+          name="long_description"
+          value={newProduct.long_description}
           onChange={handleFieldChange}
           fullWidth
+          multiline
+          rows={4} // Adjust the number of rows as needed
           sx={{ marginBottom: 2 }}
         />
 
-        <TextField
-          label={t("Discount Price")}
-          name="discount_price"
-          type="number"
-          value={newProduct.discount_price}
-          onChange={handleFieldChange}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-        />
+        {/* Stack to hold Price and Discount Price inputs side by side */}
+        <Stack direction="row" spacing={2} sx={{ width: "100%", marginBottom: 2 }}>
+          <TextField
+            label={t("Price")}
+            name="price"
+            type="number"
+            value={newProduct.price}
+            onChange={handleFieldChange}
+            fullWidth
+          />
+
+          <TextField
+            label={t("Discount Price")}
+            name="discount_price"
+            type="number"
+            value={newProduct.discount_price}
+            onChange={handleFieldChange}
+            fullWidth
+          />
+        </Stack>
 
         <TextField
           label={t("Quantity")}
@@ -239,31 +270,40 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
               type="file"
               id="fileInput"
               accept="image/*"
+              multiple
               onChange={handleImageChange}
-              sx={{ display: "none" }}
               style={{ display: "none" }}
             />
             <label htmlFor="fileInput">
               <UploadButton onChange={handleImageChange} />
             </label>
           </Stack>
-          {selectedImage && (
-            <Typography variant="caption">{selectedImage.name}</Typography>
+
+          {selectedImages.length > 0 && (
+            <Stack>
+              {selectedImages.map((image, index) => (
+                <Typography key={index} variant="caption">
+                  {image.name}
+                </Typography>
+              ))}
+            </Stack>
           )}
+
+          <Typography variant="caption" color="textSecondary" sx={{ marginTop: 1 }}>
+            {t("You can upload a maximum of 5 images as product images.")}
+          </Typography>
         </Stack>
 
         <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
           <LoadingButton
             loading={loadingSave}
-            onClick={handleSave}
             variant="contained"
-            sx={{
-              flex: 1,
-            }}
+            onClick={handleSave}
+            sx={{ flex: 1 }}
           >
             {t("Save")}
           </LoadingButton>
-          <Button onClick={onCancel} variant="outlined" sx={{ flex: 1 }}>
+          <Button variant="outlined" onClick={onCancel} sx={{ flex: 1 }}>
             {t("Cancel")}
           </Button>
         </Stack>
