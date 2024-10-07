@@ -3,7 +3,6 @@ import Iconify from "../../../../backoffice/components/iconify";
 import { Link } from "react-router-dom";
 const backend = import.meta.env.VITE_BACKEND_URL;
 
-
 const Promo = ({ products }) => {
   const scrollRef1 = useRef(null);
   const scrollRef2 = useRef(null);
@@ -45,8 +44,8 @@ const Promo = ({ products }) => {
   setupAutoScroll(scrollRef3, 7500);
 
   return (
-    <div className="relative mt-6 mb-6 select-none">
-      <div className="container mx-auto">
+    <div className="relative mt-6 mb-6 mx-4 md:mx-0 select-none">
+      <div className="container mx-auto px-4">
         {flashSalesProducts?.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
@@ -68,7 +67,7 @@ const Promo = ({ products }) => {
                 {flashSalesProducts.map((product, index) => (
                   <div
                     key={index}
-                    className="flex flex-col items-center bg-gray-200 rounded-2xl w-72 flex-shrink-0"
+                    className="flex flex-col items-center bg-gray-200 rounded-2xl w-64 md:w-72 flex-shrink-0"
                   >
                     <Link
                       to={`/product/${product?._id}`}
@@ -77,19 +76,19 @@ const Promo = ({ products }) => {
                       <img
                         src={typeof product?.product_images === "string" ? `${backend}/${product?.product_images}` : `${backend}/${product?.product_images[0]}`}
                         alt={product?.product_name}
-                        className="h-52 w-full m-4 rounded-t-lg object-contain"
+                        className="h-40 w-full md:h-52 m-4 rounded-t-lg object-contain"
                       />
-                      <p className="text-center mb-2">
+                      <p className="text-center mb-2 text-sm md:text-base">
                         {product?.product_name}
                       </p>
                       <div className="flex flex-grow justify-center text-center mb-2">
                         {product?.discount_price &&
                           product?.discount_price !== product?.price ? (
                           <div className="flex">
-                            <div className="flex items-center font-bold text-xl mr-2 text-green-500">
+                            <div className="flex items-center font-bold text-lg md:text-xl mr-2 text-green-500">
                               {product?.discount_price} DH
                             </div>
-                            <div className="flex items-center line-through text-xs text-gray-500">
+                            <div className="flex items-center line-through text-xs md:text-sm text-gray-500">
                               {product?.price} DH
                             </div>
                           </div>
@@ -144,7 +143,7 @@ const Promo = ({ products }) => {
                 {newArrivalsProducts.map((product, index) => (
                   <div
                     key={index}
-                    className="flex flex-col items-center bg-gray-200 rounded-2xl w-72 flex-shrink-0"
+                    className="flex flex-col items-center bg-gray-200 rounded-2xl w-64 md:w-72 flex-shrink-0"
                   >
                     <Link
                       to={`/product/${product?._id}`}
@@ -153,19 +152,19 @@ const Promo = ({ products }) => {
                       <img
                         src={typeof product?.product_images === "string" ? `${backend}/${product?.product_images}` : `${backend}/${product?.product_images[0]}`}
                         alt={product?.product_name}
-                        className="h-52 w-full m-4 rounded-t-lg object-contain"
+                        className="h-40 w-full md:h-52 m-4 rounded-t-lg object-contain"
                       />
-                      <p className="text-center mb-2">
+                      <p className="text-center mb-2 text-sm md:text-base">
                         {product?.product_name}
                       </p>
                       <div className="flex flex-grow justify-center text-center mb-2">
                         {product?.discount_price &&
                           product?.discount_price !== product?.price ? (
                           <div className="flex">
-                            <div className="flex items-center font-bold text-xl mr-2 text-green-500">
+                            <div className="flex items-center font-bold text-lg md:text-xl mr-2 text-green-500">
                               {product?.discount_price} DH
                             </div>
-                            <div className="flex items-center line-through text-xs text-gray-500">
+                            <div className="flex items-center line-through text-xs md:text-sm text-gray-500">
                               {product?.price} DH
                             </div>
                           </div>
@@ -220,28 +219,28 @@ const Promo = ({ products }) => {
                 {topDealsProducts.map((product, index) => (
                   <div
                     key={index}
-                    className="flex flex-col items-center bg-gray-200 rounded-2xl w-72 flex-shrink-0"
+                    className="flex flex-col items-center bg-gray-200 rounded-2xl w-64 md:w-72 flex-shrink-0"
                   >
                     <Link
                       to={`/product/${product?._id}`}
-                      className="no-underline text-black font-semibold text-lg hover:text-gray-500"
+                      className="no-underline text-black font-semibold text-lg hover:text-grey-500"
                     >
                       <img
                         src={typeof product?.product_images === "string" ? `${backend}/${product?.product_images}` : `${backend}/${product?.product_images[0]}`}
                         alt={product?.product_name}
-                        className="h-52 w-full m-4 rounded-t-lg object-contain"
+                        className="h-40 w-full md:h-52 m-4 rounded-t-lg object-contain"
                       />
-                      <p className="text-center mb-2">
+                      <p className="text-center mb-2 text-sm md:text-base">
                         {product?.product_name}
                       </p>
                       <div className="flex flex-grow justify-center text-center mb-2">
                         {product?.discount_price &&
                           product?.discount_price !== product?.price ? (
                           <div className="flex">
-                            <div className="flex items-center font-bold text-xl mr-2 text-green-500">
+                            <div className="flex items-center font-bold text-lg md:text-xl mr-2 text-green-500">
                               {product?.discount_price} DH
                             </div>
-                            <div className="flex items-center line-through text-xs text-gray-500">
+                            <div className="flex items-center line-through text-xs md:text-sm text-gray-500">
                               {product?.price} DH
                             </div>
                           </div>

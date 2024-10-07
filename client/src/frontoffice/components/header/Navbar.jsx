@@ -68,7 +68,7 @@ const Navbar = () => {
   return (
     <div className="fixed w-full z-50">
       <Announcement />
-      <nav className="bg-white shadow-md py-4">
+      <nav className="bg-white shadow-lg py-4">
         <div className="container mx-auto flex items-center justify-between px-4">
           <Link to="/">
             <img className="w-24 h-auto bg-cover" src="/assets/logo.webp" alt="logo" />

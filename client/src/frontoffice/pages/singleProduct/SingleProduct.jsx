@@ -104,7 +104,7 @@ const SingleProduct = () => {
                         {product.price} DH
                       </strike>
                     </h2>
-                    <p className="text-gray-600 mb-4 h-16">{product.short_description}</p>
+                    <p className="text-gray-600 my-4 h-auto min-h-16">{product.short_description}</p>
                   </div>
 
                   <div className="flex items-center space-x-4 mt-4">
