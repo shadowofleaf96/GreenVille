@@ -195,16 +195,12 @@ const Payment = () => {
         <div className="flex flex-col">
           <CheckoutSteps shipping confirmOrder payment />
         </div>
-        <div className="flex justify-center ml-8 mt-8">
-          <div className="mb-8 lg:mb-0 bg-white shadow-lg p-8 rounded-2xl mx-auto border border-gray-200 w-full">
+        <div className="flex flex-col lg:flex-row justify-center mx-4 md:mx-8 mt-8">
+          <div className="mb-8 lg:mb-0 bg-white shadow-lg p-8 rounded-2xl mx-auto border border-gray-200 w-full lg:w-1/2">
             <h4 className="mb-4 text-lg font-semibold text-center">Select a Payment Method</h4>
-            <div className="flex justify-center mb-4">
-              <label className="flex mr-4 items-center">
-                <Iconify
-                  icon="mdi:cod" width={30}
-                  height={30}
-                  className="mr-2 flex-1"
-                />
+            <div className="flex flex-col md:flex-row justify-center mb-4">
+              <label className="flex items-center w-auto mb-2 md:mb-0 md:mr-4 text-left justify-start">
+                <Iconify icon="mdi:cod" width={30} height={30} className="mr-2 md:flex-1 " />
                 <input
                   type="radio"
                   name="paymentMethod"
@@ -215,12 +211,8 @@ const Payment = () => {
                 />
                 <span className="ml-2">Cash on Delivery (COD)</span>
               </label>
-              <label className="flex mr-4 items-center">
-                <Iconify
-                  icon="ic:baseline-paypal" width={30}
-                  height={30}
-                  className="mr-2 flex-1"
-                />
+              <label className="flex items-center mb-2 md:mb-0 md:mr-4 text-left justify-start">
+                <Iconify icon="ic:baseline-paypal" width={30} height={30} className="mr-2 md:flex-1" />
                 <input
                   type="radio"
                   name="paymentMethod"
@@ -231,12 +223,8 @@ const Payment = () => {
                 />
                 <span className="ml-2">PayPal</span>
               </label>
-              <label className="flex mr-2 items-center">
-                <Iconify
-                  icon="material-symbols-light:credit-card" width={30}
-                  height={30}
-                  className="mr-2 flex-1"
-                />
+              <label className="flex items-center text-left justify-start">
+                <Iconify icon="material-symbols-light:credit-card" width={30} height={30} className="mr-2 md:flex-1" />
                 <input
                   type="radio"
                   name="paymentMethod"
@@ -253,7 +241,7 @@ const Payment = () => {
               <div>
                 <hr className="my-4" />
                 <div className="flex justify-center mt-6">
-                  {loading ?
+                  {loading ? (
                     <button
                       loading={loading}
                       onClick={handleCODPayment}
@@ -262,14 +250,16 @@ const Payment = () => {
                       <div className="flex justify-center items-center space-x-2">
                         <p className="!text-center text-md normal-case font-medium">Loading</p>
                       </div>
-                    </button> :
+                    </button>
+                  ) : (
                     <button
                       loading={loading}
                       onClick={handleCODPayment}
-                      className="h-12 w-3/4 bg-[#8DC63F]  text-white rounded-lg !text-center text-md normal-case font-meduim shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
+                      className="h-12 w-3/4 bg-[#8DC63F] text-white rounded-lg !text-center text-md normal-case font-medium shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
                     >
                       <p className="!text-center text-md normal-case font-medium">Confirm Pay</p>
-                    </button>}
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -296,8 +286,7 @@ const Payment = () => {
             )}
           </div>
 
-
-          <div className="w-full ml-8">
+          <div className="w-full md:mx-8 lg:w-1/2">
             <div className="bg-blue-50 p-4 rounded-lg shadow">
               <h4 className="text-lg font-semibold mb-4">Order Summary</h4>
               <hr className="mb-4" />

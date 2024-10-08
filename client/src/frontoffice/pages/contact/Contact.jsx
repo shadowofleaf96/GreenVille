@@ -1,11 +1,14 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import Iconify from "../../../backoffice/components/iconify";
 import { Link } from "react-router-dom";
-import Navbar from "../../components/header/Navbar";
-import Footer from "../../components/footer/Footer";
 import MetaData from "../../components/MetaData";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import { useForm } from "react-hook-form";
+import createAxiosInstance from "../../../utils/axiosConfig";
+import { toast } from "react-toastify";
+import DOMPurify from "dompurify";
+import { LoadingButton } from "@mui/lab";
 
 const fadeInVariants = {
   hidden: { opacity: 0 },
@@ -16,11 +19,41 @@ const Contact = () => {
   const [formRef, formInView] = useInView({ triggerOnce: true, threshold: 0.2 });
   const [infoRef, infoInView] = useInView({ triggerOnce: true, threshold: 0.2 });
 
+  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm();
+  const [loading, setLoading] = useState(false);
+  const agreeToTerms = watch("agreeToTerms");
+
+  const onSubmit = async (data) => {
+    if (!agreeToTerms) {
+      toast.error("You must agree to the terms and conditions");
+      return;
+    }
+
+    setLoading(true);
+
+    const sanitizedData = {
+      name: DOMPurify.sanitize(data.name),
+      email: DOMPurify.sanitize(data.email),
+      phone_number: DOMPurify.sanitize(data.phone_number),
+      message: DOMPurify.sanitize(data.message),
+    };
+
+    try {
+      const axiosInstance = createAxiosInstance("customer");
+      const response = await axiosInstance.post("/contact", sanitizedData);
+      toast.success("Message sent successfully!");
+      reset();
+    } catch (error) {
+      toast.error("Failed to send message. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Fragment>
       <MetaData title={"Contact"} />
       <div className="font-[sans-serif] max-w-6xl mx-auto relative overflow-hidden">
-
         <motion.div
           className="grid md:grid-cols-2 gap-8 py-8 px-6"
           variants={fadeInVariants}
@@ -32,10 +65,11 @@ const Contact = () => {
             <img
               src="../../../../assets/contact.webp"
               className="shrink-0 w-5/6"
+              alt="Contact"
             />
           </div>
 
-          <form className="rounded-tl-3xl rounded-bl-3xl">
+          <form onSubmit={handleSubmit(onSubmit)} className="rounded-tl-3xl rounded-bl-3xl">
             <h2 className="text-2xl underline decoration-green-400 decoration-4 underline-offset-8 font-semibold text-center mb-6">
               Contact us
             </h2>
@@ -43,42 +77,59 @@ const Contact = () => {
               <input
                 type="text"
                 placeholder="Name"
-                className="w-full bg-gray-100 rounded-md py-3 px-4 text-sm outline-green-400 focus-within:bg-transparent"
+                {...register("name", { required: "Name is required" })}
+                className="w-full bg-gray-200 rounded-md py-3 px-4 text-sm outline-green-400 focus-within:bg-transparent"
               />
+              {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+
               <input
                 type="email"
                 placeholder="Email"
-                className="w-full bg-gray-100 rounded-md py-3 px-4 text-sm outline-green-400 focus-within:bg-transparent"
+                {...register("email", { required: "Email is required" })}
+                className="w-full bg-gray-200 rounded-md py-3 px-4 text-sm outline-green-400 focus-within:bg-transparent"
               />
+              {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+
               <input
-                type="email"
+                type="text"
                 placeholder="Phone No."
-                className="w-full bg-gray-100 rounded-md py-3 px-4 text-sm outline-green-400 focus-within:bg-transparent"
+                {...register("phone_number", { required: "Phone number is required" })}
+                className="w-full bg-gray-200 rounded-md py-3 px-4 text-sm outline-green-400 focus-within:bg-transparent"
               />
+              {errors.phone_number && <p className="text-red-500 text-sm">{errors.phone_number.message}</p>}
+
               <textarea
                 placeholder="Message"
                 rows="6"
-                className="w-full bg-gray-100 rounded-md px-4 text-sm pt-3 outline-green-400 focus-within:bg-transparent"
+                {...register("message", { required: "Message is required" })}
+                className="w-full bg-gray-200 rounded-md px-4 text-sm pt-3 outline-green-400 focus-within:bg-transparent"
               ></textarea>
-              <input
-                id="checkbox1"
-                type="checkbox"
-                className="w-4 h-4 mr-3 accent-green-400"
-              />
-              <label
-                htmlFor="checkbox1"
-                className="text-sm text-gray-600"
+              {errors.message && <p className="text-red-500 text-sm">{errors.message.message}</p>}
+
+              <div className="flex items-center">
+                <input
+                  id="checkbox1"
+                  type="checkbox"
+                  {...register("agreeToTerms")}
+                  className="w-4 h-4 mr-3 accent-green-400"
+                />
+                <label htmlFor="checkbox1" className="text-sm text-gray-600">
+                  I agree to the
+                  <Link to="/terms" className="underline"> Terms and Conditions</Link>
+                </label>
+              </div>
+
+              <LoadingButton
+                type="submit"
+                fullWidth
+                loading={loading}
+                variant="contained"
+                sx={{ fontWeight: 500, fontSize: 15 }}
+                className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-3 mt-6"
+                loadingPosition="center"
               >
-                I agree to the{" "}
-                <Link to="" className="underline">Terms and Conditions</Link> and{" "}
-                <Link to="" className="underline">Privacy Policy</Link>
-              </label>
-              <button
-                type="button"
-                className="text-white w-full relative bg-[#8DC63F] shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 rounded-md text-sm px-6 py-3 !mt-6"
-              >
-                Send Message
-              </button>
+                {loading ? "Sending..." : "Send Message"}
+              </LoadingButton>
             </div>
           </form>
         </motion.div>
@@ -133,12 +184,16 @@ const Contact = () => {
             </ul>
           </div>
 
-          <div className="z-10 relative h-full">
+          <div className="p-8">
             <iframe
               src="https://maps.google.com/maps?q=casablanca&t=&z=13&ie=UTF8&iwloc=&output=embed"
-              className="left-0 top-0 h-full w-full max-w-lg rounded-lg"
-              frameBorder="0"
+              width="100%"
+              height="450"
+              style={{ border: 0 }}
               allowFullScreen
+              loading="lazy"
+              className="rounded-md"
+              title="Google Map of Casablanca"
             ></iframe>
           </div>
         </motion.div>

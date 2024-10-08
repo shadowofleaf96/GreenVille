@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from "react";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import CheckoutSteps from "../checkoutSteps/CheckoutSteps";
 import { countries } from "countries-list";
@@ -10,7 +10,7 @@ import MetaData from "../../../components/MetaData";
 
 const Shipping = () => {
     const dispatch = useDispatch();
-    const history = useNavigate()
+    const history = useNavigate();
     const countriesList = Object.values(countries);
     const { cartItems, shippingInfo } = useSelector((state) => state.carts);
 
@@ -20,17 +20,10 @@ const Shipping = () => {
     );
 
     if (itemsPrice === 0) {
-        history("/products")
+        history("/products");
     }
 
-    let shippingPrice;
-
-    if (itemsPrice <= 1500) {
-        shippingPrice = 15;
-    } else {
-        shippingPrice = 0
-    }
-
+    let shippingPrice = itemsPrice <= 1500 ? 15 : 0;
     const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
     const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
 
@@ -40,10 +33,8 @@ const Shipping = () => {
     const [phoneNo, setPhoneNo] = useState(shippingInfo.phoneNo);
     const [country, setCountry] = useState("Morocco");
 
-
     const submitHandler = (e) => {
         e.preventDefault();
-
         dispatch(saveShippingInfo({ address, city, phoneNo, postalCode, country }));
         history("/confirm", { replace: true });
     };
@@ -51,21 +42,16 @@ const Shipping = () => {
     return (
         <div className="flex flex-col gap-6 w-full">
             <MetaData title={"Shipping"} />
-            <div className="py-2 my-8">
-                <div className="flex flex-col">
-                    <CheckoutSteps shipping />
-                </div>
-                <div className="flex justify-center">
-                    <div className="flex bg-white justify-center shadow-lg rounded-xl p-8 mt-4 w-full lg:w-1/3 mr-8">
+            <div className="py-2 my-8 mx-4 md:mx-8">
+                <CheckoutSteps shipping />
+                <div className="flex flex-col lg:flex-row justify-center items-start lg:gap-8">
+                    <div className="bg-white shadow-lg rounded-xl p-6 mt-4 w-full lg:w-1/3">
                         <form onSubmit={submitHandler}>
                             <h4 className="text-xl font-semibold mb-6">Shipping Credentials</h4>
                             <div className="grid grid-cols-1 gap-4 mb-4 mt-4">
                                 {/* Address Field */}
-                                <div className="grid grid-cols-4 gap-2 items-center">
-                                    <label
-                                        htmlFor="address_field"
-                                        className="col-span-1 text-gray-800 font-semibold"
-                                    >
+                                <div className="grid grid-cols-1 gap-2">
+                                    <label htmlFor="address_field" className="text-gray-800 font-semibold">
                                         Address
                                     </label>
                                     <input
@@ -74,16 +60,13 @@ const Shipping = () => {
                                         value={address}
                                         onChange={(e) => setAddress(e.target.value)}
                                         required
-                                        className="col-span-3 h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
+                                        className="h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
                                     />
                                 </div>
 
                                 {/* City Field */}
-                                <div className="grid grid-cols-4 gap-2 items-center">
-                                    <label
-                                        htmlFor="city_field"
-                                        className="col-span-1 text-gray-800 font-semibold"
-                                    >
+                                <div className="grid grid-cols-1 gap-2">
+                                    <label htmlFor="city_field" className="text-gray-800 font-semibold">
                                         City
                                     </label>
                                     <input
@@ -92,34 +75,28 @@ const Shipping = () => {
                                         value={city}
                                         onChange={(e) => setCity(e.target.value)}
                                         required
-                                        className="col-span-3 h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
+                                        className="h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
                                     />
                                 </div>
 
                                 {/* Phone Field */}
-                                <div className="grid grid-cols-4 gap-2 items-center">
-                                    <label
-                                        htmlFor="phone_field"
-                                        className="col-span-1 text-gray-800 font-semibold"
-                                    >
+                                <div className="grid grid-cols-1 gap-2">
+                                    <label htmlFor="phone_field" className="text-gray-800 font-semibold">
                                         Phone
                                     </label>
                                     <input
-                                        type="phone"
+                                        type="tel"
                                         id="phone_field"
                                         value={phoneNo}
                                         onChange={(e) => setPhoneNo(e.target.value)}
                                         required
-                                        className="col-span-3 h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
+                                        className="h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
                                     />
                                 </div>
 
                                 {/* Postal Code Field */}
-                                <div className="grid grid-cols-4 gap-2 items-center">
-                                    <label
-                                        htmlFor="postal_code_field"
-                                        className="col-span-1 text-gray-800 font-semibold"
-                                    >
+                                <div className="grid grid-cols-1 gap-2">
+                                    <label htmlFor="postal_code_field" className="text-gray-800 font-semibold">
                                         Postal Code
                                     </label>
                                     <input
@@ -128,25 +105,21 @@ const Shipping = () => {
                                         value={postalCode}
                                         onChange={(e) => setPostalCode(e.target.value)}
                                         required
-                                        className="col-span-3 h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
+                                        className="h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
                                     />
                                 </div>
 
                                 {/* Country Field */}
-                                <div className="grid grid-cols-4 gap-2 items-center">
-                                    <label
-                                        htmlFor="country_field"
-                                        className="col-span-1 text-gray-800 font-semibold"
-                                    >
+                                <div className="grid grid-cols-1 gap-2">
+                                    <label htmlFor="country_field" className="text-gray-800 font-semibold">
                                         Country
                                     </label>
                                     <select
                                         id="country_field"
-                                        disabled={true}
-                                        value={"Morocco"}
-                                        // onChange={(e) => setCountry("Morocco")}
+                                        value={country}
+                                        onChange={(e) => setCountry(e.target.value)}
                                         required
-                                        className="col-span-3 h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
+                                        className="h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
                                     >
                                         {countriesList.map((country) => (
                                             <option key={country.name} value={country.name}>
@@ -167,7 +140,7 @@ const Shipping = () => {
                             </div>
                         </form>
                     </div>
-                    <div className="w-full lg:w-1/3 mr-8 my-4">
+                    <div className="w-full lg:w-1/3 my-4">
                         <div className="bg-blue-50 p-4 rounded-lg shadow">
                             <h4 className="text-lg font-semibold mb-4">Order Summary</h4>
                             <hr className="mb-4" />
@@ -184,7 +157,6 @@ const Shipping = () => {
                             <p className="flex justify-between text-xl font-bold">
                                 Total <span>{totalPrice} DH</span>
                             </p>
-
                         </div>
                     </div>
                 </div>

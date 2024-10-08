@@ -1,21 +1,14 @@
 import React, { Fragment, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Alert from "@mui/material/Alert";
-import Snackbar from "@mui/material/Snackbar";
 import Iconify from "../../../backoffice/components/iconify";
-import { useCookies } from "react-cookie";
 import { useDispatch, useSelector } from "react-redux";
 import {
   updateCartItemQuantity,
   removeItemFromCart,
 } from "../../../redux/frontoffice/cartSlice";
-
-import Navbar from "../../components/header/Navbar";
-import Footer from "../../components/footer/Footer";
 import MetaData from "../../components/MetaData";
 import { toast } from "react-toastify";
 const backend = import.meta.env.VITE_BACKEND_URL;
-
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -81,7 +74,7 @@ const Cart = () => {
                 ) : (
                   cartItems.map((item) => (
                     <Fragment key={item.product}>
-                      <div className="flex items-center gap-4 my-4">
+                      <div className="flex flex-col md:flex-row items-center gap-4 my-4">
                         <img
                           src={typeof item?.image === "string" ? `${backend}/${item?.image}` : `${backend}/${item?.image[0]}`}
                           alt={item.name}
@@ -91,7 +84,7 @@ const Cart = () => {
                           <Link to={`/product/${item.product}`} className="text-blue-500 hover:underline">
                             {item.name}
                           </Link>
-                          <p className="text-green-400 font-semibold text-lg mt-2">{item.discountPrice} DH</p>
+                          <p className="text-green-400 font-semibold flex justify-center md:justify-start text-lg mt-2">{item.discountPrice} DH</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
@@ -135,20 +128,23 @@ const Cart = () => {
               <span>{cartItems.reduce((acc, item) => acc + Number(item.quantity), 0)} (Units or KG)</span>
             </p>
             <p className="font-semibold flex justify-between my-2">
-              <span >Total Price</span>
+              <span>Total Price</span>
               <span>{cartItems.reduce((acc, item) => acc + item.quantity * item.discountPrice, 0).toFixed(2)} DH</span>
             </p>
             <hr />
-            {cartItems.length != 0 ? (
+            {cartItems.length !== 0 ? (
               <div className="text-center mt-4">
                 <button onClick={checkoutHandler} className="bg-[#8DC63F] text-white py-3 px-8 rounded-md shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-600">
                   Checkout
                 </button>
-              </div>) : (<div className="text-center mt-4">
+              </div>
+            ) : (
+              <div className="text-center mt-4">
                 <button disabled onClick={checkoutHandler} className="bg-gray-100 py-3 px-8 text-gray-400 rounded-md">
                   Checkout
                 </button>
-              </div>)}
+              </div>
+            )}
           </div>
         </div>
       </div>

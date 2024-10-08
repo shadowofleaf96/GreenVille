@@ -7,7 +7,6 @@ import MetaData from "../../../components/MetaData";
 import CheckoutSteps from "../checkoutSteps/CheckoutSteps";
 const backend = import.meta.env.VITE_BACKEND_URL;
 
-
 const ConfirmOrder = () => {
     const { cartItems, shippingInfo } = useSelector((state) => state.carts);
     const { customer } = useSelector((state) => state.customers);
@@ -20,17 +19,10 @@ const ConfirmOrder = () => {
     );
 
     if (itemsPrice === 0) {
-        history("/products")
+        history("/products");
     }
 
-    let shippingPrice;
-
-    if (itemsPrice <= 1500) {
-        shippingPrice = 15;
-    } else {
-        shippingPrice = 0
-    }
-
+    let shippingPrice = itemsPrice <= 1500 ? 15 : 0;
     const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
     const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
 
@@ -41,12 +33,10 @@ const ConfirmOrder = () => {
     return (
         <div className="flex flex-col gap-6 w-full">
             <MetaData title={"Confirm Order"} />
-            <div className="container py-2 my-8 mx-auto">
-                <div className="flex flex-col">
-                    <CheckoutSteps shipping confirmOrder />
-                </div>
-                <div className="flex justify-center ml-8 mt-8">
-                    <div className="mb-8 lg:mb-0 bg-white shadow-lg p-8 rounded-2xl mx-auto border border-gray-200 w-full">
+            <div className="container py-2 my-8 mx-auto ">
+                <CheckoutSteps shipping confirmOrder />
+                <div className="flex flex-col md:flex-row justify-between gap-6 mx-4 md:mx-8">
+                    <div className="mb-8 bg-white shadow-lg p-8 rounded-2xl border border-gray-200 w-full md:w-3/5">
                         <h4 className="text-lg font-semibold mb-3">Shipping Info</h4>
                         <p className="text-gray-700 mb-2">
                             <b>Name: </b> {customer && `${customer.first_name} ${customer.last_name}`}
@@ -57,11 +47,8 @@ const ConfirmOrder = () => {
                         <p className="text-gray-700 mb-4">
                             <b>Address: </b> {`${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.postalCode}, ${shippingInfo.country}`}
                         </p>
-
                         <hr className="my-4" />
-
                         <h4 className="text-lg font-semibold mt-4">Your Cart Items:</h4>
-
                         {cartItems.map((item) => (
                             <Fragment key={item.product}>
                                 <hr className="my-2" />
@@ -87,41 +74,34 @@ const ConfirmOrder = () => {
                                 </div>
                             </Fragment>
                         ))}
+                        <button
+                            className="w-full bg-[#8DC63F] font-medium shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 text-white py-3 px-8 rounded-lg mt-4"
+                            onClick={processToPayment}
+                        >
+                            Proceed to Payment
+                        </button>
                     </div>
 
-                    <div className="w-full ml-8">
-                        <div className="bg-blue-50 p-4 rounded-lg shadow">
-                            <h4 className="text-lg font-semibold mb-4">Order Summary</h4>
-                            <hr className="mb-4" />
-                            <p className="flex justify-between mb-2">
-                                Subtotal <span>{itemsPrice} DH</span>
-                            </p>
-                            <p className="flex justify-between mb-2">
-                                Shipping <span>{shippingPrice} DH</span>
-                            </p>
-                            <p className="flex justify-between mb-2">
-                                Tax <span>{taxPrice} DH</span>
-                            </p>
-
-                            <hr className="my-4" />
-
-                            <p className="flex justify-between text-xl font-bold">
-                                Total <span>{totalPrice} DH</span>
-                            </p>
-
-                            <hr className="my-4" />
-
-                            <button
-                                className="w-full bg-[#8DC63F] font-medium shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 text-white py-3 px-8 rounded-lg mt-4"
-                                onClick={processToPayment}
-                            >
-                                Proceed to Payment
-                            </button>
-                        </div>
-                    </div >
+                    <div className="bg-blue-50 p-4 rounded-lg shadow w-full md:w-2/5 max-h-64">
+                        <h4 className="text-lg font-semibold mb-4">Order Summary</h4>
+                        <hr className="mb-4" />
+                        <p className="flex justify-between mb-2">
+                            Subtotal <span>{itemsPrice} DH</span>
+                        </p>
+                        <p className="flex justify-between mb-2">
+                            Shipping <span>{shippingPrice} DH</span>
+                        </p>
+                        <p className="flex justify-between mb-2">
+                            Tax <span>{taxPrice} DH</span>
+                        </p>
+                        <hr className="my-4" />
+                        <p className="flex justify-between text-xl font-bold">
+                            Total <span>{totalPrice} DH</span>
+                        </p>
+                    </div>
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 

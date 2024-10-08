@@ -9,7 +9,6 @@ import Footer from "../../components/footer/Footer";
 import MetaData from "../../components/MetaData";
 const backend = import.meta.env.VITE_BACKEND_URL;
 
-
 const Profile = () => {
   const { customer, loading } = useSelector((state) => state.customers);
 
@@ -43,12 +42,12 @@ const Profile = () => {
                   </div>
                   <hr className="border-primary mb-4" />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex justify-center">
+                    <div className="flex justify-center mb-4 md:mb-0">
                       {customer && (
                         <img
                           src={`${backend}/${customer?.customer_image}`}
                           alt={`${customer?.first_name} ${customer?.last_name}`}
-                          className="h-64 w-64 rounded-full"
+                          className="h-64 w-64 rounded-full object-cover"
                         />
                       )}
                     </div>

@@ -32,6 +32,10 @@ import createAxiosInstance from "../utils/axiosConfig";
 import Loader from "../frontoffice/components/loader/Loader";
 import FrontProtectedRoute from "./components/FrontProtectedRoute";
 import MainLayout from "../frontoffice/pages/layout/Layout";
+import TermsAndConditions from "../frontoffice/pages/policies/TermsConditions";
+import ReturnsAndExchanges from "../frontoffice/pages/policies/ReturnsExchanges";
+import ShippingAndDeliveryPolicy from "../frontoffice/pages/policies/ShippingDelivery";
+import RefundPolicy from "../frontoffice/pages/policies/RefundPolicy";
 
 export const IndexPage = lazy(() => import("../backoffice/pages/app"));
 export const CategoryPage = lazy(() => import("../backoffice/pages/category"));
@@ -111,6 +115,10 @@ export default function Router() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/terms" element={<TermsAndConditions />} />
+          <Route path="/return" element={<ReturnsAndExchanges />} />
+          <Route path="/shippingpolicy" element={<ShippingAndDeliveryPolicy />} />
+          <Route path="/refund" element={<RefundPolicy />} />
           <Route path="/categories" element={<Category />} />
           <Route path="/products/:categoryId/*" element={<Products />} />
           <Route path="/products/search/:keyword" element={<Products />} />

@@ -22,8 +22,8 @@ export function responsiveFontSizes({ sm, md, lg }) {
   };
 }
 
-export const primaryFont = 'Open Sans, sans-serif';
-export const secondaryFont = 'Montserrat, sans-serif';
+export const primaryFont = 'Raleway, sans-serif';
+export const secondaryFont = 'Raleway, sans-serif';
 
 // ----------------------------------------------------------------------
 

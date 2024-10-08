@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const CheckoutSteps = ({ shipping, confirmOrder, payment }) => {
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center mt-4 md:mt-0">
       <nav>
         <ol className="flex flex-row md:space-x-4">
           {shipping ? (
@@ -32,6 +32,7 @@ const CheckoutSteps = ({ shipping, confirmOrder, payment }) => {
             </li>
           )}
 
+          {/* Step 2: Confirm Order */}
           {confirmOrder ? (
             <Link to="/confirm">
               <li className="md:flex-1">
@@ -56,6 +57,7 @@ const CheckoutSteps = ({ shipping, confirmOrder, payment }) => {
             </li>
           )}
 
+          {/* Step 3: Payment */}
           {payment ? (
             <Link to="/payment">
               <li className="md:flex-1">

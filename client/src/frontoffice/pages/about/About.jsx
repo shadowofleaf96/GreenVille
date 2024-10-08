@@ -38,12 +38,12 @@ const About = () => {
 
   const { ref: aboutRef, inView: aboutInView } = useInView({ triggerOnce: true, threshold: 0.1 });
   const { ref: whyUsRef, inView: whyUsInView } = useInView({ triggerOnce: true, threshold: 0.1 });
-  
+
   return (
     <Fragment>
       <MetaData title={"About"} />
       <div className="py-8">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-8">
           <motion.div
             ref={aboutRef}
             variants={fadeInVariants}
@@ -55,23 +55,23 @@ const About = () => {
               <motion.img
                 src="../../../../assets/about.webp"
                 alt="About"
-                className="max-w-md"
+                className="max-w-xs md:max-w-md"
                 variants={fadeInVariants}
               />
             </div>
-            <motion.div className="my-auto" variants={fadeInVariants}>
-              <div className="container mx-auto py-4">
-                <h3 className="text-2xl font-semibold underline decoration-green-400 decoration-4 underline-offset-8">
-                  About Us
-                </h3>
-              </div>
-              <h4 className="flex items-end font-medium text-xl tracking-wide">
+            <motion.div className="my-auto flex flex-col items-center md:items-start" variants={fadeInVariants}>
+              <h3 className="text-2xl font-semibold py-4 underline decoration-green-400 decoration-4 underline-offset-8">
+                About Us
+              </h3>
+              <h4 className="flex items-center font-medium text-xl tracking-wide">
                 We are{" "}
                 <img
-                  className="w-28 ml-1 h-auto flex items-start"
+                  className="w-28 ml-1 h-auto"
                   src="../../../../assets/logo-text.webp"
+                  alt="Logo"
                 />
               </h4>
+
               <p className="font-medium tracking-wide text-gray-600 mt-4">
                 A collective of young entrepreneurs making their way to the world of E-commerce, promoting our local products, and working in depth with our community.
               </p>
@@ -88,7 +88,6 @@ const About = () => {
 
           <hr className="m-4" />
 
-          {/* Why Us Section */}
           <motion.div
             ref={whyUsRef}
             variants={fadeInVariants}

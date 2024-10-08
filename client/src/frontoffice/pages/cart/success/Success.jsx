@@ -6,10 +6,10 @@ import { Link } from "react-router-dom";
 
 const Success = () => {
     return (
-        <div className="bg-gray-100 py-6">
+        <div className="bg-gray-100 py-3 md:py-6">
             <MetaData title={"Order Success"} />
-            <div className="flex flex-col items-center py-8 my-8 justify-center">
-                <div className="flex flex-col items-center py-6">
+            <div className="flex flex-col items-center py-8 my-4 md:my-8 px-4 justify-center">
+                <div className="flex flex-col items-center py-6 w-full max-w-lg mx-auto">
                     <div className="relative flex items-center justify-center mb-8">
                         <svg
                             className="w-32 h-32 text-green-500 animate-bounce"
@@ -36,12 +36,12 @@ const Success = () => {
                         </svg>
                     </div>
 
-                    <h1 className="text-3xl font-bold text-gray-800 mb-4">Order Successful!</h1>
-                    <p className="text-lg text-gray-600 mb-6">
+                    <h1 className="text-3xl font-bold text-gray-800 mb-4 text-center">Order Successful!</h1>
+                    <p className="text-lg text-gray-600 mb-6 text-center">
                         Thank you for your purchase. Your order has been placed successfully.
                     </p>
 
-                    <div className="flex space-x-4">
+                    <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
                         <Link to="/products"
                             className="px-6 py-3 bg-[#8DC63F] text-white font-medium rounded-md shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
                         >
@@ -49,7 +49,7 @@ const Success = () => {
                         </Link>
                         <Link
                             to="/orders/me"
-                            className="px-6 py-3 bg-gray-300 text-gray-800 font-medium rounded-md shadow hover:bg-gray-400 transition-all duration-300"
+                            className="px-6 py-3 bg-gray-300 text-gray-800 font-medium rounded-md shadow text-center hover:bg-gray-400 transition-all duration-300"
                         >
                             View Orders
                         </Link>

@@ -36,16 +36,15 @@ function EditCategoryForm({ category, onSave, onCancel, open, onClose }) {
   };
 
   const handleSave = async () => {
-    setLoadingSave(true); // Set loading state before save operation
+    setLoadingSave(true);
 
     try {
       await onSave(editedCategory);
-      onClose(); // Close the modal after successful save
+      onClose();
     } catch (error) {
       console.error("Error saving category:", error);
-      // Handle the error as needed (display an error message, etc.)
     } finally {
-      setLoadingSave(false); // Reset loading state after save operation
+      setLoadingSave(false);
     }
   };
 

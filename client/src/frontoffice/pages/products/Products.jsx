@@ -267,7 +267,7 @@ const Products = () => {
                         <button
                           key={index}
                           onClick={() => setCurrentPage(index + 1)}
-                          className={`h-auto rounded-full border py-2 px-4 text-sm ${index + 1 === currentPage ? "bg-[#8DC63F] text-white" : "text-slate-800"
+                          className={`h-auto rounded-full hidden md:block border py-2 px-4 text-sm ${index + 1 === currentPage ? "bg-[#8DC63F] text-white" : "text-slate-800"
                             }`}
                         >
                           {index + 1}

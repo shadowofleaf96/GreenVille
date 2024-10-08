@@ -21,7 +21,6 @@ const customerSchema = new Schema(
   { collection: "Customers", versionKey: false }
 );
 
-// Define the validatePassword method for user model
 customerSchema.methods.validatePassword = async function (candidatePassword) {
   const isMatch = await bcrypt.compare(candidatePassword, this.password);
   return isMatch;

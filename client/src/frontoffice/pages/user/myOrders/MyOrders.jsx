@@ -28,8 +28,6 @@ const MyOrders = () => {
         setActiveOrder((prev) => (prev === orderId ? null : orderId));
     };
 
-    console.log(orders)
-
     return (
         <Fragment>
             <MetaData title={"My Orders"} />
@@ -138,7 +136,7 @@ const MyOrders = () => {
                     </div>
                 </div>
             </div>
-        </Fragment >
+        </Fragment>
     );
 };
 

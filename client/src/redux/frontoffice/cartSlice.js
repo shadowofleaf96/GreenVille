@@ -18,9 +18,6 @@ export const addItemToCart = createAsyncThunk(
         const axiosInstance = createAxiosInstance("customer");
         const response = await axiosInstance.get(`/products/${id}`);
         productData = response.data.data;
-        console.log("Using external API");
-      } else {
-        console.log("Using internal Redux state");
       }
 
       return {

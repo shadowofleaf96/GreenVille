@@ -84,12 +84,12 @@ const UpdateProfile = () => {
   return (
     <Fragment>
       <MetaData title={"Update Profile"} />
-      <div className="flex bg-white py-6 px-4">
+      <div className="flex flex-col bg-white py-6 px-4">
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="md:col-span-1">
+          <div className="md:col-span-1 mb-4 md:mb-0">
             <ProfileLink />
           </div>
-          <div className="md:col-span-3 bg-white shadow-lg rounded-lg p-8">
+          <div className="md:col-span-3 bg-white shadow-lg rounded-lg p-6 md:p-8">
             <h4 className="text-xl font-bold mb-4">Update Profile</h4>
             <form
               className="space-y-4"
@@ -191,7 +191,6 @@ const UpdateProfile = () => {
           </div>
         </div>
       </div>
-    
     </Fragment>
   );
 };

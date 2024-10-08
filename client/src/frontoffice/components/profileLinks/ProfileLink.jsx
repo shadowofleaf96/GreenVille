@@ -1,21 +1,17 @@
 import React, { Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation } from "react-router-dom"; // Import useLocation
-import axios from "axios";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Loader from "../loader/Loader";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import { useRouter } from "../../../routes/hooks/";
 import { logout } from "../../../redux/frontoffice/customerSlice";
 import Iconify from "../../../backoffice/components/iconify";
+import { toast } from "react-toastify";
 const backend = import.meta.env.VITE_BACKEND_URL;
 
 
 const ProfileLink = () => {
   const { customer, loading } = useSelector((state) => state.customers);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const router = useRouter();
+
+  const router = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
 
@@ -24,7 +20,7 @@ const ProfileLink = () => {
       localStorage.removeItem("customer_access_token");
       dispatch(logout());
       toast.success("You have been Logged out");
-      router.push("/");
+      router("/");
     } catch (error) {
       console.log(error);
       toast.error("Error: " + error.response.data.message);
@@ -60,8 +56,8 @@ const ProfileLink = () => {
               <Link
                 to="/me"
                 className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/me")
-                    ? "bg-[#8DC63F] text-white"
-                    : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
+                  ? "bg-[#8DC63F] text-white"
+                  : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
                   }`}
               >
                 <Iconify
@@ -75,8 +71,8 @@ const ProfileLink = () => {
               <Link
                 to="/me/update"
                 className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/me/update")
-                    ? "bg-[#8DC63F] text-white"
-                    : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
+                  ? "bg-[#8DC63F] text-white"
+                  : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
                   }`}
               >
                 <Iconify
@@ -90,8 +86,8 @@ const ProfileLink = () => {
               <Link
                 to="/orders/me"
                 className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/orders/me")
-                    ? "bg-[#8DC63F] text-white"
-                    : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
+                  ? "bg-[#8DC63F] text-white"
+                  : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
                   }`}
               >
                 <Iconify
@@ -118,7 +114,7 @@ const ProfileLink = () => {
           </div>
         </Fragment>
       )}
-     
+
     </Fragment>
   );
 };
