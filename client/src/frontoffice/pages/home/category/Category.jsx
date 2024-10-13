@@ -29,7 +29,7 @@ const Category = () => {
     <div className="mt-8">
       <div className="mx-auto mb-12 mt-12">
         <div className="container mx-auto">
-          <h4 className="font-semibold text-3xl flex justify-center mx-auto mb-8 text-center md:text-start text-gray-900 select-none">Top Categories Chosen for You</h4>
+          <h4 className="font-semibold text-3xl flex justify-center mx-auto mb-8 text-center md:text-start text-gray-900 select-none">Top SubCategories Chosen for You</h4>
         </div>
         <div className="flex flex-wrap gap-6 justify-center">
           {categories.map((item, index) => (

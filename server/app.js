@@ -4,6 +4,7 @@ const express = require("express");
 require("dotenv").config();
 const path = require("path");
 const cors = require("cors");
+const helmet = require("helmet");
 
 const app = express();
 const allowedOrigins = [
@@ -30,7 +31,6 @@ const corsOptions = {
     "x-client-secret",
     "Authorization",
   ],
-  credentials: true,
 };
 
 app.use(cors(corsOptions));
@@ -41,7 +41,7 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'"],
         imgSrc: ["'self'", "data:", "https:"],
         fontSrc: ["'self'"],
         objectSrc: ["'none'"],

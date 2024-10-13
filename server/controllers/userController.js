@@ -47,7 +47,6 @@ const createUser = async (req, res) => {
     active: true,
   })
     .then((newUser) => {
-      // Send a notification email to the user (you need to implement this)
       res.status(201).json({
         status: 201,
         message: "User created successfully",
@@ -125,7 +124,7 @@ const getAllUsers = async (req, res, next) => {
 const searchUser = async (req, res, next) => {
   try {
     let { query, page = 1, sort = "DESC" } = req.query;
-    const perPage = 10; // Number of users per page
+    const perPage = 10;
 
     const skip = (page - 1) * perPage;
 
@@ -133,7 +132,7 @@ const searchUser = async (req, res, next) => {
 
     const searchQuery = {
       $or: [
-        { first_name: { $regex: new RegExp(query, "i") } }, // Case-insensitive search
+        { first_name: { $regex: new RegExp(query, "i") } },
         { last_name: { $regex: new RegExp(query, "i") } },
         { user_name: { $regex: new RegExp(query, "i") } },
         { email: { $regex: new RegExp(query, "i") } },

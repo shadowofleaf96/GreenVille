@@ -36,6 +36,7 @@ import TermsAndConditions from "../frontoffice/pages/policies/TermsConditions";
 import ReturnsAndExchanges from "../frontoffice/pages/policies/ReturnsExchanges";
 import ShippingAndDeliveryPolicy from "../frontoffice/pages/policies/ShippingDelivery";
 import RefundPolicy from "../frontoffice/pages/policies/RefundPolicy";
+import { useTranslation } from "react-i18next";
 
 export const IndexPage = lazy(() => import("../backoffice/pages/app"));
 export const CategoryPage = lazy(() => import("../backoffice/pages/category"));
@@ -59,9 +60,9 @@ const initialOptions = {
 };
 
 export default function Router() {
-  const [customer, setCustomer] = useState(null);
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { i18n } = useTranslation();
+
 
   useEffect(() => {
     const userToken = localStorage.getItem("user_access_token");
@@ -75,7 +76,7 @@ export default function Router() {
           setUser(data);
         } catch (err) {
           localStorage.removeItem("user_access_token");
-          toast.error("Failed to fetch user data!"); // Use toast for error
+          toast.error("Failed to fetch user data!");
         }
       }
     };
@@ -88,7 +89,7 @@ export default function Router() {
           setCustomer(data);
         } catch (err) {
           localStorage.removeItem("customer_access_token");
-          toast.error("Failed to fetch customer data!"); // Use toast for error
+          toast.error("Failed to fetch customer data!");
         }
       }
     };
@@ -101,9 +102,10 @@ export default function Router() {
   if (loading) {
     return <Loader />;
   }
+  const isArabic = i18n.language === 'ar';
 
   return (
-    <>
+    <div dir={isArabic ? 'rtl' : 'ltr'}>
       <ToastContainer autoClose={2000}
         hideProgressBar={true}
         position="bottom-left" transition={Slide}
@@ -120,8 +122,7 @@ export default function Router() {
           <Route path="/shippingpolicy" element={<ShippingAndDeliveryPolicy />} />
           <Route path="/refund" element={<RefundPolicy />} />
           <Route path="/categories" element={<Category />} />
-          <Route path="/products/:categoryId/*" element={<Products />} />
-          <Route path="/products/search/:keyword" element={<Products />} />
+          <Route path="/products/:subcategory/*" element={<Products />} />
           <Route path="/product/:id" element={<SingleProduct />} />
         </Route>
 
@@ -160,6 +161,6 @@ export default function Router() {
           <Route path="/success" element={<Success />} />
         </Route>
       </Routes>
-    </>
+    </div>
   );
 }

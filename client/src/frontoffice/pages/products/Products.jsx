@@ -19,21 +19,21 @@ const Products = () => {
   const [productsPerPage] = useState(9);
   const [filteredProduct, setFilteredProduct] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedSubcategories, setSelectedSubcategories] = useState([]);
   const [selectedPriceRange, setSelectedPriceRange] = useState([0, 1000]);
   const [selectedOptions, setSelectedOptions] = useState([]);
-
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isOptionOpen, setIsOptionOpen] = useState(false);
   const [priceRangeOpen, setPriceRangeOpen] = useState(false);
 
   const dispatch = useDispatch();
-  const { categoryId } = useParams();
 
-  const { loading, products, error } = useSelector((state) => state.products);
+  const { loading, products } = useSelector((state) => state.products);
   const categoriesState = useSelector((state) => state.categories);
   const subcategoriesState = useSelector((state) => state.subcategories);
   const { categories } = categoriesState;
   const { subcategories } = subcategoriesState;
+  const { subcategory } = useParams();
 
   useEffect(() => {
     if (products.length === 0) {
@@ -45,22 +45,31 @@ const Products = () => {
     if (subcategories.length === 0) {
       dispatch(getSubcategories());
     }
-  }, [dispatch, currentPage]);
+  }, [dispatch, products.length, categories.length, subcategories.length]);
 
   useEffect(() => {
-    if (categoryId) {
-      handleSubcategoryClick(categoryId);
-    } else {
-      setFilteredProduct(products);
+    if (subcategory) {
+      const foundSubcategory = subcategories.find(sub => sub._id === subcategory);
+      if (foundSubcategory) {
+        setSelectedSubcategories([foundSubcategory._id]);
+        setSelectedCategories([foundSubcategory.category_id]);
+        setIsCategoryOpen(true)
+      }
     }
-  }, [categoryId, products]);
+  }, [subcategory, subcategories]);
 
-  const handleFilterChange = () => {
+  const filterProducts = () => {
     let filtered = products;
 
     if (selectedCategories.length > 0) {
-      filtered = filtered.filter((product) =>
+      filtered = filtered.filter(product =>
         selectedCategories.includes(product.subcategory.category_id)
+      );
+    }
+
+    if (selectedSubcategories.length > 0) {
+      filtered = filtered.filter(product =>
+        selectedSubcategories.includes(product.subcategory_id)
       );
     }
 
@@ -76,18 +85,40 @@ const Products = () => {
       );
     }
 
-    setFilteredProduct(filtered);
-    setCurrentPage(1);
+    return filtered;
   };
 
-  const handleSubcategoryClick = (subcategoryId) => {
-    const filter = products.filter((el) => el.subcategory_id === subcategoryId);
-    setFilteredProduct(filter);
+  const handleCategoryChange = (categoryId) => {
+    setSelectedCategories((prev) => {
+      const newSelectedCategories = prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId];
+
+      if (!newSelectedCategories.includes(categoryId)) {
+        setSelectedSubcategories([]);
+      }
+
+      const subcatsToKeep = subcategories.filter(sub => newSelectedCategories.includes(sub.category_id));
+      setSelectedSubcategories(prevSubcategories =>
+        prevSubcategories.filter(subId => subcatsToKeep.some(sub => sub._id === subId))
+      );
+
+      return newSelectedCategories;
+    });
   };
 
   useEffect(() => {
-    handleFilterChange();
-  }, [selectedCategories, selectedPriceRange, selectedOptions]);
+    setFilteredProduct(filterProducts());
+    setCurrentPage(1);
+  }, [subcategory, selectedCategories, selectedSubcategories, selectedPriceRange, selectedOptions, products]);
+
+  const handleSubcategoryChange = (subcategoryId) => {
+    setSelectedSubcategories((prev) =>
+      prev.includes(subcategoryId)
+        ? prev.filter((id) => id !== subcategoryId)
+        : [...prev, subcategoryId]
+    );
+  };
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
@@ -156,13 +187,8 @@ const Products = () => {
                               <input
                                 type="checkbox"
                                 id={`category-${category._id}`}
-                                onChange={() => {
-                                  setSelectedCategories((prev) =>
-                                    prev.includes(category._id)
-                                      ? prev.filter((id) => id !== category._id)
-                                      : [...prev, category._id]
-                                  );
-                                }}
+                                checked={selectedCategories.includes(category._id)}
+                                onChange={() => handleCategoryChange(category._id)}
                               />
                               <label htmlFor={`category-${category._id}`} className="ml-2">
                                 {category.category_name}
@@ -173,6 +199,28 @@ const Products = () => {
                       )}
                     </div>
 
+                    {selectedCategories.length > 0 && (
+                      <div className="mb-2 border-4 rounded-xl px-2">
+                        <h5 className="flex justify-between items-center mt-2 font-semibold">SubCategories</h5>
+                        <div className="mt-2 rounded mb-2">
+                          {subcategories
+                            .filter((sub) => selectedCategories.includes(sub.category_id))
+                            .map((subcategory) => (
+                              <div key={subcategory._id} className="flex items-center mt-2 px-2 py-1 hover:bg-gray-100">
+                                <input
+                                  type="checkbox"
+                                  id={`subcategory-${subcategory._id}`}
+                                  checked={selectedSubcategories.includes(subcategory._id)}
+                                  onChange={() => handleSubcategoryChange(subcategory._id)}
+                                />
+                                <label htmlFor={`subcategory-${subcategory._id}`} className="ml-2">
+                                  {subcategory.subcategory_name}
+                                </label>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
                     <div className="mb-2 border-4 rounded-xl px-2">
                       <h5 className="flex justify-between font-semibold items-center cursor-pointer" onClick={() => setPriceRangeOpen(!priceRangeOpen)}>
                         Price Range
@@ -198,8 +246,8 @@ const Products = () => {
                             step={10}
                           />
                           <div className="flex justify-between text-sm mb-2">
-                            <span>{`$${selectedPriceRange[0]}`}</span>
-                            <span>{`$${selectedPriceRange[1]}`}</span>
+                            <span>{`${selectedPriceRange[0]} DH`}</span>
+                            <span>{`${selectedPriceRange[1]} DH`}</span>
                           </div>
                         </div>
                       )}
@@ -288,7 +336,7 @@ const Products = () => {
           </div>
         </>
       )}
-    </Fragment>
+    </Fragment >
   );
 };
 

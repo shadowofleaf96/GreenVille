@@ -46,13 +46,11 @@ export default function LoginView() {
   const [resetEmail, setResetEmail] = useState("");
   const [resetPasswordLoading, setResetPasswordLoading] = useState(false);
 
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [loadingSave, setLoadingSave] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
   const axiosInstance = createAxiosInstance("admin")
 
   const navigate = useNavigate()
-  
+
   useEffect(() => {
     const isloggedin = localStorage.getItem("user_access_token");
 
@@ -105,6 +103,7 @@ export default function LoginView() {
 
         dispatch(
           loginSuccess({
+            admin: response.data.user,
             adminToken: response.data.access_token,
           })
         );
