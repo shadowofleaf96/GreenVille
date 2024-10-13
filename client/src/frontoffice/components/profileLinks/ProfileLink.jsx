@@ -22,7 +22,6 @@ const ProfileLink = () => {
       toast.success("You have been Logged out");
       router("/");
     } catch (error) {
-      console.log(error);
       toast.error("Error: " + error.response.data.message);
     }
   };

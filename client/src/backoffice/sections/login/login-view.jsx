@@ -41,10 +41,6 @@ export default function LoginView() {
   const [user_name, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [openForgotPasswordDialog, setOpenForgotPasswordDialog] =
-    useState(false);
-  const [resetEmail, setResetEmail] = useState("");
-  const [resetPasswordLoading, setResetPasswordLoading] = useState(false);
 
   const [loadingSave, setLoadingSave] = useState(false);
   const axiosInstance = createAxiosInstance("admin")
@@ -58,33 +54,6 @@ export default function LoginView() {
       navigate("/admin/")
     }
   }, [])
-
-  const handleOpenForgotPasswordDialog = () => {
-    setOpenForgotPasswordDialog(true);
-  };
-
-  const handleCloseForgotPasswordDialog = () => {
-    setOpenForgotPasswordDialog(false);
-  };
-
-  const handleForgotPassword = async () => {
-    try {
-      setResetPasswordLoading(true);
-      const response = await axiosInstance.post("/users/forgot-password", {
-        email: resetEmail,
-      });
-
-      toast.success(response.data.message);
-
-      handleCloseForgotPasswordDialog();
-    } catch (error) {
-      console.error("Forgot Password error:", error.response.data.error);
-
-      toast.error("Error: " + error.response.data.error);
-    } finally {
-      setResetPasswordLoading(false);
-    }
-  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -110,7 +79,6 @@ export default function LoginView() {
         router.push("/admin/");
       }
     } catch (error) {
-      console.log(error);
       toast.error("Error: " + error.response.data.message);
     } finally {
       setLoadingSave(false);
@@ -182,14 +150,6 @@ export default function LoginView() {
           justifyContent="flex-end"
           sx={{ my: 3 }}
         >
-          {/* <Link
-            style={{ cursor: "pointer" }}
-            variant="subtitle2"
-            underline="hover"
-            onClick={handleOpenForgotPasswordDialog}
-          >
-            {t("Forgot password?")}
-          </Link> */}
         </Stack>
 
         <LoadingButton
@@ -214,14 +174,18 @@ export default function LoginView() {
           color: alpha(theme.palette.background.default, 0.9),
           imgUrl: "/assets/background/overlay_4.jpg",
         }),
-        height: 1,
+        height: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
-      <Stack alignItems="center" justifyContent="center" sx={{ height: 1 }}>
+      <Stack alignItems="center" justifyContent="center"
+        sx={{ height: 1, width: "100%" }}>
         <Card
           sx={{
             p: 5,
-            width: 1,
+            width: "100%",
             maxWidth: 420,
           }}
         >
@@ -233,46 +197,6 @@ export default function LoginView() {
           {renderForm}
         </Card>
       </Stack>
-
-
-
-      <Dialog
-        PaperProps={{
-          sx: {
-            width: "20%",
-          },
-        }}
-        open={openForgotPasswordDialog}
-        onClose={handleCloseForgotPasswordDialog}
-      >
-        <DialogTitle>{t("Forgot Password")}</DialogTitle>
-        <DialogContent>
-          <TextField
-            label={t("Email")}
-            type="email"
-            fullWidth
-            margin="dense"
-            value={resetEmail}
-            onChange={(e) => setResetEmail(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleCloseForgotPasswordDialog}
-            color="secondary"
-            disabled={resetPasswordLoading}
-          >
-            {t("Cancel")}
-          </Button>
-          <LoadingButton
-            onClick={handleForgotPassword}
-            color="primary"
-            loading={resetPasswordLoading}
-          >
-            {t("Reset Password")}
-          </LoadingButton>
-        </DialogActions>
-      </Dialog>
-    </Box>
+    </Box >
   );
 }

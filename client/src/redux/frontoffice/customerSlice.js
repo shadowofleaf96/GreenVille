@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
 import createAxiosInstance from "../../utils/axiosConfig";
 
 export const fetchCustomerProfile = () => async (dispatch) => {

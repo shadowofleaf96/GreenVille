@@ -14,6 +14,7 @@ import {
 } from "../../../../redux/frontoffice/cartSlice";
 import CheckoutForm from "./CheckoutForm";
 import createAxiosInstance from "../../../../utils/axiosConfig";
+import { LoadingButton } from "@mui/lab";
 
 const Payment = () => {
   const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
@@ -241,25 +242,17 @@ const Payment = () => {
               <div>
                 <hr className="my-4" />
                 <div className="flex justify-center mt-6">
-                  {loading ? (
-                    <button
-                      loading={loading}
-                      onClick={handleCODPayment}
-                      className="h-12 w-3/4 bg-[#b3b4b1] text-white rounded-lg text-md font-medium normal-case shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 flex justify-center items-center"
-                    >
-                      <div className="flex justify-center items-center space-x-2">
-                        <p className="!text-center text-md normal-case font-medium">Loading</p>
-                      </div>
-                    </button>
-                  ) : (
-                    <button
-                      loading={loading}
-                      onClick={handleCODPayment}
-                      className="h-12 w-3/4 bg-[#8DC63F] text-white rounded-lg !text-center text-md normal-case font-medium shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
-                    >
-                      <p className="!text-center text-md normal-case font-medium">Confirm Pay</p>
-                    </button>
-                  )}
+                  <LoadingButton
+                    fullWidth
+                    loading={loading}
+                    variant="contained"
+                    sx={{ fontWeight: 500, fontSize: 15 }}
+                    className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2"
+                    loadingPosition="center"
+                    onClick={handleCODPayment}
+                  >
+                    {loading ? 'Loading...' : 'Confirm Pay'}
+                  </LoadingButton>
                 </div>
               </div>
             )}

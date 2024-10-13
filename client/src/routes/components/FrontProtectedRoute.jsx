@@ -7,6 +7,7 @@ import createAxiosInstance from "../../utils/axiosConfig";
 
 const FrontProtectedRoute = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(null);
+    const [loading, setLoading] = useState(true);
     const customerToken = localStorage.getItem('customer_access_token');
 
     const fetchCustomerData = async () => {
@@ -14,29 +15,27 @@ const FrontProtectedRoute = () => {
             try {
                 const axiosInstance = createAxiosInstance("customer");
                 const { status } = await axiosInstance.get("/customers/profile");
-
                 if (status >= 200 && status < 300) {
                     setIsAuthenticated(true);
                 } else {
-                    localStorage.removeItem("customer_access_token");
                     setIsAuthenticated(false);
-                    toast.error("Session expired! Please log in again.");
                 }
             } catch (err) {
-                localStorage.removeItem("customer_access_token");
-                setIsAuthenticated(false);
+                console.error(err);
                 toast.error("Failed to fetch customer data!");
+                setIsAuthenticated(false);
             }
         } else {
             setIsAuthenticated(false);
         }
+        setLoading(false);
     };
 
     useEffect(() => {
         fetchCustomerData();
     }, [customerToken]);
 
-    if (isAuthenticated === null) {
+    if (loading) {
         return <Loader />;
     }
 
@@ -49,7 +48,7 @@ const FrontProtectedRoute = () => {
             </FrontLayout>
         );
     } else {
-        return <Navigate to="/login" />;
+        return <Navigate to="/login" replace />;
     }
 };
 

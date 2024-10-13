@@ -1,19 +1,13 @@
 import React, { Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Footer from "../../../components/footer/Footer";
 import Avatar from "@mui/material/Avatar";
-import axios from "axios";
-import Navbar from "../../../components/header/Navbar";
-import ButtonLoader from "../../../components/loader/ButtonLoader";
 import MetaData from "../../../components/MetaData";
 import { useRouter } from "../../../../routes/hooks";
 import ProfileLink from "../../../components/profileLinks/ProfileLink";
-import Alert from "@mui/material/Alert";
-import Snackbar from "@mui/material/Snackbar";
-import TextField from "@mui/material/TextField";
 import UploadButton from "../../../../backoffice/components/button/UploadButton";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { toast } from "react-toastify";
+import { LoadingButton } from "@mui/lab";
 
 const UpdateProfile = () => {
   const [firstname, setFirstName] = useState("");
@@ -21,10 +15,8 @@ const UpdateProfile = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [loadingSave, setLoadingSave] = useState(false);
+  const [loading, setLoading] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
   const router = useRouter();
 
   const { customer } = useSelector((state) => state.customers);
@@ -33,7 +25,6 @@ const UpdateProfile = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setSelectedImage(file);
-    console.log("Selected Image:", file);
   };
 
   const submitHandler = async (e) => {
@@ -62,6 +53,7 @@ const UpdateProfile = () => {
     editedCustomer,
     selectedImage
   ) => {
+    setLoading(true);
     try {
       const formData = new FormData();
       formData.append("first_name", editedCustomer.first_name);
@@ -73,9 +65,11 @@ const UpdateProfile = () => {
       }
 
       const response = await axiosInstance.put(`/customers/${customerId}`, formData);
+      setLoading(false);
       toast.success(response.data.message);
       router.push("/me");
     } catch (error) {
+      setLoading(false);
       toast.error("Error: " + error.response.data.message);
       console.error(error);
     }
@@ -181,12 +175,18 @@ const UpdateProfile = () => {
                 </div>
               </div>
 
-              <button
+              <LoadingButton
                 type="submit"
-                className="w-full mt-4 mb-4 py-3 bg-[#8DC63F] text-white flex justify-center rounded-lg text-md font-medium normal-case shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
+                fullWidth
+                loading={loading}
+                variant="contained"
+                sx={{ fontWeight: 500, fontSize: 15 }}
+                className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2"
+                loadingPosition="center"
               >
-                Update
-              </button>
+                {loading ? 'Updating...' : 'Update'}
+              </LoadingButton>
+
             </form>
           </div>
         </div>

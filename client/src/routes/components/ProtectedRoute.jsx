@@ -8,6 +8,7 @@ import createAxiosInstance from "../../utils/axiosConfig";
 const ProtectedRoute = () => {
     const userToken = localStorage.getItem('user_access_token');
     const [isAuthenticated, setIsAuthenticated] = useState(null);
+    const [loading, setLoading] = useState(true); 
 
     const fetchUserData = async () => {
         if (userToken) {
@@ -16,22 +17,23 @@ const ProtectedRoute = () => {
                 const { status } = await axiosInstance.get("/users/profile");
                 if (status >= 200 && status < 300) {
                     setIsAuthenticated(true);
+                } else {
+                    setIsAuthenticated(false);
                 }
             } catch (err) {
-                localStorage.removeItem("user_access_token");
+                console.error(err);
                 toast.error("Session expired, please log in again!");
                 setIsAuthenticated(false);
             }
         } else {
-            localStorage.removeItem("user_access_token");
-            toast.error("Failed to fetch user data!");
-            setIsAuthenticated(false);
+            setIsAuthenticated(false); 
         }
+        setLoading(false); 
     };
 
     useEffect(() => {
         fetchUserData();
-    }, []);
+    }, [userToken]);
 
     if (loading) {
         return <Loader />;
@@ -46,7 +48,7 @@ const ProtectedRoute = () => {
             </DashboardLayout>
         );
     } else {
-        return <Navigate to="/admin/login" />;
+        return <Navigate to="/admin/login" replace />;
     }
 };
 

@@ -192,33 +192,49 @@ const Navbar = () => {
       )}
 
       {toggle && (
-        <motion.div className="fixed top-0 right-0 bottom-0 w-1/3 bg-white shadow-md z-50 p-6" whileInView={{ x: [140, 0] }} transition={{ duration: 0.85, ease: "easeOut" }}>
-          <div className="flex justify-end">
-            <Iconify icon="material-symbols-light:cancel-outline-rounded" width={28} height={28} onClick={() => setToggle(false)} />
-          </div>
-          <ul className="list-none flex flex-col space-y-4 mt-6">
-            <li>
-              <Link to="/" onClick={() => setToggle(false)}>
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to="/products" onClick={() => setToggle(false)}>
-                Products
-              </Link>
-            </li>
-            <li>
-              <Link to="/contact" onClick={() => setToggle(false)}>
-                Contact
-              </Link>
-            </li>
-            <li>
-              <Link to="/about" onClick={() => setToggle(false)}>
-                About
-              </Link>
-            </li>
-          </ul>
-        </motion.div>
+        <>
+          <div
+            className="fixed inset-0 bg-black opacity-60 z-40"
+            onClick={() => setToggle(false)}
+          />
+
+          <motion.div
+            className="fixed top-0 right-0 bottom-0 w-1/3 bg-white shadow-md z-50 p-6"
+            whileInView={{ x: [140, 0] }}
+            transition={{ duration: 0.85, ease: "easeOut" }}
+          >
+            <div className="flex justify-end">
+              <Iconify
+                icon="material-symbols-light:cancel-outline-rounded"
+                width={28}
+                height={28}
+                onClick={() => setToggle(false)}
+              />
+            </div>
+            <ul className="list-none flex flex-col space-y-4 mt-6">
+              <li>
+                <Link to="/" onClick={() => setToggle(false)} className={`hover:text-green-400 hover:underline ${isActive("/") ? "text-green-400" : "text-black"}`}>
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/products" onClick={() => setToggle(false)} className={`hover:text-green-400 hover:underline ${isActive("/products") ? "text-green-400" : "text-black"}`}>
+                  Products
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" onClick={() => setToggle(false)} className={`hover:text-green-400 hover:underline ${isActive("/contact") ? "text-green-400" : "text-black"}`}>
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" onClick={() => setToggle(false)} className={`hover:text-green-400 hover:underline ${isActive("/about") ? "text-green-400" : "text-black"}`}>
+                  About
+                </Link>
+              </li>
+            </ul>
+          </motion.div>
+        </>
       )}
     </div>
   );

@@ -36,8 +36,7 @@ export default function AccountPopover() {
       dispatch(logout({}));
       router.push("/admin/login");
     } catch (error) {
-      console.log(error);
-      alert("Logout error\n" + error);
+      toast.error(t("Logout Error") + ": " + error.response.data.message);
     }
   };
 

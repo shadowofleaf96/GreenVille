@@ -28,8 +28,6 @@ import Contact from "../frontoffice/pages/contact/Contact";
 
 import ProtectedRoute from "../routes/components/ProtectedRoute";
 import { LoginView } from "../backoffice/sections/login";
-import createAxiosInstance from "../utils/axiosConfig";
-import Loader from "../frontoffice/components/loader/Loader";
 import FrontProtectedRoute from "./components/FrontProtectedRoute";
 import MainLayout from "../frontoffice/pages/layout/Layout";
 import TermsAndConditions from "../frontoffice/pages/policies/TermsConditions";
@@ -60,48 +58,8 @@ const initialOptions = {
 };
 
 export default function Router() {
-  const [loading, setLoading] = useState(true);
   const { i18n } = useTranslation();
 
-
-  useEffect(() => {
-    const userToken = localStorage.getItem("user_access_token");
-    const customerToken = localStorage.getItem("customer_access_token");
-
-    const fetchUserData = async () => {
-      if (userToken) {
-        try {
-          const axiosInstance = createAxiosInstance("admin");
-          const { data } = await axiosInstance.get("/users/profile");
-          setUser(data);
-        } catch (err) {
-          localStorage.removeItem("user_access_token");
-          toast.error("Failed to fetch user data!");
-        }
-      }
-    };
-
-    const fetchCustomerData = async () => {
-      if (customerToken) {
-        try {
-          const axiosInstance = createAxiosInstance("customer");
-          const { data } = await axiosInstance.get("/customers/profile");
-          setCustomer(data);
-        } catch (err) {
-          localStorage.removeItem("customer_access_token");
-          toast.error("Failed to fetch customer data!");
-        }
-      }
-    };
-
-    Promise.all([fetchUserData(), fetchCustomerData()]).finally(() => {
-      setLoading(false);
-    });
-  }, []);
-
-  if (loading) {
-    return <Loader />;
-  }
   const isArabic = i18n.language === 'ar';
 
   return (

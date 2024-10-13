@@ -4,8 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import CheckoutSteps from "../checkoutSteps/CheckoutSteps";
 import { countries } from "countries-list";
 import { saveShippingInfo } from "../../../../redux/frontoffice/cartSlice";
-import Navbar from "../../../components/header/Navbar";
-import Footer from "../../../components/footer/Footer";
 import MetaData from "../../../components/MetaData";
 
 const Shipping = () => {
@@ -49,7 +47,6 @@ const Shipping = () => {
                         <form onSubmit={submitHandler}>
                             <h4 className="text-xl font-semibold mb-6">Shipping Credentials</h4>
                             <div className="grid grid-cols-1 gap-4 mb-4 mt-4">
-                                {/* Address Field */}
                                 <div className="grid grid-cols-1 gap-2">
                                     <label htmlFor="address_field" className="text-gray-800 font-semibold">
                                         Address
@@ -64,7 +61,6 @@ const Shipping = () => {
                                     />
                                 </div>
 
-                                {/* City Field */}
                                 <div className="grid grid-cols-1 gap-2">
                                     <label htmlFor="city_field" className="text-gray-800 font-semibold">
                                         City
@@ -79,7 +75,6 @@ const Shipping = () => {
                                     />
                                 </div>
 
-                                {/* Phone Field */}
                                 <div className="grid grid-cols-1 gap-2">
                                     <label htmlFor="phone_field" className="text-gray-800 font-semibold">
                                         Phone
@@ -94,7 +89,6 @@ const Shipping = () => {
                                     />
                                 </div>
 
-                                {/* Postal Code Field */}
                                 <div className="grid grid-cols-1 gap-2">
                                     <label htmlFor="postal_code_field" className="text-gray-800 font-semibold">
                                         Postal Code
@@ -109,8 +103,7 @@ const Shipping = () => {
                                     />
                                 </div>
 
-                                {/* Country Field */}
-                                <div className="grid grid-cols-1 gap-2">
+                                {/* <div className="grid grid-cols-1 gap-2">
                                     <label htmlFor="country_field" className="text-gray-800 font-semibold">
                                         Country
                                     </label>
@@ -127,7 +120,7 @@ const Shipping = () => {
                                             </option>
                                         ))}
                                     </select>
-                                </div>
+                                </div> */}
                             </div>
 
                             <div className="flex justify-center">

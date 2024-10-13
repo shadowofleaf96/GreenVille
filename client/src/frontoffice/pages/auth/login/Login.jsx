@@ -30,6 +30,7 @@ import Link from "@mui/material/Link";
 import InputAdornment from "@mui/material/InputAdornment";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { toast } from "react-toastify";
+import { LoadingButton } from "@mui/lab";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -203,20 +204,19 @@ const Login = () => {
               }
               label="Remember Me"
             />
-            <Button
+
+            <LoadingButton
               type="submit"
-              style={{
-                backgroundColor: "#8dc63f",
-                color: "#fff",
-                marginTop: "10px",
-                marginBottom: "20px"
-              }}
               fullWidth
-              className="rounded-lg"
-              disabled={loadingSave}
+              loading={loadingSave}
+              variant="contained"
+              sx={{ fontWeight: 500, fontSize: 15 }}
+              className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2"
+              loadingPosition="center"
             >
               {loadingSave ? 'Logging In...' : 'Login'}
-            </Button>
+            </LoadingButton>
+
             <GoogleLogin
               onSuccess={responseMessage}
               onError={errorMessage}
@@ -284,7 +284,7 @@ const Login = () => {
           </Dialog>
         </Paper>
       </motion.div>
-     
+
     </div>
   );
 };

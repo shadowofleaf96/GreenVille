@@ -60,8 +60,6 @@ const ResetPasswordPage = () => {
       }, 2000);
     } catch (error) {
       toast.error(t("Error") + ": " + error.response.data.message);
-      console.error("Reset Password error:", error);
-      console.log(error);
     } finally {
       setResetPasswordLoading(false);
     }

@@ -9,6 +9,7 @@ import {
 } from "../../../../redux/frontoffice/cartSlice";
 import createAxiosInstance from '../../../../utils/axiosConfig';
 import { toast } from 'react-toastify';
+import { LoadingButton } from '@mui/lab';
 
 const CheckoutForm = () => {
     const { cartItems, shippingInfo } = useSelector((state) => state.carts);
@@ -56,7 +57,6 @@ const CheckoutForm = () => {
             setMessage(paymentIntent.status === "succeeded" ? "Your payment succeeded" : "Unexpected error occurred");
         });
 
-        console.log(clientSecret)
     }, [stripe]);
 
     const createOrder = async () => {
@@ -109,8 +109,6 @@ const CheckoutForm = () => {
 
             if (error) {
                 console.error("Error during payment confirmation:", error.message);
-            } else {
-                console.log("Payment Intent:", paymentIntent);
             }
 
 
@@ -118,8 +116,6 @@ const CheckoutForm = () => {
                 console.log(error.message);
             }
 
-
-            console.log(paymentIntent.status)
             if (paymentIntent.status === "succeeded") {
                 const paymentData = {
                     order_id: orderId,
@@ -161,24 +157,18 @@ const CheckoutForm = () => {
                 </div>
 
                 <div className="flex justify-center  mt-8">
-                    {loading ?
-                        <button
-                            loading={loading}
-                            type="submit"
-                            disabled={!stripe}
-                            className="h-12 w-3/4 bg-[#8DC63F] text-white rounded-lg flex justify-center text-md font-medium normal-case shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
-                        >
-                            <p className="w-full flex h-full items-center justify-center text-center text-md normal-case font-medium">Loading</p>
-                        </button> :
-                        <button
-                            loading={loading}
-                            type="submit"
-                            disabled={!stripe}
-                            className="h-12 w-3/4 bg-[#8DC63F] text-white flex justify-center rounded-lg text-md font-medium normal-case shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
-                        >
-                            <p className="w-full flex h-full items-center justify-center text-center text-md normal-case font-medium">Pay with Bank Card</p>
-                        </button>
-                    }
+                    <LoadingButton
+                        fullWidth
+                        type="submit"
+                        loading={loading}
+                        variant="contained"
+                        sx={{ fontWeight: 500, fontSize: 15 }}
+                        className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2"
+                        loadingPosition="center"
+                    >
+                        {loading ? 'Loading...' : 'Pay with Bank Card'}
+                    </LoadingButton>
+
                 </div>
             </form>
         </div>

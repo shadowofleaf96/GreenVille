@@ -6,9 +6,8 @@ export const fetchUserProfile = () => async (dispatch) => {
   dispatch(loginStart());
 
   try {
-    const axiosInstance = createAxiosInstance("admin")
+    const axiosInstance = createAxiosInstance("admin");
     const response = await axiosInstance.get("/users/profile");
-
     dispatch(setUser(response.data));
   } catch (error) {
     console.log(error);
