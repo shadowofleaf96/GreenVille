@@ -6,9 +6,12 @@ import Loader from "../../components/loader/Loader";
 import Iconify from "../../../backoffice/components/iconify";
 import { addItemToCart } from "../../../redux/frontoffice/cartSlice";
 import MetaData from "../../components/MetaData";
+import { useTranslation } from 'react-i18next';
+
 const backend = import.meta.env.VITE_BACKEND_URL;
 
 const SingleProduct = () => {
+  const { t } = useTranslation();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState("");
 
@@ -20,18 +23,17 @@ const SingleProduct = () => {
 
   useEffect(() => {
     dispatch(getProductDetails(id));
-  
+
     return () => {
       dispatch(clearErrors());
     };
   }, [dispatch, id]);
-  
+
   useEffect(() => {
     if (product?.product_images && product?.product_images.length > 0) {
       setSelectedImage(`${backend}/${product.product_images[0]}`);
     }
   }, [product?.product_images]);
-  
 
   const increaseQty = () => {
     if (quantity >= product.quantity) return;
@@ -54,7 +56,7 @@ const SingleProduct = () => {
 
   return (
     <Fragment>
-      <MetaData title={"Product Details"} />
+      <MetaData title={t("product_details")} />
       <div className="w-full h-auto flex flex-col items-center justify-center p-8 my-6">
         {loading ? (
           <Loader />
@@ -67,7 +69,7 @@ const SingleProduct = () => {
                     <div className="w-full max-w-sm rounded-lg shadow-lg overflow-hidden mb-6">
                       <img
                         src={selectedImage}
-                        alt="Selected product"
+                        alt={t("selected_product")}
                         className="object-contain w-full h-[380px] sm:h-[200px]"
                       />
                     </div>
@@ -79,7 +81,7 @@ const SingleProduct = () => {
                         <img
                           key={index}
                           src={`${backend}/${image}`}
-                          alt={`Product image ${index + 1}`}
+                          alt={`${t("product_image")} ${index + 1}`}
                           className="w-14 h-14 object-contain cursor-pointer border-2 border-gray-300 rounded-lg hover:border-green-500"
                           onClick={() => setSelectedImage(`${backend}/${image}`)}
                         />
@@ -87,7 +89,7 @@ const SingleProduct = () => {
                     ) : (
                       <img
                         src={`${backend}/${product.product_images}`}
-                        alt="Main product"
+                        alt={t("main_product")}
                         className="w-14 h-14 object-contain cursor-pointer border-2 shadow-lg border-gray-300 rounded-lg hover:border-green-500"
                         onClick={() => setSelectedImage(`${backend}/${product.product_images}`)}
                       />
@@ -99,9 +101,9 @@ const SingleProduct = () => {
                   <div className="product_description">
                     <h4 className="text-3xl font-bold mb-4">{product.product_name}</h4>
                     <h2 className="text-2xl font-bold mb-4 text-green-600">
-                      {product.discount_price} DH{" "}
+                      {product.discount_price} {t("currency")}{" "}
                       <strike className="text-sm font-medium text-gray-400">
-                        {product.price} DH
+                        {product.price} {t("currency")}
                       </strike>
                     </h2>
                     <p className="text-gray-600 my-4 h-auto min-h-16">{product.short_description}</p>
@@ -130,31 +132,31 @@ const SingleProduct = () => {
 
                   <p className="mt-4">
                     <span className={`ml-2 font-bold ${product.quantity > 0 ? "text-green-600" : "text-red-600"}`}>
-                      {product.quantity > 0 ? "In Stock" : "Out of Stock"}
+                      {product.quantity > 0 ? t("in_stock") : t("out_of_stock")}
                     </span>
                   </p>
-                  <div className="flex space-x-4 mt-4">
+                  <div className="flex space-x-4 mt-4 rtl:gap-4">
                     <button
                       className="bg-[#8DC63F] flex gap-2 text-white py-3 px-6 font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
                       disabled={product.quantity === 0}
                       onClick={buyNow}
                     >
-                      Buy Now
-                      <Iconify icon="material-symbols:sell-outline"  height={22} width={22} />
+                      {t("buy_now")}
+                      <Iconify icon="material-symbols:sell-outline" height={22} width={22} />
                     </button>
                     <button
                       className="bg-white flex gap-2 text-grey-800 border-[#8DC63F] border-2 py-3 px-6 font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
                       disabled={product.quantity === 0}
                       onClick={addToCart}
                     >
-                      Add To Cart
+                      {t("add_to_cart")}
                       <Iconify icon="mdi-light:cart" height={22} width={22} />
                     </button>
                   </div>
                 </div>
               </>
             ) : (
-              <p>Error loading product details.</p>
+              <p>{t("error_loading_product")}</p>
             )}
           </div>
         )}

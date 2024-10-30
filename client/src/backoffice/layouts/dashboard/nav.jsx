@@ -75,7 +75,7 @@ export default function Nav({ openNav, onCloseNav }) {
         {admin?.first_name + " " + admin?.last_name}
       </Typography>
 
-      <Typography variant="body2" sx={{ my: 0.5 }}>
+      <Typography className="capitalize" variant="body2" sx={{ my: 0.5 }}>
         {admin?.role}
       </Typography>
     </Stack>
@@ -184,7 +184,7 @@ function NavItem({ item }) {
         {item.icon}
       </Box>
 
-      <Box component="span">{item.title} </Box>
+      <Box className="rtl:mr-3" component="span">{item.title} </Box>
     </ListItemButton>
   );
 }

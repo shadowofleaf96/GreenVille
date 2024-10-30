@@ -10,11 +10,13 @@ import {
 import createAxiosInstance from '../../../../utils/axiosConfig';
 import { toast } from 'react-toastify';
 import { LoadingButton } from '@mui/lab';
+import { useTranslation } from 'react-i18next';
 
 const CheckoutForm = () => {
     const { cartItems, shippingInfo } = useSelector((state) => state.carts);
     const { customer } = useSelector((state) => state.customers);
     const axiosInstance = createAxiosInstance("customer")
+    const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
 
@@ -150,7 +152,7 @@ const CheckoutForm = () => {
         <div className='w-full'>
             <form onSubmit={handleCreditCardPayment}>
                 <hr className="my-4" />
-                <h4 className="mb-4 text-xl font-semibold text-center">Card Info</h4>
+                <h4 className="mb-4 text-xl font-semibold text-center">{t("cardInfo")}</h4>
 
                 <div className="mt-4">
                     <PaymentElement options={paymentElementOptions} />
@@ -166,7 +168,7 @@ const CheckoutForm = () => {
                         className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2"
                         loadingPosition="center"
                     >
-                        {loading ? 'Loading...' : 'Pay with Bank Card'}
+                        {loading ? t('Loading') : t("payCard")}
                     </LoadingButton>
 
                 </div>

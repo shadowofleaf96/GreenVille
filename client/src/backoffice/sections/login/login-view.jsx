@@ -36,24 +36,14 @@ export default function LoginView() {
   const theme = useTheme();
   const router = useRouter();
   const dispatch = useDispatch();
-  const { t } = useTranslation();
-
+  const { t, i18n } = useTranslation();
   const [user_name, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const [loadingSave, setLoadingSave] = useState(false);
   const axiosInstance = createAxiosInstance("admin")
-
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    const isloggedin = localStorage.getItem("user_access_token");
-
-    if (isloggedin) {
-      navigate("/admin/")
-    }
-  }, [])
+  const isRtl = i18n.language === 'ar';
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -121,25 +111,49 @@ export default function LoginView() {
             value={password}
             onChange={handleChangePassword}
             InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                  >
-                    <Iconify
-                      icon={
-                        showPassword
-                          ? "material-symbols-light:visibility-outline-rounded"
-                          : "material-symbols-light:visibility-off-outline-rounded"
-                      }
-                      width={24}
-                      height={24}
-                    />
-                  </IconButton>
-                </InputAdornment>
-              ),
+              ...(isRtl
+                ? {
+                  startAdornment: (  // For RTL
+                    <InputAdornment position="start">
+                      <IconButton
+                        onClick={handleClickShowPassword}
+                        onMouseDown={handleMouseDownPassword}
+                        edge="start"
+                      >
+                        <Iconify
+                          icon={
+                            showPassword
+                              ? "material-symbols-light:visibility-outline-rounded"
+                              : "material-symbols-light:visibility-off-outline-rounded"
+                          }
+                          width={24}
+                          height={24}
+                        />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }
+                : {
+                  endAdornment: (  // For LTR
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={handleClickShowPassword}
+                        onMouseDown={handleMouseDownPassword}
+                        edge="end"
+                      >
+                        <Iconify
+                          icon={
+                            showPassword
+                              ? "material-symbols-light:visibility-outline-rounded"
+                              : "material-symbols-light:visibility-off-outline-rounded"
+                          }
+                          width={24}
+                          height={24}
+                        />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }),
             }}
           />
         </Stack>

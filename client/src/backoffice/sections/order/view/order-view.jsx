@@ -44,7 +44,7 @@ import { toast } from "react-toastify";
 
 // ----------------------------------------------------------------------
 
-export default function OrderPage() {
+export default function OrderView() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 

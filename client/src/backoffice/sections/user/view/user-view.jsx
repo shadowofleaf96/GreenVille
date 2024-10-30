@@ -46,7 +46,7 @@ const backend = import.meta.env.VITE_BACKEND_URL;
 
 // ----------------------------------------------------------------------
 
-export default function UserPage() {
+export default function UserView() {
   const dispatch = useDispatch();
 
   const data = useSelector((state) => state.adminUser.data);
@@ -94,9 +94,6 @@ export default function UserPage() {
   useEffect(() => {
     fetchData();
   }, [dispatch]);
-
-
-
 
   if (loading) {
     return (

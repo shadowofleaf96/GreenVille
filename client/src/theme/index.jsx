@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 
 import {
@@ -13,20 +13,33 @@ import { overrides } from './overrides';
 import { shadows } from "./shadows";
 import { typography } from "./typography";
 import { customShadows } from "./custom-shadows";
+import { useTranslation } from "react-i18next";
 
 // ----------------------------------------------------------------------
 
 export default function ThemeProvider({ children }) {
-  const memoizedValue = useMemo(
-    () => ({
+  const { i18n } = useTranslation();
+
+  const isRtl = i18n.language === 'ar';
+  
+  const memoizedValue = useMemo(() => {
+    return {
       palette: palette(),
       typography,
       shadows: shadows(),
       customShadows: customShadows(),
+      direction: isRtl ? "rtl" : "ltr",
       shape: { borderRadius: 8 },
-    }),
-    []
-  );
+      components: {
+        MuiPagination: {
+          defaultProps: {
+            dir: isRtl ? "rtl" : "ltr",
+          },
+        },
+      },
+    };
+  }, [isRtl]);
+
 
   const theme = createTheme(memoizedValue);
 

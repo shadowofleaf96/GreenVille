@@ -99,7 +99,7 @@ export default function LanguagePopover() {
             onClick={() => handleLanguageChange(option)}
             sx={{ typography: "body2", py: 1 }}
           >
-            <div className="mr-2">{option.icon}</div>
+            <div className="mr-2 rtl:ml-2">{option.icon}</div>
             {t(option.name)}
           </MenuItem>
         ))}

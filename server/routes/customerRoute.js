@@ -11,21 +11,25 @@ const {
   login,
   createCustomer,
   getCustomerById,
+  googleLogin,
   getCustomerProfile,
   getAllCustomers,
   validateCustomer,
   updateCustomer,
+  completeRegistration,
   deleteCustomer,
   forgotPassword,
-  resetPassword
+  resetPassword,
 } = require("../controllers/customerController");
 
 route.post("/login", login);
 route.post("/", upload.single("customer_image"), createCustomer);
+route.post("/google-login", googleLogin);
+route.post("/complete-registration", completeRegistration);
 route.get("/profile", verifyToken, getCustomerProfile);
 route.get("/", verifyToken, requireAdminOrManager, getAllCustomers);
 route.get("/:id", verifyToken, requireAdminOrManager, getCustomerById);
-route.put("/validate/:id", validateCustomer);
+route.get("/validate/:id/:token", validateCustomer);
 route.put("/:id", upload.single("customer_image"), updateCustomer);
 route.delete("/:id", deleteCustomer);
 route.post("/forgot-password", forgotPassword);

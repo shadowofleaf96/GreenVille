@@ -6,9 +6,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { clearErrors, myOrdersList } from "../../../../redux/frontoffice/orderSlice";
 import Iconify from "../../../../backoffice/components/iconify";
 import MetaData from "../../../components/MetaData";
+import { useTranslation } from "react-i18next"; // Import the useTranslation hook
+
 const backend = import.meta.env.VITE_BACKEND_URL;
 
 const MyOrders = () => {
+    const { t, i18n } = useTranslation();
+    const isRtl = i18n.language === 'ar';
     const dispatch = useDispatch();
     const { customer } = useSelector((state) => state.customers);
     const { loading, error, orders } = useSelector((state) => state.orders.myOrdersList);
@@ -30,7 +34,7 @@ const MyOrders = () => {
 
     return (
         <Fragment>
-            <MetaData title={"My Orders"} />
+            <MetaData title={t("MyOrders.title")} />
             <div className="min-h-screen bg-gray-100 py-10">
                 <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div className="md:col-span-1">
@@ -49,16 +53,16 @@ const MyOrders = () => {
                                                 <div className="flex flex-col items-center justify-center text-center">
                                                     <Iconify className="mb-2" icon="mdi:cart" width={100} height={100} />
                                                     <h4 className="text-2xl font-semibold mb-4 text-gray-800">
-                                                        You Haven't Placed Any Orders Yet
+                                                        {t("MyOrders.noOrders")}
                                                     </h4>
                                                     <p className="text-gray-600 mb-6">
-                                                        Looks like you haven't made any purchases yet. Browse our products and find something you like!
+                                                        {t("MyOrders.noOrdersDesc")}
                                                     </p>
                                                     <Link
                                                         to="/products"
                                                         className="px-6 py-3 bg-[#8DC63F] text-white font-medium rounded-md shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
                                                     >
-                                                        Start Shopping
+                                                        {t("MyOrders.startShopping")}
                                                     </Link>
                                                 </div>
                                             ) : (
@@ -71,7 +75,7 @@ const MyOrders = () => {
                                                                     onClick={() => toggleOrderDetails(order._id)}
                                                                 >
                                                                     <Iconify
-                                                                        icon={activeOrder === order._id ? "mdi:chevron-down" : "mdi:chevron-right"}
+                                                                        icon={activeOrder === order._id ? "mdi:chevron-down" : (isRtl ? "mdi:chevron-left" : "mdi:chevron-right")}
                                                                         width={24}
                                                                         height={24}
                                                                         className="text-gray-600"
@@ -80,10 +84,10 @@ const MyOrders = () => {
 
                                                                 <div className="col-span-7">
                                                                     <h3 className="font-semibold text-lg text-gray-800">
-                                                                        Order on {new Date(order.order_date).toLocaleDateString()}
+                                                                        {t("MyOrders.orderOn")} {new Date(order.order_date).toLocaleDateString()}
                                                                     </h3>
                                                                     <p className="text-sm text-gray-500">
-                                                                        First Item: {order?.order_items[0].product.product_name}
+                                                                        {t("MyOrders.firstItem")} {order?.order_items[0].product.product_name}
                                                                     </p>
                                                                 </div>
 
@@ -97,7 +101,7 @@ const MyOrders = () => {
                                                                         {order.status}
                                                                     </p>
                                                                     <p className="font-semibold text-gray-700 mt-1">
-                                                                        Total: {order.cart_total_price} DH
+                                                                        {t("MyOrders.total")} {order.cart_total_price} DH
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -120,7 +124,7 @@ const MyOrders = () => {
                                                                         </div>
                                                                     ))}
                                                                     <p className="text-sm text-gray-500">
-                                                                        Order ID: {order._id}
+                                                                        {t("MyOrders.orderId")} {order._id}
                                                                     </p>
                                                                 </div>
                                                             )}

@@ -44,7 +44,7 @@ import { toast } from "react-toastify";
 
 // ----------------------------------------------------------------------
 
-export default function CategoryPage() {
+export default function CategoryView() {
   const dispatch = useDispatch();
 
   const data = useSelector((state) => state.adminCategory.data);

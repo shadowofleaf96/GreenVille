@@ -293,7 +293,7 @@ function EditOrderForm({ order, onSave, onCancel, open, onClose }) {
               </Select>
             </FormControl>
 
-            <Stack direction="row" spacing={2} sx={{ marginTop: 2, width: "100%" }}>
+            <Stack direction="row" spacing={2} className="rtl:gap-4" sx={{ marginTop: 2, width: "100%" }}>
               <LoadingButton
                 onClick={handleSave}
                 loading={loadingSave}

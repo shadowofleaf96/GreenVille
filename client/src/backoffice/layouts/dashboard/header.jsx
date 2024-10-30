@@ -16,6 +16,7 @@ import Iconify from "../../components/iconify";
 import { NAV, HEADER } from "./config-layout";
 import AccountPopover from "./common/account-popover";
 import LanguagePopover from "./common/language-popover";
+import { useTranslation } from "react-i18next";
 
 // ----------------------------------------------------------------------
 
@@ -23,6 +24,8 @@ export default function Header({ onOpenNav }) {
   const theme = useTheme();
 
   const lgUp = useResponsive("up", "lg");
+  const { i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
 
   const renderContent = (
     <>
@@ -49,6 +52,8 @@ export default function Header({ onOpenNav }) {
       sx={{
         boxShadow: "none",
         height: HEADER.H_MOBILE,
+        left: isRtl ? "0" : "auto", 
+        right: isRtl ? "auto" : "0",
         zIndex: theme.zIndex.appBar + 1,
         ...bgBlur({
           color: theme.palette.background.default,

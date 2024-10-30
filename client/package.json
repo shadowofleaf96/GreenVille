@@ -31,6 +31,7 @@
     "i18next": "^23.7.7",
     "i18next-browser-languagedetector": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
     "numeral": "^2.0.6",
     "rc-slider": "^9.6.5",
     "react": "^18.3.1",

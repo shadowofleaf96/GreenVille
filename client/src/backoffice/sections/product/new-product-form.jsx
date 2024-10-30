@@ -294,7 +294,7 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
           </Typography>
         </Stack>
 
-        <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
+        <Stack direction="row" spacing={2} className="rtl:gap-4" sx={{ width: "100%" }}>
           <LoadingButton
             loading={loadingSave}
             variant="contained"

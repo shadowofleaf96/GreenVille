@@ -77,7 +77,7 @@ export default function ProductPage() {
   const fetchData = async () => {
     try {
       dispatch(setLoading(true));
-      const response = await axiosInstance.get("/products");
+      const response = await axiosInstance.get(`/products`);
       const data = response.data.data;
 
       dispatch(setData(data));

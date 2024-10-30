@@ -8,9 +8,6 @@ import {
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import { useRouter } from "../../../../routes/hooks";
 import { motion } from "framer-motion";
 import {
   TextField,
@@ -31,8 +28,12 @@ import InputAdornment from "@mui/material/InputAdornment";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import { LoadingButton } from "@mui/lab";
+import DOMPurify from "dompurify";
+import { useTranslation } from "react-i18next";
+const backend = import.meta.env.VITE_BACKEND_URL;
 
 const Login = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const history = useNavigate();
   const [searchParams] = useSearchParams();
@@ -41,11 +42,9 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [enteredEmail, setEnteredEmail] = useState("");
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [loadingSave, setLoadingSave] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [loginSuccessFlag, setLoginSuccessFlag] = useState(false);
-  const axiosInstance = createAxiosInstance("customer")
+  const axiosInstance = createAxiosInstance("customer");
 
   useEffect(() => {
     const storedRememberMe = localStorage.getItem("rememberMe");
@@ -80,16 +79,19 @@ const Login = () => {
     setLoadingSave(true);
     dispatch(loginStart());
 
+    const sanitizedEmail = DOMPurify.sanitize(email);
+    const sanitizedPassword = DOMPurify.sanitize(password);
+
     try {
       const response = await axiosInstance.post("/customers/login", {
-        email,
-        password,
+        email: sanitizedEmail,
+        password: sanitizedPassword,
         rememberMe,
       });
 
       if (response.status === 200) {
-        localStorage.setItem('customer_access_token', response.data.access_token);
-        localStorage.setItem('customer_refresh_token', response.data.refresh_token);
+        localStorage.setItem("customer_access_token", response.data.access_token);
+        localStorage.setItem("customer_refresh_token", response.data.refresh_token);
 
         dispatch(
           loginSuccess({
@@ -100,14 +102,37 @@ const Login = () => {
         setLoginSuccessFlag(true);
       }
     } catch (error) {
-      toast.error("Error: " + error.response?.data?.message || "Login failed.");
+      toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
     } finally {
       setLoadingSave(false);
     }
   };
 
-  const responseMessage = (response) => {
-    console.log(response);
+  const responseMessage = async (response) => {
+    try {
+      const res = await axiosInstance.post(`/customers/google-login`, {
+        idToken: response.credential,
+      });
+
+      if (res.status === 200) {
+        if (res.data.cleanUrl) {
+          window.location.href = res.data.cleanUrl;
+        } else {
+          localStorage.setItem("customer_access_token", res.data.access_token);
+          localStorage.setItem("customer_refresh_token", res.data.refresh_token);
+
+          dispatch(
+            loginSuccess({
+              customerToken: res.data.access_token,
+              isLoggedIn: true
+            })
+          );
+          setLoginSuccessFlag(true);
+        }
+      }
+    } catch (error) {
+      toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
+    }
   };
 
   const errorMessage = (error) => {
@@ -151,12 +176,12 @@ const Login = () => {
             <Logo />
           </div>
           <Typography variant="h5" gutterBottom style={{ color: "black" }}>
-            Welcome
+            {t("login.welcome")}
           </Typography>
 
           <form onSubmit={handleLogin}>
             <TextField
-              label="Email"
+              label={t("login.email")}
               variant="outlined"
               autoComplete="chrome-off"
               fullWidth
@@ -164,10 +189,10 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               InputLabelProps={{ shrink: true }}
-              placeholder="Email"
+              placeholder={t("login.email")}
             />
             <TextField
-              label="Password"
+              label={t("login.password")}
               type="password"
               variant="outlined"
               fullWidth
@@ -175,7 +200,7 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               InputLabelProps={{ shrink: true }}
-              placeholder="Password"
+              placeholder={t("login.password")}
               InputProps={{
                 autoComplete: "new-password",
                 form: { autoComplete: "off" },
@@ -188,7 +213,7 @@ const Login = () => {
                       style={{ color: "black", cursor: "pointer" }}
                       onClick={handleOpenDialog}
                     >
-                      Forgot?
+                      {t("login.forgotPassword")}
                     </MuiLink>
                   </InputAdornment>
                 ),
@@ -202,7 +227,7 @@ const Login = () => {
                   style={{ color: "#8dc63f" }}
                 />
               }
-              label="Remember Me"
+              label={t("login.rememberMe")}
             />
 
             <LoadingButton
@@ -212,79 +237,64 @@ const Login = () => {
               variant="contained"
               sx={{ fontWeight: 500, fontSize: 15 }}
               className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2"
-              loadingPosition="center"
             >
-              {loadingSave ? 'Logging In...' : 'Login'}
+              {loadingSave ? t("login.loggingIn") : t("login.login")}
             </LoadingButton>
 
-            <GoogleLogin
-              onSuccess={responseMessage}
-              onError={errorMessage}
-              width="340px"
-              size="medium"
-              shape="square"
-              logo_alignment="center"
-            />
+            <div className="mt-2">
+              <GoogleLogin
+                onSuccess={responseMessage}
+                onError={errorMessage}
+                size="medium"
+                useOneTap
+                width="340px"
+                theme="outline"
+                auto_select={false}
+                text={t("login.googleLogin")}
+                ux_mode="popup"
+                context="signin"
+                logo_alignment="left"
+              />
+            </div>
+
             <Typography
               variant="body2"
               style={{ textAlign: "center", marginTop: "30px" }}
             >
-              Don't have an account?{" "}
+              {t("login.noAccount")}{" "}
               <Link
                 component={RouterLink}
                 to="/register"
                 underline="hover"
                 style={{ color: "#8dc63f" }}
               >
-                Register
+                {t("login.register")}
               </Link>
             </Typography>
           </form>
-
-          <Dialog open={openDialog} onClose={handleCloseDialog}>
-            <DialogTitle>Forgot Password</DialogTitle>
-            <DialogContent
-              elevation={3}
-              style={{
-                padding: "40px",
-                maxWidth: "300px",
-                borderRadius: "20px",
-              }}
-            >
-              <Typography>Enter your email to reset your password:</Typography>
-              <form onSubmit={handleForgotPassword}>
-                <TextField
-                  label="Email"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
-                  value={enteredEmail}
-                  onChange={(e) => setEnteredEmail(e.target.value)}
-                />
-                <Button
-                  type="submit"
-                  style={{
-                    backgroundColor: "#8dc63f",
-                    color: "#fff",
-                    marginTop: "10px",
-                    borderRadius: "20px",
-                  }}
-                  variant="contained"
-                  fullWidth
-                >
-                  Submit
-                </Button>
-              </form>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseDialog} style={{ color: "#8dc63f" }}>
-                Cancel
-              </Button>
-            </DialogActions>
-          </Dialog>
         </Paper>
-      </motion.div>
 
+        <Dialog open={openDialog} onClose={handleCloseDialog}>
+          <DialogTitle>{t("login.forgotPasswordTitle")}</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label={t("login.email")}
+              type="email"
+              fullWidth
+              value={enteredEmail}
+              onChange={(e) => setEnteredEmail(e.target.value)}
+              variant="outlined"
+            />
+            <Typography>{t("login.forgotPasswordDesc")}</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>{t("login.cancel")}</Button>
+            <Button onClick={handleForgotPassword}>{t("login.submit")}</Button>
+          </DialogActions>
+        </Dialog>
+      </motion.div>
     </div>
   );
 };

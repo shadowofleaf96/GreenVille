@@ -1,18 +1,6 @@
 const { Contacts } = require("../models/Contact");
-const nodemailer = require("nodemailer");
+const transporter = require("../middleware/mailMiddleware");
 require("dotenv").config();
-
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
 
 const createContact = async (req, res) => {
   try {
@@ -43,7 +31,7 @@ function confirmationEmailTemplate(name) {
       <body>
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
           <div style="margin-bottom: 20px;">
-            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/main/client/public/assets/logo.svg" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
+            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/main/client/public/assets/logo.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
           </div>
           <h2 style="color: #4CAF50;">Hello ${name},</h2>
           <p>Thank you for reaching out to us! We have received your message and one of our representatives will get back to you shortly.</p>

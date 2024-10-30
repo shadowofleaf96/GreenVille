@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 import Badge from "@mui/material/Badge";
 import { useTranslation } from "react-i18next";
 
-const ProfilePage = () => {
+const ProfileView = () => {
   const { t } = useTranslation();
   const { admin } = useSelector((state) => state.adminAuth);
   const isActive = admin.active;

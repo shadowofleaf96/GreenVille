@@ -4,421 +4,625 @@ const { Customer } = require("../models/Customer");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const axios = require("axios");
+const path = require("path");
+const fs = require("fs");
+const { OAuth2Client } = require("google-auth-library");
 require("dotenv").config();
-const { createTransport } = require("nodemailer");
 const { log } = require("console");
+const transporter = require("../middleware/mailMiddleware");
 const secretKey = process.env.SECRETKEY;
 const secretRefreshKey = process.env.REFRESHSECRETLEY;
 const expiration = process.env.EXPIRATIONDATE;
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const CustomerController = {
-  async login(req, res) {
-    const { email, password } = req.body;
+const login = async (req, res) => {
+  const { email, password } = req.body;
 
-    try {
-      const customer = await Customer.findOne({ email });
+  try {
+    const customer = await Customer.findOne({ email });
 
-      if (customer && customer.active === true) {
-        const isPasswordValid = await bcrypt.compare(
-          password,
-          customer.password
-        );
+    if (customer && customer.active === true) {
+      const isPasswordValid = await bcrypt.compare(password, customer.password);
 
-        if (isPasswordValid) {
-          const payload = { id: customer._id, role: customer.role };
-          const accessToken = jwt.sign(payload, secretKey, {
-            expiresIn: "8h",
-          });
+      if (isPasswordValid) {
+        const payload = { id: customer._id, role: customer.role };
+        const accessToken = jwt.sign(payload, secretKey, {
+          expiresIn: "8h",
+        });
 
-          const refreshTokenPayload = { id: customer._id, role: customer.role };
-          const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
-            expiresIn: "7d",
-          });
+        const refreshTokenPayload = { id: customer._id, role: customer.role };
+        const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
+          expiresIn: "7d",
+        });
 
-          return res.status(200).json({
-            message: "Login success",
-            access_token: accessToken,
-            token_type: "Bearer",
-            expires_in: "8h",
-            refresh_token: refreshToken,
-            customer: customer,
-          });
-        } else {
-          res
-            .status(401)
-            .json({ message: "Invalid credentials or inactive account" });
-        }
+        return res.status(200).json({
+          message: "Login success",
+          access_token: accessToken,
+          token_type: "Bearer",
+          expires_in: "8h",
+          refresh_token: refreshToken,
+          customer: customer,
+        });
       } else {
         res
           .status(401)
           .json({ message: "Invalid credentials or inactive account" });
       }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Internal server error" });
+    } else {
+      res
+        .status(401)
+        .json({ message: "Invalid credentials or inactive account" });
     }
-  },
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
-  async createCustomer(req, res) {
-    const customer_image = req.file;
-    let fixed_customer_image;
+const googleLogin = async (req, res) => {
+  const { idToken } = req.body;
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, picture } = payload;
+
+    let customer = await Customer.findOne({ email });
+
+    if (!customer) {
+      const cleanUrl = `${
+        process.env.FRONTEND_LOCAL_URL
+      }set-password?email=${encodeURIComponent(
+        email
+      )}&name=${encodeURIComponent(name)}&picture=${encodeURIComponent(
+        picture
+      )}`;
+
+      return res.json({ cleanUrl: cleanUrl });
+    }
+
+    const tokenPayload = { id: customer._id, role: customer.role };
+
+    const accessToken = jwt.sign(tokenPayload, secretKey, {
+      expiresIn: "8h",
+    });
+
+    const refreshToken = jwt.sign(tokenPayload, secretRefreshKey, {
+      expiresIn: "7d",
+    });
+
+    res.status(200).json({
+      message: "Google login success",
+      access_token: accessToken,
+      token_type: "Bearer",
+      expires_in: "8h",
+      refresh_token: refreshToken,
+      customer: customer,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: "Google login failed" });
+  }
+};
+
+const downloadImage = async (url, filename) => {
+  const filepath = path.resolve(__dirname, "..", "public", "images", filename);
+
+  try {
+    const response = await axios({ url, responseType: "stream" });
+
+    fs.mkdirSync(path.dirname(filepath), { recursive: true });
+
+    const writer = fs.createWriteStream(filepath);
+
+    return new Promise((resolve, reject) => {
+      response.data.pipe(writer);
+      writer.on("finish", () => {
+        resolve(filepath);
+      });
+      writer.on("error", (err) => {
+        reject(err);
+      });
+    });
+  } catch (error) {
+    console.error("Error downloading image:", error.message);
+    throw new Error("Image download failed");
+  }
+};
+
+function completeRegistrationEmailTemplate(name) {
+  return `
+    <html>
+      <body>
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
+          <div style="margin-bottom: 20px;">
+            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/main/client/public/assets/logo.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
+          </div>
+          <h2 style="color: #4CAF50;">Welcome, ${name}!</h2>
+          <p>We’re excited to let you know that your registration is now complete.</p>
+          <p>You can log in using your credentials to start exploring our services.</p>
+          <p style="color: #555;">If you have any questions or need assistance, feel free to reach out to our support team.</p>
+          <p>Best regards,<br/>GreenVille</p>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+const completeRegistration = async (req, res) => {
+  const { email, name, password, picture } = req.body;
+  const [first_name, last_name] = name.split(" ");
+
+  try {
+    const existingCustomer = await Customer.findOne({ email });
+    if (existingCustomer) {
+      return res
+        .status(400)
+        .json({ error: "Customer with this email already exists" });
+    }
+
+    const imageFilename = `${Date.now()}_customer.png`;
+    const imagePath = await downloadImage(picture, imageFilename);
+    const workingImagePath = "images/" + imageFilename;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newCustomer = new Customer({
+      customer_image: workingImagePath,
+      first_name,
+      last_name,
+      email,
+      password: hashedPassword,
+      creation_date: Date.now(),
+      active: true,
+    });
+
+    await newCustomer.save();
+
+    const emailTemplate = completeRegistrationEmailTemplate(
+      newCustomer.first_name
+    );
+
+    const mailOptions = {
+      to: newCustomer.email,
+      subject: "Welcome to GreenVille - Registration Complete",
+      html: emailTemplate,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Email sending error:", error);
+      } else {
+        console.log("Welcome email sent:", info.response);
+      }
+    });
+
+    res.status(200).json({
+      message: "Customer registered successfully, now you can login",
+      data: newCustomer,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: "Error in customer registration", error });
+  }
+};
+
+function validationEmailTemplate(name, validationLink) {
+  return `
+    <html>
+      <body>
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
+          <div style="margin-bottom: 20px;">
+            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/main/client/public/assets/logo.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
+          </div>
+          <h2 style="color: #4CAF50;">Hello ${name},</h2>
+          <p>Thank you for creating an account with us! To complete your registration, please confirm your email address by clicking the link below:</p>
+          <p><a href="${validationLink}" style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #4CAF50; text-decoration: none; border-radius: 4px;">Validate Your Account</a></p>
+          <p style="color: #555;">This validation link is valid for 24 hours. If you did not request this, please disregard this email.</p>
+          <p>Best regards,<br/>GreenVille</p>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+const createCustomer = async (req, res) => {
+  const customer_image = req.file;
+  let fixed_customer_image;
+
+  if (customer_image) {
+    fixed_customer_image = customer_image.path.replace(/public\\/g, "");
+  } else {
+    fixed_customer_image = `images/image_placeholder.webp`;
+  }
+
+  const { first_name, last_name, email, password } = req.body;
+
+  try {
+    const existingCustomer = await Customer.findOne({ email });
+
+    if (existingCustomer) {
+      return res
+        .status(400)
+        .json({ error: "Customer with this email already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const validationToken = crypto.randomBytes(32).toString("hex");
+
+    const newCustomer = new Customer({
+      customer_image: fixed_customer_image,
+      first_name,
+      last_name,
+      email,
+      password: hashedPassword,
+      creation_date: Date.now(),
+      active: false,
+      validation_token: validationToken,
+    });
+
+    await newCustomer.save();
+
+    const validationLink = `${process.env.BACKEND_LOCAL_URL}v1/customers/validate/${newCustomer._id}/${validationToken}`;
+    const emailTemplate = validationEmailTemplate(
+      newCustomer.first_name,
+      validationLink
+    );
+
+    const mailOptions = {
+      to: newCustomer.email,
+      subject: "Validate your account",
+      html: emailTemplate,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Email sending error:", error);
+      } else {
+        console.log("Validation email sent:", info.response);
+      }
+    });
+
+    res.status(200).json({
+      message:
+        "Customer created successfully. Please check your email to validate your account.",
+      redirectUrl: `${process.env.FRONTEND_LOCAL_URL}check-email`,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json("Error creating Customer Account" + error);
+  }
+};
+
+const getAllCustomers = async (req, res) => {
+  const page = parseInt(req.query.page);
+  const query = req.query.query || "";
+  const sort = req.query.sort || "DESC";
+
+  const perPage = 10;
+  const skipCount = (page - 1) * perPage;
+
+  if (page) {
+    try {
+      let queryBuilder = Customer.find();
+
+      if (query) {
+        queryBuilder = queryBuilder.where("first_name", new RegExp(query, "i"));
+      }
+
+      if (sort.toUpperCase() === "DESC") {
+        queryBuilder = queryBuilder.sort({ first_name: -1 });
+      } else {
+        queryBuilder = queryBuilder.sort({ first_name: 1 });
+      }
+
+      const customerList = await queryBuilder
+        .skip(skipCount)
+        .limit(perPage)
+        .exec();
+
+      const formattedCustomer = customerList.map((customer) => ({
+        _id: customer._id,
+        first_name: customer.first_name,
+        last_name: customer.last_name,
+        email: customer.email,
+      }));
+
+      res.status(200).json({
+        data: formattedCustomer,
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  } else {
+    try {
+      let queryBuilder = Customer.find();
+
+      if (query) {
+        queryBuilder = queryBuilder.where("first_name", new RegExp(query, "i"));
+      }
+
+      if (sort.toUpperCase() === "DESC") {
+        queryBuilder = queryBuilder.sort({ first_name: -1 });
+      } else {
+        queryBuilder = queryBuilder.sort({ first_name: 1 });
+      }
+
+      const customerList = await queryBuilder.exec();
+
+      res.status(200).json({
+        data: customerList,
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+};
+
+const getCustomerProfile = async (req, res) => {
+  const { _id } = req.user;
+  try {
+    const customer = await Customer.findById(_id).select("-password");
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+    delete customer.password;
+    res.json(customer);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+};
+
+const getCustomerById = async (req, res) => {
+  const customerId = req.params.id;
+  try {
+    const matchingCustomer = await Customer.findById(customerId);
+
+    if (!matchingCustomer) {
+      return res.status(404).json({ error: "Customer not found" });
+    } else {
+      res.json(matchingCustomer);
+    }
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
+function successValidationEmailTemplate(name) {
+  return `
+    <html>
+      <body>
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
+          <div style="margin-bottom: 20px;">
+            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/main/client/public/assets/logo.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
+          </div>
+          <h2 style="color: #4CAF50;">Hello ${name},</h2>
+          <p>Congratulations! Your account has been successfully validated.</p>
+          <p style="color: #555;">You can now log in and start exploring our services.</p>
+          <p>Best regards,<br/>GreenVille</p>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+const validateCustomer = async (req, res) => {
+  const { id, token } = req.params;
+
+  try {
+    const matchingCustomer = await Customer.findById(id);
+
+    if (!matchingCustomer || matchingCustomer.validation_token !== token) {
+      return res
+        .status(404)
+        .send(
+          "<html><body><h2>Invalid token or customer not found</h2></body></html>"
+        );
+    }
+
+    if (matchingCustomer.active) {
+      return res
+        .status(400)
+        .send(
+          "<html><body><h2>Account is already validated</h2></body></html>"
+        );
+    }
+
+    matchingCustomer.active = true;
+    matchingCustomer.validation_token = null;
+    await matchingCustomer.save();
+
+    const emailTemplate = successValidationEmailTemplate(
+      matchingCustomer.first_name
+    );
+
+    const mailOptions = {
+      to: matchingCustomer.email,
+      subject: "Account Validation Successful",
+      html: emailTemplate,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Email sending error:", error);
+      } else {
+        console.log("Email sent:", info.response);
+      }
+    });
+
+    res.redirect(`${process.env.FRONTEND_LOCAL_URL}login`);
+  } catch (error) {
+    console.error("Validation error:", error);
+    res
+      .status(500)
+      .send("<html><body><h2>Internal server error</h2></body></html>");
+  }
+};
+
+const updateCustomer = async (req, res) => {
+  const customer_image = req.file;
+  let fixed_customer_image;
+  const customerId = req.params.id;
+  const { first_name, last_name, email, password, active } = req.body;
+
+  try {
+    const customer = await Customer.findById(customerId);
+
+    if (!customer) {
+      return res.status(404).json({ message: "Invalid customer id" });
+    }
 
     if (customer_image) {
       fixed_customer_image = customer_image.path.replace(/public\\/g, "");
     } else {
-      fixed_customer_image = `images/image_placeholder.webp`;
+      fixed_customer_image = customer.customer_image;
     }
-    const { first_name, last_name, email, password } = req.body;
 
-    try {
-      const existingCustomer = await Customer.findOne({ email });
-
-      if (existingCustomer) {
-        return res
-          .status(400)
-          .json({ error: "Customer with this email already exists" });
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const newCustomer = new Customer({
-        customer_image: fixed_customer_image,
-        first_name,
-        last_name,
-        email,
-        password: hashedPassword,
-        creation_date: Date.now(),
-        active: true,
-      });
-
-      await newCustomer.save();
-
-      res.status(200).json({
-        message: "Customer created successfully",
-        data: newCustomer,
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(400).json({ error: "Bad field type" });
+    if (customer_image) {
+      customer.customer_image = fixed_customer_image;
     }
-  },
 
-  async getAllCustomers(req, res) {
-    const page = parseInt(req.query.page);
-    const query = req.query.query || "";
-    const sort = req.query.sort || "DESC";
-
-    const perPage = 10;
-    const skipCount = (page - 1) * perPage;
-
-    if (page) {
-      try {
-        let queryBuilder = Customer.find();
-
-        if (query) {
-          queryBuilder = queryBuilder.where(
-            "first_name",
-            new RegExp(query, "i")
-          );
-        }
-
-        if (sort.toUpperCase() === "DESC") {
-          queryBuilder = queryBuilder.sort({ first_name: -1 });
-        } else {
-          queryBuilder = queryBuilder.sort({ first_name: 1 });
-        }
-
-        const customerList = await queryBuilder
-          .skip(skipCount)
-          .limit(perPage)
-          .exec();
-
-        const formattedCustomer = customerList.map((customer) => ({
-          _id: customer._id,
-          first_name: customer.first_name,
-          last_name: customer.last_name,
-          email: customer.email,
-        }));
-
-        res.status(200).json({
-          data: formattedCustomer,
-        });
-      } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Internal server error" });
-      }
-    } else {
-      try {
-        let queryBuilder = Customer.find();
-
-        if (query) {
-          queryBuilder = queryBuilder.where(
-            "first_name",
-            new RegExp(query, "i")
-          );
-        }
-
-        if (sort.toUpperCase() === "DESC") {
-          queryBuilder = queryBuilder.sort({ first_name: -1 });
-        } else {
-          queryBuilder = queryBuilder.sort({ first_name: 1 });
-        }
-
-        const customerList = await queryBuilder.exec();
-
-        res.status(200).json({
-          data: customerList,
-        });
-      } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Internal server error" });
-      }
+    if (first_name) {
+      customer.first_name = first_name;
     }
-  },
-  async getCustomerProfile(req, res) {
-    const { _id } = req.user;
-    try {
-      const customer = await Customer.findById(_id).select("-password");
-      if (!customer) {
-        return res.status(404).json({ message: "Customer not found" });
-      }
-      delete customer.password;
-      res.json(customer);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Internal server error", error: error.message });
+
+    if (last_name) {
+      customer.last_name = last_name;
     }
-  },
-  async getCustomerById(req, res) {
-    //Get a customer by ID
-    const customerId = req.params.id;
-    try {
-      const matchingCustomer = await Customer.findById(customerId);
 
-      if (!matchingCustomer) {
-        return res.status(404).json({ error: "Customer not found" });
-      } else {
-        res.json(matchingCustomer);
-      }
-    } catch (error) {
-      res.status(500).json(error);
+    if (email) {
+      customer.email = email;
     }
-  },
 
-  async validateCustomer(req, res) {
-    const _id = req.params.id;
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    try {
-      const matchingCustomer = await Customer.findById(_id);
-      if (!matchingCustomer || matchingCustomer.active === false) {
-        return res
-          .status(404)
-          .json({ message: "Customer not found or not active" });
-      }
-
-      if (matchingCustomer?.valid_account) {
-        return res
-          .status(400)
-          .json({ message: "Account is already validated" });
-      }
-
-      matchingCustomer.valid_account = true;
-      await matchingCustomer.save();
-
-      // Send an email to the customer
-      const transporter = createTransport({
-        host: process.env.STMPHOST,
-        port: 2525,
-        secure: false,
-        auth: {
-          user: process.env.STMPUSER,
-          pass: process.env.STMPASS,
-        },
-      });
-      const mailOptions = {
-        to: matchingCustomer.email,
-        subject: "Account Validation Successful",
-        text: "Your account has been successfully validated!",
-      };
-
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.error("Email sending error:", error);
-        } else {
-          console.log("Email sent:", info.response);
-        }
-      });
-
-      // Respond to the client
-      res
-        .status(200)
-        .json({ message: "Customer account validated successfully" });
-    } catch (error) {
-      console.error("Validation error:", error);
-      res.status(500).json({ message: "Internal server error" });
+    if (password) {
+      customer.password = hashedPassword;
     }
-  },
 
-  async updateCustomer(req, res) {
-    const customer_image = req.file;
-    let fixed_customer_image;
-    const customerId = req.params.id;
-    const { first_name, last_name, email, password, active } = req.body;
-
-    try {
-      const customer = await Customer.findById(customerId);
-
-      if (!customer) {
-        return res.status(404).json({ message: "Invalid customer id" });
-      }
-
-      if (customer_image) {
-        fixed_customer_image = customer_image.path.replace(/public\\/g, "");
-      } else {
-        fixed_customer_image = customer.customer_image;
-      }
-
-      if (customer_image) {
-        customer.customer_image = fixed_customer_image;
-      }
-
-      if (first_name) {
-        customer.first_name = first_name;
-      }
-
-      if (last_name) {
-        customer.last_name = last_name;
-      }
-
-      if (email) {
-        customer.email = email;
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      if (password) {
-        customer.password = hashedPassword;
-      }
-
-      if (active) {
-        customer.active = active;
-      }
-
-      await customer.save();
-
-      res.status(200).json({
-        message: "Account updated successfully",
-      });
-    } catch (error) {
-      console.error("Update error:", error);
-      res.status(500).json({ message: "Internal server error" });
+    if (active) {
+      customer.active = active;
     }
-  },
 
-  async deleteCustomer(req, res) {
-    const customerId = req.params.id;
+    await customer.save();
 
-    try {
-      const customer = await Customer.findOneAndRemove({ _id: customerId });
+    res.status(200).json({
+      message: "Account updated successfully",
+    });
+  } catch (error) {
+    console.error("Update error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
-      if (!customer) {
-        return res.status(404).json({ message: "Customer not found" });
-      }
+const deleteCustomer = async (req, res) => {
+  const customerId = req.params.id;
 
-      return res.status(200).json({ message: "Account deleted successfully" });
-    } catch (error) {
-      console.error("Deletion error:", error);
-      return res.status(500).json({ message: "Internal server error" });
+  try {
+    const customer = await Customer.findOneAndRemove({ _id: customerId });
+
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
     }
-  },
 
-  async forgotPassword(req, res) {
-    try {
-      const { email } = req.body;
+    return res.status(200).json({ message: "Account deleted successfully" });
+  } catch (error) {
+    console.error("Deletion error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 
-      // Find the user by email
-      const customer = await Customer.findOne({ email });
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
 
-      // If user not found, return an error
-      if (!customer) {
-        return res.status(404).json({ error: "User not found" });
-      }
+    const customer = await Customer.findOne({ email });
 
-      // Generate a unique token for password reset
-      const resetToken = crypto.randomBytes(20).toString("hex");
+    if (!customer) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
-      // Set the token and expiration time in the user's document
-      customer.resetPasswordToken = resetToken;
-      customer.resetPasswordExpires = Date.now() + 3600000; // Token expires in 1 hour
+    const resetToken = crypto.randomBytes(20).toString("hex");
 
-      // Save the user with the updated token information
-      await customer.save();
+    customer.resetPasswordToken = resetToken;
+    customer.resetPasswordExpires = Date.now() + 3600000;
 
-      // Send an email with the reset link
-      const transporter = createTransport({
-        host: process.env.STMPHOST,
-        port: 2525,
-        secure: false,
-        auth: {
-          user: process.env.STMPUSER,
-          pass: process.env.STMPASS,
-        },
-      });
+    await customer.save();
 
-      const mailOptions = {
-        from: " process.env.SENDER",
-        to: customer.email,
-        subject: "Password Reset",
-        text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+    const mailOptions = {
+      from: " process.env.SENDER",
+      to: customer.email,
+      subject: "Password Reset",
+      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
           Please click on the following link, or paste this into your browser to complete the process:\n\n
           ${process.env.URL}/reset-password/${resetToken}\n\n
           If you did not request this, please ignore this email and your password will remain unchanged.\n`,
-      };
+    };
 
-      transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log("Email sent: " + info.response);
-        }
-      });
-
-      res.json({ message: "Password reset email sent" });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  },
-
-  async resetPassword(req, res) {
-    try {
-      const { token } = req.params;
-      const { newPassword } = req.body;
-
-      const customer = await Customer.findOne({
-        resetPasswordToken: token,
-        resetPasswordExpires: { $gt: Date.now() },
-      });
-
-      if (!customer) {
-        return res.status(400).json({ error: "Invalid or expired token" });
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email sent: " + info.response);
       }
+    });
 
-      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
-      customer.password = hashedNewPassword;
-      customer.resetPasswordToken = undefined;
-      customer.resetPasswordExpires = undefined;
-
-      await customer.save();
-
-      res.json({ message: "Password reset successfully" });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  },
+    res.json({ message: "Password reset email sent" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
-module.exports = CustomerController;
+const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    const customer = await Customer.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!customer) {
+      return res.status(400).json({ error: "Invalid or expired token" });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    customer.password = hashedNewPassword;
+    customer.resetPasswordToken = undefined;
+    customer.resetPasswordExpires = undefined;
+
+    await customer.save();
+
+    res.json({ message: "Password reset successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+module.exports = {
+  login,
+  googleLogin,
+  resetPassword,
+  forgotPassword,
+  deleteCustomer,
+  updateCustomer,
+  validateCustomer,
+  getCustomerById,
+  getCustomerProfile,
+  getAllCustomers,
+  createCustomer,
+  completeRegistration,
+};

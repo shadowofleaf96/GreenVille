@@ -173,7 +173,7 @@ export default function AppView() {
             <AppWidgetSummary
               title={t("Revenues")}
               total={totalCartTotalPrice}
-              currency="DH"
+              currency={t("DH")}
               icon={
                 <Iconify
                   icon="material-symbols-light:payments-rounded"

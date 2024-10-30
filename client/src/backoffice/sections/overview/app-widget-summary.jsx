@@ -16,8 +16,6 @@ export default function AppWidgetSummary({
   sx,
   ...other
 }) {
-  const theme = useTheme();
-
   return (
     <Card
       component={Stack}

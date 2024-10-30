@@ -7,9 +7,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import Logo from "../../../components/logo";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
+import DOMPurify from "dompurify";
 
 const ResetPassword = () => {
   const { token } = useParams();
+  const { t } = useTranslation(); // useTranslation hook
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -17,7 +20,7 @@ const ResetPassword = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [resetError, setResetError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const axiosInstance = createAxiosInstance("customer")
+  const axiosInstance = createAxiosInstance("customer");
 
   const history = useNavigate();
 
@@ -30,8 +33,11 @@ const ResetPassword = () => {
   const handleResetPassword = async (e) => {
     e.preventDefault();
 
-    if (newPassword !== confirmPassword) {
-      setResetError("Passwords do not match");
+    const sanitizedNewPassword = DOMPurify.sanitize(newPassword);
+    const sanitizedConfirmedPassword = DOMPurify.sanitize(confirmPassword);
+
+    if (sanitizedNewPassword !== sanitizedConfirmedPassword) {
+      setResetError(t("Passwords do not match"));
       return;
     }
 
@@ -41,7 +47,7 @@ const ResetPassword = () => {
       const response = await axiosInstance.post(
         `/customers/reset-password/${token}`,
         {
-          newPassword,
+          newPassword: sanitizedNewPassword,
         }
       );
 
@@ -50,9 +56,9 @@ const ResetPassword = () => {
       setResetError(null);
     } catch (error) {
       console.error(error.response.data.error);
-      setResetError("Failed to reset password. Please try again.");
+      setResetError(t("Failed to reset password. Please try again."));
       setResetSuccess(false);
-      toast.error("Error: " + error.response.data.error);
+      toast.error(t("Error: ") + error.response.data.error);
     } finally {
       setLoading(false);
     }
@@ -70,25 +76,27 @@ const ResetPassword = () => {
           textAlign: "center",
         }}
       >
-        <Logo sx={{ marginBottom: "20px" }} />
+        <div className="flex justify-center mb-4">
+          <Logo />
+        </div>
         <Typography
           variant="h5"
           gutterBottom
           style={{ textAlign: "center", color: "black" }}
         >
-          {resetSuccess ? "Password Reset Successful" : "Reset Password"}
+          {resetSuccess ? t("Password Reset Successful") : t("Reset Password")}
         </Typography>
         {resetSuccess ? (
           <Typography
             variant="body1"
             style={{ textAlign: "center", color: "green" }}
           >
-            Your password has been successfully reset.
+            {t("Your password has been successfully reset.")}
           </Typography>
         ) : (
           <form onSubmit={handleResetPassword}>
             <TextField
-              label="New Password"
+              label={t("New Password")}
               autoComplete="chrome-off"
               type="password"
               variant="outlined"
@@ -99,7 +107,7 @@ const ResetPassword = () => {
               onChange={(e) => setNewPassword(e.target.value)}
             />
             <TextField
-              label="Confirm Password"
+              label={t("Confirm Password")}
               type="password"
               autoComplete="chrome-off"
               variant="outlined"
@@ -130,15 +138,14 @@ const ResetPassword = () => {
               disabled={loading}
             >
               {loading
-                ? "Loading..."
+                ? t("Loading...")
                 : resetSuccess
-                ? "Go to Login"
-                : "Reset Password"}
+                  ? t("Go to Login")
+                  : t("Reset Password")}
             </Button>
           </form>
         )}
       </Paper>
-     
     </div>
   );
 };

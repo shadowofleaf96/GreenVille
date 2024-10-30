@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Iconify from "../../../backoffice/components/iconify";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,20 +8,20 @@ import {
 } from "../../../redux/frontoffice/cartSlice";
 import MetaData from "../../components/MetaData";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
+
 const backend = import.meta.env.VITE_BACKEND_URL;
 
 const Cart = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const history = useNavigate();
   const { cartItems } = useSelector((state) => state.carts);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-
   const token = localStorage.getItem('customer_access_token');
 
   const removeCartItemHandler = (id) => {
     dispatch(removeItemFromCart(id));
-    toast.success("Item Removed Successfully");
+    toast.success(t("Item Removed Successfully"));
   };
 
   const increaseQty = (id, quantity, stock) => {
@@ -48,27 +48,27 @@ const Cart = () => {
 
   return (
     <Fragment>
-      <MetaData title={"Cart"} />
+      <MetaData title={t("Cart")} />
       <div className="min-h-screen flex flex-col mt-8 px-4">
         <div className="container mx-auto grid gap-4 grid-cols-1 md:grid-cols-3">
           <div className="md:col-span-2">
             <div className="p-4 bg-white shadow rounded-lg">
               <div className="flex justify-between items-center mb-4">
-                <h4 className="text-lg font-bold">Shopping Cart</h4>
-                <h4 className="text-lg">{cartItems.length} items</h4>
+                <h4 className="text-lg font-bold">{t("Shopping Cart")}</h4>
+                <h4 className="text-lg">{`${cartItems.length} ${t("items")}`}</h4>
               </div>
               <hr />
               <div className="container mx-auto p-4">
                 {cartItems.length === 0 ? (
                   <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
                     <Iconify className="mb-2" icon="mdi:shopping" width={100} height={100} />
-                    <h2 className="text-2xl font-semibold mb-2">Your Cart is Empty</h2>
-                    <p className="text-gray-600 mb-6">Looks like you haven't added anything to your cart yet.</p>
+                    <h2 className="text-2xl font-semibold mb-2">{t("Your Cart is Empty")}</h2>
+                    <p className="text-gray-600 mb-6">{t("Looks like you haven't added anything to your cart yet.")}</p>
                     <Link
                       to="/products"
                       className="bg-[#8DC63F] text-white px-6 py-3 rounded-lg hover:bg-yellow-500 transition duration-300"
                     >
-                      Start Shopping
+                      {t("Start Shopping")}
                     </Link>
                   </div>
                 ) : (
@@ -84,7 +84,9 @@ const Cart = () => {
                           <Link to={`/product/${item.product}`} className="text-blue-500 hover:underline">
                             {item.name}
                           </Link>
-                          <p className="text-green-400 font-semibold flex justify-center md:justify-start text-lg mt-2">{item.discountPrice} DH</p>
+                          <p className="text-green-400 font-semibold flex justify-center md:justify-start text-lg mt-2">
+                            {item.discountPrice} DH
+                          </p>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
@@ -110,7 +112,7 @@ const Cart = () => {
                           onClick={() => removeCartItemHandler(item.product)}
                           className="bg-red-500 text-white py-3 px-8 rounded-md hover:bg-red-600 shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-red-600"
                         >
-                          Remove
+                          {t("Remove")}
                         </button>
                       </div>
                       <hr />
@@ -121,27 +123,27 @@ const Cart = () => {
             </div>
           </div>
           <div className="h-60 order_summary p-4 bg-white shadow rounded-lg">
-            <h4 className="text-lg font-bold mb-4">Order Summary</h4>
+            <h4 className="text-lg font-bold mb-4">{t("Order Summary")}</h4>
             <hr />
             <p className="flex justify-between my-2">
-              <span>Subtotal</span>
-              <span>{cartItems.reduce((acc, item) => acc + Number(item.quantity), 0)} (Units or KG)</span>
+              <span>{t("Subtotal")}</span>
+              <span>{cartItems.reduce((acc, item) => acc + Number(item.quantity), 0)} {t("Units or KG")}</span>
             </p>
             <p className="font-semibold flex justify-between my-2">
-              <span>Total Price</span>
+              <span>{t("Total Price")}</span>
               <span>{cartItems.reduce((acc, item) => acc + item.quantity * item.discountPrice, 0).toFixed(2)} DH</span>
             </p>
             <hr />
             {cartItems.length !== 0 ? (
               <div className="text-center mt-4">
                 <button onClick={checkoutHandler} className="bg-[#8DC63F] text-white py-3 px-8 rounded-md shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-600">
-                  Checkout
+                  {t("Checkout")}
                 </button>
               </div>
             ) : (
               <div className="text-center mt-4">
                 <button disabled onClick={checkoutHandler} className="bg-gray-100 py-3 px-8 text-gray-400 rounded-md">
-                  Checkout
+                  {t("Checkout")}
                 </button>
               </div>
             )}

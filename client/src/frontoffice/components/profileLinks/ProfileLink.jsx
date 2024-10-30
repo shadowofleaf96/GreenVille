@@ -5,6 +5,7 @@ import Loader from "../loader/Loader";
 import { logout } from "../../../redux/frontoffice/customerSlice";
 import Iconify from "../../../backoffice/components/iconify";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 const backend = import.meta.env.VITE_BACKEND_URL;
 
 
@@ -14,15 +15,16 @@ const ProfileLink = () => {
   const router = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
+  const { t } = useTranslation()
 
   const logoutHandler = async () => {
     try {
       localStorage.removeItem("customer_access_token");
       dispatch(logout());
-      toast.success("You have been Logged out");
+      toast.success(t("You have been Logged out"));
       router("/");
     } catch (error) {
-      toast.error("Error: " + error.response.data.message);
+      toast.error(t("Error") + ": " + error.response.data.message);
     }
   };
 
@@ -53,38 +55,8 @@ const ProfileLink = () => {
 
             <div className="flex flex-col mt-4 gap-3">
               <Link
-                to="/me"
-                className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/me")
-                  ? "bg-[#8DC63F] text-white"
-                  : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
-                  }`}
-              >
-                <Iconify
-                  icon="material-symbols-light:supervised-user-circle-outline"
-                  width={28}
-                  height={28}
-                  className="mr-3"
-                />
-                Profile
-              </Link>
-              <Link
-                to="/me/update"
-                className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/me/update")
-                  ? "bg-[#8DC63F] text-white"
-                  : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
-                  }`}
-              >
-                <Iconify
-                  icon="material-symbols-light:edit-rounded"
-                  width={28}
-                  height={28}
-                  className="mr-3"
-                />
-                Edit Profile
-              </Link>
-              <Link
-                to="/orders/me"
-                className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/orders/me")
+                to="/profile/orders"
+                className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/profile/orders")
                   ? "bg-[#8DC63F] text-white"
                   : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
                   }`}
@@ -95,7 +67,22 @@ const ProfileLink = () => {
                   height={28}
                   className="mr-3"
                 />
-                My Orders
+                {t("My Orders")}
+              </Link>
+              <Link
+                to="/profile/update"
+                className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/profile/update")
+                  ? "bg-[#8DC63F] text-white"
+                  : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
+                  }`}
+              >
+                <Iconify
+                  icon="material-symbols-light:edit-rounded"
+                  width={28}
+                  height={28}
+                  className="mr-3"
+                />
+                {t('Edit Profile')}
               </Link>
               <button
                 onClick={logoutHandler}
@@ -107,7 +94,7 @@ const ProfileLink = () => {
                   height={28}
                   className="mr-3"
                 />
-                Logout
+                {t("Logout")}
               </button>
             </div>
           </div>

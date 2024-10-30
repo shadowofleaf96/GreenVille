@@ -11,13 +11,14 @@ import { Slide, Zoom, Flip, Bounce } from 'react-toastify';
 import Login from "../frontoffice/pages/auth/login/Login";
 import Register from "../frontoffice/pages/auth/register/Register";
 import ResetPassword from "../frontoffice/pages/auth/resetPassword/ResetPassword";
+import SetGooglePassword from "../frontoffice/pages/auth/setGooglePassword/SetGooglePassword";
+import CheckEmail from "../frontoffice/pages/auth/checkEmail/CheckEmail";
 import SingleProduct from "../frontoffice/pages/singleProduct/SingleProduct";
 import Cart from "../frontoffice/pages/cart/Cart";
 import Shipping from "../frontoffice/pages/cart/shipping/Shipping";
 import ConfirmOrder from "../frontoffice/pages/cart/confirmOrder/ConfirmOrder";
 import Payment from "../frontoffice/pages/cart/payment/Payment";
 import Success from "../frontoffice/pages/cart/success/Success";
-import Profile from "../frontoffice/pages/user/Profile";
 import UpdateProfile from "../frontoffice/pages/user/updateProfile/UpdateProfile";
 import MyOrders from "../frontoffice/pages/user/myOrders/MyOrders";
 import About from "../frontoffice/pages/about/About";
@@ -34,7 +35,6 @@ import TermsAndConditions from "../frontoffice/pages/policies/TermsConditions";
 import ReturnsAndExchanges from "../frontoffice/pages/policies/ReturnsExchanges";
 import ShippingAndDeliveryPolicy from "../frontoffice/pages/policies/ShippingDelivery";
 import RefundPolicy from "../frontoffice/pages/policies/RefundPolicy";
-import { useTranslation } from "react-i18next";
 
 export const IndexPage = lazy(() => import("../backoffice/pages/app"));
 export const CategoryPage = lazy(() => import("../backoffice/pages/category"));
@@ -58,12 +58,9 @@ const initialOptions = {
 };
 
 export default function Router() {
-  const { i18n } = useTranslation();
-
-  const isArabic = i18n.language === 'ar';
 
   return (
-    <div dir={isArabic ? 'rtl' : 'ltr'}>
+    <div>
       <ToastContainer autoClose={2000}
         hideProgressBar={true}
         position="bottom-left" transition={Slide}
@@ -86,6 +83,8 @@ export default function Router() {
 
         <Route path="/register" element={<Register />} exact />
         <Route path="/reset-password/:token" element={<ResetPassword />} exact />
+        <Route path="/set-password" element={<SetGooglePassword />} exact />
+        <Route path="/check-email" element={<CheckEmail />} exact />
         <Route path="/login" element={<Login />} exact />
         <Route path="*" element={<Page404 />} />
 
@@ -103,9 +102,8 @@ export default function Router() {
         <Route path="admin/login" element={<LoginView />} />
 
         <Route path="/" element={<FrontProtectedRoute />}>
-          <Route path="/me" element={<Profile />} />
-          <Route path="/me/update" element={<UpdateProfile />} />
-          <Route path="/orders/me" element={<MyOrders />} />
+          <Route path="/profile/update" element={<UpdateProfile />} />
+          <Route path="/profile/orders" element={<MyOrders />} />
           <Route path="/shipping" element={<Shipping />} />
           <Route path="/confirm" element={<ConfirmOrder />} />
           <Route

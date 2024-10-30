@@ -2,11 +2,13 @@ import React, { useEffect, useState, useRef } from "react";
 import Iconify from "../../../backoffice/components/iconify";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Announcement from "../announcement/Announcement";
 import Loader from "../loader/Loader";
 import { logout, fetchCustomerProfile } from "../../../redux/frontoffice/customerSlice";
+import LanguagePopover from "../../../backoffice/layouts/dashboard/common/language-popover";
+import { useTranslation } from "react-i18next";
 
 const backend = import.meta.env.VITE_BACKEND_URL;
 
@@ -21,9 +23,11 @@ const Navbar = () => {
   const { customer, isLoading } = useSelector((state) => state.customers);
   const { products } = useSelector((state) => state.products);
   const { cartItems } = useSelector((state) => state.carts);
+  const { t } = useTranslation();
 
   const location = useLocation();
   const dispatch = useDispatch();
+  const router = useNavigate()
 
   useEffect(() => {
     if (!customer) {
@@ -39,6 +43,7 @@ const Navbar = () => {
     localStorage.removeItem("customer_access_token");
     dispatch(logout());
     toast.success("You have been Logged out");
+    router("/");
   };
 
   const handleClickOutside = (event) => {
@@ -96,21 +101,21 @@ const Navbar = () => {
           <div className="flex-grow">
             <div className="font-medium text-lg justify-center gap-8 hidden sm:hidden md:flex">
               <Link to="/" className={`hover:text-green-400 hover:underline ${isActive("/") ? "text-green-400" : "text-black"}`}>
-                Home
+                {t("Home")}
               </Link>
               <Link to="/products" className={`hover:text-green-400 hover:underline ${isActive("/products") ? "text-green-400" : "text-black"}`}>
-                Products
+                {t("Products")}
               </Link>
               <Link to="/contact" className={`hover:text-green-400 hover:underline ${isActive("/contact") ? "text-green-400" : "text-black"}`}>
-                Contact
+                {t("Contact")}
               </Link>
               <Link to="/about" className={`hover:text-green-400 hover:underline ${isActive("/about") ? "text-green-400" : "text-black"}`}>
-                About
+                {t("About")}
               </Link>
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <button onClick={toggleSearchBar} className="cursor-pointer">
+            <button onClick={toggleSearchBar} className="cursor-pointer rtl:ml-3">
               <Iconify icon="material-symbols-light:search" width={32} height={32} />
             </button>
             <Link to="/cart" className="relative">
@@ -130,13 +135,13 @@ const Navbar = () => {
                     </button>
                     {dropdown && (
                       <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
-                        <Link to="/me" className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400" onClick={() => setDropdown(false)}>
+                        <Link to="/profile/update" className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400" onClick={() => setDropdown(false)}>
                           <Iconify className="m-2" icon="material-symbols-light:supervised-user-circle-outline" width={30} height={30} />
-                          Profile
+                          {t("Profile")}
                         </Link>
                         <button className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400 w-full text-left" onClick={logoutHandler}>
                           <Iconify className="mx-2" icon="material-symbols-light:logout-rounded" width={30} height={30} />
-                          Logout
+                          {t("Logout")}
                         </button>
                       </div>
                     )}
@@ -148,6 +153,7 @@ const Navbar = () => {
                 )}
               </>
             )}
+          <LanguagePopover />
           </div>
           <div className="md:hidden flex items-center ml-4">
             <Iconify icon="material-symbols-light:menu-rounded" width={28} height={28} onClick={() => setToggle(true)} />
@@ -214,22 +220,22 @@ const Navbar = () => {
             <ul className="list-none flex flex-col space-y-4 mt-6">
               <li>
                 <Link to="/" onClick={() => setToggle(false)} className={`hover:text-green-400 hover:underline ${isActive("/") ? "text-green-400" : "text-black"}`}>
-                  Home
+                  {t("Home")}
                 </Link>
               </li>
               <li>
                 <Link to="/products" onClick={() => setToggle(false)} className={`hover:text-green-400 hover:underline ${isActive("/products") ? "text-green-400" : "text-black"}`}>
-                  Products
+                  {t("Products")}
                 </Link>
               </li>
               <li>
                 <Link to="/contact" onClick={() => setToggle(false)} className={`hover:text-green-400 hover:underline ${isActive("/contact") ? "text-green-400" : "text-black"}`}>
-                  Contact
+                  {t("Contact")}
                 </Link>
               </li>
               <li>
                 <Link to="/about" onClick={() => setToggle(false)} className={`hover:text-green-400 hover:underline ${isActive("/about") ? "text-green-400" : "text-black"}`}>
-                  About
+                  {t("About")}
                 </Link>
               </li>
             </ul>

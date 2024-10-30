@@ -15,6 +15,7 @@ import {
 import CheckoutForm from "./CheckoutForm";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { LoadingButton } from "@mui/lab";
+import { useTranslation } from "react-i18next";
 
 const Payment = () => {
   const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
@@ -22,6 +23,8 @@ const Payment = () => {
 
   const dispatch = useDispatch();
   let orderId
+  const { t } = useTranslation();
+
 
   const { customer } = useSelector((state) => state.customers);
   const { cartItems, shippingInfo } = useSelector((state) => state.carts);
@@ -198,7 +201,7 @@ const Payment = () => {
         </div>
         <div className="flex flex-col lg:flex-row justify-center mx-4 md:mx-8 mt-8">
           <div className="mb-8 lg:mb-0 bg-white shadow-lg p-8 rounded-2xl mx-auto border border-gray-200 w-full lg:w-1/2">
-            <h4 className="mb-4 text-lg font-semibold text-center">Select a Payment Method</h4>
+            <h4 className="mb-4 text-lg font-semibold text-center">{t("SelectPaymentMethod")}</h4>
             <div className="flex flex-col md:flex-row justify-center mb-4">
               <label className="flex items-center w-auto mb-2 md:mb-0 md:mr-4 text-left justify-start">
                 <Iconify icon="mdi:cod" width={30} height={30} className="mr-2 md:flex-1 " />
@@ -210,7 +213,7 @@ const Payment = () => {
                   checked={paymentMethod === "cod"}
                   onChange={handlePaymentMethodChange}
                 />
-                <span className="ml-2">Cash on Delivery (COD)</span>
+                <span className="ml-2">{t("CashOnDelivery")}</span>
               </label>
               <label className="flex items-center mb-2 md:mb-0 md:mr-4 text-left justify-start">
                 <Iconify icon="ic:baseline-paypal" width={30} height={30} className="mr-2 md:flex-1" />
@@ -222,7 +225,7 @@ const Payment = () => {
                   checked={paymentMethod === "paypal"}
                   onChange={handlePaymentMethodChange}
                 />
-                <span className="ml-2">PayPal</span>
+                <span className="ml-2">{t("PayPal")}</span>
               </label>
               <label className="flex items-center text-left justify-start">
                 <Iconify icon="material-symbols-light:credit-card" width={30} height={30} className="mr-2 md:flex-1" />
@@ -234,7 +237,7 @@ const Payment = () => {
                   checked={paymentMethod === "creditCard"}
                   onChange={handlePaymentMethodChange}
                 />
-                <span className="ml-2">Credit Card</span>
+                <span className="ml-2">{t("CreditCard")}</span>
               </label>
             </div>
 
@@ -251,7 +254,7 @@ const Payment = () => {
                     loadingPosition="center"
                     onClick={handleCODPayment}
                   >
-                    {loading ? 'Loading...' : 'Confirm Pay'}
+                    {loading ? t('Loading') : t("ConfirmPay")}
                   </LoadingButton>
                 </div>
               </div>
@@ -281,20 +284,20 @@ const Payment = () => {
 
           <div className="w-full md:mx-8 lg:w-1/2">
             <div className="bg-blue-50 p-4 rounded-lg shadow">
-              <h4 className="text-lg font-semibold mb-4">Order Summary</h4>
+              <h4 className="text-lg font-semibold mb-4">{t("OrderSummary")}</h4>
               <hr className="mb-4" />
               <p className="flex justify-between mb-2">
-                Subtotal <span>{itemsPrice} DH</span>
+                {t("Subtotal")} <span>{itemsPrice} DH</span>
               </p>
               <p className="flex justify-between mb-2">
-                Shipping <span>{shippingPrice} DH</span>
+                {t("Shipping")} <span>{shippingPrice} DH</span>
               </p>
               <p className="flex justify-between mb-2">
-                Tax <span>{taxPrice} DH</span>
+                {t("Tax")} <span>{taxPrice} DH</span>
               </p>
               <hr className="my-4" />
               <p className="flex justify-between text-xl font-bold">
-                Total <span>{totalPrice} DH</span>
+                {t("Total")} <span>{totalPrice} DH</span>
               </p>
             </div>
           </div>

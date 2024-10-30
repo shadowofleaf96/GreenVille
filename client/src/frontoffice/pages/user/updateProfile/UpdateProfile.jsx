@@ -8,8 +8,10 @@ import UploadButton from "../../../../backoffice/components/button/UploadButton"
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import { LoadingButton } from "@mui/lab";
+import { useTranslation } from "react-i18next";
 
 const UpdateProfile = () => {
+  const { t } = useTranslation();
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -20,7 +22,7 @@ const UpdateProfile = () => {
   const router = useRouter();
 
   const { customer } = useSelector((state) => state.customers);
-  const axiosInstance = createAxiosInstance("customer")
+  const axiosInstance = createAxiosInstance("customer");
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -67,7 +69,6 @@ const UpdateProfile = () => {
       const response = await axiosInstance.put(`/customers/${customerId}`, formData);
       setLoading(false);
       toast.success(response.data.message);
-      router.push("/me");
     } catch (error) {
       setLoading(false);
       toast.error("Error: " + error.response.data.message);
@@ -77,26 +78,26 @@ const UpdateProfile = () => {
 
   return (
     <Fragment>
-      <MetaData title={"Update Profile"} />
+      <MetaData title={t("Update Profile")} />
       <div className="flex flex-col bg-white py-6 px-4">
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-1 mb-4 md:mb-0">
             <ProfileLink />
           </div>
           <div className="md:col-span-3 bg-white shadow-lg rounded-lg p-6 md:p-8">
-            <h4 className="text-xl font-bold mb-4">Update Profile</h4>
+            <h4 className="text-xl font-bold mb-4">{t("Update Profile")}</h4>
             <form
               className="space-y-4"
               onSubmit={submitHandler}
               encType="multipart/form-data"
             >
               <div className="space-y-2">
-                <label htmlFor="first_name" className="block text-gray-700 font-medium">First Name</label>
+                <label htmlFor="first_name" className="block text-gray-700 font-medium">{t("First Name")}</label>
                 <input
                   id="first_name"
                   className="w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   name="first_name"
-                  placeholder="Your First Name"
+                  placeholder={t("Your First Name")}
                   value={firstname}
                   onChange={(e) => setFirstName(e.target.value)}
                   type="text"
@@ -104,12 +105,12 @@ const UpdateProfile = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="last_name" className="block text-gray-700 font-medium">Last Name</label>
+                <label htmlFor="last_name" className="block text-gray-700 font-medium">{t("Last Name")}</label>
                 <input
                   id="last_name"
                   className="w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   name="last_name"
-                  placeholder="Your Last Name"
+                  placeholder={t("Your Last Name")}
                   value={lastname}
                   onChange={(e) => setLastName(e.target.value)}
                   type="text"
@@ -117,12 +118,12 @@ const UpdateProfile = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="email" className="block text-gray-700 font-medium">Email</label>
+                <label htmlFor="email" className="block text-gray-700 font-medium">{t("Email")}</label>
                 <input
                   id="email"
                   className="w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   name="email"
-                  placeholder="Your Email"
+                  placeholder={t("Your Email")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   type="email"
@@ -130,12 +131,12 @@ const UpdateProfile = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="password" className="block text-gray-700 font-medium">Password</label>
+                <label htmlFor="password" className="block text-gray-700 font-medium">{t("Password")}</label>
                 <input
                   id="password"
                   className="w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   name="password"
-                  placeholder="Your Password"
+                  placeholder={t("Your Password")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   type="password"
@@ -143,11 +144,11 @@ const UpdateProfile = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="block text-gray-700 font-medium">Confirm Password</label>
+                <label htmlFor="confirmPassword" className="block text-gray-700 font-medium">{t("Confirm Password")}</label>
                 <input
                   id="confirmPassword"
                   className="w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Confirm Password"
+                  placeholder={t("Confirm Password")}
                   name="confirmPassword"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -158,7 +159,7 @@ const UpdateProfile = () => {
               <div className="flex items-center space-x-4">
                 <Avatar
                   className="h-12 w-12"
-                  alt={`${customer.first_name} ${customer.last_name}`}
+                  alt={`${customer?.first_name} ${customer?.last_name}`}
                   src={selectedImage ? URL.createObjectURL(selectedImage) : ""}
                 />
                 <div>
@@ -184,7 +185,7 @@ const UpdateProfile = () => {
                 className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2"
                 loadingPosition="center"
               >
-                {loading ? 'Updating...' : 'Update'}
+                {loading ? t("Updating...") : t("Update")}
               </LoadingButton>
 
             </form>

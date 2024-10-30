@@ -1,9 +1,12 @@
 import React, { useRef, useEffect } from "react";
 import Iconify from "../../../../backoffice/components/iconify";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
 const backend = import.meta.env.VITE_BACKEND_URL;
 
 const Promo = ({ products }) => {
+  const { t } = useTranslation();
   const scrollRef1 = useRef(null);
   const scrollRef2 = useRef(null);
   const scrollRef3 = useRef(null);
@@ -49,13 +52,13 @@ const Promo = ({ products }) => {
         {flashSalesProducts?.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-bold text-gray-900">Flash Sales</h4>
+              <h4 className="font-bold text-gray-900">{t("Flash Sales")}</h4>
               <span className="bg-[#8DC63F] text-white px-4 py-2 rounded-md shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400">
                 <Link
                   to="/products"
                   className="no-underline font-medium transition-colors duration-300 hover:text-gray-300"
                 >
-                  See all
+                  {t("See all")}
                 </Link>
               </span>
             </div>
@@ -67,7 +70,7 @@ const Promo = ({ products }) => {
                 {flashSalesProducts.map((product, index) => (
                   <div
                     key={index}
-                    className="flex flex-col items-center bg-gray-200 rounded-2xl w-64 md:w-72 flex-shrink-0"
+                    className="flex flex-col items-center rtl:ml-4 bg-gray-200 rounded-2xl w-64 md:w-72 flex-shrink-0"
                   >
                     <Link
                       to={`/product/${product?._id}`}
@@ -85,15 +88,15 @@ const Promo = ({ products }) => {
                         {product?.discount_price &&
                           product?.discount_price !== product?.price ? (
                           <div className="flex">
-                            <div className="flex items-center font-bold text-lg md:text-xl mr-2 text-green-500">
-                              {product?.discount_price} DH
+                            <div className="flex items-center font-bold text-lg md:text-xl mr-2 rtl:ml-2 text-green-500">
+                              {product?.discount_price} {t("DH")}
                             </div>
                             <div className="flex items-center line-through text-xs md:text-sm text-gray-500">
-                              {product?.price} DH
+                              {product?.price} {t("DH")}
                             </div>
                           </div>
                         ) : (
-                          <span className="font-bold">{product?.price}DH</span>
+                          <span className="font-bold">{product?.price}{t("DH")}</span>
                         )}
                       </div>
                     </Link>
@@ -125,13 +128,13 @@ const Promo = ({ products }) => {
         {newArrivalsProducts?.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-bold text-gray-900">New Arrivals</h4>
+              <h4 className="font-bold text-gray-900">{t("New Arrivals")}</h4>
               <span className="bg-[#8DC63F] text-white px-4 py-2 rounded-md shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400">
                 <Link
                   to="/products"
                   className="no-underline font-medium transition-colors duration-300 hover:text-gray-300"
                 >
-                  See all
+                  {t("See all")}
                 </Link>
               </span>
             </div>
@@ -143,7 +146,7 @@ const Promo = ({ products }) => {
                 {newArrivalsProducts.map((product, index) => (
                   <div
                     key={index}
-                    className="flex flex-col items-center bg-gray-200 rounded-2xl w-64 md:w-72 flex-shrink-0"
+                    className="flex flex-col items-center rtl:ml-4 bg-gray-200 rounded-2xl w-64 md:w-72 flex-shrink-0"
                   >
                     <Link
                       to={`/product/${product?._id}`}
@@ -161,15 +164,15 @@ const Promo = ({ products }) => {
                         {product?.discount_price &&
                           product?.discount_price !== product?.price ? (
                           <div className="flex">
-                            <div className="flex items-center font-bold text-lg md:text-xl mr-2 text-green-500">
-                              {product?.discount_price} DH
+                            <div className="flex items-center font-bold text-lg md:text-xl mr-2 rtl:ml-2 text-green-500">
+                              {product?.discount_price} {t("DH")}
                             </div>
                             <div className="flex items-center line-through text-xs md:text-sm text-gray-500">
-                              {product?.price} DH
+                              {product?.price}{t("DH")}
                             </div>
                           </div>
                         ) : (
-                          <span className="font-bold">{product?.price}DH</span>
+                          <span className="font-bold">{product?.price}{t("DH")}</span>
                         )}
                       </div>
                     </Link>
@@ -201,13 +204,13 @@ const Promo = ({ products }) => {
         {topDealsProducts?.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-bold text-gray-900">Top Deals</h4>
+              <h4 className="font-bold text-gray-900">{t("Top Deals")}</h4>
               <span className="bg-[#8DC63F] text-white px-4 py-2 rounded-md shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400">
                 <Link
                   to="/products"
                   className="no-underline font-medium transition-colors duration-300 hover:text-gray-300"
                 >
-                  See all
+                  {t("See all")}
                 </Link>
               </span>
             </div>
@@ -219,7 +222,7 @@ const Promo = ({ products }) => {
                 {topDealsProducts.map((product, index) => (
                   <div
                     key={index}
-                    className="flex flex-col items-center bg-gray-200 rounded-2xl w-64 md:w-72 flex-shrink-0"
+                    className="flex flex-col items-center rtl:ml-4 bg-gray-200 rounded-2xl w-64 md:w-72 flex-shrink-0"
                   >
                     <Link
                       to={`/product/${product?._id}`}
@@ -237,15 +240,15 @@ const Promo = ({ products }) => {
                         {product?.discount_price &&
                           product?.discount_price !== product?.price ? (
                           <div className="flex">
-                            <div className="flex items-center font-bold text-lg md:text-xl mr-2 text-green-500">
-                              {product?.discount_price} DH
+                            <div className="flex items-center font-bold text-lg md:text-xl mr-2 rtl:ml-2 text-green-500">
+                              {product?.discount_price} {t("DH")}
                             </div>
-                            <div className="flex items-center line-through text-xs md:text-sm text-gray-500">
-                              {product?.price} DH
+                            <div className="flex items-center line-through rtl:ml-2 text-xs md:text-sm text-gray-500">
+                              {product?.price} {t("DH")}
                             </div>
                           </div>
                         ) : (
-                          <span className="font-bold">{product?.price}DH</span>
+                          <span className="font-bold">{product?.price}{t("DH")}</span>
                         )}
                       </div>
                     </Link>

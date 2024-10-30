@@ -41,7 +41,7 @@ const backend = import.meta.env.VITE_BACKEND_URL;
 
 // ----------------------------------------------------------------------
 
-export default function CustomerPage() {
+export default function CustomerView() {
   const dispatch = useDispatch();
 
   const data = useSelector((state) => state.adminCustomer.data);

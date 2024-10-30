@@ -9,6 +9,8 @@ import "./locales/i18n";
 import "../src/global.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+
 import App from "./App";
 
 // ----------------------------------------------------------------------
@@ -19,7 +21,7 @@ root.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       <HelmetProvider>
-        <GoogleOAuthProvider clientId="60176889311-345slh8brbtu2s6ct0lvc2f29mb5h66l.apps.googleusercontent.com">
+        <GoogleOAuthProvider clientId={googleClientId}>
           <BrowserRouter>
             <Suspense>
               <App />

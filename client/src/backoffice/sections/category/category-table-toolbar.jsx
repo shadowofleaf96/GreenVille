@@ -53,12 +53,12 @@ export default function CategoryTableToolbar({
       const snackbarMessage =
         selected.length === 1
           ? response.data.message
-          : t(`Selected ${selected.length} users are deleted`); // Translate the string
+          : t(`Selected ${selected.length} users are deleted`);
 
       toast.success(snackbarMessage);
     } catch (error) {
       setPopoverAnchor(null);
-      toast.error(t("Error deleting users:") + " " + error); // Translate the string
+      toast.error(t("Error deleting users:") + " " + error);
     } finally {
       setLoadingDelete(false);
     }
@@ -109,7 +109,7 @@ export default function CategoryTableToolbar({
 
         {numSelected > 0 ? (
           <>
-            <Tooltip title={t("Delete")} color="secondary"> {/* Translate the string */}
+            <Tooltip title={t("Delete")} color="secondary">
               <IconButton onClick={handleOpenPopover}>
                 <Iconify
                   icon="material-symbols-light:delete-sweep-outline-rounded"

@@ -14,8 +14,9 @@ const customerSchema = new Schema(
     creation_date: { type: Number, default: Date.now },
     last_login: { type: Number, default: Date.now },
     valid_account: Boolean,
-    resetPasswordExpires: {type:Date},
-    resetPasswordToken: {type:String},
+    resetPasswordExpires: { type: Date },
+    resetPasswordToken: { type: String },
+    validation_token: { type: String },
     active: Boolean,
   },
   { collection: "Customers", versionKey: false }

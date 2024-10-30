@@ -1,6 +1,7 @@
 import { React, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { useTranslation } from "react-i18next";
 import Iconify from "../../../../backoffice/components/iconify/iconify";
 
 import 'swiper/css';
@@ -15,33 +16,34 @@ const slidesData = [
   {
     id: 1,
     image: "../../../../../assets/swiper1.webp",
-    title: "Embrace the Best of Organic Living",
-    subtitle: "FROM NATURE TO YOUR HOME",
-    description: "Experience the pure essence of nature with our handpicked products that nurture your wellbeing.",
-    buttonText: "Shop Now",
+    titleKey: "slider.slide1.title",
+    subtitleKey: "slider.slide1.subtitle",
+    descriptionKey: "slider.slide1.description",
+    buttonTextKey: "slider.slide1.buttonText",
     link: "/products"
   },
   {
     id: 2,
     image: "../../../../../assets/swiper2.webp",
-    title: "Your Wellbeing is Our Priority",
-    subtitle: "OUR COSMETIC WORLD IS YOURS",
-    description: "Discover our range of organic products designed to enhance your beauty and health naturally.",
-    buttonText: "Buy Now",
+    titleKey: "slider.slide2.title",
+    subtitleKey: "slider.slide2.subtitle",
+    descriptionKey: "slider.slide2.description",
+    buttonTextKey: "slider.slide2.buttonText",
     link: "/products"
   },
   {
     id: 3,
     image: "../../../../../assets/swiper3.webp",
-    title: "Organic Living, Reimagined for You",
-    subtitle: "JOIN THE MOVEMENT",
-    description: "Step into a world where sustainability meets style because the future is natural.",
-    buttonText: "Explore Now",
+    titleKey: "slider.slide3.title",
+    subtitleKey: "slider.slide3.subtitle",
+    descriptionKey: "slider.slide3.description",
+    buttonTextKey: "slider.slide3.buttonText",
     link: "/products"
   }
 ];
 
 const Banner = () => {
+  const { t } = useTranslation();
   const [_, setInit] = useState(false);
   const prevRef = useRef(null);
   const nextRef = useRef(null);
@@ -75,24 +77,24 @@ const Banner = () => {
             >
               <div className="absolute inset-0"></div>
               <div className="container mx-auto px-6 relative z-10">
-                <div className="flex flex-col items-center text-center space-y-6 md:flex-row md:items-start md:text-left md:space-y-0">
+                <div className="flex flex-col items-center text-center space-y-6 md:flex-row md:items-start md:text-left rtl:md:items-end rtl:md:text-right md:space-y-0">
                   <div className="w-full md:w-1/2">
                     <p className="text-white font-semibold text-sm md:text-lg uppercase tracking-widest mb-40 md:mb-16">
-                      {slide.subtitle}
+                      {t(slide.subtitleKey)}
                     </p>
                     <h1 className="text-white text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-28 md:mb-12">
-                      {slide.title}
+                      {t(slide.titleKey)}
                     </h1>
                     <p className="text-white text-sm md:text-lg mb-28 md:mb-20">
-                      {slide.description}
+                      {t(slide.descriptionKey)}
                     </p>
                     <button className="flex bg-[#8DC63F] text-white py-2 md:py-3 px-6 md:px-8 rounded-md justify-center items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 mx-auto md:mx-0">
-                      <Link to={slide.link}>{slide.buttonText}</Link>
+                      <Link to={slide.link}>{t(slide.buttonTextKey)}</Link>
                       <Iconify
                         icon="ep:right"
                         width={20}
                         height={20}
-                        className="ml-2"
+                        className="ml-2 rtl:rotate-180 rtl:mr-2"
                       />
                     </button>
                   </div>

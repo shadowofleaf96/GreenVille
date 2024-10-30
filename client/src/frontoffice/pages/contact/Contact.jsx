@@ -9,6 +9,7 @@ import createAxiosInstance from "../../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import DOMPurify from "dompurify";
 import { LoadingButton } from "@mui/lab";
+import { useTranslation } from "react-i18next";
 
 const fadeInVariants = {
   hidden: { opacity: 0 },
@@ -22,10 +23,11 @@ const Contact = () => {
   const { register, handleSubmit, watch, formState: { errors }, reset } = useForm();
   const [loading, setLoading] = useState(false);
   const agreeToTerms = watch("agreeToTerms");
+  const { t } = useTranslation();
 
   const onSubmit = async (data) => {
     if (!agreeToTerms) {
-      toast.error("You must agree to the terms and conditions");
+      toast.error(t("You must agree to the terms and conditions"));
       return;
     }
 
@@ -41,10 +43,10 @@ const Contact = () => {
     try {
       const axiosInstance = createAxiosInstance("customer");
       const response = await axiosInstance.post("/contact", sanitizedData);
-      toast.success("Message sent successfully!");
+      toast.success(t("Message sent successfully!"));
       reset();
     } catch (error) {
-      toast.error("Failed to send message. Please try again.");
+      toast.error(t("Failed to send message. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -52,7 +54,7 @@ const Contact = () => {
 
   return (
     <Fragment>
-      <MetaData title={"Contact"} />
+      <MetaData title={"GreenVille - Contact Page"} />
       <div className="font-[sans-serif] max-w-6xl mx-auto relative overflow-hidden">
         <motion.div
           className="grid md:grid-cols-2 gap-8 py-8 px-6"
@@ -71,38 +73,38 @@ const Contact = () => {
 
           <form onSubmit={handleSubmit(onSubmit)} className="rounded-tl-3xl rounded-bl-3xl">
             <h2 className="text-2xl underline decoration-green-400 decoration-4 underline-offset-8 font-semibold text-center mb-6">
-              Contact us
+              {t("Contact us")}
             </h2>
             <div className="max-w-md mx-auto space-y-3 relative">
               <input
                 type="text"
-                placeholder="Name"
-                {...register("name", { required: "Name is required" })}
-                className="w-full bg-gray-200 rounded-md py-3 px-4 text-sm outline-green-400 focus-within:bg-transparent"
+                placeholder={t("Name")}
+                {...register("name", { required: t("Name is required") })}
+                className="w-full bg-gray-200 rounded-md py-3 px-4 text-sm placeholder-neutral-400 outline-green-400 focus-within:bg-transparent"
               />
               {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
 
               <input
                 type="email"
-                placeholder="Email"
-                {...register("email", { required: "Email is required" })}
-                className="w-full bg-gray-200 rounded-md py-3 px-4 text-sm outline-green-400 focus-within:bg-transparent"
+                placeholder={t("Email")}
+                {...register("email", { required: t("Email is required") })}
+                className="w-full bg-gray-200 rounded-md py-3 px-4 text-sm outline-green-400 placeholder-neutral-400 focus-within:bg-transparent"
               />
               {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
 
               <input
                 type="text"
-                placeholder="Phone No."
-                {...register("phone_number", { required: "Phone number is required" })}
-                className="w-full bg-gray-200 rounded-md py-3 px-4 text-sm outline-green-400 focus-within:bg-transparent"
+                placeholder={t("Phone No.")}
+                {...register("phone_number", { required: t("Phone number is required") })}
+                className="w-full bg-gray-200 rounded-md py-3 px-4 text-sm outline-green-400 placeholder-neutral-400 focus-within:bg-transparent"
               />
               {errors.phone_number && <p className="text-red-500 text-sm">{errors.phone_number.message}</p>}
 
               <textarea
-                placeholder="Message"
+                placeholder={t("Message")}
                 rows="6"
-                {...register("message", { required: "Message is required" })}
-                className="w-full bg-gray-200 rounded-md px-4 text-sm pt-3 outline-green-400 focus-within:bg-transparent"
+                {...register("message", { required: t("Message is required") })}
+                className="w-full bg-gray-200 rounded-md px-4 text-sm pt-3 outline-green-400 placeholder-neutral-400 focus-within:bg-transparent"
               ></textarea>
               {errors.message && <p className="text-red-500 text-sm">{errors.message.message}</p>}
 
@@ -113,22 +115,18 @@ const Contact = () => {
                   {...register("agreeToTerms")}
                   className="w-4 h-4 mr-3 accent-green-400"
                 />
-                <label htmlFor="checkbox1" className="text-sm text-gray-600">
-                  I agree to the
-                  <Link to="/terms" className="underline"> Terms and Conditions</Link>
+                <label htmlFor="checkbox1" className="text-sm text-gray-600 rtl:mr-2">
+                  {t("I agree to the")} <Link to="/terms" className="text-green-500">{t("Terms and Conditions")}</Link> {/* Translate link */}
                 </label>
               </div>
 
               <LoadingButton
                 type="submit"
-                fullWidth
-                loading={loading}
                 variant="contained"
-                sx={{ fontWeight: 500, fontSize: 15 }}
-                className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-3 mt-6"
-                loadingPosition="center"
+                loading={loading}
+                className="w-full bg-green-500 hover:bg-green-600 text-white rounded-md py-3 mt-4 font-semibold"
               >
-                {loading ? "Sending..." : "Send Message"}
+                {loading ? t("Sending...") : t("Send Message")}
               </LoadingButton>
             </div>
           </form>
@@ -145,40 +143,40 @@ const Contact = () => {
         >
           <div className="p-8">
             <h2 className="text-2xl font-semibold underline decoration-green-400 decoration-4 underline-offset-8">
-              Get In Touch
+              {t("Get In Touch")}
             </h2>
             <p className="text-sm text-gray-600 mt-4 leading-relaxed">
-              Moroccan E-shop provides all kinds of organic goods, and our services are designed and made to fit into your healthy lifestyles.
+              {t("footer.description")}
             </p>
             <ul className="mt-8 mb-6 md:mb-0">
               <li className="flex">
                 <div className="flex h-10 w-10 items-center justify-center rounded bg-[#8DC63F] text-gray-50">
                   <Iconify icon="eva:pin-outline" className="h-6 w-6" />
                 </div>
-                <div className="ml-4 mb-4">
-                  <h3 className="mb-2 text-lg font-medium leading-6 text-gray-900">Our Address</h3>
+                <div className="ml-4 rtl:mr-2 mb-4">
+                  <h3 className="mb-2 text-lg font-medium leading-6 text-gray-900">{t("Our Address")}</h3>
                   <p className="text-gray-600">Centre ville, Casablanca</p>
-                  <p className="text-gray-600">Morocco</p>
+                  <p className="text-gray-600">Maroc</p>
                 </div>
               </li>
               <li className="flex">
                 <div className="flex h-10 w-10 items-center justify-center rounded bg-[#8DC63F] text-gray-50">
                   <Iconify icon="eva:phone-outline" className="h-6 w-6" />
                 </div>
-                <div className="ml-4 mb-4">
-                  <h3 className="mb-2 text-lg font-medium leading-6 text-gray-900">Contact</h3>
-                  <p className="text-gray-600">Mobile: 0608345687</p>
-                  <p className="text-gray-600">Mail: contact@greenville.ma</p>
+                <div className="ml-4 rtl:mr-2 mb-4">
+                  <h3 className="mb-2 text-lg font-medium leading-6 text-gray-900">{t("Contact")}</h3>
+                  <p className="text-gray-600">{t("Mobile")}: 0608345687</p>
+                  <p className="text-gray-600">{t("Mail")}: contact@greenville.ma</p>
                 </div>
               </li>
               <li className="flex">
                 <div className="flex h-10 w-10 items-center justify-center rounded bg-[#8DC63F] text-gray-50">
                   <Iconify icon="eva:clock-outline" className="h-6 w-6" />
                 </div>
-                <div className="ml-4 mb-4">
-                  <h3 className="mb-2 text-lg font-medium leading-6 text-gray-900">Working hours</h3>
-                  <p className="text-gray-600">Monday - Friday: 08:00 - 19:00</p>
-                  <p className="text-gray-600">Saturday &amp; Sunday: 08:00 - 12:00</p>
+                <div className="ml-4 rtl:mr-2 mb-4">
+                  <h3 className="mb-2 text-lg font-medium leading-6 text-gray-900">{t("Working hours")}</h3>
+                  <p className="text-gray-600">{t("Monday - Friday")}: 08:00 - 19:00</p>
+                  <p className="text-gray-600">{t("Saturday & Sunday")}: 08:00 - 12:00</p>
                 </div>
               </li>
             </ul>

@@ -42,7 +42,7 @@ import { toast } from "react-toastify";
 
 // ----------------------------------------------------------------------
 
-export default function PaymentPage() {
+export default function PaymentView() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 

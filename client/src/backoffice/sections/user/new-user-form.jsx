@@ -185,7 +185,7 @@ function AddUserForm({ onSave, onCancel, open, onClose }) {
           placeholder={t("Password")}
           value={newUser.password !== undefined ? newUser.password : ""}
           onChange={handleFieldChange}
-          onBlur={() => {}}
+          onBlur={() => { }}
           type="password"
           fullWidth
           sx={{ marginBottom: 2 }}
@@ -282,6 +282,7 @@ function AddUserForm({ onSave, onCancel, open, onClose }) {
             sx={{
               flex: 1,
             }}
+            className="mr-2 rtl:mr-0 rtl:ml-2"
           >
             {t("Cancel")}
           </Button>

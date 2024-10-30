@@ -44,7 +44,7 @@ import { Backdrop } from "@mui/material";
 
 // ----------------------------------------------------------------------
 
-export default function SubCategoryPage() {
+export default function SubCategoryView() {
   const dispatch = useDispatch();
   const { t } = useTranslation();
 

@@ -5,9 +5,11 @@ import Footer from "../../../components/footer/Footer";
 import Navbar from "../../../components/header/Navbar";
 import MetaData from "../../../components/MetaData";
 import CheckoutSteps from "../checkoutSteps/CheckoutSteps";
+import { useTranslation } from "react-i18next";  // Import useTranslation hook
 const backend = import.meta.env.VITE_BACKEND_URL;
 
 const ConfirmOrder = () => {
+    const { t } = useTranslation(); // Initialize translation
     const { cartItems, shippingInfo } = useSelector((state) => state.carts);
     const { customer } = useSelector((state) => state.customers);
 
@@ -32,23 +34,23 @@ const ConfirmOrder = () => {
 
     return (
         <div className="flex flex-col gap-6 w-full">
-            <MetaData title={"Confirm Order"} />
+            <MetaData title={t("Confirm Order")} />  {/* Use i18n */}
             <div className="container py-2 my-8 mx-auto ">
                 <CheckoutSteps shipping confirmOrder />
                 <div className="flex flex-col md:flex-row justify-between gap-6 mx-4 md:mx-8">
                     <div className="mb-8 bg-white shadow-lg p-8 rounded-2xl border border-gray-200 w-full md:w-3/5">
-                        <h4 className="text-lg font-semibold mb-3">Shipping Info</h4>
+                        <h4 className="text-lg font-semibold mb-3">{t("Shipping Info")}</h4>
                         <p className="text-gray-700 mb-2">
-                            <b>Name: </b> {customer && `${customer.first_name} ${customer.last_name}`}
+                            <b>{t("Name")}: </b> {customer && `${customer.first_name} ${customer.last_name}`}
                         </p>
                         <p className="text-gray-700 mb-2">
-                            <b>Phone: </b> {shippingInfo.phoneNo}
+                            <b>{t("Phone")}: </b> {shippingInfo.phoneNo}
                         </p>
                         <p className="text-gray-700 mb-4">
-                            <b>Address: </b> {`${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.postalCode}, ${shippingInfo.country}`}
+                            <b>{t("Address")}: </b> {`${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.postalCode}, ${shippingInfo.country}`}
                         </p>
                         <hr className="my-4" />
-                        <h4 className="text-lg font-semibold mt-4">Your Cart Items:</h4>
+                        <h4 className="text-lg font-semibold mt-4">{t("Your Cart Items")}:</h4>
                         {cartItems.map((item) => (
                             <Fragment key={item.product}>
                                 <hr className="my-2" />
@@ -78,25 +80,25 @@ const ConfirmOrder = () => {
                             className="w-full bg-[#8DC63F] font-medium shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 text-white py-3 px-8 rounded-lg mt-4"
                             onClick={processToPayment}
                         >
-                            Proceed to Payment
+                            {t("Proceed to Payment")}  {/* Use i18n */}
                         </button>
                     </div>
 
                     <div className="bg-blue-50 p-4 rounded-lg shadow w-full md:w-2/5 max-h-64">
-                        <h4 className="text-lg font-semibold mb-4">Order Summary</h4>
+                        <h4 className="text-lg font-semibold mb-4">{t("Order Summary")}</h4>
                         <hr className="mb-4" />
                         <p className="flex justify-between mb-2">
-                            Subtotal <span>{itemsPrice} DH</span>
+                            {t("Subtotal")} <span>{itemsPrice} DH</span>
                         </p>
                         <p className="flex justify-between mb-2">
-                            Shipping <span>{shippingPrice} DH</span>
+                            {t("Shipping")} <span>{shippingPrice} DH</span>
                         </p>
                         <p className="flex justify-between mb-2">
-                            Tax <span>{taxPrice} DH</span>
+                            {t("Tax")} <span>{taxPrice} DH</span>
                         </p>
                         <hr className="my-4" />
                         <p className="flex justify-between text-xl font-bold">
-                            Total <span>{totalPrice} DH</span>
+                            {t("Total")} <span>{totalPrice} DH</span>
                         </p>
                     </div>
                 </div>

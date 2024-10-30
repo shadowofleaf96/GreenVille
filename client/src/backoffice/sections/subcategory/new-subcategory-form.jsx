@@ -174,7 +174,7 @@ function NewSubCategoryForm({ onSave, onCancel, open, onClose }) {
           </Stack>
         </Stack>
 
-        <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
+        <Stack direction="row" spacing={2} className="rtl:gap-4" sx={{ width: "100%" }}>
           <LoadingButton
             loading={loadingSave}
             onClick={handleSave}

@@ -3,10 +3,11 @@
 const { User } = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { createTransport } = require("nodemailer");
+const nodemailer = require("nodemailer");
 const { log } = require("console");
-require('dotenv').config();
+require("dotenv").config();
 const crypto = require("crypto");
+const transporter = require("../middleware/mailMiddleware");
 const secretKey = process.env.SECRETKEY;
 const secretRefreshKey = process.env.REFRESHSECRETLEY;
 const expiration = process.env.EXPIRATIONDATE;
@@ -51,15 +52,6 @@ const createUser = async (req, res) => {
         status: 201,
         message: "User created successfully",
         data: newUser,
-      });
-      const transporter = createTransport({
-        host: process.env.STMPHOST,
-        port: 2525,
-        secure: false,
-        auth: {
-          user: process.env.STMPUSER,
-          pass: process.env.STMPASS,
-        },
       });
 
       const mailOptions = {
@@ -342,16 +334,6 @@ const forgotPassword = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000;
 
     await user.save();
-
-    const transporter = createTransport({
-      host: process.env.STMPHOST,
-      port: 2525,
-      secure: false,
-      auth: {
-        user: process.env.STMPUSER,
-        pass: process.env.STMPASS,
-      },
-    });
 
     const mailOptions = {
       from: " process.env.SENDER",
