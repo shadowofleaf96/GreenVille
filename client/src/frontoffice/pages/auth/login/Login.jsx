@@ -30,6 +30,8 @@ import { toast } from "react-toastify";
 import { LoadingButton } from "@mui/lab";
 import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
+import { useForm } from "react-hook-form"; // Import useForm
+
 const backend = import.meta.env.VITE_BACKEND_URL;
 
 const Login = () => {
@@ -37,21 +39,19 @@ const Login = () => {
   const dispatch = useDispatch();
   const history = useNavigate();
   const [searchParams] = useSearchParams();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [enteredEmail, setEnteredEmail] = useState("");
+  const [enteredForgotEmail, setEnteredForgotEmail] = useState("");
   const [loadingSave, setLoadingSave] = useState(false);
   const [loginSuccessFlag, setLoginSuccessFlag] = useState(false);
   const axiosInstance = createAxiosInstance("customer");
 
+  const { register, handleSubmit, formState: { errors } } = useForm();
+
   useEffect(() => {
-    const storedRememberMe = localStorage.getItem("rememberMe");
-    if (storedRememberMe) {
-      setRememberMe(JSON.parse(storedRememberMe));
+    if (searchParams.get("validationSuccess")) {
+      toast.success(t("accountValidated"));
     }
-  }, []);
+  }, [searchParams, t]);
 
   useEffect(() => {
     if (loginSuccessFlag) {
@@ -68,25 +68,22 @@ const Login = () => {
     setOpenDialog(false);
   };
 
-  const handleRememberMeChange = () => {
-    const newRememberMe = !rememberMe;
-    setRememberMe(newRememberMe);
-    localStorage.setItem("rememberMe", JSON.stringify(newRememberMe));
+  const validateEmail = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     setLoadingSave(true);
     dispatch(loginStart());
 
-    const sanitizedEmail = DOMPurify.sanitize(email);
-    const sanitizedPassword = DOMPurify.sanitize(password);
+    const sanitizedEmail = DOMPurify.sanitize(data.email);
+    const sanitizedPassword = DOMPurify.sanitize(data.password);
 
     try {
       const response = await axiosInstance.post("/customers/login", {
         email: sanitizedEmail,
         password: sanitizedPassword,
-        rememberMe,
       });
 
       if (response.status === 200) {
@@ -144,14 +141,15 @@ const Login = () => {
 
     try {
       const response = await axiosInstance.post("/customers/forgot-password", {
-        email: enteredEmail,
+        email: enteredForgotEmail,
       });
 
+      setEnteredForgotEmail("");
       toast.success(response.data.message);
       setOpenDialog(false);
     } catch (error) {
-      console.error(error.message);
-      toast.error("Error: " + error.response.data.message);
+      console.error(error.response?.data?.error);
+      toast.error("Error: " + error.response?.data?.error);
     }
   };
 
@@ -179,17 +177,22 @@ const Login = () => {
             {t("login.welcome")}
           </Typography>
 
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
               label={t("login.email")}
               variant="outlined"
               autoComplete="chrome-off"
               fullWidth
               margin="normal"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              placeholder={t("login.email")}
+              {...register("email", {
+                required: t("login.emailRequired"),
+                validate: {
+                  isValidEmail: value =>
+                    validateEmail(value) || t("login.invalidEmail"),
+                },
+              })}
+              error={!!errors.email}
+              helperText={errors.email?.message}
             />
             <TextField
               label={t("login.password")}
@@ -197,10 +200,15 @@ const Login = () => {
               variant="outlined"
               fullWidth
               margin="normal"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              placeholder={t("login.password")}
+              {...register("password", {
+                required: t("PasswordRequired"),
+                minLength: {
+                  value: 6,
+                  message: t("login.passwordLength"),
+                },
+              })}
+              error={!!errors.password}
+              helperText={errors.password?.message}
               InputProps={{
                 autoComplete: "new-password",
                 form: { autoComplete: "off" },
@@ -219,24 +227,13 @@ const Login = () => {
                 ),
               }}
             />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={rememberMe}
-                  onChange={handleRememberMeChange}
-                  style={{ color: "#8dc63f" }}
-                />
-              }
-              label={t("login.rememberMe")}
-            />
-
             <LoadingButton
               type="submit"
               fullWidth
               loading={loadingSave}
               variant="contained"
               sx={{ fontWeight: 500, fontSize: 15 }}
-              className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2"
+              className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2 !mt-2"
             >
               {loadingSave ? t("login.loggingIn") : t("login.login")}
             </LoadingButton>
@@ -250,7 +247,7 @@ const Login = () => {
                 width="340px"
                 theme="outline"
                 auto_select={false}
-                text={t("login.googleLogin")}
+                text={t("googleLogin")}
                 ux_mode="popup"
                 context="signin"
                 logo_alignment="left"
@@ -265,35 +262,34 @@ const Login = () => {
               <Link
                 component={RouterLink}
                 to="/register"
-                underline="hover"
-                style={{ color: "#8dc63f" }}
+                style={{ color: "#8dc63f", fontWeight: 600 }}
               >
                 {t("login.register")}
               </Link>
             </Typography>
           </form>
-        </Paper>
 
-        <Dialog open={openDialog} onClose={handleCloseDialog}>
-          <DialogTitle>{t("login.forgotPasswordTitle")}</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label={t("login.email")}
-              type="email"
-              fullWidth
-              value={enteredEmail}
-              onChange={(e) => setEnteredEmail(e.target.value)}
-              variant="outlined"
-            />
-            <Typography>{t("login.forgotPasswordDesc")}</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog}>{t("login.cancel")}</Button>
-            <Button onClick={handleForgotPassword}>{t("login.submit")}</Button>
-          </DialogActions>
-        </Dialog>
+          <Dialog open={openDialog} onClose={handleCloseDialog}>
+            <DialogTitle>{t("login.forgotPasswordTitle")}</DialogTitle>
+            <DialogContent>
+              <TextField
+                autoFocus
+                margin="dense"
+                label={t("login.email")}
+                type="email"
+                fullWidth
+                value={enteredForgotEmail}
+                onChange={(e) => setEnteredForgotEmail(e.target.value)}
+                variant="outlined"
+              />
+              <Typography>{t("login.forgotPasswordDesc")}</Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDialog}>{t("login.cancel")}</Button>
+              <Button onClick={handleForgotPassword}>{t("login.submit")}</Button>
+            </DialogActions>
+          </Dialog>
+        </Paper>
       </motion.div>
     </div>
   );

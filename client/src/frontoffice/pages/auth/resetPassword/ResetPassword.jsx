@@ -1,66 +1,65 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { TextField, Button, Paper, Typography } from "@mui/material";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import { TextField, Paper, Typography } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import Logo from "../../../components/logo";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import DOMPurify from "dompurify";
+import { LoadingButton } from "@mui/lab";
+import { useForm } from "react-hook-form";
 
 const ResetPassword = () => {
   const { token } = useParams();
-  const { t } = useTranslation(); // useTranslation hook
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const { t } = useTranslation();
   const [resetSuccess, setResetSuccess] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [resetError, setResetError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loadingSave, setLoadingSave] = useState(false);
   const axiosInstance = createAxiosInstance("customer");
+  const navigate = useNavigate();
 
-  const history = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm();
 
   useEffect(() => {
     if (resetSuccess) {
-      history("/login");
+      navigate("/login");
     }
-  }, [resetSuccess, history]);
+  }, [resetSuccess, navigate]);
 
-  const handleResetPassword = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
+    const sanitizedNewPassword = DOMPurify.sanitize(data.newPassword);
+    const sanitizedConfirmPassword = DOMPurify.sanitize(data.confirmPassword);
 
-    const sanitizedNewPassword = DOMPurify.sanitize(newPassword);
-    const sanitizedConfirmedPassword = DOMPurify.sanitize(confirmPassword);
-
-    if (sanitizedNewPassword !== sanitizedConfirmedPassword) {
-      setResetError(t("Passwords do not match"));
+    if (sanitizedNewPassword !== sanitizedConfirmPassword) {
+      setError("confirmPassword", {
+        type: "manual",
+        message: t("Passwords do not match"),
+      });
       return;
     }
 
     try {
-      setLoading(true);
+      setLoadingSave(true);
 
       const response = await axiosInstance.post(
         `/customers/reset-password/${token}`,
-        {
-          newPassword: sanitizedNewPassword,
-        }
+        { newPassword: sanitizedNewPassword }
       );
 
       setResetSuccess(true);
       toast.success(response.data.message);
       setResetError(null);
     } catch (error) {
-      console.error(error.response.data.error);
       setResetError(t("Failed to reset password. Please try again."));
-      setResetSuccess(false);
-      toast.error(t("Error: ") + error.response.data.error);
+      toast.error(t("Error: ") + error.response?.data?.error || error.message);
     } finally {
-      setLoading(false);
+      setLoadingSave(false);
     }
   };
 
@@ -79,70 +78,61 @@ const ResetPassword = () => {
         <div className="flex justify-center mb-4">
           <Logo />
         </div>
-        <Typography
-          variant="h5"
-          gutterBottom
-          style={{ textAlign: "center", color: "black" }}
-        >
+        <Typography variant="h5" gutterBottom style={{ color: "black" }}>
           {resetSuccess ? t("Password Reset Successful") : t("Reset Password")}
         </Typography>
         {resetSuccess ? (
-          <Typography
-            variant="body1"
-            style={{ textAlign: "center", color: "green" }}
-          >
+          <Typography variant="body1" style={{ color: "green" }}>
             {t("Your password has been successfully reset.")}
           </Typography>
         ) : (
-          <form onSubmit={handleResetPassword}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
+              {...register("newPassword", {
+                required: t("Password is required"),
+                minLength: {
+                  value: 8,
+                  message: t("Password must be at least 8 characters long"),
+                },
+              })}
               label={t("New Password")}
-              autoComplete="chrome-off"
               type="password"
               variant="outlined"
               fullWidth
               margin="normal"
-              value={newPassword}
-              InputLabelProps={{ shrink: true }}
-              onChange={(e) => setNewPassword(e.target.value)}
+              error={Boolean(errors.newPassword)}
+              helperText={errors.newPassword?.message}
             />
             <TextField
+              {...register("confirmPassword", {
+                required: t("Please confirm your password"),
+              })}
               label={t("Confirm Password")}
               type="password"
-              autoComplete="chrome-off"
               variant="outlined"
               fullWidth
               margin="normal"
-              value={confirmPassword}
-              InputLabelProps={{ shrink: true }}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              error={Boolean(errors.confirmPassword)}
+              helperText={errors.confirmPassword?.message}
             />
             {resetError && (
               <Typography
                 variant="body1"
-                style={{ textAlign: "center", color: "red", marginTop: "10px" }}
+                style={{ color: "red", marginTop: "10px" }}
               >
                 {resetError}
               </Typography>
             )}
-            <Button
+            <LoadingButton
               type="submit"
-              variant="contained"
-              style={{
-                backgroundColor: "#8dc63f",
-                color: "#fff",
-                marginTop: "10px",
-              }}
-              className="rounded-lg"
               fullWidth
-              disabled={loading}
+              loading={loadingSave}
+              variant="contained"
+              sx={{ fontWeight: 500, fontSize: 15 }}
+              className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2 !mt-2"
             >
-              {loading
-                ? t("Loading...")
-                : resetSuccess
-                  ? t("Go to Login")
-                  : t("Reset Password")}
-            </Button>
+              {loadingSave ? t("Loading...") : t("Reset Password")}
+            </LoadingButton>
           </form>
         )}
       </Paper>

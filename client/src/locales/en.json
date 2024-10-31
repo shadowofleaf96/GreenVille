@@ -242,7 +242,13 @@
     "forgotPasswordTitle": "Forgot Password",
     "forgotPasswordDesc": "Enter your email to reset your password:",
     "submit": "Submit",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "dontHaveAccount": "Don't have an account?",
+    "emailRequired": "Email is required.",
+    "invalidEmail": "Please enter a valid email address.",
+    "passwordLength": "Password must be at least 6 characters long.",
+    "sendResetLink": "Send Reset Link",
+    "accountValidated": "Your account has been validated successfully."
   },
   "CreateAccount": "Create an account",
   "FirstName": "First Name",
@@ -539,5 +545,20 @@
   "Your account setup is complete.": "Your account setup is complete.",
   "Failed to complete registration. Please try again.": "Failed to complete registration. Please try again.",
   "Error: ": "Error: ",
-  "Set Password": "Set Password"
+  "Set Password": "Set Password",
+  "Set Your Password": "Set Your Password",
+  "As a new user, please set a password to complete your registration.": "As a new user, please set a password to complete your registration.",
+  "Your account setup is complete. You can now log in using your email or Google account.": "Your account setup is complete. You can now log in using your email or Google account.",
+  "Customer registered successfully, now you can login": "Customer registered successfully, now you can login",
+  "accountValidated": "Your account has been validated successfully! You can now log in.",
+  "FirstNameRequired": "First name is required.",
+  "LastNameRequired": "Last name is required.",
+  "RegistrationError": "An error occurred during registration.",
+  "ConfirmPassword": "Confirm Password",
+  "EmailRequired": "Email is required.",
+  "ConfirmPasswordRequired": "Confirm Password is required.",
+  "EmailInvalid": "Please enter a valid email.",
+  "PasswordRequired": "Password is required.",
+  "PasswordMinLength": "Password must be at least 6 characters long.",
+  "PasswordsDoNotMatch": "Passwords do not match."
 }

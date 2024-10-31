@@ -31,7 +31,7 @@ function confirmationEmailTemplate(name) {
       <body>
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
           <div style="margin-bottom: 20px;">
-            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/main/client/public/assets/logo.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
+            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/dev/client/public/assets/logo-email.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
           </div>
           <h2 style="color: #4CAF50;">Hello ${name},</h2>
           <p>Thank you for reaching out to us! We have received your message and one of our representatives will get back to you shortly.</p>

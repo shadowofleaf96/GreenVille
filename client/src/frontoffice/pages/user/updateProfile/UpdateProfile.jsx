@@ -7,54 +7,48 @@ import ProfileLink from "../../../components/profileLinks/ProfileLink";
 import UploadButton from "../../../../backoffice/components/button/UploadButton";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { toast } from "react-toastify";
+import { logout, fetchCustomerProfile } from "../../../../redux/frontoffice/customerSlice";
 import { LoadingButton } from "@mui/lab";
 import { useTranslation } from "react-i18next";
+import { useForm } from "react-hook-form";
 
 const UpdateProfile = () => {
   const { t } = useTranslation();
-  const [firstname, setFirstName] = useState("");
-  const [lastname, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState("");
+  const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const router = useRouter();
 
   const { customer } = useSelector((state) => state.customers);
+  const dispatch = useDispatch();
   const axiosInstance = createAxiosInstance("customer");
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+  } = useForm();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setSelectedImage(file);
   };
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (data) => {
     const editedCustomer = {
-      first_name: firstname,
-      last_name: lastname,
-      email: email,
-      password: password,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+      password: data.password,
     };
 
     try {
-      await handleSaveEditedCustomer(
-        customer._id,
-        editedCustomer,
-        selectedImage
-      );
+      await handleSaveEditedCustomer(customer._id, editedCustomer, selectedImage);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleSaveEditedCustomer = async (
-    customerId,
-    editedCustomer,
-    selectedImage
-  ) => {
+  const handleSaveEditedCustomer = async (customerId, editedCustomer, selectedImage) => {
     setLoading(true);
     try {
       const formData = new FormData();
@@ -67,6 +61,7 @@ const UpdateProfile = () => {
       }
 
       const response = await axiosInstance.put(`/customers/${customerId}`, formData);
+      dispatch(fetchCustomerProfile(customerId));
       setLoading(false);
       toast.success(response.data.message);
     } catch (error) {
@@ -88,72 +83,85 @@ const UpdateProfile = () => {
             <h4 className="text-xl font-bold mb-4">{t("Update Profile")}</h4>
             <form
               className="space-y-4"
-              onSubmit={submitHandler}
+              onSubmit={handleSubmit(onSubmit)}
               encType="multipart/form-data"
             >
               <div className="space-y-2">
                 <label htmlFor="first_name" className="block text-gray-700 font-medium">{t("First Name")}</label>
                 <input
                   id="first_name"
-                  className="w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  name="first_name"
+                  className={`w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.first_name ? 'border-red-500' : ''}`}
+                  {...register("first_name", { required: t("FirstNameRequired") })}
                   placeholder={t("Your First Name")}
-                  value={firstname}
-                  onChange={(e) => setFirstName(e.target.value)}
                   type="text"
                 />
+                {errors.first_name && <p className="text-red-500 text-xs">{errors.first_name.message}</p>}
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="last_name" className="block text-gray-700 font-medium">{t("Last Name")}</label>
                 <input
                   id="last_name"
-                  className="w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  name="last_name"
+                  className={`w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.last_name ? 'border-red-500' : ''}`}
+                  {...register("last_name", { required: t("LastNameRequired") })}
                   placeholder={t("Your Last Name")}
-                  value={lastname}
-                  onChange={(e) => setLastName(e.target.value)}
                   type="text"
                 />
+                {errors.last_name && <p className="text-red-500 text-xs">{errors.last_name.message}</p>}
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="email" className="block text-gray-700 font-medium">{t("Email")}</label>
                 <input
                   id="email"
-                  className="w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  name="email"
+                  className={`w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? 'border-red-500' : ''}`}
+                  {...register("email", {
+                    required: t("EmailRequired"),
+                    pattern: {
+                      value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                      message: t("EmailInvalid")
+                    }
+                  })}
                   placeholder={t("Your Email")}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   type="email"
                 />
+                {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="password" className="block text-gray-700 font-medium">{t("Password")}</label>
                 <input
                   id="password"
-                  className="w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  name="password"
+                  className={`w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.password ? 'border-red-500' : ''}`}
+                  {...register("password", {
+                    required: t("PasswordRequired"),
+                    minLength: {
+                      value: 6,
+                      message: t("PasswordMinLength")
+                    }
+                  })}
                   placeholder={t("Your Password")}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   type="password"
                 />
+                {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="confirmPassword" className="block text-gray-700 font-medium">{t("Confirm Password")}</label>
                 <input
                   id="confirmPassword"
-                  className="w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.confirmPassword ? 'border-red-500' : ''}`}
+                  {...register("confirmPassword", {
+                    required: t("ConfirmPasswordRequired"),
+                    validate: (value) => {
+                      const { password } = getValues(); // Get the password value from the form state
+                      return value === password || t("PasswordsDoNotMatch");
+                    },
+                  })}
                   placeholder={t("Confirm Password")}
-                  name="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
                   type="password"
                 />
+                {errors.confirmPassword && <p className="text-red-500 text-xs">{errors.confirmPassword.message}</p>}
               </div>
 
               <div className="flex items-center space-x-4">

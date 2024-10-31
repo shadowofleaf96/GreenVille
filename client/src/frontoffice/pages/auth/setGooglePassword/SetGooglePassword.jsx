@@ -1,31 +1,41 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { TextField, Button, Paper, Typography } from "@mui/material";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import React, { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { TextField, Paper, Typography } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import { useNavigate, useLocation } from "react-router-dom";
-import Logo from "../../../components/logo";
-import createAxiosInstance from "../../../../utils/axiosConfig";
+import DOMPurify from "dompurify";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
-import DOMPurify from "dompurify";
+import createAxiosInstance from "../../../../utils/axiosConfig";
+import Logo from "../../../components/logo";
 
 const SetGooglePassword = () => {
   const { t } = useTranslation();
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [completeSuccess, setCompleteSuccess] = useState(false);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const axiosInstance = createAxiosInstance("customer");
-
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
+  
+  const email = queryParams.get("email");
+  const name = queryParams.get("name");
+  const picture = queryParams.get("picture");
 
-  const email = queryParams.get('email');
-  const name = queryParams.get('name');
-  const picture = queryParams.get('picture');
+  const axiosInstance = createAxiosInstance("customer");
+  const [loadingSave, setLoadingSave] = useState(false);
+  const [completeSuccess, setCompleteSuccess] = useState(false);
+
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
+  const newPassword = watch("newPassword");
 
   useEffect(() => {
     if (completeSuccess) {
@@ -33,20 +43,17 @@ const SetGooglePassword = () => {
     }
   }, [completeSuccess, navigate]);
 
-  const handleCompleteRegistration = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
+    const sanitizedNewPassword = DOMPurify.sanitize(data.newPassword);
+    const sanitizedConfirmPassword = DOMPurify.sanitize(data.confirmPassword);
 
-    const sanitizedNewPassword = DOMPurify.sanitize(newPassword);
-    const sanitizedConfirmedPassword = DOMPurify.sanitize(confirmPassword);
-
-    if (sanitizedNewPassword !== sanitizedConfirmedPassword) {
-      setError(t("Passwords do not match"));
+    if (sanitizedNewPassword !== sanitizedConfirmPassword) {
+      toast.error(t("PasswordsDoNotMatch"));
       return;
     }
 
     try {
-      setLoading(true);
-
+      setLoadingSave(true);
       const response = await axiosInstance.post("/customers/complete-registration", {
         email,
         name,
@@ -55,14 +62,11 @@ const SetGooglePassword = () => {
       });
 
       setCompleteSuccess(true);
-      toast.success(response.data.message);
-      setError(null);
+      toast.success(t(response.data.message));
     } catch (error) {
-      console.error(error);
-      setError(t("Failed to complete registration. Please try again."));
-      toast.error(t("Error: ") + error.response.data.error);
+      toast.error(t("RegistrationError"));
     } finally {
-      setLoading(false);
+      setLoadingSave(false);
     }
   };
 
@@ -86,66 +90,77 @@ const SetGooglePassword = () => {
           gutterBottom
           style={{ textAlign: "center", color: "black" }}
         >
-          {completeSuccess ? t("Account Setup Successful") : t("Complete Registration")}
+          {completeSuccess ? t("AccountSetupSuccess") : t("Set Your Password")}
         </Typography>
-        {completeSuccess ? (
+
+        {!completeSuccess ? (
+          <>
+            <Typography variant="body1" style={{ marginBottom: "20px" }}>
+              {t("As a new user, please set a password to complete your registration.")}
+            </Typography>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Controller
+                name="newPassword"
+                control={control}
+                rules={{
+                  required: t("PasswordRequired"),
+                  minLength: {
+                    value: 6,
+                    message: t("PasswordMinLength"),
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label={t("New Password")}
+                    type="password"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    error={!!errors.newPassword}
+                    helperText={errors.newPassword?.message}
+                  />
+                )}
+              />
+              <Controller
+                name="confirmPassword"
+                control={control}
+                rules={{
+                  validate: (value) =>
+                    value === newPassword || t("PasswordsDoNotMatch"),
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label={t("Confirm Password")}
+                    type="password"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    error={!!errors.confirmPassword}
+                    helperText={errors.confirmPassword?.message}
+                  />
+                )}
+              />
+              <LoadingButton
+                type="submit"
+                fullWidth
+                loading={loadingSave}
+                variant="contained"
+                sx={{ fontWeight: 500, fontSize: 15 }}
+                className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2 !mt-2"
+              >
+                {loadingSave ? t("Loading") : t("Set Password")}
+              </LoadingButton>
+            </form>
+          </>
+        ) : (
           <Typography
             variant="body1"
-            style={{ textAlign: "center", color: "green" }}
+            style={{ textAlign: "center", color: "green", marginTop: "20px" }}
           >
-            {t("Your account setup is complete.")}
+            {t("AccountSetupComplete")}
           </Typography>
-        ) : (
-          <form onSubmit={handleCompleteRegistration}>
-            <TextField
-              label={t("New Password")}
-              autoComplete="chrome-off"
-              type="password"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              value={newPassword}
-              InputLabelProps={{ shrink: true }}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-            <TextField
-              label={t("Confirm Password")}
-              type="password"
-              autoComplete="chrome-off"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              value={confirmPassword}
-              InputLabelProps={{ shrink: true }}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-            {error && (
-              <Typography
-                variant="body1"
-                style={{ textAlign: "center", color: "red", marginTop: "10px" }}
-              >
-                {error}
-              </Typography>
-            )}
-            <Button
-              type="submit"
-              variant="contained"
-              style={{
-                backgroundColor: "#8dc63f",
-                color: "#fff",
-                marginTop: "10px",
-              }}
-              className="rounded-lg"
-              fullWidth
-              disabled={loading}
-            >
-              {loading
-                ? t("Loading...")
-                : completeSuccess
-                  ? t("Go to Login")
-                  : t("Set Password")}
-            </Button>
-          </form>
         )}
       </Paper>
     </div>

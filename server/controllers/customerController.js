@@ -141,7 +141,7 @@ function completeRegistrationEmailTemplate(name) {
       <body>
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
           <div style="margin-bottom: 20px;">
-            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/main/client/public/assets/logo.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
+            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/dev/client/public/assets/logo-email.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
           </div>
           <h2 style="color: #4CAF50;">Welcome, ${name}!</h2>
           <p>We’re excited to let you know that your registration is now complete.</p>
@@ -189,7 +189,7 @@ const completeRegistration = async (req, res) => {
 
     const mailOptions = {
       to: newCustomer.email,
-      subject: "Welcome to GreenVille - Registration Complete",
+      subject: "Welcome to GreenVille",
       html: emailTemplate,
     };
 
@@ -217,7 +217,7 @@ function validationEmailTemplate(name, validationLink) {
       <body>
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
           <div style="margin-bottom: 20px;">
-            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/main/client/public/assets/logo.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
+            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/dev/client/public/assets/logo-email.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
           </div>
           <h2 style="color: #4CAF50;">Hello ${name},</h2>
           <p>Thank you for creating an account with us! To complete your registration, please confirm your email address by clicking the link below:</p>
@@ -276,7 +276,7 @@ const createCustomer = async (req, res) => {
 
     const mailOptions = {
       to: newCustomer.email,
-      subject: "Validate your account",
+      subject: "GreenVille - Activate your account",
       html: emailTemplate,
     };
 
@@ -403,7 +403,7 @@ function successValidationEmailTemplate(name) {
       <body>
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
           <div style="margin-bottom: 20px;">
-            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/main/client/public/assets/logo.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
+            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/dev/client/public/assets/logo-email.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
           </div>
           <h2 style="color: #4CAF50;">Hello ${name},</h2>
           <p>Congratulations! Your account has been successfully validated.</p>
@@ -447,7 +447,7 @@ const validateCustomer = async (req, res) => {
 
     const mailOptions = {
       to: matchingCustomer.email,
-      subject: "Account Validation Successful",
+      subject: "GreenVille - Account Validation",
       html: emailTemplate,
     };
 
@@ -459,7 +459,9 @@ const validateCustomer = async (req, res) => {
       }
     });
 
-    res.redirect(`${process.env.FRONTEND_LOCAL_URL}login`);
+    res.redirect(
+      `${process.env.FRONTEND_LOCAL_URL}login?validationSuccess=true`
+    );
   } catch (error) {
     console.error("Validation error:", error);
     res
@@ -541,6 +543,28 @@ const deleteCustomer = async (req, res) => {
   }
 };
 
+function passwordResetEmailTemplate(name, resetToken) {
+  return `
+    <html>
+      <body>
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
+          <div style="margin-bottom: 20px;">
+            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/dev/client/public/assets/logo-email.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
+          </div>
+          <h2 style="color: #4CAF50;">Hello ${name},</h2>
+          <p>You requested a password reset for your account.</p>
+          <p style="color: #555;">Please click on the link below to reset your password:</p>
+          <p>
+            <a href="${process.env.FRONTEND_LOCAL_URL}reset-password/${resetToken}" style="text-decoration: none; color: #fff; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px;">Reset Password</a>
+          </p>
+          <p style="color: #555;">If you did not request this, please ignore this email and your password will remain unchanged.</p>
+          <p>Best regards,<br/>GreenVille</p>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -559,13 +583,9 @@ const forgotPassword = async (req, res) => {
     await customer.save();
 
     const mailOptions = {
-      from: " process.env.SENDER",
       to: customer.email,
-      subject: "Password Reset",
-      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
-          Please click on the following link, or paste this into your browser to complete the process:\n\n
-          ${process.env.URL}/reset-password/${resetToken}\n\n
-          If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+      subject: "GreenVille - Password Reset",
+      html: passwordResetEmailTemplate(customer.first_name, resetToken),
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
