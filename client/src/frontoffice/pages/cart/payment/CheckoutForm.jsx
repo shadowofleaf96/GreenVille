@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import axios from "axios";
 import {
     addItemToCart,
     removeItemFromCart,
+    applyCouponCode
 } from "../../../../redux/frontoffice/cartSlice";
 import createAxiosInstance from '../../../../utils/axiosConfig';
 import { toast } from 'react-toastify';
@@ -13,7 +13,7 @@ import { LoadingButton } from '@mui/lab';
 import { useTranslation } from 'react-i18next';
 
 const CheckoutForm = () => {
-    const { cartItems, shippingInfo } = useSelector((state) => state.carts);
+    const { cartItems, shippingInfo, coupon } = useSelector((state) => state.carts);
     const { customer } = useSelector((state) => state.customers);
     const axiosInstance = createAxiosInstance("customer")
     const { t } = useTranslation()
@@ -26,21 +26,17 @@ const CheckoutForm = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const itemsPrice = cartItems.reduce(
-        (acc, item) => acc + item.discountPrice * item.quantity,
-        0
-    );
+    const itemsPrice = cartItems.reduce((acc, item) => acc + item.discountPrice * item.quantity, 0);
 
-    let shippingPrice;
-
-    if (itemsPrice <= 1500) {
-        shippingPrice = 15;
-    } else {
-        shippingPrice = 0
-    }
-
+    let shippingPrice = 30;
     const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
-    const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
+    let discountedTotal
+    if (coupon) {
+        discountedTotal = itemsPrice - (itemsPrice * coupon.discount) / 100;
+    } else {
+        discountedTotal = itemsPrice;
+    }
+    const totalPrice = (discountedTotal + shippingPrice + taxPrice).toFixed(2);
 
     useEffect(() => {
         if (!stripe) {

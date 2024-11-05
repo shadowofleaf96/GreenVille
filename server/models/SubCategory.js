@@ -1,15 +1,13 @@
 const Joi = require("joi");
 const { Schema, model, Types } = require("mongoose");
 
-// Joi schema for subcategory validation
 const subcategoryJoiSchema = Joi.object({
-  id: Joi.any().strip(), // Ignore this field
-  subcategory_name: Joi.string().trim().max(25).required(), // Required and max length 25
-  category_id: Joi.string().required(), // Reference to Categories
-  active: Joi.boolean().default(false), // Default to false
+  id: Joi.any().strip(),
+  subcategory_name: Joi.string().trim().max(25).required(),
+  category_id: Joi.string().required(),
+  active: Joi.boolean().default(false),
 });
 
-// Mongoose schema for subcategories
 const subcategorieSchema = new Schema(
   {
     id: {
@@ -23,7 +21,7 @@ const subcategorieSchema = new Schema(
       unique: true,
     },
     category_id: {
-      type: Types.ObjectId, // Use Types.ObjectId for better readability
+      type: Types.ObjectId,
       ref: "Categories",
       required: true,
     },
@@ -38,10 +36,8 @@ const subcategorieSchema = new Schema(
   }
 );
 
-// Pre-save hook for validation
 subcategorieSchema.pre("save", async function (next) {
   try {
-    // Validate the subcategory data
     await subcategoryJoiSchema.validateAsync(this.toObject());
     next();
   } catch (error) {
@@ -49,13 +45,13 @@ subcategorieSchema.pre("save", async function (next) {
   }
 });
 
-const SubCategories = model("SubCategories", subcategorieSchema);
-if (SubCategories) {
+const SubCategory = model("SubCategories", subcategorieSchema);
+if (SubCategory) {
   console.log("SubCategory Schema created");
 } else {
   console.log("error");
 }
 
 module.exports = {
-  SubCategories,
+  SubCategory,
 };

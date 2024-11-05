@@ -4,11 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import CheckoutSteps from "../checkoutSteps/CheckoutSteps";
 import { countries } from "countries-list";
-import { saveShippingInfo } from "../../../../redux/frontoffice/cartSlice";
+import { applyCouponCode, saveShippingInfo } from "../../../../redux/frontoffice/cartSlice";
 import MetaData from "../../../components/MetaData";
 
 const Shipping = () => {
-  const { t } = useTranslation(); // i18n hook for translations
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const history = useNavigate();
   const countriesList = Object.values(countries);
@@ -23,7 +23,7 @@ const Shipping = () => {
     history("/products");
   }
 
-  let shippingPrice = itemsPrice <= 1500 ? 15 : 0;
+  let shippingPrice = 30
   const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
   const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
 
@@ -36,6 +36,7 @@ const Shipping = () => {
   const submitHandler = (e) => {
     e.preventDefault();
     dispatch(saveShippingInfo({ address, city, phoneNo, postalCode, country }));
+    dispatch(applyCouponCode(null));
     history("/confirm", { replace: true });
   };
 
@@ -64,7 +65,7 @@ const Shipping = () => {
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     required
-                    className="h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
+                    className="h-10 rounded-md border border-gray-300 px-4 bg-gray-200 w-full"
                   />
                 </div>
 
@@ -81,7 +82,7 @@ const Shipping = () => {
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     required
-                    className="h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
+                    className="h-10 rounded-md border border-gray-300 px-4 bg-gray-200 w-full"
                   />
                 </div>
 
@@ -98,7 +99,7 @@ const Shipping = () => {
                     value={phoneNo}
                     onChange={(e) => setPhoneNo(e.target.value)}
                     required
-                    className="h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
+                    className="h-10 rounded-md border border-gray-300 px-4 bg-gray-200 w-full"
                   />
                 </div>
 
@@ -115,7 +116,7 @@ const Shipping = () => {
                     value={postalCode}
                     onChange={(e) => setPostalCode(e.target.value)}
                     required
-                    className="h-10 rounded-full border border-gray-300 px-4 bg-gray-200 w-full"
+                    className="h-10 rounded-md border border-gray-300 px-4 bg-gray-200 w-full"
                   />
                 </div>
               </div>

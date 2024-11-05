@@ -560,5 +560,13 @@
   "EmailInvalid": "Please enter a valid email.",
   "PasswordRequired": "Password is required.",
   "PasswordMinLength": "Password must be at least 6 characters long.",
-  "PasswordsDoNotMatch": "Passwords do not match."
+  "PasswordsDoNotMatch": "Passwords do not match.",
+  "Error Loading Products": "Error Loading Products",
+  "There was an issue loading the products. Please try again later.": "There was an issue loading the products. Please try again later.",
+  "Reload":"Reload",
+  "Coupon Code": "Coupon Code",
+  "Enter coupon code": "Enter coupon code",
+  "Apply": "Apply",
+  "Coupon applied successfully": "Coupon applied successfully",
+  "Failed to apply coupon": "Failed to apply coupon"
 }

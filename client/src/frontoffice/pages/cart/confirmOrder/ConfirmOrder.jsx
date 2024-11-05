@@ -1,32 +1,64 @@
-import React, { Fragment } from "react";
-import { useSelector } from "react-redux";
+import React, { Fragment, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import Footer from "../../../components/footer/Footer";
-import Navbar from "../../../components/header/Navbar";
 import MetaData from "../../../components/MetaData";
 import CheckoutSteps from "../checkoutSteps/CheckoutSteps";
-import { useTranslation } from "react-i18next";  // Import useTranslation hook
+import { applyCouponCode } from "../../../../redux/frontoffice/cartSlice"
+import { useTranslation } from "react-i18next";
+import DOMPurify from "dompurify";
+import createAxiosInstance from "../../../../utils/axiosConfig";
+import { LoadingButton } from "@mui/lab";
+
 const backend = import.meta.env.VITE_BACKEND_URL;
 
 const ConfirmOrder = () => {
-    const { t } = useTranslation(); // Initialize translation
-    const { cartItems, shippingInfo } = useSelector((state) => state.carts);
+    const { t } = useTranslation();
+    const { cartItems, shippingInfo, coupon } = useSelector((state) => state.carts);
     const { customer } = useSelector((state) => state.customers);
 
     const history = useNavigate();
+    const [couponCode, setCouponCode] = useState("");
+    const [message, setMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const axiosInstance = createAxiosInstance("customer")
+    const dispatch = useDispatch();
 
-    const itemsPrice = cartItems.reduce(
-        (acc, item) => acc + item.discountPrice * item.quantity,
-        0
-    );
+
+    const itemsPrice = cartItems.reduce((acc, item) => acc + item.discountPrice * item.quantity, 0);
 
     if (itemsPrice === 0) {
         history("/products");
     }
 
-    let shippingPrice = itemsPrice <= 1500 ? 15 : 0;
+    let shippingPrice = 30;
+
     const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
-    const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
+    let discountedTotal
+    if (coupon) {
+        discountedTotal = itemsPrice - (itemsPrice * coupon.discount) / 100;
+    } else {
+        discountedTotal = itemsPrice;
+    }
+    const totalPrice = (discountedTotal + shippingPrice + taxPrice).toFixed(2);
+
+    const applyCoupon = async () => {
+        setIsLoading(true);
+        const sanitizedCouponCode = DOMPurify.sanitize(couponCode);
+
+        try {
+            const response = await axiosInstance.post(`/coupons/apply`, {
+                code: sanitizedCouponCode,
+                userId: customer._id,
+            });
+            dispatch(applyCouponCode({ code: response.data.code, discount: response.data.discount }));
+            setMessage({ text: t("Coupon applied successfully"), type: "success" });
+        } catch (error) {
+            setMessage({ text: t("Failed to apply coupon"), type: "error" });
+            console.log(error)
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const processToPayment = () => {
         history("/payment", { replace: true });
@@ -34,11 +66,42 @@ const ConfirmOrder = () => {
 
     return (
         <div className="flex flex-col gap-6 w-full">
-            <MetaData title={t("Confirm Order")} />  {/* Use i18n */}
-            <div className="container py-2 my-8 mx-auto ">
+            <MetaData title={t("Confirm Order")} />
+            <div className="container py-2 my-8 mx-auto">
                 <CheckoutSteps shipping confirmOrder />
                 <div className="flex flex-col md:flex-row justify-between gap-6 mx-4 md:mx-8">
                     <div className="mb-8 bg-white shadow-lg p-8 rounded-2xl border border-gray-200 w-full md:w-3/5">
+                        <div className="mb-4">
+                            <label htmlFor="couponCode" className="block text-lg font-semibold mb-2">
+                                {t("Coupon Code")}
+                            </label>
+                            <div className="flex items-center mt-1">
+                                <input
+                                    type="text"
+                                    id="couponCode"
+                                    value={couponCode}
+                                    onChange={(e) => setCouponCode(e.target.value)}
+                                    placeholder={t("Enter coupon code")}
+                                    className="p-2 w-full rounded-l-md bg-gray-100 focus:border-r-0 border-[#8DC63F] focus:outline-none focus:ring-0 focus:border-transparent"
+                                />
+                                <LoadingButton
+                                    onClick={applyCoupon}
+                                    loading={isLoading}
+                                    variant="contained"
+                                    sx={{ fontWeight: 500, fontSize: 15, borderRadius: 0 }}
+                                    className="!bg-[#8DC63F] !shadow-none !transition-shadow !duration-300 !cursor-pointer !hover:shadow-lg !hover:shadow-yellow-400 !text-white !py-2 !px-6 border-0 !rounded-r-md"
+                                >
+                                    {isLoading ? t('Loading') : t("Apply")}
+                                </LoadingButton>
+                            </div>
+                        </div>
+                        {message.text && (
+                            <p className={`mt-2 text-sm ${message.type === "success" ? "text-green-600" : "text-red-600"}`}>
+                                {message.text}
+                            </p>
+                        )}
+                        <hr className="my-2" />
+
                         <h4 className="text-lg font-semibold mb-3">{t("Shipping Info")}</h4>
                         <p className="text-gray-700 mb-2">
                             <b>{t("Name")}: </b> {customer && `${customer.first_name} ${customer.last_name}`}
@@ -80,11 +143,11 @@ const ConfirmOrder = () => {
                             className="w-full bg-[#8DC63F] font-medium shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 text-white py-3 px-8 rounded-lg mt-4"
                             onClick={processToPayment}
                         >
-                            {t("Proceed to Payment")}  {/* Use i18n */}
+                            {t("Proceed to Payment")}
                         </button>
                     </div>
 
-                    <div className="bg-blue-50 p-4 rounded-lg shadow w-full md:w-2/5 max-h-64">
+                    <div className="bg-blue-50 p-4 rounded-lg shadow w-full md:w-2/5 max-h-72">
                         <h4 className="text-lg font-semibold mb-4">{t("Order Summary")}</h4>
                         <hr className="mb-4" />
                         <p className="flex justify-between mb-2">
@@ -93,6 +156,11 @@ const ConfirmOrder = () => {
                         <p className="flex justify-between mb-2">
                             {t("Shipping")} <span>{shippingPrice} DH</span>
                         </p>
+                        {coupon && (
+                            <p className="flex justify-between mb-2">
+                                {t("Coupon")} ({coupon.code} - {coupon.discount}%) <span>-{((itemsPrice * coupon.discount) / 100).toFixed(2)} DH</span>
+                            </p>
+                        )}
                         <p className="flex justify-between mb-2">
                             {t("Tax")} <span>{taxPrice} DH</span>
                         </p>
@@ -103,7 +171,7 @@ const ConfirmOrder = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

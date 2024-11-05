@@ -3,7 +3,7 @@ import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { useDispatch, useSelector } from "react-redux";
 import { getProducts } from "../../../redux/frontoffice/productSlice";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Product from "./Product";
 import Loader from "../../components/loader/Loader";
 import Footer from "../../components/footer/Footer";
@@ -32,6 +32,7 @@ const Products = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
   const { loading, products } = useSelector((state) => state.products);
@@ -200,7 +201,7 @@ const Products = () => {
           <div className="flex flex-col min-h-[80vh] py-10">
             <div className="container mx-auto px-8 sm:px-10 lg:px-12">
               <motion.div
-                className="grid grid-cols-1 lg:grid-cols-4 gap-5"
+                className="grid grid-cols-1 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-3"
                 initial="hidden"
                 animate="visible"
                 variants={fadeIn}
@@ -515,16 +516,28 @@ const Products = () => {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                     >
-                      <h2 className="text-2xl font-semibold mt-2 mb-2">{t("Products")}</h2>
-                      <div className={`h-auto grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 ${isFilterOpen ? "overflow-hidden" : "overflow-auto"}`}>
-                        {currentProducts.length > 0 ? (
-                          currentProducts.map((product) => (
-                            <Product key={product._id} product={product} />
-                          ))
-                        ) : (
-                          <p>{t("noProductsFound")}</p>
-                        )}
-                      </div>
+                      {currentProducts.length > 0 ? (
+                        <>
+                          <h2 className="text-2xl font-semibold mt-2 mb-2">{t("Products")}</h2>
+                          <div className={`h-auto grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 lg:gap-4 ${isFilterOpen ? "overflow-hidden" : "overflow-auto"}`}>
+                            {currentProducts.map((product) => (
+                              <Product key={product._id} product={product} />
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center w-full">
+                          <Iconify className="mb-2" icon="mdi:alert-circle-outline" width={100} height={100} />
+                          <h2 className="text-2xl font-semibold mb-2">{t("Error Loading Products")}</h2> {/* Update the translation key here */}
+                          <p className="text-gray-600 mb-6">{t("There was an issue loading the products. Please try again later.")}</p> {/* Update this message here */}
+                          <button
+                            className="px-6 p-3 bg-[#8DC63F] text-white shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg rounded-md hover:shadow-yellow-400"
+                            onClick={() => navigate(0)}
+                          >
+                            {t("Reload")}
+                          </button>
+                        </div>
+                      )}
 
                       {filteredProduct.length > productsPerPage && (
                         <div className="flex justify-center mt-5 rtl:ml-2">

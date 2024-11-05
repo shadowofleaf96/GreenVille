@@ -1,3 +1,4 @@
+// app.js
 const api = require("./routes/api");
 const cookieParser = require("cookie-parser");
 const express = require("express");
@@ -5,8 +6,10 @@ require("dotenv").config();
 const path = require("path");
 const cors = require("cors");
 const helmet = require("helmet");
+const { rateLimit } = require("express-rate-limit");
 
 const app = express();
+
 const allowedOrigins = [
   "http://localhost:4173",
   "http://localhost:5173",
@@ -69,8 +72,28 @@ app.use(
   })
 );
 
-app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+const softLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  limit: 50, 
+  handler: (req, res, next) => {
+    strictLimiter(req, res, next);
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const strictLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  limit: 10,
+  message: "You have exceeded the request limit. Please try again later.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(softLimiter);
 
 app.use("/", api);
 

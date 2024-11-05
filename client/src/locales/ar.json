@@ -570,5 +570,13 @@
   "PasswordsDoNotMatch": "كلمات المرور غير متطابقة",
   "RegistrationError": "خطأ في التسجيل. حاول مرة أخرى.",
   "FirstNameRequired": "الاسم الأول مطلوب.",
-  "LastNameRequired": "الكنية مطلوبة."
+  "LastNameRequired": "الكنية مطلوبة.",
+  "Error Loading Products": "خطأ في تحميل المنتجات",
+  "There was an issue loading the products. Please try again later.": "حدثت مشكلة في تحميل المنتجات. الرجاء المحاولة مرة أخرى لاحقًا.",
+  "Reload": "إعادة تحميل",
+  "Coupon Code": "رمز القسيمة",
+  "Enter coupon code": "أدخل رمز القسيمة",
+  "Apply": "تطبيق",
+  "Coupon applied successfully": "تم تطبيق القسيمة بنجاح",
+  "Failed to apply coupon": "فشل في تطبيق القسيمة"
 }

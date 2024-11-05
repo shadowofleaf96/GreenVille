@@ -9,10 +9,10 @@ import { useSelector } from "react-redux";
 import Badge from "@mui/material/Badge";
 import { useTranslation } from "react-i18next";
 
-const ProfileView = () => {
+const ProfilePage = () => {
   const { t } = useTranslation();
   const { admin } = useSelector((state) => state.adminAuth);
-  const isActive = admin.active;
+  const isActive = admin?.active;
   const color = isActive ? "primary" : "secondary";
 
   return (
@@ -22,8 +22,8 @@ const ProfileView = () => {
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <Avatar
-                src={`http://127.0.0.1:3000/${admin.user_image}`}
-                alt={`${admin.first_name} ${admin.last_name}`}
+                src={`http://127.0.0.1:3000/${admin?.user_image}`}
+                alt={`${admin?.first_name} ${admin?.last_name}`}
                 sx={{
                   width: 220,
                   height: 220,
@@ -34,7 +34,7 @@ const ProfileView = () => {
                   marginRight: "auto",
                 }}
               >
-                {`${admin.first_name.charAt(0).toUpperCase()}${admin.last_name
+                {`${admin?.first_name.charAt(0).toUpperCase()}${admin?.last_name
                   .charAt(0)
                   .toUpperCase()}`}
               </Avatar>
@@ -48,39 +48,39 @@ const ProfileView = () => {
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
                   <Typography variant="body1">
-                    {t("Full Name")}: {admin.first_name} {admin.last_name}
+                    <strong>{t("Full Name")}:</strong> {admin?.first_name} {admin?.last_name}
                   </Typography>
                 </Grid>
 
                 <Grid item xs={12} md={6}>
                   <Typography variant="body1">
-                    {t("Email Address")}: {admin.email}
+                    <strong>{t("Email Address")}:</strong> {admin?.email}
                   </Typography>
                 </Grid>
 
                 <Grid item xs={12} md={6}>
                   <Typography variant="body1">
-                    {t("Role")}: {admin.role}
+                    <strong>{t("Role")}:</strong> {admin?.role}
                   </Typography>
                 </Grid>
 
                 <Grid item xs={12} md={6}>
                   <Typography variant="body1">
-                    {t("Username")}: {admin.user_name}
+                    <strong>{t("Username")}:</strong> {admin?.user_name}
                   </Typography>
                 </Grid>
 
                 <Grid item xs={12} md={6}>
                   <Typography variant="body1">
-                    {t("Creation Date")}:{" "}
-                    {new Date(admin.creation_date).toLocaleString()}
+                    <strong>{t("Creation Date")}:</strong>{" "}
+                    {new Date(admin?.creation_date).toLocaleString()}
                   </Typography>
                 </Grid>
 
                 <Grid item xs={12} md={6}>
                   <Typography variant="body1">
-                    {t("Last Login")}:{" "}
-                    {new Date(admin.last_login).toLocaleString()}
+                    <strong>{t("Last Login")}:</strong>{" "}
+                    {new Date(admin?.last_login).toLocaleString()}
                   </Typography>
                   <Badge
                     sx={{ mt: 5, minWidth: 24 }}
@@ -93,7 +93,7 @@ const ProfileView = () => {
           </Grid>
         </Paper>
       </Box>
-    </Container>
+    </Container >
   );
 };
 

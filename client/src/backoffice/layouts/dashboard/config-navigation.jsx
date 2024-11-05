@@ -80,6 +80,17 @@ const TranslatedNavConfig = () => {
       ),
     },
     {
+      title: "coupon",
+      path: "/admin/coupon",
+      icon: (
+        <Iconify
+          icon="circum:discount-1"
+          width={30}
+          height={30}
+        />
+      ),
+    },
+    {
       title: "order",
       path: "/admin/order",
       icon: (

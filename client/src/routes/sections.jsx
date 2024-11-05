@@ -39,6 +39,7 @@ import RefundPolicy from "../frontoffice/pages/policies/RefundPolicy";
 export const IndexPage = lazy(() => import("../backoffice/pages/app"));
 export const CategoryPage = lazy(() => import("../backoffice/pages/category"));
 export const SubCategoryPage = lazy(() => import("../backoffice/pages/subcategory"));
+export const CouponPage = lazy(() => import("../backoffice/pages/coupon"));
 export const ProfilePage = lazy(() => import("../backoffice/pages/profile"));
 export const PaymentListPage = lazy(() => import("../backoffice/pages/payment"));
 export const CustomerPage = lazy(() => import("../backoffice/pages/customer"));
@@ -47,7 +48,6 @@ export const UserPage = lazy(() => import("../backoffice/pages/user"));
 export const LoginPage = lazy(() => import("../backoffice/pages/login"));
 export const ProductPage = lazy(() => import("../backoffice/pages/product"));
 export const Page404 = lazy(() => import("../backoffice/pages/page-not-found"));
-export const ResetPasswordPage = lazy(() => import("../backoffice/pages/reset-password"));
 
 const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
 
@@ -94,6 +94,7 @@ export default function Router() {
           <Route path="user" element={<UserPage />} />
           <Route path="category" element={<CategoryPage />} />
           <Route path="subcategory" element={<SubCategoryPage />} />
+          <Route path="coupon" element={<CouponPage />} />
           <Route path="order" element={<OrderPage />} />
           <Route path="products" element={<ProductPage />} />
           <Route path="paymentlist" element={<PaymentListPage />} />

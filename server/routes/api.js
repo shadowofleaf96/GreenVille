@@ -7,11 +7,13 @@ const subcategoryRoute = require("./subcategoryRoute");
 const productRoute = require("../routes/productRoute");
 const homeRoute = require("../routes/homeRoute");
 const paymentRoute = require("../routes/paymentRoute");
+const couponRoute = require("../routes/couponRoute");
 const contactRoute = require("../routes/contactRoute");
 const app = express();
 
 app.use("/v1/", homeRoute)
 app.use("/v1/products", productRoute);
+app.use("/v1/coupons", couponRoute);
 app.use("/v1/contact", contactRoute);
 app.use("/v1/orders", ordersRoute);
 app.use("/v1/users", userRoute);

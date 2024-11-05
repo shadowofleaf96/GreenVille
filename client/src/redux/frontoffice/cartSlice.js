@@ -1,6 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-
-import axios from "axios";
 import createAxiosInstance from "../../utils/axiosConfig";
 
 const ADD_TO_CART = "cart/addItem";
@@ -42,6 +40,7 @@ const cartSlice = createSlice({
   initialState: {
     cartItems: [],
     shippingInfo: {},
+    coupon: null,
   },
   reducers: {
     removeItemFromCart: (state, action) => {
@@ -61,6 +60,9 @@ const cartSlice = createSlice({
     },
     saveShippingInfo: (state, action) => {
       state.shippingInfo = action.payload;
+    },
+    applyCouponCode: (state, action) => {
+      state.coupon = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -87,7 +89,7 @@ const cartSlice = createSlice({
   },
 });
 
-export const { removeItemFromCart, updateCartItemQuantity, saveShippingInfo } =
+export const { removeItemFromCart, updateCartItemQuantity, saveShippingInfo, applyCouponCode } =
   cartSlice.actions;
 
 export default cartSlice.reducer;

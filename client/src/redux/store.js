@@ -7,6 +7,7 @@ import adminProductReducer from "./backoffice/productSlice";
 import adminPaymentListReducer from "./backoffice/paymentListSlice";
 import adminCategoryReducer from "./backoffice/categorySlice";
 import adminSubCategoryReducer from "./backoffice/subCategorySlice";
+import adminCouponReducer from "./backoffice/couponSlice";
 import adminCustomerReducer from "./backoffice/customerSlice";
 import adminOrderReducer from "./backoffice/orderSlice";
 import cartReducer from "./frontoffice/cartSlice";
@@ -28,6 +29,7 @@ const store = configureStore({
     adminAuth: adminAuthReducer,
     adminUser: adminUserReducer,
     adminProduct: adminProductReducer,
+    adminCoupon: adminCouponReducer,
     adminCategory: adminCategoryReducer,
     adminSubcategory: adminSubCategoryReducer,
     adminCustomer: adminCustomerReducer,

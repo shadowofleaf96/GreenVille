@@ -1,15 +1,13 @@
-const subcategories = require("../models/SubCategory");
-const Product = require("../models/Product");
+const { SubCategory } = require("../models/SubCategory");
+const { Product } = require("../models/Product");
 const { Category } = require("../models/Category");
 
 const subcategoriesController = {
   async createSubcategory(req, res) {
-    //Create a new subcategory
     const { subcategory_name, category_id } = req.body;
 
     try {
-      // Check if the subcategory name is unique
-      const existingSubcategory = await subcategories.findOne({
+      const existingSubcategory = await SubCategory.findOne({
         subcategory_name,
       });
 
@@ -19,14 +17,12 @@ const subcategoriesController = {
           .json({ error: "Subcategory with this name already exists" });
       }
 
-      // Create a new subcategory with the provided data
-      const newSubcategory = new subcategories({
+      const newSubcategory = new SubCategory({
         subcategory_name,
         category_id,
-        active: false, // Set the default value to false
+        active: false, 
       });
 
-      // Save the new subcategory to the database
       await newSubcategory.save();
 
       res.status(201).json({
@@ -44,7 +40,7 @@ const subcategoriesController = {
     const query = req.query.query || "";
 
     try {
-      let queryBuilder = subcategories.find();
+      let queryBuilder = SubCategory.find();
 
       if (query) {
         queryBuilder = queryBuilder.where(
@@ -85,11 +81,10 @@ const subcategoriesController = {
   },
 
   async getSubcategoryById(req, res) {
-    //Get a subcategory by ID
     const SubcategoryId = req.params.id;
 
     try {
-      const subcategory = await subcategories.findById(SubcategoryId).lean();
+      const subcategory = await SubCategory.findById(SubcategoryId).lean();
 
       if (!subcategory) {
         return res.status(404).json({ error: "Subcategory not found" });
@@ -103,12 +98,11 @@ const subcategoriesController = {
     }
   },
   async updateSubcategoryById(req, res) {
-    //Update the subcategory data
     const subcategoryId = req.params.id;
     const { subcategory_name, category_id, active } = req.body;
 
     try {
-      const subcategory = await subcategories.findById(subcategoryId);
+      const subcategory = await SubCategory.findById(subcategoryId);
 
       if (!subcategory) {
         return res.status(404).json({ message: "Invalid subcategory id" });
@@ -138,10 +132,8 @@ const subcategoriesController = {
     }
   },
   async deleteSubcategoryById(req, res) {
-    //Delete a subcategory
     const SubcategoryId = req.params.id;
 
-    // try {
     const productsCount = await Product.countDocuments({
       subcategory_id: SubcategoryId,
     });
@@ -152,7 +144,7 @@ const subcategoriesController = {
           message: "Subcategory cannot be deleted, it has some products",
         });
       }
-      const Subcategory = await subcategories.findOneAndRemove({
+      const Subcategory = await SubCategory.findOneAndRemove({
         _id: SubcategoryId,
       });
 

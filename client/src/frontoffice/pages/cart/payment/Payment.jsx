@@ -10,6 +10,7 @@ import Iconify from "../../../../backoffice/components/iconify";
 import CheckoutSteps from "../../../pages/cart/checkoutSteps/CheckoutSteps";
 import {
   addItemToCart,
+  applyCouponCode,
   removeItemFromCart,
 } from "../../../../redux/frontoffice/cartSlice";
 import CheckoutForm from "./CheckoutForm";
@@ -27,7 +28,7 @@ const Payment = () => {
 
 
   const { customer } = useSelector((state) => state.customers);
-  const { cartItems, shippingInfo } = useSelector((state) => state.carts);
+  const { cartItems, shippingInfo, coupon } = useSelector((state) => state.carts);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false)
@@ -41,22 +42,18 @@ const Payment = () => {
   //   navigate("/products")
   // }
 
-  const itemsPrice = cartItems.reduce(
-    (acc, item) => acc + item.discountPrice * item.quantity,
-    0
-  );
+  const itemsPrice = cartItems.reduce((acc, item) => acc + item.discountPrice * item.quantity, 0);
 
-  let shippingPrice;
-
-  if (itemsPrice <= 1500) {
-    shippingPrice = 15;
-  } else {
-    shippingPrice = 0
-  }
-
+  let shippingPrice = 30;
   const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
-  const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
-  const priceInUSD = (totalPrice * 10.5 / 100).toFixed(2)
+  let discountedTotal
+  if (coupon) {
+    discountedTotal = itemsPrice - (itemsPrice * coupon.discount) / 100;
+  } else {
+    discountedTotal = itemsPrice;
+  }
+  const totalPrice = (discountedTotal + shippingPrice + taxPrice).toFixed(2);
+  const totalPriceUSD = (totalPrice * 0.11).toFixed(2);
 
   const handlePaymentMethodChange = (e) => {
     setPaymentMethod(e.target.value);
@@ -108,12 +105,11 @@ const Payment = () => {
         shipping_address,
         shipping_method: "standard",
         shipping_status: "not_shipped",
-        order_notes: "testing for now",
+        order_notes: "Working on your order",
         status: "processing",
       };
 
       const orderResponse = await axiosInstance.post("/orders", orderData);
-
       return orderResponse.data.order._id;
     } catch (error) {
       console.error("Error creating order:", error);
@@ -127,7 +123,7 @@ const Payment = () => {
       purchase_units: [
         {
           amount: {
-            value: priceInUSD,
+            value: totalPriceUSD,
           },
         },
       ],
@@ -282,24 +278,28 @@ const Payment = () => {
             )}
           </div>
 
-          <div className="w-full md:mx-8 lg:w-1/2">
-            <div className="bg-blue-50 p-4 rounded-lg shadow">
-              <h4 className="text-lg font-semibold mb-4">{t("OrderSummary")}</h4>
-              <hr className="mb-4" />
+
+          <div className="bg-blue-50 p-4 rounded-lg shadow w-full md:w-2/5 max-h-72">
+            <h4 className="text-lg font-semibold mb-4">{t("Order Summary")}</h4>
+            <hr className="mb-4" />
+            <p className="flex justify-between mb-2">
+              {t("Subtotal")} <span>{itemsPrice} DH</span>
+            </p>
+            <p className="flex justify-between mb-2">
+              {t("Shipping")} <span>{shippingPrice} DH</span>
+            </p>
+            {coupon && (
               <p className="flex justify-between mb-2">
-                {t("Subtotal")} <span>{itemsPrice} DH</span>
+                {t("Coupon")} ({coupon.code} - {coupon.discount}%) <span>-{((itemsPrice * coupon.discount) / 100).toFixed(2)} DH</span>
               </p>
-              <p className="flex justify-between mb-2">
-                {t("Shipping")} <span>{shippingPrice} DH</span>
-              </p>
-              <p className="flex justify-between mb-2">
-                {t("Tax")} <span>{taxPrice} DH</span>
-              </p>
-              <hr className="my-4" />
-              <p className="flex justify-between text-xl font-bold">
-                {t("Total")} <span>{totalPrice} DH</span>
-              </p>
-            </div>
+            )}
+            <p className="flex justify-between mb-2">
+              {t("Tax")} <span>{taxPrice} DH</span>
+            </p>
+            <hr className="my-4" />
+            <p className="flex justify-between text-xl font-bold">
+              {t("Total")} <span>{totalPrice} DH</span>
+            </p>
           </div>
         </div>
       </div>

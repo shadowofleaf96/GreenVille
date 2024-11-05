@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 
-import ResetPasswordPage from '../sections/user/view/reset-password';
+import { CouponView } from '../sections/coupon/view';
 
 // ----------------------------------------------------------------------
 
-export default function NotFoundPage() {
+export default function SubCategoryPage() {
   return (
     <>
       <Helmet>
-        <title> Reset Password </title>
+        <title> Coupon | GreenVille </title>
       </Helmet>
 
-      <ResetPasswordPage />
+      <CouponView />
     </>
   );
 }

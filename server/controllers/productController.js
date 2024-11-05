@@ -1,7 +1,7 @@
 // Shadow Of Leaf Was Here
 
-const Product = require("../models/Product");
-const SubCategory = require("../models/SubCategory");
+const { Product } = require("../models/Product");
+const { SubCategory } = require("../models/SubCategory");
 const { Category } = require("../models/Category");
 
 const createData = async (req, res) => {
@@ -154,7 +154,6 @@ const RetrieveById = async (req, res) => {
     res.status(200).json({
       data: productById,
     });
-    
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -180,7 +179,7 @@ const UpdateProductById = async (req, res) => {
       file.path.replace(/public\\/g, "")
     );
   } else {
-    fixed_product_images = product.product_images
+    fixed_product_images = product.product_images;
   }
 
   const updateData = {
@@ -202,7 +201,6 @@ const UpdateProductById = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 const DeleteProductById = async (req, res) => {
   const id = req.params.id;

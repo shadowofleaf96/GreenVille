@@ -6,6 +6,7 @@ import Loader from "../../components/loader/Loader";
 import Iconify from "../../../backoffice/components/iconify";
 import { addItemToCart } from "../../../redux/frontoffice/cartSlice";
 import MetaData from "../../components/MetaData";
+import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from 'react-i18next';
 
 const backend = import.meta.env.VITE_BACKEND_URL;
@@ -14,7 +15,7 @@ const SingleProduct = () => {
   const { t } = useTranslation();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState("");
-
+  const [currentIndex, setCurrentIndex] = useState(0);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
@@ -34,6 +35,22 @@ const SingleProduct = () => {
       setSelectedImage(`${backend}/${product.product_images[0]}`);
     }
   }, [product?.product_images]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (product?.product_images.length > 0) {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % product.product_images.length);
+      }
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [product?.product_images]);
+
+  useEffect(() => {
+    if (product?.product_images.length > 0) {
+      setSelectedImage(`${backend}/${product.product_images[currentIndex]}`);
+    }
+  }, [currentIndex, product?.product_images]);
 
   const increaseQty = () => {
     if (quantity >= product.quantity) return;
@@ -66,13 +83,25 @@ const SingleProduct = () => {
               <>
                 <div className="w-full lg:w-1/2 flex flex-col items-center justify-center">
                   {selectedImage && (
-                    <div className="w-full max-w-sm rounded-lg shadow-lg overflow-hidden mb-6">
-                      <img
-                        src={selectedImage}
-                        alt={t("selected_product")}
-                        className="object-contain w-full h-[380px] sm:h-[200px]"
-                      />
-                    </div>
+                    <AnimatePresence>
+                      {selectedImage && (
+                        <div className="w-full max-w-sm rounded-lg shadow-lg overflow-hidden mb-6">
+                          <motion.img
+                            key={selectedImage}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{
+                              duration: 0.5,
+                              ease: "easeInOut",
+                            }}
+                            src={selectedImage}
+                            alt={t("selected_product")}
+                            className="object-contain w-full h-[200px] sm:h-[250px]"
+                          />
+                        </div>
+                      )}
+                    </AnimatePresence>
                   )}
 
                   <div className="flex overflow-x-auto space-x-4">
@@ -82,16 +111,23 @@ const SingleProduct = () => {
                           key={index}
                           src={`${backend}/${image}`}
                           alt={`${t("product_image")} ${index + 1}`}
-                          className="w-14 h-14 object-contain cursor-pointer border-2 border-gray-300 rounded-lg hover:border-green-500"
-                          onClick={() => setSelectedImage(`${backend}/${image}`)}
+                          className={`w-10 h-10 md:w-12 md:h-12 object-contain cursor-pointer border-2 border-gray-300 rounded-lg hover:border-green-500 ${currentIndex === index ? 'border-green-500' : ''
+                            }`}
+                          onClick={() => {
+                            setSelectedImage(`${backend}/${image}`);
+                            setCurrentIndex(index);
+                          }}
                         />
                       ))
                     ) : (
                       <img
                         src={`${backend}/${product.product_images}`}
                         alt={t("main_product")}
-                        className="w-14 h-14 object-contain cursor-pointer border-2 shadow-lg border-gray-300 rounded-lg hover:border-green-500"
-                        onClick={() => setSelectedImage(`${backend}/${product.product_images}`)}
+                        className={`w-14 h-14 object-contain cursor-pointer border-2 shadow-lg border-gray-300 rounded-lg hover:border-green-500 ${currentIndex === 0 ? 'border-green-500' : ''}`} // Highlight selected image
+                        onClick={() => {
+                          setSelectedImage(`${backend}/${product.product_images}`);
+                          setCurrentIndex(0);
+                        }}
                       />
                     )}
                   </div>

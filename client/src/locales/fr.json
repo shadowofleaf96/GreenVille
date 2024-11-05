@@ -572,5 +572,13 @@
   "PasswordsDoNotMatch": "Les mots de passe ne correspondent pas",
   "RegistrationError": "Erreur d'inscription. Veuillez réessayer.",
   "FirstNameRequired": "Le prénom est requis.",
-  "LastNameRequired": "Le nom est requis."
+  "LastNameRequired": "Le nom est requis.",
+  "Error Loading Products": "Erreur de chargement des produits",
+  "There was an issue loading the products. Please try again later.": "Un problème est survenu lors du chargement des produits. Veuillez réessayer plus tard.",
+  "Reload": "Recharger",
+  "Coupon Code": "Code promo",
+  "Enter coupon code": "Saisissez le code promo",
+  "Apply": "Appliquer",
+  "Coupon applied successfully": "Coupon appliqué avec succès",
+  "Failed to apply coupon": "Échec de l'application du coupon"
 }

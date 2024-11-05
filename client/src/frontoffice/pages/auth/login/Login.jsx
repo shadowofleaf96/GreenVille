@@ -6,7 +6,7 @@ import {
   loginFailure,
 } from "../../../../redux/frontoffice/customerSlice";
 import axios from "axios";
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleLogin  } from "@react-oauth/google";
 import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -30,12 +30,10 @@ import { toast } from "react-toastify";
 import { LoadingButton } from "@mui/lab";
 import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form"; // Import useForm
-
-const backend = import.meta.env.VITE_BACKEND_URL;
+import { useForm } from "react-hook-form";
 
 const Login = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const history = useNavigate();
   const [searchParams] = useSearchParams();
@@ -46,6 +44,8 @@ const Login = () => {
   const axiosInstance = createAxiosInstance("customer");
 
   const { register, handleSubmit, formState: { errors } } = useForm();
+
+  const isRtl = i18n.language === 'ar';
 
   useEffect(() => {
     if (searchParams.get("validationSuccess")) {
@@ -210,21 +210,39 @@ const Login = () => {
               error={!!errors.password}
               helperText={errors.password?.message}
               InputProps={{
-                autoComplete: "new-password",
-                form: { autoComplete: "off" },
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <MuiLink
-                      component={Link}
-                      to="/forgot-password"
-                      variant="body2"
-                      style={{ color: "black", cursor: "pointer" }}
-                      onClick={handleOpenDialog}
-                    >
-                      {t("login.forgotPassword")}
-                    </MuiLink>
-                  </InputAdornment>
-                ),
+                ...(isRtl
+                  ? {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <MuiLink
+                          component={Link}
+                          to="/forgot-password"
+                          variant="body2"
+                          style={{ color: "black", cursor: "pointer" }}
+                          onClick={handleOpenDialog}
+                        >
+                          {t("login.forgotPassword")}
+                        </MuiLink>
+                      </InputAdornment>
+                    ),
+                  }
+                  : {
+                    autoComplete: "new-password",
+                    form: { autoComplete: "off" },
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <MuiLink
+                          component={Link}
+                          to="/forgot-password"
+                          variant="body2"
+                          style={{ color: "black", cursor: "pointer" }}
+                          onClick={handleOpenDialog}
+                        >
+                          {t("login.forgotPassword")}
+                        </MuiLink>
+                      </InputAdornment>
+                    ),
+                  }),
               }}
             />
             <LoadingButton
@@ -246,11 +264,10 @@ const Login = () => {
                 useOneTap
                 width="340px"
                 theme="outline"
+                locale={i18n.language}
                 auto_select={false}
-                text={t("googleLogin")}
                 ux_mode="popup"
                 context="signin"
-                logo_alignment="left"
               />
             </div>
 
