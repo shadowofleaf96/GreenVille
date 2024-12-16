@@ -8,20 +8,21 @@ import Divider from "@mui/material/Divider";
 import { useTranslation } from "react-i18next";
 
 const OrderDetailsPopup = ({ order, open, onClose }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [shippingStatus, setShippingStatus] = useState("");
+  const currentLanguage = i18n.language;
 
-  useEffect(() => {
-    if (order?.shipping_status === "not_shipped") {
-      setShippingStatus("Not Shipped")
-    } else if (order?.shipping_status === "shipped") {
-      setShippingStatus("Shipped")
-    } else if (order?.shipping_status === "in_transit") {
-      setShippingStatus("In Transit")
-    } else if (order?.shipping_status === "delivered") {
-      setShippingStatus("Delivered")
-    }
-  }, [order?.shipping_status])
+    useEffect(() => {
+      if (order?.shipping_status === "not_shipped") {
+        setShippingStatus("Not Shipped")
+      } else if (order?.shipping_status === "shipped") {
+        setShippingStatus("Shipped")
+      } else if (order?.shipping_status === "in_transit") {
+        setShippingStatus("In Transit")
+      } else if (order?.shipping_status === "delivered") {
+        setShippingStatus("Delivered")
+      }
+    }, [order?.shipping_status])
 
 
   return (
@@ -100,7 +101,7 @@ const OrderDetailsPopup = ({ order, open, onClose }) => {
               {order?.order_items.map((item, index) => (
                 <Stack key={index} direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
                   <Typography variant="body2" sx={{ mb: 1 }}>
-                    <strong>{t("Product")}: </strong> {item.product.product_name}
+                    <strong>{t("Product")}: </strong> {item.product?.product_name[currentLanguage]}
                   </Typography>
                   <Typography variant="body2" sx={{ mb: 1 }}>
                     <strong>{t("Qty")}: </strong> {item.quantity}

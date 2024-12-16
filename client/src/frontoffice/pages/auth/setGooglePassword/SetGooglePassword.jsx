@@ -14,7 +14,7 @@ const SetGooglePassword = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  
+
   const email = queryParams.get("email");
   const name = queryParams.get("name");
   const picture = queryParams.get("picture");
@@ -44,124 +44,132 @@ const SetGooglePassword = () => {
   }, [completeSuccess, navigate]);
 
   const onSubmit = async (data) => {
-    const sanitizedNewPassword = DOMPurify.sanitize(data.newPassword);
-    const sanitizedConfirmPassword = DOMPurify.sanitize(data.confirmPassword);
-
-    if (sanitizedNewPassword !== sanitizedConfirmPassword) {
-      toast.error(t("PasswordsDoNotMatch"));
-      return;
-    }
-
+    setLoadingSave(true)
     try {
-      setLoadingSave(true);
-      const response = await axiosInstance.post("/customers/complete-registration", {
-        email,
-        name,
-        password: sanitizedNewPassword,
-        picture,
-      });
+      const cleanImageUrl = picture.replace(/=s96-c$/, "") + "=d";
+      const customerImage = await fetch(cleanImageUrl, { redirect: "follow" });
+      const blob = await customerImage.blob();
 
+      if (!blob.type.startsWith("image/")) {
+        throw new Error("The fetched resource is not an image");
+      }
+
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("name", name);
+      formData.append("password", DOMPurify.sanitize(data.newPassword));
+      formData.append("customer_image", blob, "customer_image.png");
+
+      const axiosResponse = await axiosInstance.post(
+        "/customers/complete-registration",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       setCompleteSuccess(true);
-      toast.success(t(response.data.message));
+      toast.success(t(axiosResponse.data.message));
+      setLoadingSave(false)
     } catch (error) {
-      toast.error(t("RegistrationError"));
-    } finally {
-      setLoadingSave(false);
+      console.error("Error in submission:", error);
+      toast.error(error.message || "An error occurred");
+      setLoadingSave(false)
     }
   };
+
 
   return (
     <div className="backImage">
       <Paper
         elevation={3}
-        sx={{ p: 5 }}
         style={{
-          maxWidth: "420px",
           backgroundColor: "white",
           borderRadius: "20px",
           textAlign: "center",
         }}
       >
-        <div className="flex justify-center mb-4">
-          <Logo />
-        </div>
-        <Typography
-          variant="h5"
-          gutterBottom
-          style={{ textAlign: "center", color: "black" }}
-        >
-          {completeSuccess ? t("AccountSetupSuccess") : t("Set Your Password")}
-        </Typography>
-
-        {!completeSuccess ? (
-          <>
-            <Typography variant="body1" style={{ marginBottom: "20px" }}>
-              {t("As a new user, please set a password to complete your registration.")}
-            </Typography>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Controller
-                name="newPassword"
-                control={control}
-                rules={{
-                  required: t("PasswordRequired"),
-                  minLength: {
-                    value: 6,
-                    message: t("PasswordMinLength"),
-                  },
-                }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label={t("New Password")}
-                    type="password"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    error={!!errors.newPassword}
-                    helperText={errors.newPassword?.message}
-                  />
-                )}
-              />
-              <Controller
-                name="confirmPassword"
-                control={control}
-                rules={{
-                  validate: (value) =>
-                    value === newPassword || t("PasswordsDoNotMatch"),
-                }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label={t("Confirm Password")}
-                    type="password"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    error={!!errors.confirmPassword}
-                    helperText={errors.confirmPassword?.message}
-                  />
-                )}
-              />
-              <LoadingButton
-                type="submit"
-                fullWidth
-                loading={loadingSave}
-                variant="contained"
-                sx={{ fontWeight: 500, fontSize: 15 }}
-                className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2 !mt-2"
-              >
-                {loadingSave ? t("Loading") : t("Set Password")}
-              </LoadingButton>
-            </form>
-          </>
-        ) : (
+        <div className="max-w-[360px] md:max-w-[420px] p-5 md:p-10">
+          <div className="flex justify-center mb-4">
+            <Logo />
+          </div>
           <Typography
-            variant="body1"
-            style={{ textAlign: "center", color: "green", marginTop: "20px" }}
+            variant="h5"
+            gutterBottom
+            style={{ textAlign: "center", color: "black" }}
           >
-            {t("AccountSetupComplete")}
+            {completeSuccess ? t("AccountSetupSuccess") : t("Set Your Password")}
           </Typography>
-        )}
+
+          {!completeSuccess ? (
+            <>
+              <Typography variant="body1" style={{ marginBottom: "20px" }}>
+                {t("As a new user, please set a password to complete your registration.")}
+              </Typography>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <Controller
+                  name="newPassword"
+                  control={control}
+                  rules={{
+                    required: t("PasswordRequired"),
+                    minLength: {
+                      value: 6,
+                      message: t("PasswordMinLength"),
+                    },
+                  }}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label={t("New Password")}
+                      type="password"
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      error={!!errors.newPassword}
+                      helperText={errors.newPassword?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  name="confirmPassword"
+                  control={control}
+                  rules={{
+                    validate: (value) =>
+                      value === newPassword || t("PasswordsDoNotMatch"),
+                  }}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label={t("Confirm Password")}
+                      type="password"
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      error={!!errors.confirmPassword}
+                      helperText={errors.confirmPassword?.message}
+                    />
+                  )}
+                />
+                <LoadingButton
+                  type="submit"
+                  fullWidth
+                  loading={loadingSave}
+                  variant="contained"
+                  sx={{ fontWeight: 500, fontSize: 15 }}
+                  className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2 !mt-2"
+                >
+                  {loadingSave ? t("Loading") : t("Set Password")}
+                </LoadingButton>
+              </form>
+            </>
+          ) : (
+            <Typography
+              variant="body1"
+              style={{ textAlign: "center", color: "green", marginTop: "20px" }}
+            >
+              {t("AccountSetupComplete")}
+            </Typography>
+          )}
+        </div>
       </Paper>
     </div>
   );

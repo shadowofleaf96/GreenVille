@@ -3,8 +3,8 @@ import axios from "axios";
 import createAxiosInstance from "../../utils/axiosConfig";
 
 const axiosInstance = createAxiosInstance("customer");
-export const myOrdersList = createAsyncThunk(
-  "orders/myOrdersList",
+export const ordersList = createAsyncThunk(
+  "orders/ordersList",
   async (userId, { rejectWithValue }) => {
     try {
       let orders;
@@ -38,27 +38,27 @@ export const getOrderDetails = createAsyncThunk(
 const orderSlice = createSlice({
   name: "orders",
   initialState: {
-    myOrdersList: { loading: false, orders: [], error: null },
+    ordersList: { loading: false, orders: [], error: null },
     orderDetails: { loading: false, order: {}, error: null },
   },
   reducers: {
     clearErrors: (state) => {
-      state.myOrdersList.error = null;
+      state.ordersList.error = null;
       state.orderDetails.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(myOrdersList.pending, (state) => {
-        state.myOrdersList.loading = true;
+      .addCase(ordersList.pending, (state) => {
+        state.ordersList.loading = true;
       })
-      .addCase(myOrdersList.fulfilled, (state, action) => {
-        state.myOrdersList.loading = false;
-        state.myOrdersList.orders = action.payload;
+      .addCase(ordersList.fulfilled, (state, action) => {
+        state.ordersList.loading = false;
+        state.ordersList.orders = action.payload;
       })
-      .addCase(myOrdersList.rejected, (state, action) => {
-        state.myOrdersList.loading = false;
-        state.myOrdersList.error = action.payload;
+      .addCase(ordersList.rejected, (state, action) => {
+        state.ordersList.loading = false;
+        state.ordersList.error = action.payload;
       })
       .addCase(getOrderDetails.pending, (state) => {
         state.orderDetails.loading = true;

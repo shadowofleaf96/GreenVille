@@ -40,7 +40,7 @@ const ProfileLink = () => {
             <div className="text-center mt-3">
               {customer && (
                 <img
-                  src={`${backend}/${customer?.customer_image}`}
+                  src={`${customer?.customer_image}`}
                   alt={customer?.first_name + customer?.last_name}
                   className="h-36 w-36 rounded-full border-4 border-[#e8daff] mx-auto"
                 />

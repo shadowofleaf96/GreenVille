@@ -64,8 +64,9 @@ export default function CategoryView() {
   const [selectedDeleteCategoryId, setSelectedDeleteCategoryId] =
     useState(null);
   const [loadingDelete, setLoadingDelete] = useState(false);
-  const { t } = useTranslation();
-  const axiosInstance = createAxiosInstance('customer');
+  const { t, i18n } = useTranslation();
+  const axiosInstance = createAxiosInstance("admin");
+  const currentLanguage = i18n.language;
 
   const fetchData = async () => {
     try {
@@ -269,6 +270,7 @@ export default function CategoryView() {
     inputData: data,
     comparator: getComparator(order, orderBy),
     filterName,
+    currentLanguage
   });
 
   const notFound = !dataFiltered.length;

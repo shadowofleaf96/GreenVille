@@ -31,9 +31,10 @@ export default function OrderTableRow({
   onDetails,
 }) {
   const [open, setOpen] = useState(null);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
-  const customerFullName = `${customer.first_name} ${customer.last_name}`;
+  const customerFullName = `${customer?.first_name} ${customer?.last_name}`;
+  const currentLanguage = i18n.language;
   const [shippingStatus, setShippingStatus] = useState("");
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export default function OrderTableRow({
                   <strong>{t('Product N°')} {index + 1}</strong>
                 </Typography>
                 <Typography sx={{ fontSize: "small" }}>
-                  <strong>{t('Name')}: </strong> {orderItem.product.product_name}
+                  <strong>{t('Name')}: </strong> {orderItem.product.product_name[currentLanguage]}
                 </Typography>
               </Stack>
               {index < order_items.length - 1 && <div style={{ height: 8 }} />}

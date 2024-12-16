@@ -35,7 +35,7 @@ export function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-export function applyFilter({ inputData, comparator, filterName }) {
+export function applyFilter({ inputData, comparator, filterName, currentLanguage }) {
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -49,7 +49,9 @@ export function applyFilter({ inputData, comparator, filterName }) {
   if (filterName) {
     inputData = inputData.filter((category) => {
       const categoryNameMatch =
-        category.category_name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1;
+        category.category_name[currentLanguage]
+          .toLowerCase()
+          .indexOf(filterName.toLowerCase()) !== -1;
       return categoryNameMatch;
     });
   }

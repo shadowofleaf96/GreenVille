@@ -3,24 +3,25 @@ import Loader from "../../../components/loader/Loader";
 import ProfileLink from "../../../components/profileLinks/ProfileLink";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { clearErrors, myOrdersList } from "../../../../redux/frontoffice/orderSlice";
+import { clearErrors, ordersList } from "../../../../redux/frontoffice/orderSlice";
 import Iconify from "../../../../backoffice/components/iconify";
 import MetaData from "../../../components/MetaData";
-import { useTranslation } from "react-i18next"; // Import the useTranslation hook
+import { useTranslation } from "react-i18next";
 
 const backend = import.meta.env.VITE_BACKEND_URL;
 
 const MyOrders = () => {
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language === 'ar';
+    const currentLanguage = i18n.language
     const dispatch = useDispatch();
     const { customer } = useSelector((state) => state.customers);
-    const { loading, error, orders } = useSelector((state) => state.orders.myOrdersList);
+    const { loading, error, orders } = useSelector((state) => state.orders.ordersList);
     const [activeOrder, setActiveOrder] = useState(null);
 
     useEffect(() => {
         if (customer && customer._id) {
-            dispatch(myOrdersList(customer._id));
+            dispatch(ordersList(customer._id));
         }
         if (error) {
             alert.error(error);
@@ -31,6 +32,8 @@ const MyOrders = () => {
     const toggleOrderDetails = (orderId) => {
         setActiveOrder((prev) => (prev === orderId ? null : orderId));
     };
+
+    console.log(orders)
 
     return (
         <Fragment>
@@ -87,7 +90,7 @@ const MyOrders = () => {
                                                                         {t("MyOrders.orderOn")} {new Date(order.order_date).toLocaleDateString()}
                                                                     </h3>
                                                                     <p className="text-sm text-gray-500">
-                                                                        {t("MyOrders.firstItem")} {order?.order_items[0].product.product_name}
+                                                                        {t("MyOrders.firstItem")} {order?.order_items[0].product.product_name[currentLanguage]}
                                                                     </p>
                                                                 </div>
 
@@ -115,10 +118,10 @@ const MyOrders = () => {
                                                                         >
                                                                             <img
                                                                                 className="w-12 h-12 object-contain"
-                                                                                src={typeof item?.product.product_images === "string" ? `${backend}/${item?.product.product_images}` : `${backend}/${item?.product.product_images[0]}`}
-                                                                                alt={item.product.product_name}
+                                                                                src={typeof item?.product.product_images === "string" ? `${item?.product.product_images}` : `${item?.product.product_images[0]}`}
+                                                                                alt={item.product.product_name[currentLanguage]}
                                                                             />
-                                                                            <p className="text-gray-700 font-medium">{item.product.product_name}</p>
+                                                                            <p className="text-gray-700 font-medium">{item.product.product_name[currentLanguage]}</p>
                                                                             <p className="text-gray-500">x{item.quantity}</p>
                                                                             <p className="font-semibold text-gray-700">{item.price} DH</p>
                                                                         </div>

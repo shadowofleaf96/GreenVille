@@ -1,10 +1,10 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 
-import en from './en.json';
-import ar from './ar.json';
-import fr from './fr.json';
+import en from "./en.json";
+import ar from "./ar.json";
+import fr from "./fr.json";
 
 i18n
   .use(LanguageDetector)
@@ -15,8 +15,28 @@ i18n
       ar: { translation: ar },
       fr: { translation: fr },
     },
+    fallbackLng: "en",
     interpolation: {
-      escapeValue: false,
+      escapeValue: false, 
+    },
+    detection: {
+      order: ['querystring', 'cookie', 'localStorage', 'sessionStorage', 'navigator', 'htmlTag', 'path', 'subdomain'],
+      lookupQuerystring: 'lng',
+      lookupCookie: 'i18next',
+      lookupLocalStorage: 'i18nextLng',
+      lookupSessionStorage: 'i18nextLng',
+      lookupFromPathIndex: 0,
+      lookupFromSubdomainIndex: 0,
+      caches: ['localStorage', 'cookie'],
+      excludeCacheFor: ['cimode'],
+      cookieMinutes: 10,
+      cookieDomain: 'myDomain',
+      htmlTag: document.documentElement,
+      cookieOptions: { path: '/', sameSite: 'strict' },
+
+      convertDetectedLanguage: (lng) => {
+        return lng.split('-')[0];
+      },
     },
   });
 

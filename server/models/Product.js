@@ -1,24 +1,35 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
 
-// Joi schema for product validation
 const productJoiSchema = Joi.object({
-  sku: Joi.string().required(), // Required and unique
-  product_images: Joi.array().items(Joi.string().uri()).optional(), // Array of image URLs
-  product_name: Joi.string().required(), // Required and unique
-  subcategory_id: Joi.string().optional(), // Reference to SubCategories
-  short_description: Joi.string().optional(),
-  long_description: Joi.string().optional(),
-  price: Joi.number().positive().required(), // Required and positive number
-  discount_price: Joi.number().positive().optional(), // Optional and positive number
-  quantity: Joi.number().integer().min(0).required(), // Required and non-negative integer
-  option: Joi.array().items(Joi.object()).optional(), // Array of options, adjust as needed
-  active: Joi.boolean().default(false), // Default to false
+  _id: Joi.any().strip(),
+  sku: Joi.string().required(),
+  product_images: Joi.array().items(Joi.string().uri()).optional(),
+  product_name: Joi.object({
+    en: Joi.string().required(),
+    fr: Joi.string().required(),
+    ar: Joi.string().required(),
+  }).required(),
+  subcategory_id: Joi.any().optional(),
+  short_description: Joi.object({
+    en: Joi.string().required(),
+    fr: Joi.string().optional(),
+    ar: Joi.string().optional(),
+  }).optional(),
+  long_description: Joi.object({
+    en: Joi.string().required(),
+    fr: Joi.string().optional(),
+    ar: Joi.string().optional(),
+  }).optional(),
+  price: Joi.number().positive().required(),
+  discount_price: Joi.number().positive().optional(),
+  quantity: Joi.number().integer().required(),
+  option: Joi.array().items(Joi.string()).optional(),
+  active: Joi.boolean().default(false),
   creation_date: Joi.number().optional(),
   last_update: Joi.number().optional(),
 });
 
-// Mongoose schema for products
 const productSchema = mongoose.Schema(
   {
     sku: {
@@ -30,19 +41,23 @@ const productSchema = mongoose.Schema(
       type: [String],
     },
     product_name: {
-      type: String,
-      unique: true,
-      required: true,
+      en: { type: String, required: true },
+      fr: { type: String, required: true },
+      ar: { type: String, required: true },
     },
     subcategory_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubCategories",
     },
     short_description: {
-      type: String,
+      en: { type: String },
+      fr: { type: String },
+      ar: { type: String },
     },
     long_description: {
-      type: String,
+      en: { type: String },
+      fr: { type: String },
+      ar: { type: String },
     },
     price: {
       type: Number,
@@ -54,9 +69,8 @@ const productSchema = mongoose.Schema(
     quantity: {
       type: Number,
       required: true,
-      min: 0, // Ensure non-negative quantity
     },
-    option: [Array],
+    option: Array,
     active: {
       type: Boolean,
       default: false,
@@ -76,10 +90,8 @@ const productSchema = mongoose.Schema(
   }
 );
 
-// Pre-save hook for validation
 productSchema.pre("save", async function (next) {
   try {
-    // Validate the product data
     await productJoiSchema.validateAsync(this.toObject());
     next();
   } catch (error) {
@@ -88,11 +100,6 @@ productSchema.pre("save", async function (next) {
 });
 
 const Product = mongoose.model("Product", productSchema);
-if (Product) {
-  console.log("Product Schema created");
-} else {
-  console.log("error");
-}
 
 module.exports = {
   Product,

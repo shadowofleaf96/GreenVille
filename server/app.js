@@ -1,4 +1,3 @@
-// app.js
 const api = require("./routes/api");
 const cookieParser = require("cookie-parser");
 const express = require("express");
@@ -77,7 +76,7 @@ app.use(express.json());
 
 const softLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
-  limit: 50, 
+  limit: 50,
   handler: (req, res, next) => {
     strictLimiter(req, res, next);
   },
@@ -86,14 +85,20 @@ const softLimiter = rateLimit({
 });
 
 const strictLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000,
+  windowMs: 1 * 60 * 1000, 
   limit: 10,
   message: "You have exceeded the request limit. Please try again later.",
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-app.use(softLimiter);
+app.use((req, res, next) => {
+  if (["POST", "PUT", "DELETE"].includes(req.method)) {
+    softLimiter(req, res, next);
+  } else {
+    next(); // Skip rate limiting for other methods
+  }
+});
 
 app.use("/", api);
 

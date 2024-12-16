@@ -6,21 +6,19 @@ const { Category } = require("../models/Category");
 
 const createData = async (req, res) => {
   const product_images = req.files;
-  let fixed_product_images = [];
 
-  if (product_images && product_images.length > 0) {
-    fixed_product_images = product_images.map((file) =>
-      file.path.replace(/public\\/g, "")
-    );
-  } else {
-    fixed_product_images = [`images/image_placeholder.webp`];
+  if (!product_images || product_images.length === 0) {
+    return res.status(400).json({ message: "No images uploaded." });
   }
+
+  const imagePaths = product_images.map((file) => file.path);
 
   const {
     sku,
     product_name,
     subcategory_id,
     short_description,
+    long_description,
     price,
     discount_price,
     option,
@@ -28,28 +26,20 @@ const createData = async (req, res) => {
     active,
   } = req.body;
 
-  const existingProduct = await Product.findOne({
-    $or: [{ product_name }, { sku }],
-  });
-
-  if (existingProduct) {
-    return res.status(400).json({
-      status: 400,
-      message: "Product Name or SKU already exists",
-    });
-  }
+  const processedOption = Array.isArray(option) ? option[0] : option;
 
   const product = new Product({
-    sku: sku,
-    product_images: fixed_product_images,
-    product_name: product_name,
-    subcategory_id: subcategory_id,
-    short_description: short_description,
-    price: price,
-    discount_price: discount_price,
-    option: option,
-    quantity: quantity,
-    active: active,
+    sku,
+    product_images: imagePaths,
+    subcategory_id,
+    product_name,
+    short_description,
+    long_description,
+    price,
+    discount_price,
+    option: processedOption,
+    quantity,
+    active,
   });
 
   product
@@ -57,11 +47,12 @@ const createData = async (req, res) => {
     .then((data) => {
       res.status(201).json({
         message: "Product created successfully",
-        data: data,
+        data,
       });
     })
     .catch((err) => {
       console.log(err);
+      res.status(500).json({ message: "Error creating product" });
     });
 };
 

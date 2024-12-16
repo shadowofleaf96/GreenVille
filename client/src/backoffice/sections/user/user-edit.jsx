@@ -141,7 +141,7 @@ function EditUserForm({ user, onSave, onCancel, open, onClose }) {
         {editedUser.user_image && (
           <div style={{ position: "relative", marginBottom: 20 }}>
             <img
-              src={`${backend}/${editedUser.user_image}`}
+              src={`${editedUser.user_image}`}
               alt="User Avatar"
               style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "50%" }}
             />

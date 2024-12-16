@@ -19,7 +19,6 @@ import Iconify from "../../../components/iconify/index.js";
 import Scrollbar from "../../../components/scrollbar/index.js";
 
 import TableNoDataFilter from "../table-no-data.jsx";
-import axios from "axios";
 
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -46,7 +45,7 @@ import { Backdrop } from "@mui/material";
 
 export default function SubCategoryView() {
   const dispatch = useDispatch();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const data = useSelector((state) => state.adminSubcategory.data);
   const error = useSelector((state) => state.adminSubcategory.error);
@@ -66,6 +65,7 @@ export default function SubCategoryView() {
     useState(null);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const axiosInstance = createAxiosInstance("admin")
+  const currentLanguage = i18n.language;
 
   const fetchData = async () => {
     try {
@@ -183,17 +183,12 @@ export default function SubCategoryView() {
         (subcategory) => subcategory._id === editedSubCategory._id
       );
 
-      const { category_name } = editedSubCategory.category;
-
       if (index !== -1) {
         const updatedSubCategories = [...data];
         updatedSubCategories[index] = {
           ...updatedSubCategories[index],
-          subcategory_name: editedSubCategory.subcategory_name,
+          subcategory_name: editedSubCategory.subcategory_name[currentLanguage],
           category_id: editedSubCategory.category_id,
-          category: {
-            category_name,
-          },
           active: editedSubCategory.active,
         };
         dispatch(setData(updatedSubCategories));
@@ -243,16 +238,12 @@ export default function SubCategoryView() {
 
     try {
       const response = await axiosInstance.post("/subcategories", newSubCategory);
-      const { category_name } = newSubCategory.category;
       const subcategorydata = response.data.data;
       const AddedSubCategories = {
         key: subcategorydata._id,
         _id: subcategorydata._id,
-        subcategory_name: newSubCategory.subcategory_name,
+        subcategory_name: newSubCategory.subcategory_name[currentLanguage],
         category_id: newSubCategory.category_id,
-        category: {
-          category_name,
-        },
         active: newSubCategory.active,
       };
 
@@ -272,6 +263,7 @@ export default function SubCategoryView() {
     inputData: data,
     comparator: getComparator(order, orderBy),
     filterName,
+    currentLanguage
   });
 
   const notFound = !dataFiltered.length;
@@ -326,12 +318,11 @@ export default function SubCategoryView() {
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => {
-                    const { category_name } = row.category;
                     return (
                       <SubCategoryTableRow
                         key={row._id}
                         subcategory_name={row.subcategory_name}
-                        category={category_name}
+                        category={row.category.category_name[currentLanguage]}
                         active={row.active}
                         selected={selected.indexOf(row._id) !== -1}
                         handleClick={(event) => handleClick(event, row._id)}

@@ -155,8 +155,9 @@ function completeRegistrationEmailTemplate(name) {
 }
 
 const completeRegistration = async (req, res) => {
-  const { email, name, password, picture } = req.body;
+  const { email, name, password } = req.body;
   const [first_name, last_name] = name.split(" ");
+  const picture = req.file;
 
   try {
     const existingCustomer = await Customer.findOne({ email });
@@ -166,13 +167,10 @@ const completeRegistration = async (req, res) => {
         .json({ error: "Customer with this email already exists" });
     }
 
-    const imageFilename = `${Date.now()}_customer.png`;
-    const imagePath = await downloadImage(picture, imageFilename);
-    const workingImagePath = "images/" + imageFilename;
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newCustomer = new Customer({
-      customer_image: workingImagePath,
+      customer_image: typeof picture === "string" ? picture : picture.path,
       first_name,
       last_name,
       email,
@@ -232,13 +230,6 @@ function validationEmailTemplate(name, validationLink) {
 
 const createCustomer = async (req, res) => {
   const customer_image = req.file;
-  let fixed_customer_image;
-
-  if (customer_image) {
-    fixed_customer_image = customer_image.path.replace(/public\\/g, "");
-  } else {
-    fixed_customer_image = `images/image_placeholder.webp`;
-  }
 
   const { first_name, last_name, email, password } = req.body;
 
@@ -256,7 +247,7 @@ const createCustomer = async (req, res) => {
     const validationToken = crypto.randomBytes(32).toString("hex");
 
     const newCustomer = new Customer({
-      customer_image: fixed_customer_image,
+      customer_image: typeof customer_image === "string" ? customer_image : customer_image.path,
       first_name,
       last_name,
       email,
@@ -472,7 +463,6 @@ const validateCustomer = async (req, res) => {
 
 const updateCustomer = async (req, res) => {
   const customer_image = req.file;
-  let fixed_customer_image;
   const customerId = req.params.id;
   const { first_name, last_name, email, password, active } = req.body;
 
@@ -484,13 +474,10 @@ const updateCustomer = async (req, res) => {
     }
 
     if (customer_image) {
-      fixed_customer_image = customer_image.path.replace(/public\\/g, "");
-    } else {
-      fixed_customer_image = customer.customer_image;
-    }
-
-    if (customer_image) {
-      customer.customer_image = fixed_customer_image;
+      customer.customer_image =
+        typeof customer_image === "string"
+          ? customer_image
+          : customer_image.path;
     }
 
     if (first_name) {
@@ -519,10 +506,11 @@ const updateCustomer = async (req, res) => {
 
     res.status(200).json({
       message: "Account updated successfully",
+      data: customer,
     });
   } catch (error) {
-    console.error("Update error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json(error);
+    console.log(error);
   }
 };
 

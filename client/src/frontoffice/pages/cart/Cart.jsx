@@ -13,7 +13,8 @@ import { useTranslation } from "react-i18next";
 const backend = import.meta.env.VITE_BACKEND_URL;
 
 const Cart = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language
   const dispatch = useDispatch();
   const history = useNavigate();
   const { cartItems } = useSelector((state) => state.carts);
@@ -45,6 +46,7 @@ const Cart = () => {
       history("/login?redirect=/shipping");
     }
   };
+  console.log(cartItems)
 
   return (
     <Fragment>
@@ -76,13 +78,13 @@ const Cart = () => {
                     <Fragment key={item.product}>
                       <div className="flex flex-col md:flex-row items-center gap-4 my-4">
                         <img
-                          src={typeof item?.image === "string" ? `${backend}/${item?.image}` : `${backend}/${item?.image[0]}`}
-                          alt={item.name}
+                          src={typeof item?.image === "string" ? `${item?.image}` : `${item?.image[0]}`}
+                          alt={item.name[currentLanguage]}
                           className="w-24 h-24 object-cover rounded-md"
                         />
                         <div className="flex-grow">
                           <Link to={`/product/${item.product}`} className="text-blue-500 hover:underline">
-                            {item.name}
+                            {item.name[currentLanguage]}
                           </Link>
                           <p className="text-green-400 font-semibold flex justify-center md:justify-start text-lg mt-2">
                             {item.discountPrice} DH

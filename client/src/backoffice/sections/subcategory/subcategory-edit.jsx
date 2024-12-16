@@ -1,32 +1,43 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import Stack from "@mui/material/Stack";
-import axios from "axios";
-import LoadingButton from "@mui/lab/LoadingButton";
 import Typography from "@mui/material/Typography";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import DOMPurify from "dompurify";
 import Switch from "@mui/material/Switch";
-import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
-import { useSelector } from "react-redux";
+import InputLabel from "@mui/material/InputLabel";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import UploadButton from "../../components/button/UploadButton";
-import { useTranslation } from "react-i18next"; // Import translation hook
-import Loader from "../../../frontoffice/components/loader/Loader";
+import LoadingButton from "@mui/lab/LoadingButton";
 import createAxiosInstance from "../../../utils/axiosConfig";
+import { useTranslation } from "react-i18next";
+import DOMPurify from "dompurify";
 
 function EditSubCategoryForm({ subcategory, onSave, onCancel, open, onClose }) {
-  const { t } = useTranslation(); // Use translation hook
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language;
   const [categories, setCategories] = useState([]);
-  const [editedSubCategory, setEditedSubCategory] = useState({
-    ...subcategory,
-  });
   const [loadingSave, setLoadingSave] = useState(false);
-  const [loadingSubcategories, setLoadingSubcategories] = useState(true);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      subcategory_name: subcategory?.subcategory_name || {
+        en: "",
+        fr: "",
+        ar: "",
+      },
+      category_id: subcategory?.category_id || "",
+      active: subcategory?.active || false,
+    },
+  });
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -37,59 +48,28 @@ function EditSubCategoryForm({ subcategory, onSave, onCancel, open, onClose }) {
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {
-        setLoadingSubcategories(false);
+        setLoadingCategories(false);
       }
     };
 
     fetchCategories();
   }, []);
 
-
-
-  const handleFieldChange = (e) => {
-    const { name, value } = e.target;
-    setEditedSubCategory({ ...editedSubCategory, [name]: value });
-  };
-
-  const handleSwitchChange = (event) => {
-    setEditedSubCategory({
-      ...editedSubCategory,
-      [event.target.name]: event.target.checked,
-    });
-  };
-
-  const handleSelectChange = (event) => {
-    const selectedCategory = categories.find(
-      (category) => category._id === event.target.value
-    );
-
-    const { category_name } = selectedCategory;
-    setEditedSubCategory((prev) => ({
-      ...prev,
-      category_id: selectedCategory._id,
-      category: {
-        _id: selectedCategory._id,
-        category_name: category_name,
-      },
-    }));
-  };
-
-  const handleSave = async () => {
+  const onSubmit = async (data) => {
     setLoadingSave(true);
 
     try {
-      const { category_id } = editedSubCategory;
-      const selectedCategory = categories.find(
-        (category) => category._id === category_id
-      );
-      const categoryName = selectedCategory.category_name;
-
-      const updatedSubcategory = {
-        ...editedSubCategory,
-        category_name: categoryName,
+      const sanitizedData = {
+        ...data,
+        _id: subcategory?._id,
+        subcategory_name: {
+          en: DOMPurify.sanitize(data.subcategory_name.en),
+          fr: DOMPurify.sanitize(data.subcategory_name.fr),
+          ar: DOMPurify.sanitize(data.subcategory_name.ar),
+        },
       };
 
-      await onSave(updatedSubcategory);
+      await onSave(sanitizedData);
       onClose();
     } catch (error) {
       console.error("Error saving subcategory:", error);
@@ -100,7 +80,7 @@ function EditSubCategoryForm({ subcategory, onSave, onCancel, open, onClose }) {
 
   return (
     <Modal open={open} onClose={onClose}>
-      {!loadingSubcategories ? (
+      {!loadingCategories ? (
         <Stack
           style={{
             position: "absolute",
@@ -128,74 +108,111 @@ function EditSubCategoryForm({ subcategory, onSave, onCancel, open, onClose }) {
             {t("Edit Subcategory")}
           </Typography>
 
-          <TextField
-            label={t("Subcategory Name")}
-            name="subcategory_name"
-            value={editedSubCategory.subcategory_name}
-            onChange={handleFieldChange}
-            fullWidth
-            sx={{ marginBottom: 2 }}
-          />
-
-          <FormControl fullWidth sx={{ marginBottom: 2 }}>
-            <InputLabel htmlFor="category">{t("Category")}</InputLabel>
-            <Select
-              label={t("Category")}
-              id="category"
-              name="category_id"
-              value={editedSubCategory.category_id}
-              onChange={handleSelectChange}
-              fullWidth
-            >
-              {categories.map((category) => (
-                <MenuItem key={category._id} value={category._id}>
-                  {t(category.category_name)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <Stack
-            direction="column"
-            alignItems="center"
-            sx={{ marginBottom: 2 }}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
+            style={{ width: "100%", marginTop: 4 }}
           >
-            <Stack direction="row" spacing={2} alignItems="center">
-              <FormControlLabel
-                labelPlacement="start"
-                label={
-                  <Typography variant="body2">
-                    {editedSubCategory.active ? t("Active") : t("Inactive")}
-                  </Typography>
-                }
-                control={
-                  <Switch
-                    name="active"
-                    checked={editedSubCategory.active}
-                    onChange={handleSwitchChange}
-                  />
-                }
-              />
-            </Stack>
-          </Stack>
 
-          <Stack direction="row" spacing={2} className="rtl:gap-4" sx={{ width: "100%" }}>
-            <LoadingButton
-              color="primary"
-              loading={loadingSave}
-              onClick={handleSave}
-              variant="contained"
-              sx={{ flex: 1 }}
-            >
-              {t("Save")}
-            </LoadingButton>
-            <Button onClick={onCancel} variant="outlined" sx={{ flex: 1 }}>
-              {t("Cancel")}
-            </Button>
-          </Stack>
+            <Stack direction="column" spacing={2} sx={{ width: "100%" }}>
+              <Controller
+                name="subcategory_name.en"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label={t("Subcategory Name (English)")}
+                    fullWidth
+                    sx={{ marginBottom: 2 }}
+                  />
+                )}
+              />
+              <Controller
+                name="subcategory_name.fr"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label={t("Subcategory Name (French)")}
+                    fullWidth
+                    sx={{ marginBottom: 2 }}
+                  />
+                )}
+              />
+              <Controller
+                name="subcategory_name.ar"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label={t("Subcategory Name (Arabic)")}
+                    fullWidth
+                    sx={{ marginBottom: 2 }}
+                  />
+                )}
+              />
+
+
+              <FormControl fullWidth sx={{ marginBottom: 2 }}>
+                <InputLabel>{t("Category")}</InputLabel>
+                <Controller
+                  name="category_id"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      fullWidth
+                      error={!!errors.category_id}
+                    >
+                      {categories.map((category) => (
+                        <MenuItem key={category._id} value={category._id}>
+                          {category.category_name[currentLanguage]}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+              </FormControl>
+
+              <Stack direction="row" spacing={2} alignItems="center" justifyContent={"center"}>
+                <FormControlLabel
+                  control={
+                    <Controller
+                      name="active"
+                      control={control}
+                      render={({ field }) => (
+                        <FormControlLabel
+                          label={<Typography variant="body2">{field.value ? t("Active") : t("Inactive")}</Typography>}
+                          control={<Switch {...field} checked={field.value} />}
+                        />
+                      )}
+                    />
+                  }
+                />
+              </Stack>
+
+              <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
+                <LoadingButton
+                  loading={loadingSave}
+                  type="submit"
+                  variant="contained"
+                  sx={{ flex: 1 }}
+                >
+                  {t("Save")}
+                </LoadingButton>
+                <Button
+                  onClick={onCancel}
+                  variant="outlined"
+                  sx={{ flex: 1 }}
+                >
+                  {t("Cancel")}
+                </Button>
+              </Stack>
+            </Stack>
+          </form>
         </Stack>
       ) : (
-        <Loader />
+        <Typography>{t("Loading Categories...")}</Typography>
       )}
     </Modal>
   );

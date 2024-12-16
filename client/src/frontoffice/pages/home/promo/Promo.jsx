@@ -6,7 +6,9 @@ import { useTranslation } from "react-i18next";
 const backend = import.meta.env.VITE_BACKEND_URL;
 
 const Promo = ({ products }) => {
-  const { t } = useTranslation();
+
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language
   const scrollRef1 = useRef(null);
   const scrollRef2 = useRef(null);
   const scrollRef3 = useRef(null);
@@ -99,12 +101,12 @@ const Promo = ({ products }) => {
                           className="no-underline text-black font-semibold text-lg hover:text-gray-500"
                         >
                           <img
-                            src={typeof product?.product_images === "string" ? `${backend}/${product?.product_images}` : `${backend}/${product?.product_images[0]}`}
-                            alt={product?.product_name}
+                            src={typeof product?.product_images === "string" ? `${product?.product_images}` : `${product?.product_images[0]}`}
+                            alt={product?.product_name[currentLanguage]}
                             className="h-40 w-full md:h-52 m-4 rounded-t-lg object-contain"
                           />
                           <p className="text-center mb-2 text-sm md:text-base">
-                            {product?.product_name}
+                            {product?.product_name[currentLanguage]}
                           </p>
                           <div className="flex flex-grow justify-center text-center mb-2">
                             {product?.discount_price &&
@@ -175,12 +177,12 @@ const Promo = ({ products }) => {
                           className="no-underline text-black font-semibold text-lg hover:text-grey-500"
                         >
                           <img
-                            src={typeof product?.product_images === "string" ? `${backend}/${product?.product_images}` : `${backend}/${product?.product_images[0]}`}
-                            alt={product?.product_name}
+                            src={typeof product?.product_images === "string" ? `${product?.product_images}` : `${product?.product_images[0]}`}
+                            alt={product?.product_name[currentLanguage]}
                             className="h-40 w-full md:h-52 m-4 rounded-t-lg object-contain"
                           />
                           <p className="text-center mb-2 text-sm md:text-base">
-                            {product?.product_name}
+                            {product?.product_name[currentLanguage]}
                           </p>
                           <div className="flex flex-grow justify-center text-center mb-2">
                             {product?.discount_price &&
@@ -251,12 +253,12 @@ const Promo = ({ products }) => {
                           className="no-underline text-black font-semibold text-lg hover:text-grey-500"
                         >
                           <img
-                            src={typeof product?.product_images === "string" ? `${backend}/${product?.product_images}` : `${backend}/${product?.product_images[0]}`}
-                            alt={product?.product_name}
+                            src={typeof product?.product_images === "string" ? `${product?.product_images}` : `${product?.product_images[0]}`}
+                            alt={product?.product_name[currentLanguage]}
                             className="h-40 w-full md:h-52 m-4 rounded-t-lg object-contain"
                           />
                           <p className="text-center mb-2 text-sm md:text-base">
-                            {product?.product_name}
+                            {product?.product_name[currentLanguage]}
                           </p>
                           <div className="flex flex-grow justify-center text-center mb-2">
                             {product?.discount_price &&

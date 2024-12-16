@@ -47,10 +47,10 @@ export function applyFilter({ inputData, comparator, filterName }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    inputData = inputData.filter((subcategory) => {
-      const subcategoryNameMatch =
-      subcategory.subcategory_name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1;
-      return subcategoryNameMatch;
+    inputData = inputData.filter((coupon) => {
+      const couponNameMatch =
+      coupon.code.indexOf(filterName) !== -1;
+      return couponNameMatch;
     });
   }
 

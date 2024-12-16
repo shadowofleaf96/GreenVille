@@ -1,28 +1,27 @@
 const Joi = require("joi");
-const { Schema, model, Types } = require("mongoose");
+const mongoose = require("mongoose");
+const { Schema, model, Types } = mongoose;
 
 const subcategoryJoiSchema = Joi.object({
-  id: Joi.any().strip(),
-  subcategory_name: Joi.string().trim().max(25).required(),
-  category_id: Joi.string().required(),
+  _id: Joi.any().strip(),
+  subcategory_name: Joi.object({
+    en: Joi.string().trim().max(25).required(),
+    fr: Joi.string().trim().max(25).required(),
+    ar: Joi.string().trim().max(25).required(),
+  }).required(),
+  category_id: Joi.any().required(),
   active: Joi.boolean().default(false),
 });
 
 const subcategorieSchema = new Schema(
   {
-    id: {
-      type: String,
-    },
     subcategory_name: {
-      type: String,
-      trim: true,
-      maxlength: 25,
-      required: true,
-      unique: true,
+      en: { type: String, trim: true, maxlength: 25, required: true },
+      fr: { type: String, trim: true, maxlength: 25, required: true },
+      ar: { type: String, trim: true, maxlength: 25, required: true },
     },
     category_id: {
-      type: Types.ObjectId,
-      ref: "Categories",
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
     active: {
@@ -46,10 +45,11 @@ subcategorieSchema.pre("save", async function (next) {
 });
 
 const SubCategory = model("SubCategories", subcategorieSchema);
+
 if (SubCategory) {
   console.log("SubCategory Schema created");
 } else {
-  console.log("error");
+  console.log("Error creating SubCategory model");
 }
 
 module.exports = {

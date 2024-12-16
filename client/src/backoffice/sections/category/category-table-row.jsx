@@ -29,11 +29,11 @@ export default function CategoryTableRow({
   onDelete,
   onDetails,
 }) {
-  const { t } = useTranslation();
-  // Toggle the selection
+  const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(null);
   const isActive = active;
   const color = isActive ? "primary" : "secondary";
+  const currentLanguage = i18n.language
 
   return (
     <>
@@ -42,7 +42,7 @@ export default function CategoryTableRow({
           <Checkbox disableRipple checked={selected} onChange={handleClick} />
         </TableCell>
 
-        <TableCell>{t(category_name)}</TableCell>
+        <TableCell>{t(category_name[currentLanguage])}</TableCell>
 
         <TableCell>
           <Badge

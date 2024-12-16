@@ -115,7 +115,7 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
         {editedCustomer.customer_image && !avatarRemoved && (
           <div style={{ position: "relative", marginBottom: "16px" }}>
             <img
-              src={`${backend}/${editedCustomer.customer_image}`}
+              src={`${editedCustomer.customer_image}`}
               alt="Customer Avatar"
               style={{
                 width: "100px",

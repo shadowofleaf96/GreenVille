@@ -33,7 +33,9 @@ const Products = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language
 
   const { loading, products } = useSelector((state) => state.products);
   const categoriesState = useSelector((state) => state.categories);
@@ -243,7 +245,7 @@ const Products = () => {
                                   onChange={() => handleCategoryChange(category._id)}
                                 />
                                 <label htmlFor={`category-${category._id}`} className="ml-2 rtl:mr-2">
-                                  {t(category.category_name)}
+                                  {t(category.category_name[currentLanguage])}
                                 </label>
                               </div>
                             ))}
@@ -275,7 +277,7 @@ const Products = () => {
                                       onChange={() => handleSubcategoryChange(subcategory._id)}
                                     />
                                     <label htmlFor={`subcategory-${subcategory._id}`} className="ml-2 rtl:mr-2">
-                                      {t(subcategory.subcategory_name)}
+                                      {t(subcategory.subcategory_name[currentLanguage])}
                                     </label>
                                   </div>
                                 ))}
@@ -400,7 +402,7 @@ const Products = () => {
                               onClick={() => handleCategoryChange(category._id)}
                               style={{ cursor: 'pointer' }}
                             >
-                              {t(category.category_name)}
+                              {t(category.category_name[currentLanguage])}
                             </Typography>
                           </Box>
                         ))}
@@ -425,7 +427,7 @@ const Products = () => {
                                   <Typography ml={1}
                                     onClick={() => handleSubcategoryChange(subcategory._id)}
                                     style={{ cursor: 'pointer' }}
-                                  >{t(subcategory.subcategory_name)}</Typography>
+                                  >{t(subcategory.subcategory_name[currentLanguage])}</Typography>
                                 </Box>
                               ))}
                           </Box>
