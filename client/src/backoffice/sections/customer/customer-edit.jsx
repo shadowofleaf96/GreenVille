@@ -227,6 +227,9 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
             id="fileInput"
             accept="image/*"
             onChange={handleImageChange}
+            onClick={(event) => {
+              event.target.value = null
+            }}
             style={{ display: "none" }}
           />
           <label htmlFor="fileInput">

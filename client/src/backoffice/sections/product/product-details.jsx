@@ -7,6 +7,7 @@ import Badge from "@mui/material/Badge";
 import Avatar from "@mui/material/Avatar";
 import { fDateTime } from "../../../utils/format-time";
 import { useTranslation } from "react-i18next";
+import { Divider } from "@mui/material";
 
 const backend = import.meta.env.VITE_BACKEND_URL;
 
@@ -55,6 +56,8 @@ const ProductDetailsPopup = ({ product, open, onClose }) => {
               <strong>{t("Product Name")}:</strong> {product?.product_name[currentLanguage]}
             </Typography>
           </Stack>
+          
+          <Divider sx={{ width: "100%" }} className="text-black" />
 
           <Typography variant="body1" align="justify">
             <strong>{t("Short Description")}:</strong> {product?.short_description[currentLanguage]}
@@ -63,6 +66,8 @@ const ProductDetailsPopup = ({ product, open, onClose }) => {
           <Typography variant="body1" align="justify">
             <strong>{t("Long Description")}:</strong> {product?.long_description[currentLanguage]}
           </Typography>
+
+          <Divider sx={{ width: "100%" }} className="text-black" />
 
           <Stack direction="row" spacing={4} justifyContent="center" sx={{ width: "100%" }}>
             <Typography variant="body1">

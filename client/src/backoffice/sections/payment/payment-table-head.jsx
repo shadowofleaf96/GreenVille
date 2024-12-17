@@ -22,7 +22,7 @@ export default function PaymentTableHead({
   onRequestSort,
   onSelectAllClick,
 }) {
-  const { t } = useTranslation(); // Using translation hook
+  const { t } = useTranslation();
 
   const onSort = (property) => (event) => {
     onRequestSort(event, property);
@@ -52,7 +52,7 @@ export default function PaymentTableHead({
               direction={paymentBy === headCell.id ? payment : 'asc'}
               onClick={onSort(headCell.id)}
             >
-              {t(headCell.label)} {/* Translating the label */}
+              {t(headCell.label)} 
               {paymentBy === headCell.id ? (
                 <Box sx={{ ...visuallyHidden }}>
                   {payment === 'desc'

@@ -246,6 +246,9 @@ function AddUserForm({ onSave, onCancel, open, onClose }) {
               id="fileInput"
               accept="image/*"
               onChange={handleImageChange}
+              onClick={(event) => {
+                event.target.value = null
+              }}
               sx={{ display: "none" }}
               style={{ display: "none" }}
             />

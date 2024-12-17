@@ -14,18 +14,16 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 
 import { fDateTime } from "../../../utils/format-time";
-import Label from "../../components/label";
 import Iconify from "../../components/iconify";
 
-// Function to convert payment methods to readable text
-const getPaymentMethodLabel = (paymentMethod) => {
+const getPaymentMethodLabel = (paymentMethod, t) => {
   switch (paymentMethod) {
     case 'credit_card':
-      return 'Credit Card';
+      return t('credit_card');
     case 'cod':
-      return 'Cash on Delivery';
+      return t('cod');
     case 'paypal':
-      return 'Paypal';
+      return t('paypal');
     default:
       return paymentMethod;
   }
@@ -45,11 +43,7 @@ export default function PaymentTableRow({
   onEdit,
   onDelete,
 }) {
-  const [open, setOpen] = useState(null);
   const { t } = useTranslation();
-  const isActive = paymentStatus;
-  const color = isActive ? "primary" : "secondary";
-
   return (
     <>
       <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
@@ -58,18 +52,10 @@ export default function PaymentTableRow({
         </TableCell>
         <TableCell>{ordererName}</TableCell>
         <TableCell>{amount} DH</TableCell>
-        <TableCell>{getPaymentMethodLabel(paymentMethod)}</TableCell>
+        <TableCell>{getPaymentMethodLabel(paymentMethod, t)}</TableCell>
         <TableCell className="uppercase">{currency}</TableCell>
         <TableCell>{fDateTime(createdAt)}</TableCell>
-        <TableCell>
-          <Badge
-            sx={{
-              minWidth: 24,
-            }}
-            badgeContent={isActive ? t('Active') : t('Inactive')}
-            color={color}
-          ></Badge>
-        </TableCell>
+        <TableCell className="capitalize">{t(paymentStatus)}</TableCell>
         <TableCell align="center">
           <IconButton
             onClick={() => {

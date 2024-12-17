@@ -54,7 +54,7 @@ export function applyFilter({
   if (filterName) {
     inputData = inputData.filter((subcategory) => {
       const subcategoryNameMatch =
-        subcategory.subcategory_name
+        subcategory.subcategory_name[currentLanguage]
           .toLowerCase()
           .indexOf(filterName.toLowerCase()) !== -1;
       return subcategoryNameMatch;

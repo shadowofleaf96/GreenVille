@@ -127,19 +127,23 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    const currentImages = selectedImages.length;
 
-    if (currentImages + files.length > 5) {
+    if (selectedImages.length + files.length > 5) {
       toast.error("You can only upload a maximum of 5 images.");
       return;
     }
 
-    setSelectedImages((prevImages) => [...prevImages, ...files]);
+    setSelectedImages((prevImages) => {
+      return [...prevImages, ...files].sort((a, b) => a.name.localeCompare(b.name));
+    });
   };
 
   const handleRemoveImage = (index) => {
-    const updatedImages = selectedImages.filter((_, i) => i !== index);
-    setSelectedImages(updatedImages);
+    setSelectedImages((prevImages) => {
+      const updatedImages = [...prevImages];
+      updatedImages.splice(index, 1);
+      return updatedImages;
+    });
   };
 
   const onSubmit = async (data) => {
@@ -312,6 +316,9 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
                     id="fileInput"
                     multiple
                     onChange={handleImageChange}
+                    onClick={(event) => {
+                      event.target.value = null
+                    }}
                     style={{ display: "none" }}
                   />
                   <label htmlFor="fileInput">
@@ -448,24 +455,19 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
               </TabPanel>
             </Tabs>
           </Stack>
-          <Stack direction="row" justifyContent="space-between" spacing={2}>
-            <Button variant="outlined" onClick={onCancel}>
-              {t("Cancel")}
-            </Button>
+          <Stack direction="row" spacing={2} className="rtl:gap-4" sx={{ marginTop: 2, width: "100%" }}>
             <LoadingButton
               loading={loadingSave}
               variant="contained"
-              color="primary"
               onClick={handleNext}
-              disabled={
-                (activeTab === 1 && !englishCompleted) ||
-                (activeTab === 2 && !frenchCompleted) ||
-                (activeTab === 3 && !arabicCompleted) ||
-                (activeTab === 0 && !generalCompleted)
-              }
+              sx={{ flex: 1 }}
+              disabled={activeTab === 3 && !generalCompleted}
             >
               {activeTab === 3 ? t("Save") : t("Continue")}
             </LoadingButton>
+            <Button variant="outlined" onClick={onCancel} sx={{ flex: 1 }}>
+              {t("Cancel")}
+            </Button>
           </Stack>
         </form>
       </Stack>

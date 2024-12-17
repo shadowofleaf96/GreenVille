@@ -12,17 +12,17 @@ const OrderDetailsPopup = ({ order, open, onClose }) => {
   const [shippingStatus, setShippingStatus] = useState("");
   const currentLanguage = i18n.language;
 
-    useEffect(() => {
-      if (order?.shipping_status === "not_shipped") {
-        setShippingStatus("Not Shipped")
-      } else if (order?.shipping_status === "shipped") {
-        setShippingStatus("Shipped")
-      } else if (order?.shipping_status === "in_transit") {
-        setShippingStatus("In Transit")
-      } else if (order?.shipping_status === "delivered") {
-        setShippingStatus("Delivered")
-      }
-    }, [order?.shipping_status])
+  useEffect(() => {
+    if (order?.shipping_status === "not_shipped") {
+      setShippingStatus("Not Shipped")
+    } else if (order?.shipping_status === "shipped") {
+      setShippingStatus("Shipped")
+    } else if (order?.shipping_status === "in_transit") {
+      setShippingStatus("In Transit")
+    } else if (order?.shipping_status === "delivered") {
+      setShippingStatus("Delivered")
+    }
+  }, [order?.shipping_status])
 
 
   return (
@@ -53,10 +53,9 @@ const OrderDetailsPopup = ({ order, open, onClose }) => {
         <Stack direction="column" spacing={2}>
 
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, display: "flex", justifyContent: "center" }}>
               {t("Customer Details")}
             </Typography>
-            <Divider sx={{ my: 1 }} />
             <Typography variant="body1" sx={{ mb: 1 }}>
               <strong>{t("First Name")}: </strong> {order?.customer.first_name}
             </Typography>
@@ -67,20 +66,19 @@ const OrderDetailsPopup = ({ order, open, onClose }) => {
               <strong>{t("Email")}: </strong> {order?.customer.email}
             </Typography>
           </Box>
-
+          <Divider />
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, display: "flex", justifyContent: "center" }}>
               {t("Order Details")}
             </Typography>
-            <Divider sx={{ my: 1 }} />
             <Typography variant="body1" sx={{ mb: 1 }}>
               <strong>{t("Cart Total Price")}: </strong> {order?.cart_total_price} DH
             </Typography>
             <Typography variant="body1" sx={{ mb: 1 }}>
-              <strong>{t("Shipping Method")}: </strong> <span className="text-black capitalize">{order?.shipping_method}</span>
+              <strong>{t("Shipping Method")}: </strong> <span className="text-black capitalize">{t(order?.shipping_method)}</span>
             </Typography>
             <Typography variant="body1" sx={{ mb: 1 }}>
-              <strong>{t("Shipping Status")}: </strong> {shippingStatus}
+              <strong>{t("Shipping Status")}: </strong> {t(shippingStatus)}
             </Typography>
             <Typography variant="body1" sx={{ mb: 1 }}>
               <strong>{t("Order Notes")}: </strong> {order?.order_notes || t("No notes")}
@@ -89,29 +87,28 @@ const OrderDetailsPopup = ({ order, open, onClose }) => {
               <strong>{t("Shipping Address")}: </strong>
               {order?.shipping_address.street}, {order?.shipping_address.city},{order?.shipping_address.postal_code}, {order?.shipping_address.country}
             </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              <strong>{t("Status")}: </strong> <span className="text-black capitalize">{order?.status}</span>
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              <strong>{t("Status")}: </strong> <span className="text-black capitalize">{t(order?.status)}</span>
             </Typography>
-
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-                {t("Order Items")}
-              </Typography>
-              <Divider sx={{ my: 1 }} />
-              {order?.order_items.map((item, index) => (
-                <Stack key={index} direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    <strong>{t("Product")}: </strong> {item.product?.product_name[currentLanguage]}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    <strong>{t("Qty")}: </strong> {item.quantity}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    <strong>{t("Price")}: </strong> {item.price} DH
-                  </Typography>
-                </Stack>
-              ))}
-            </Box>
+          </Box>
+          <Divider />
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, display: "flex", justifyContent: "center" }}>
+              {t("Order Items")}
+            </Typography>
+            {order?.order_items.map((item, index) => (
+              <Stack key={index} direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  <strong>{t("Product")}: </strong> {item.product?.product_name[currentLanguage]}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  <strong>{t("Qty")}: </strong> {item.quantity}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  <strong>{t("Price")}: </strong> {item.price} DH
+                </Typography>
+              </Stack>
+            ))}
           </Box>
         </Stack>
       </Box>

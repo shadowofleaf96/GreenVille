@@ -129,21 +129,25 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
     setActiveTab((prev) => prev + 1);
   };
 
+  const handleRemoveImage = (index) => {
+    setSelectedImages((prevImages) => {
+      const updatedImages = [...prevImages];
+      updatedImages.splice(index, 1);
+      return updatedImages;
+    });
+  };
+
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    const currentImages = selectedImages.length;
 
-    if (currentImages + files.length > 5) {
+    if (selectedImages.length + files.length > 5) {
       toast.error("You can only upload a maximum of 5 images.");
       return;
     }
 
-    setSelectedImages((prevImages) => [...prevImages, ...files]);
-  };
-
-  const handleRemoveImage = (index) => {
-    const updatedImages = selectedImages.filter((_, i) => i !== index);
-    setSelectedImages(updatedImages);
+    setSelectedImages((prevImages) => {
+      return [...prevImages, ...files].sort((a, b) => a.name.localeCompare(b.name));
+    });
   };
 
   const onSubmit = async (data) => {
@@ -282,6 +286,10 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
                     id="fileInput"
                     multiple
                     onChange={handleImageChange}
+                    // This code is very important if you want to upload duplicates images
+                    onClick={(event) => {
+                      event.target.value = null
+                    }}
                     style={{ display: "none" }}
                   />
                   <label htmlFor="fileInput">
@@ -402,18 +410,19 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
             </Tabs>
           </Stack>
 
-          <Stack direction="row" justifyContent="center" spacing={2} sx={{ marginTop: 2 }}>
-            <Button variant="outlined" onClick={onCancel}>
-              {t("Cancel")}
-            </Button>
+          <Stack direction="row" spacing={2} className="rtl:gap-4" sx={{ marginTop: 2, width: "100%" }}>
             <LoadingButton
               loading={loadingSave}
               variant="contained"
               onClick={handleNext}
+              sx={{ flex: 1 }}
               disabled={activeTab === 3 && !generalCompleted}
             >
               {activeTab === 3 ? t("Save") : t("Continue")}
             </LoadingButton>
+            <Button variant="outlined" onClick={onCancel} sx={{ flex: 1 }}>
+              {t("Cancel")}
+            </Button>
           </Stack>
         </form>
       </Stack >

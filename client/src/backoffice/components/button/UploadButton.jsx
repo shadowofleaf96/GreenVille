@@ -4,7 +4,7 @@ import Stack from"@mui/material/Stack";
 import Iconify from "../../components/iconify";
 import { useTranslation } from "react-i18next";
 
-function CustomFileInput({ onChange }) {
+function UploadButton({ onChange }) {
   const [file, setFile] = useState(null);
   const { t } = useTranslation();
 
@@ -51,4 +51,4 @@ function CustomFileInput({ onChange }) {
   );
 }
 
-export default CustomFileInput;
+export default UploadButton;

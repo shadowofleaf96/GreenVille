@@ -153,9 +153,8 @@ const RetrieveById = async (req, res) => {
 
 const UpdateProductById = async (req, res) => {
   const id = req.params.id;
-  const product_images = req.files;
-  let fixed_product_images;
   const newData = req.body;
+  const product_images = req.files;
 
   newData.last_update = Date.now();
 
@@ -165,16 +164,18 @@ const UpdateProductById = async (req, res) => {
     return res.status(404).json({ message: "Invalid product id" });
   }
 
-  if (product_images && product_images.length > 0) {
-    fixed_product_images = product_images.map((file) =>
-      file.path.replace(/public\\/g, "")
-    );
-  } else {
-    fixed_product_images = product.product_images;
+  if (!product_images || product_images.length === 0) {
+    return res.status(400).json({ message: "No images uploaded." });
   }
 
+  if (product_images.length > 5) {
+    return res.status(400).json({ message: "Maximum 5 images allowed." });
+  }
+
+  const imagePaths = product_images.map((file) => file.path);
+
   const updateData = {
-    product_images: fixed_product_images,
+    product_images: imagePaths,
     ...newData,
   };
 

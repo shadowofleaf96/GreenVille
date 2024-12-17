@@ -73,9 +73,9 @@ export default function OrderTableRow({
         </TableCell>
         <TableCell>{cart_total_price} DH</TableCell>
         <TableCell>{fDateTime(order_date)}</TableCell>
-        <TableCell className="capitalize">{shipping_method}</TableCell>
-        <TableCell>{shippingStatus}</TableCell>
-        <TableCell className="capitalize">{status}</TableCell>
+        <TableCell className="capitalize">{t(shipping_method)}</TableCell>
+        <TableCell>{t(shippingStatus)}</TableCell>
+        <TableCell className="capitalize">{t(status)}</TableCell>
         <TableCell align="center">
           <IconButton
             onClick={() =>
