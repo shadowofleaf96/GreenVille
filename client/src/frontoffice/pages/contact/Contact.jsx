@@ -124,7 +124,7 @@ const Contact = () => {
                 type="submit"
                 variant="contained"
                 loading={loading}
-                className="w-full bg-green-500 hover:bg-green-600 text-white rounded-md py-3 mt-4 font-semibold"
+                className="w-full bg-green-500 hover:bg-green-600 text-white rounded-md !py-3 !mt-4 !font-medium"
               >
                 {loading ? t("Sending...") : t("Send Message")}
               </LoadingButton>

@@ -2,47 +2,59 @@ const { Category } = require("../models/Category");
 const SubCategory = require("../models/SubCategory");
 
 const createCategory = async (req, res) => {
-  // Extract user data from the request body
-  const { category_name } = req.body;
+  const { category_name, active } = req.body;
 
-  // Check if the subcategory name is unique
-  const existingCategory = await Category.findOne({
-    category_name,
-  });
-
-  if (existingCategory) {
-    return res
-      .status(400)
-      .json({ error: "Category with this name already exists" });
-  }
-  // Create a new user using the create() method
-  Category.create({
-    category_name,
-  })
-    .then((newCategory) => {
-      // Send a notification email to the user (you need to implement this)
-      res.status(200).json({
-        message: "Category created successfully",
-        data: newCategory,
-      });
-    })
-    .catch((error) => {
-      // Handle any errors that occur during document creation
-      console.error(error);
-      res.status(500).json({
-        message: "Error creating the Category",
-      });
+  if (
+    !category_name ||
+    !category_name.en ||
+    !category_name.fr ||
+    !category_name.ar
+  ) {
+    return res.status(400).json({
+      error: "Category name must include 'en', 'fr', and 'ar' fields",
     });
+  }
+
+  try {
+    const existingCategory = await Category.findOne({
+      $or: [
+        { "category_name.en": category_name.en },
+        { "category_name.fr": category_name.fr },
+        { "category_name.ar": category_name.ar },
+      ],
+    });
+
+    if (existingCategory) {
+      return res
+        .status(400)
+        .json({ error: "Category with this name already exists" });
+    }
+
+    const newCategory = new Category({
+      category_name,
+      active: active || false,
+    });
+
+    await newCategory.save();
+
+    res.status(200).json({
+      message: "Category created successfully",
+      data: newCategory,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error creating the Category",
+    });
+  }
 };
 
 const getAllCategories = async (req, res, next) => {
   const { page } = req.query;
-  const perPage = 10; // Number of users per page
+  const perPage = 10;
 
-  // Calculate the skip value to implement pagination
   const skip = (page - 1) * perPage;
 
-  // Define the sorting order based on the "sort" parameter
   if (page) {
     try {
       const Categories = await Category.find().skip(skip).limit(perPage);
@@ -69,18 +81,14 @@ const getAllCategories = async (req, res, next) => {
 const searchCategory = async (req, res, next) => {
   try {
     let { query, page = 1 } = req.query;
-    const perPage = 10; // Number of users per page
+    const perPage = 10;
 
-    // Calculate the skip value to implement pagination
     const skip = (page - 1) * perPage;
 
-    // Build the Mongoose query for searching users
     const searchQuery = {
       $or: [{ category_name: { $regex: new RegExp(query, "i") } }],
     };
-    // Build the complete query
     query = Category.find(searchQuery).skip(skip).limit(perPage);
-    // Execute the query
     const categories = await query.exec();
 
     if (categories.length === 0) {
@@ -124,25 +132,39 @@ const getCategoryDetails = async (req, res, next) => {
 
 const updateCategory = async (req, res) => {
   try {
-    const catId = req.params.id; // Get the user's ID from the route parameter
+    const catId = req.params.id;
     const { category_name, active } = req.body;
     const invalidFields = [];
 
-    console.log(req.body);
-    // Find the existing user by their ID
-    const existingCustomer = await Category.findById(catId);
+    if (
+      !category_name ||
+      !category_name.en ||
+      !category_name.fr ||
+      !category_name.ar
+    ) {
+      return res.status(400).json({
+        message: "Category name must include 'en', 'fr', and 'ar' fields",
+      });
+    }
+    
+    const existingCategory = await Category.findById(catId);
 
-    if (!existingCustomer) {
+    if (!existingCategory) {
       return res.status(404).json({
-        message: "Invalid Category id",
+        message: "Category not found",
       });
     }
 
-    // Validate the request body to ensure data types
-    if (typeof category_name !== "string") {
+    if (
+      category_name &&
+      (typeof category_name.en !== "string" ||
+        typeof category_name.fr !== "string" ||
+        typeof category_name.ar !== "string")
+    ) {
       invalidFields.push("category_name");
     }
-    if (typeof active !== "boolean") {
+
+    if (typeof active !== "undefined" && typeof active !== "boolean") {
       invalidFields.push("active");
     }
 
@@ -154,13 +176,16 @@ const updateCategory = async (req, res) => {
       });
     }
 
-    existingCustomer.category_name = category_name;
-    existingCustomer.active = active;
+    existingCategory.category_name = category_name;
+    if (typeof active !== "undefined") {
+      existingCategory.active = active;
+    }
 
-    await existingCustomer.save();
+    await existingCategory.save();
 
     res.status(200).json({
       message: "Category updated successfully",
+      data: existingCategory,
     });
   } catch (error) {
     console.error(error);
@@ -171,9 +196,7 @@ const updateCategory = async (req, res) => {
 };
 
 const deleteCategory = async (req, res) => {
-  //Delete a subcategory
   const categoryId = req.params.id;
-  // try {
   const catCount = await SubCategory.countDocuments({
     category_id: categoryId,
   });

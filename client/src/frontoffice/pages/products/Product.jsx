@@ -10,7 +10,8 @@ const backend = import.meta.env.VITE_BACKEND_URL;
 
 const Product = ({ product }) => {
   const dispatch = useDispatch();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language
 
   const addToCart = () => {
     dispatch(addItemToCart({ id: product._id, quantity: 1 }));
@@ -19,9 +20,9 @@ const Product = ({ product }) => {
 
   const getImageSrc = () => {
     if (Array.isArray(product?.product_images)) {
-      return `${backend}/${product?.product_images[0]}`;
+      return `${product?.product_images[0]}`;
     } else if (typeof product?.product_images === "string") {
-      return `${backend}/${product?.product_images}`;
+      return `${product?.product_images}`;
     } else {
       return "../../../../assets/image_placeholder.png";
     }
@@ -35,11 +36,11 @@ const Product = ({ product }) => {
             <img
               className="w-32 h-32 sm:w-48 sm:h-48 mx-auto object-contain"
               src={getImageSrc()}
-              alt={product?.product_name}
+              alt={product?.product_name[currentLanguage]}
             />
           </div>
           <p className="h-12 sm:h-16 mt-1 sm:mt-2 text-md sm:text-lg xl:text-xl font-semibold hover:text-gray-500 overflow-hidden whitespace-normal">
-            {product?.product_name}
+            {product?.product_name[currentLanguage]}
           </p>
         </Link>
         <div className="flex items-center justify-center mt-2 sm:mt-4">

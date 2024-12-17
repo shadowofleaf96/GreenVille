@@ -1,45 +1,44 @@
 import React, { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import Stack from "@mui/material/Stack";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Typography from "@mui/material/Typography";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import { useTranslation } from "react-i18next";
-import DOMPurify from "dompurify";
-import Switch from "@mui/material/Switch";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import UploadButton from "../../components/button/UploadButton";
+import Switch from "@mui/material/Switch";
+import DOMPurify from "dompurify";
 
 function EditCategoryForm({ category, onSave, onCancel, open, onClose }) {
-  const [editedCategory, setEditedCategory] = useState({
-    ...category,
-    password: "",
-  });
-  const [loadingSave, setLoadingSave] = useState(false);
   const { t } = useTranslation();
+  const [loadingSave, setLoadingSave] = useState(false);
 
-  const handleFieldChange = (e) => {
-    const { name, value } = e.target;
-    setEditedCategory({ ...editedCategory, [name]: value });
-  };
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: {
+      category_name: category?.category_name || {
+        en: "",
+        fr: "",
+        ar: "",
+      },
+      active: category?.active || false,
+    },
+  });
 
-  const handleSwitchChange = (event) => {
-    setEditedCategory({
-      ...editedCategory,
-      [event.target.name]: event.target.checked,
-    });
-  };
-
-  const handleSave = async () => {
+  const handleSave = async (data) => {
     setLoadingSave(true);
-
     try {
-      await onSave(editedCategory);
+      const sanitizedData = {
+        _id: category?._id,
+        category_name: {
+          en: DOMPurify.sanitize(data.category_name.en),
+          fr: DOMPurify.sanitize(data.category_name.fr),
+          ar: DOMPurify.sanitize(data.category_name.ar),
+        },
+        active: data.active,
+      };
+      await onSave(sanitizedData);
       onClose();
     } catch (error) {
       console.error("Error saving category:", error);
@@ -77,54 +76,86 @@ function EditCategoryForm({ category, onSave, onCancel, open, onClose }) {
           {t("Edit Category")}
         </Typography>
 
-        <TextField
-          label={t("Category Name")}
-          name="category_name"
-          value={t(editedCategory.category_name)}
-          onChange={handleFieldChange}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-        />
-
-        <Stack direction="column" alignItems="center" sx={{ marginBottom: 2 }}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <FormControlLabel
-              labelPlacement="start"
-              label={
-                <Typography variant="body2">
-                  {editedCategory.active ? t("Active") : t("Inactive")}
-                </Typography>
-              }
-              control={
-                <Switch
-                  name="active"
-                  checked={editedCategory.active}
-                  onChange={handleSwitchChange}
+        <form onSubmit={handleSubmit(handleSave)} noValidate style={{ width: "100%" }}>
+          <Stack direction="column" spacing={2} sx={{ width: "100%" }}>
+            <Controller
+              name="category_name.en"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  label={t("Category Name (English)")}
+                  {...field}
+                  fullWidth
+                  error={!!errors.category_name?.en}
+                  helperText={errors.category_name?.en && t("This field is required")}
                 />
-              }
+              )}
             />
-          </Stack>
-        </Stack>
 
-        <Stack direction="row" spacing={2} className="rtl:gap-4" sx={{ width: "100%" }}>
-          <LoadingButton
-            loading={loadingSave}
-            onClick={handleSave}
-            variant="contained"
-            sx={{
-              flex: 1,
-              "&:disabled": {
-                backgroundColor: "#c0c0c0",
-                color: "#000",
-              },
-            }}
-          >
-            {t("Save")}
-          </LoadingButton>
-          <Button onClick={onCancel} variant="outlined" sx={{ flex: 1 }}>
-            {t("Cancel")}
-          </Button>
-        </Stack>
+            <Controller
+              name="category_name.fr"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  label={t("Category Name (French)")}
+                  {...field}
+                  fullWidth
+                  error={!!errors.category_name?.fr}
+                  helperText={errors.category_name?.fr && t("This field is required")}
+                />
+              )}
+            />
+
+            <Controller
+              name="category_name.ar"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  label={t("Category Name (Arabic)")}
+                  {...field}
+                  fullWidth
+                  error={!!errors.category_name?.ar}
+                  helperText={errors.category_name?.ar && t("This field is required")}
+                />
+              )}
+            />
+
+            <Stack direction="row" spacing={2} alignItems="center" justifyContent={"center"}>
+              <Controller
+                name="active"
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    label={<Typography variant="body2">{field.value ? t("Active") : t("Inactive")}</Typography>}
+                    control={
+                      <Switch {...field} checked={field.value} />
+                    }
+                  />
+                )}
+              />
+            </Stack>
+
+            <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
+              <LoadingButton
+                loading={loadingSave}
+                type="submit"
+                variant="contained"
+                sx={{
+                  flex: 1,
+                  "&:disabled": {
+                    backgroundColor: "#c0c0c0",
+                    color: "#000",
+                  },
+                }}
+              >
+                {t("Save")}
+              </LoadingButton>
+              <Button onClick={onCancel} variant="outlined" sx={{ flex: 1 }}>
+                {t("Cancel")}
+              </Button>
+            </Stack>
+          </Stack>
+        </form>
       </Stack>
     </Modal>
   );

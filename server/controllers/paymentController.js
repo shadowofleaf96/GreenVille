@@ -118,12 +118,6 @@ const savePaymentInfo = async (req, res) => {
       return res.status(404).json({ error: "Order not found" });
     }
 
-    // if (paymentMethod === "credit_card") {
-    //   if (!paymentCredentials || !paymentCredentials.cardNumber || !paymentCredentials.cardHolderName || !paymentCredentials.expiryDate || !paymentCredentials.cvv) {
-    //     return res.status(400).json({ error: "Missing credit card information" });
-    //   }
-    // }
-
     const payment = new Payment({
       order_id,
       amount,
@@ -144,7 +138,6 @@ const savePaymentInfo = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 module.exports = {
   retrievePayments,

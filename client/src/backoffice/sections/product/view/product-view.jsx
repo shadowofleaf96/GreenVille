@@ -48,7 +48,8 @@ const backend = import.meta.env.VITE_BACKEND_URL;
 
 export default function ProductPage() {
   const dispatch = useDispatch();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language
 
   const data = useSelector((state) => state.adminProduct.data);
   const error = useSelector((state) => state.adminProduct.error);
@@ -198,9 +199,17 @@ export default function ProductPage() {
     setLoadingDelete(true);
     try {
       const formData = new FormData();
+      // Add product details to formData
       formData.append("sku", editedProduct.sku);
-      formData.append("product_name", editedProduct.product_name);
-      formData.append("short_description", editedProduct.short_description);
+      formData.append("product_name[en]", editedProduct.product_name.en);
+      formData.append("product_name[fr]", editedProduct.product_name.fr);
+      formData.append("product_name[ar]", editedProduct.product_name.ar);
+      formData.append("short_description[en]", editedProduct.short_description.en);
+      formData.append("short_description[fr]", editedProduct.short_description.fr);
+      formData.append("short_description[ar]", editedProduct.short_description.ar);
+      formData.append("long_description[en]", editedProduct.long_description.en);
+      formData.append("long_description[fr]", editedProduct.long_description.fr);
+      formData.append("long_description[ar]", editedProduct.long_description.ar);
       formData.append("subcategory_id", editedProduct.subcategory_id);
       formData.append("price", editedProduct.price);
       formData.append("discount_price", editedProduct.discount_price);
@@ -214,23 +223,16 @@ export default function ProductPage() {
         });
       }
 
-      const response = await axiosInstance.put(
-        `/products/${editedProduct._id}`,
-        formData
-      );
+      const response = await axiosInstance.put(`/products/${editedProduct._id}`, formData);
+      const productData = response.data.data;
 
-      const index = data.findIndex(
-        (product) => product._id === editedProduct._id
-      );
+      const index = data.findIndex((product) => product._id === editedProduct._id);
 
       if (index !== -1) {
         const updatedProducts = [...data];
-        const productData = response.data.data;
         updatedProducts[index] = {
           ...updatedProducts[index],
-          product_images: selectedImages
-            ? productData.product_images
-            : updatedProducts[index].product_images,
+          product_images: selectedImages ? productData.product_images : updatedProducts[index].product_images,
           sku: editedProduct.sku,
           product_name: editedProduct.product_name,
           short_description: editedProduct.short_description,
@@ -240,9 +242,10 @@ export default function ProductPage() {
           option: editedProduct.option,
           quantity: editedProduct.quantity,
           active: editedProduct.active,
-          creation_date: editedProduct.creation_date,
-          last_update: editedProduct.last_update,
+          creation_date: productData.creation_date,
+          last_update: productData.last_update,
         };
+
         dispatch(setData(updatedProducts));
         toast.success(response.data.message);
         setEditingProduct(null);
@@ -255,6 +258,7 @@ export default function ProductPage() {
       setLoadingDelete(false);
     }
   };
+
 
   const handleCancelEdit = () => {
     setEditingProduct(null);
@@ -277,7 +281,6 @@ export default function ProductPage() {
     }
   };
 
-  //-------
   const handleOpenDetailsPopup = (product) => {
     setSelectedProduct(product);
     setDetailsPopupOpen(true);
@@ -300,13 +303,25 @@ export default function ProductPage() {
 
     try {
       const formData = new FormData();
+
       formData.append("sku", newProduct.sku);
-      formData.append("product_name", newProduct.product_name);
-      formData.append("short_description", newProduct.short_description);
+
+      formData.append("product_name[en]", newProduct.product_name.en);
+      formData.append("product_name[fr]", newProduct.product_name.fr);
+      formData.append("product_name[ar]", newProduct.product_name.ar);
+
+      formData.append("short_description[en]", newProduct.short_description.en);
+      formData.append("short_description[fr]", newProduct.short_description.fr);
+      formData.append("short_description[ar]", newProduct.short_description.ar);
+
+      formData.append("long_description[en]", newProduct.long_description.en);
+      formData.append("long_description[fr]", newProduct.long_description.fr);
+      formData.append("long_description[ar]", newProduct.long_description.ar);
+
       formData.append("subcategory_id", newProduct.subcategory_id);
       formData.append("price", newProduct.price);
       formData.append("discount_price", newProduct.discount_price);
-      formData.append("option", newProduct.option);
+      formData.append("option", String(newProduct.option));
       formData.append("quantity", newProduct.quantity);
       formData.append("active", newProduct.active);
 
@@ -318,6 +333,7 @@ export default function ProductPage() {
 
       const response = await axiosInstance.post("/products", formData);
       const productdata = response.data.data;
+
       const AddedProducts = {
         key: productdata._id,
         _id: productdata._id,
@@ -347,6 +363,7 @@ export default function ProductPage() {
     }
   };
 
+
   const dataFiltered = applyFilter({
     inputData: data,
     comparator: getComparator(order, orderBy),
@@ -354,6 +371,7 @@ export default function ProductPage() {
     skuFilter,
     priceFilter,
     quantityFilter,
+    currentLanguage
   });
 
   const notFound = !dataFiltered.length;
@@ -423,7 +441,7 @@ export default function ProductPage() {
                     return (
                       <ProductTableRow
                         key={row._id}
-                        product_images={`${backend}/${row.product_images}`}
+                        product_images={`${row.product_images[0]}`}
                         sku={row.sku}
                         product_name={row.product_name}
                         price={row.price}

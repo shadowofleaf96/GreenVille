@@ -29,15 +29,23 @@ function descendingComparator(a, b, orderBy) {
   }
   return 0;
 }
+
 export function getComparator(order, orderBy) {
   return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-// utils.js
+export function applyFilter({
+  inputData,
+  comparator,
+  filterName,
+  skuFilter,
+  priceFilter,
+  quantityFilter,
+  currentLanguage
+}) {
 
-export function applyFilter({ inputData, comparator, filterName, skuFilter, priceFilter, quantityFilter }) {
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -51,15 +59,18 @@ export function applyFilter({ inputData, comparator, filterName, skuFilter, pric
   if (filterName) {
     inputData = inputData.filter((product) => {
       const productNameMatch =
-        product.product_name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1;
-
+        product?.product_name[currentLanguage] &&
+        product?.product_name[currentLanguage]
+          .toLowerCase()
+          .includes(filterName.toLowerCase());
       return productNameMatch;
     });
   }
 
   if (skuFilter) {
     inputData = inputData.filter((product) => {
-      const skuMatch = product.sku.toLowerCase().indexOf(skuFilter.toLowerCase()) !== -1;
+      const skuMatch =
+        product.sku.toLowerCase().indexOf(skuFilter.toLowerCase()) !== -1;
 
       return skuMatch;
     });
@@ -75,7 +86,8 @@ export function applyFilter({ inputData, comparator, filterName, skuFilter, pric
 
   if (quantityFilter) {
     inputData = inputData.filter((product) => {
-      const quantityMatch = product.quantity.toString().indexOf(quantityFilter) !== -1;
+      const quantityMatch =
+        product.quantity.toString().indexOf(quantityFilter) !== -1;
 
       return quantityMatch;
     });

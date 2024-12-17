@@ -143,7 +143,7 @@ export default function CustomerView() {
 
   const openDeleteConfirmation = (customerId, event) => {
     setSelectedDeleteCustomerId(customerId);
-    setDeleteConfirmationAnchorEl(event.currentTarget); // Set the anchor element
+    setDeleteConfirmationAnchorEl(event.currentTarget);
     setDeleteConfirmationOpen(true);
   };
 
@@ -206,9 +206,7 @@ export default function CustomerView() {
         const customerData = response.data.data;
         updatedCustomers[index] = {
           ...updatedCustomers[index],
-          customer_image: selectedImage
-            ? "images/" + selectedImage.name
-            : updatedCustomers[index].customer_image,
+          customer_image: customerData.customer_image,
           first_name: editedCustomer.first_name,
           last_name: editedCustomer.last_name,
           password: editedCustomer.password,
@@ -322,7 +320,7 @@ export default function CustomerView() {
                     return (
                       <CustomerTableRow
                         key={row._id}
-                        customer_image={`${backend}/${row.customer_image}`}
+                        customer_image={`${row.customer_image}`}
                         first_name={row.first_name}
                         last_name={row.last_name}
                         email={row.email}

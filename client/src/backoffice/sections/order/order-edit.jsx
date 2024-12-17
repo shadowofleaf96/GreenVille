@@ -206,7 +206,7 @@ function EditOrderForm({ order, onSave, onCancel, open, onClose }) {
               >
                 {shippingStatuses.map(({ value, label }) => (
                   <MenuItem key={value} value={value}>
-                    {label}
+                    {t(label)}
                   </MenuItem>
                 ))}
               </Select>
@@ -224,13 +224,12 @@ function EditOrderForm({ order, onSave, onCancel, open, onClose }) {
               >
                 {shippingMethods.map(({ value, label }) => (
                   <MenuItem key={value} value={value}>
-                    {label}
+                    {t(label)}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
 
-            {/* Two input fields in one line for Street and City */}
             <Stack direction="row" spacing={2} sx={{ width: "100%", marginBottom: 2 }}>
               <TextField
                 label={t('Street')}
@@ -248,7 +247,6 @@ function EditOrderForm({ order, onSave, onCancel, open, onClose }) {
               />
             </Stack>
 
-            {/* Two input fields in one line for Postal Code and Country */}
             <Stack direction="row" spacing={2} sx={{ width: "100%", marginBottom: 2 }}>
               <TextField
                 label={t('Postal Code')}
@@ -287,7 +285,7 @@ function EditOrderForm({ order, onSave, onCancel, open, onClose }) {
               >
                 {statuses.map((status) => (
                   <MenuItem key={status} value={status}>
-                    {t(status.charAt(0).toUpperCase() + status.slice(1))}
+                    {t(status)}
                   </MenuItem>
                 ))}
               </Select>

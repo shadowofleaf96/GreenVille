@@ -23,7 +23,8 @@ const Navbar = () => {
   const { customer, isLoading } = useSelector((state) => state.customers);
   const { products } = useSelector((state) => state.products);
   const { cartItems } = useSelector((state) => state.carts);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language
 
   const location = useLocation();
   const dispatch = useDispatch();
@@ -81,7 +82,7 @@ const Navbar = () => {
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value)
     const results = products.filter((product) =>
-      product.product_name.toLowerCase().includes(searchQuery.toLowerCase())
+      product.product_name[currentLanguage].toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredProducts(results);
   }
@@ -131,7 +132,7 @@ const Navbar = () => {
                 {customer ? (
                   <div className="relative" ref={dropdownRef}>
                     <button className="focus:outline-none" onClick={() => setDropdown(!dropdown)}>
-                      <img className="h-12 w-12 rounded-full border-5 border-black" src={`${backend}/${customer.customer_image}`} alt={`${customer.first_name} ${customer.last_name}`} />
+                      <img className="h-12 w-12 rounded-full border-5 border-black" src={`${customer.customer_image}`} alt={`${customer.first_name} ${customer.last_name}`} />
                     </button>
                     {dropdown && (
                       <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
@@ -185,7 +186,7 @@ const Navbar = () => {
                       className="flex items-center px-6 py-4 rounded text-black hover:bg-green-200"
                       onClick={handleSearchProductClick}
                     >
-                      <img className="h-10 w-10" src={typeof product?.product_images === "string" ? `${backend}/${product?.product_images}` : `${backend}/${product?.product_images[0]}`}
+                      <img className="h-10 w-10" src={typeof product?.product_images === "string" ? `${product?.product_images}` : `${product?.product_images[0]}`}
                       />
                       {product.product_name}
                     </Link>

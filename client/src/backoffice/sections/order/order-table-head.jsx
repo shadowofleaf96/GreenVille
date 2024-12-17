@@ -9,7 +9,7 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 
 import { visuallyHidden } from './utils';
 
-import { useTranslation } from 'react-i18next'; // Importing translation hook
+import { useTranslation } from 'react-i18next';
 
 // ----------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ export default function OrderTableHead({
   onRequestSort,
   onSelectAllClick,
 }) {
-  const { t } = useTranslation(); // Using translation hook
+  const { t } = useTranslation(); 
 
   const onSort = (property) => (event) => {
     onRequestSort(event, property);

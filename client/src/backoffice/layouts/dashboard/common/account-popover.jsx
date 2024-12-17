@@ -55,7 +55,7 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
-          src={admin ? `http://127.0.0.1:3000/${admin.user_image}` : ""}
+          src={admin ? `${admin.user_image}` : ""}
           alt={admin ? admin.user_name : "Admin"}
           sx={{
             width: 48,

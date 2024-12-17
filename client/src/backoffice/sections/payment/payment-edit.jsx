@@ -125,7 +125,7 @@ function EditPaymentForm({ payment, onSave, onCancel, open, onClose }) {
             >
               {paymentMethods.map((method) => (
                 <MenuItem key={method.key} value={method.key}>
-                  {`${t(method.label)}`}
+                  {`${t(method.key)}`}
                 </MenuItem>
               ))}
             </Select>
@@ -143,7 +143,7 @@ function EditPaymentForm({ payment, onSave, onCancel, open, onClose }) {
             >
               {statuses.map((status) => (
                 <MenuItem key={status.key} value={status.key}>
-                  {t(status.label)}
+                  {t(status.key)}
                 </MenuItem>
               ))}
             </Select>

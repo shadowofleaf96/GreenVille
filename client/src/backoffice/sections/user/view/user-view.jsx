@@ -206,11 +206,10 @@ export default function UserView() {
 
       if (index !== -1) {
         const updatedUsers = [...data];
+        const userData = response.data.data;
         updatedUsers[index] = {
           ...updatedUsers[index],
-          user_image: selectedImage
-            ? "images/" + selectedImage.name
-            : updatedUsers[index].user_image,
+          user_image: userData.user_image,
           first_name: editedUser.first_name,
           last_name: editedUser.last_name,
           password: editedUser.password,
@@ -295,7 +294,7 @@ export default function UserView() {
       const AddedUsers = {
         key: userdata._id,
         _id: userdata._id,
-        user_image: newUser.user_image,
+        user_image: userdata.user_image,
         first_name: newUser.first_name,
         last_name: newUser.last_name,
         password: newUser.password,
@@ -335,7 +334,7 @@ export default function UserView() {
         mb={5}
       >
         <Typography variant="h4">{t("Users")}</Typography>
-        {admin.role !== "manager" && (
+        {admin?.role !== "manager" && (
           <Fab
             variant="contained"
             onClick={handleOpenNewUserForm}
@@ -388,7 +387,7 @@ export default function UserView() {
                   .map((row) => (
                     <UserTableRow
                       key={row._id}
-                      user_image={`${backend}/${row.user_image}`}
+                      user_image={`${row.user_image}`}
                       first_name={row.first_name}
                       last_name={row.last_name}
                       role={row.role}

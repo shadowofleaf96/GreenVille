@@ -30,9 +30,10 @@ export default function SubCategoryTableRow({
   onDelete,
   onDetails,
 }) {
-  const { t } = useTranslation(); // Using translation hook
 
-  // Toggle the selection
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language
+
   const [open, setOpen] = useState(null);
   const isActive = active;
   const color = isActive ? "primary" : "secondary";
@@ -44,17 +45,16 @@ export default function SubCategoryTableRow({
         tabIndex={-1}
         role="checkbox"
         selected={selected}
-        // Handle row click for modal opening
       >
         <TableCell padding="checkbox">
           <Checkbox
             disableRipple
             checked={selected}
-            onChange={handleClick} // Handle checkbox click for selection
+            onChange={handleClick}
           />
         </TableCell>
 
-        <TableCell>{t(subcategory_name)}</TableCell>
+        <TableCell>{t(subcategory_name[currentLanguage])}</TableCell>
 
         {/* <TableCell>{category_id}</TableCell> */}
 

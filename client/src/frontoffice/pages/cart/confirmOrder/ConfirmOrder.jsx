@@ -12,10 +12,10 @@ import { LoadingButton } from "@mui/lab";
 const backend = import.meta.env.VITE_BACKEND_URL;
 
 const ConfirmOrder = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { cartItems, shippingInfo, coupon } = useSelector((state) => state.carts);
     const { customer } = useSelector((state) => state.customers);
-
+    const currentLanguage = i18n.language
     const history = useNavigate();
     const [couponCode, setCouponCode] = useState("");
     const [message, setMessage] = useState("");
@@ -120,14 +120,14 @@ const ConfirmOrder = () => {
                                 <div className="flex items-center py-2">
                                     <div className="w-1/4 lg:w-1/6">
                                         <img
-                                            src={typeof item?.image === "string" ? `${backend}/${item?.image}` : `${backend}/${item?.image[0]}`}
-                                            alt={item.name}
+                                            src={typeof item?.image === "string" ? `${item?.image}` : `${item?.image[0]}`}
+                                            alt={item.name[currentLanguage]}
                                             className="w-16 h-16 object-cover"
                                         />
                                     </div>
                                     <div className="w-1/2 lg:w-1/2">
                                         <Link to={`/products/${item.product}`} className="text-blue-600 hover:underline">
-                                            {item.name}
+                                            {item.name[currentLanguage]}
                                         </Link>
                                     </div>
                                     <div className="w-1/4 lg:w-1/6">

@@ -22,7 +22,7 @@ const ProfilePage = () => {
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <Avatar
-                src={`http://127.0.0.1:3000/${admin?.user_image}`}
+                src={`${admin?.user_image}`}
                 alt={`${admin?.first_name} ${admin?.last_name}`}
                 sx={{
                   width: 220,

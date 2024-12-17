@@ -62,7 +62,7 @@ export default function Nav({ openNav, onCloseNav }) {
       }}
     >
       <Avatar
-        src={`http://127.0.0.1:3000/${admin?.user_image}`}
+        src={`${admin?.user_image}`}
         alt="photoURL"
         sx={{ width: 120, height: 120, my: 2 }}
       />

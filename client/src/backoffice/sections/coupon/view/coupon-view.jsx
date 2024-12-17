@@ -255,7 +255,7 @@ export default function CouponView() {
       toast.success(response.data.message);
 
     } catch (error) {
-      console.log("Error creating new coupon:", error);
+      console.error("Error creating new coupon:", error);
       toast.error("Error: " + error.response.data.message);
     } finally {
       handleCloseNewCouponForm();

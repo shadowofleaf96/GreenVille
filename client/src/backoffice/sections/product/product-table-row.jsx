@@ -29,12 +29,12 @@ export default function ProductTableRow({
   onDelete,
   onDetails,
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language;
+
   const [open, setOpen] = useState(null);
   const isActive = active;
   const color = isActive ? 'primary' : 'secondary';
-  const imageArray = typeof product_images === 'string' ? product_images.split(',') : [];
-  
 
   return (
     <>
@@ -44,12 +44,12 @@ export default function ProductTableRow({
         </TableCell>
 
         <TableCell align="center">
-          <Avatar alt={product_name} src={imageArray[0]?.trim() || product_images.trim()} />
+          <Avatar alt={product_name[currentLanguage]} src={product_images} />
         </TableCell>
 
         <TableCell>{sku}</TableCell>
 
-        <TableCell>{product_name}</TableCell>
+        <TableCell>{product_name[currentLanguage]}</TableCell>
 
         <TableCell>{`${price} ${t('DH')}`}</TableCell>
 
@@ -119,8 +119,8 @@ ProductTableRow.propTypes = {
   handleClick: PropTypes.func,
   product_images: PropTypes.string,
   sku: PropTypes.string,
-  product_name: PropTypes.string,
-  short_description: PropTypes.string,
+  product_name: PropTypes.object,
+  short_description: PropTypes.object,
   price: PropTypes.number,
   quantity: PropTypes.number,
   option: PropTypes.array,

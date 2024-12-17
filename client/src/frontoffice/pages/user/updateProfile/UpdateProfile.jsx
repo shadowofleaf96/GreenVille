@@ -67,7 +67,7 @@ const UpdateProfile = () => {
     } catch (error) {
       setLoading(false);
       toast.error("Error: " + error.response.data.message);
-      console.error(error);
+      console.log(error.response.data);
     }
   };
 

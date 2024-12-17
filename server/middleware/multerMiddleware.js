@@ -1,18 +1,18 @@
-// Shadow Of Leaf was Here
-
 const multer = require("multer");
+const cloudinary = require("../config/cloudinary");
+const { CloudinaryStorage } = require("@fluidjs/multer-cloudinary");
+const { v4: uuidv4 } = require("uuid");
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const path = `public/images`;
-    cb(null, path);
-  },
-  filename: (req, file, cb) => {
-    const filename = `${Date.now()}-${file.originalname}`;
-    cb(null, filename);
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    return {
+      folder: "greenville/public/images",
+      allowed_formats: ["jpg", "jpeg", "png", "webp"],
+      public_id: `image-${uuidv4()}`,
+    };
   },
 });
 
 const upload = multer({ storage: storage });
-
 module.exports = { upload };

@@ -14,13 +14,6 @@ const expiration = process.env.EXPIRATIONDATE;
 
 const createUser = async (req, res) => {
   const user_image = req.file;
-  let fixed_user_image;
-
-  if (user_image) {
-    fixed_user_image = user_image.path.replace(/public\\/g, "");
-  } else {
-    fixed_user_image = `images/image_placeholder.webp`;
-  }
   const { role, user_name, first_name, last_name, email, password } = req.body;
 
   const existingUser = await User.findOne({
@@ -37,7 +30,7 @@ const createUser = async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   User.create({
-    user_image: fixed_user_image,
+    user_image: typeof user_image === "string" ? user_image : user_image.path,
     role,
     user_name,
     first_name,
@@ -172,7 +165,6 @@ const getUserDetails = async (req, res, next) => {
 const updateUser = async (req, res) => {
   try {
     const user_image = req.file;
-    let fixed_user_image;
     const userId = req.params.id;
     const { role, first_name, last_name, user_name, email, password, active } =
       req.body;
@@ -184,12 +176,6 @@ const updateUser = async (req, res) => {
       return res.status(404).json({
         message: "Invalid user id",
       });
-    }
-
-    if (user_image) {
-      fixed_user_image = user_image.path.replace(/public\\/g, "");
-    } else {
-      fixed_user_image = existingUser.user_image;
     }
 
     if (typeof role !== "string") {
@@ -222,7 +208,8 @@ const updateUser = async (req, res) => {
       });
     }
 
-    existingUser.user_image = fixed_user_image;
+    existingUser.user_image =
+      typeof user_image === "string" ? user_image : user_image.path;
     existingUser.role = role;
     existingUser.first_name = first_name;
     existingUser.last_name = last_name;
@@ -236,6 +223,8 @@ const updateUser = async (req, res) => {
 
     res.status(200).json({
       message: "User updated successfully",
+      success: true,
+      data: existingUser
     });
   } catch (error) {
     console.error(error);

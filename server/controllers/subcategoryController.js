@@ -4,11 +4,26 @@ const { Category } = require("../models/Category");
 
 const subcategoriesController = {
   async createSubcategory(req, res) {
-    const { subcategory_name, category_id } = req.body;
+    const { subcategory_name, category_id, active } = req.body;
 
     try {
+      if (
+        !subcategory_name ||
+        !subcategory_name.en ||
+        !subcategory_name.fr ||
+        !subcategory_name.ar
+      ) {
+        return res.status(400).json({
+          error: "Subcategory name must include 'en', 'fr', and 'ar' fields",
+        });
+      }
+
       const existingSubcategory = await SubCategory.findOne({
-        subcategory_name,
+        $or: [
+          { "subcategory_name.en": subcategory_name.en },
+          { "subcategory_name.fr": subcategory_name.fr },
+          { "subcategory_name.ar": subcategory_name.ar },
+        ],
       });
 
       if (existingSubcategory) {
@@ -20,7 +35,7 @@ const subcategoriesController = {
       const newSubcategory = new SubCategory({
         subcategory_name,
         category_id,
-        active: false, 
+        active: active !== undefined ? active : false,
       });
 
       await newSubcategory.save();
@@ -105,10 +120,20 @@ const subcategoriesController = {
       const subcategory = await SubCategory.findById(subcategoryId);
 
       if (!subcategory) {
-        return res.status(404).json({ message: "Invalid subcategory id" });
+        return res.status(404).json({ message: "Invalid subcategory ID" });
       }
 
       if (subcategory_name) {
+        if (
+          !subcategory_name.en ||
+          !subcategory_name.fr ||
+          !subcategory_name.ar
+        ) {
+          return res.status(400).json({
+            error: "Subcategory name must include 'en', 'fr', and 'ar' fields",
+          });
+        }
+
         subcategory.subcategory_name = subcategory_name;
       }
 
@@ -116,14 +141,14 @@ const subcategoriesController = {
         subcategory.category_id = category_id;
       }
 
-      if (active) {
+      if (typeof active !== "undefined") {
         subcategory.active = active;
       }
 
       await subcategory.save();
 
       res.status(200).json({
-        message: "Subcategory information updated",
+        message: "Subcategory information updated successfully",
         data: subcategory,
       });
     } catch (error) {
