@@ -15,6 +15,7 @@ const orderJoiSchema = Joi.object({
     )
     .required(),
   order_date: Joi.date().default(Date.now),
+  is_review_allowed: Joi.boolean(),
   cart_total_price: Joi.number().min(0).required(),
   status: Joi.string().valid("open", "processing", "canceled").default("open"),
   shipping_address: Joi.object({
@@ -55,6 +56,10 @@ const ordersSchema = mongoose.Schema(
           type: Number,
           required: true,
         },
+        reviewed: {
+          type: Boolean,
+          default: false,
+        },
       },
     ],
     order_date: {
@@ -88,6 +93,10 @@ const ordersSchema = mongoose.Schema(
     order_notes: {
       type: String,
     },
+    is_review_allowed: {
+      type: Boolean,
+      default: false,
+    },
     payment: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Payment",
@@ -100,6 +109,12 @@ const ordersSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+const calculateReviewAllowed = (orderDate) => {
+  const reviewAllowedDate = new Date(orderDate);
+  reviewAllowedDate.setDate(reviewAllowedDate.getDate() + 7);
+  return Date.now() >= reviewAllowedDate.getTime();
+};
 
 ordersSchema.pre("save", async function (next) {
   try {
@@ -116,6 +131,25 @@ ordersSchema.pre("save", async function (next) {
     this.shipping_status = validatedData.shipping_status;
     this.order_notes = validatedData.order_notes || this.order_notes;
     this.payment = validatedData.payment || this.payment;
+
+    if (this.isModified("status") && this.status === "completed") {
+      this.is_review_allowed = calculateReviewAllowed(this.order_date);
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+ordersSchema.pre("findOneAndUpdate", async function (next) {
+  try {
+    const update = this.getUpdate();
+
+    if (update.status === "completed") {
+      const order = await this.model.findOne(this.getQuery());
+      update.is_review_allowed = calculateReviewAllowed(order.order_date);
+      this.setUpdate(update);
+    }
 
     next();
   } catch (error) {

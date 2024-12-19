@@ -6,20 +6,17 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteCoupon } from "../../../redux/backoffice/couponSlice";
+import { deleteReview } from "../../../redux/backoffice/reviewSlice";
 import LoadingButton from "@mui/lab/LoadingButton";
-import Alert from "@mui/material/Alert";
 import InputAdornment from "@mui/material/InputAdornment";
-import Snackbar from "@mui/material/Snackbar";
 import Popover from "@mui/material/Popover";
 import Button from "@mui/material/Button";
-import axios from "axios";
 import Iconify from "../../components/iconify";
 import { useTranslation } from "react-i18next";
 import createAxiosInstance from "../../../utils/axiosConfig";
 import { toast } from "react-toastify";
 
-export default function CouponTableToolbar({
+export default function ReviewTableToolbar({
   numSelected,
   selected,
   setSelected,
@@ -39,26 +36,26 @@ export default function CouponTableToolbar({
       setLoadingDelete(true);
 
       let response;
-      const deletedCouponIds = [];
-      for (const couponId of selected) {
+      const deletedReviewIds = [];
+      for (const reviewId of selected) {
         const axiosInstance = createAxiosInstance("admin")
-        response = await axiosInstance.delete(`/coupons/${couponId}`);
-        deletedCouponIds.push(couponId);
+        response = await axiosInstance.delete(`/reviews/${reviewId}`);
+        deletedReviewIds.push(reviewId);
       }
 
-      dispatch(deleteCoupon(deletedCouponIds));
+      dispatch(deleteReview(deletedReviewIds));
 
       setPopoverAnchor(null);
       setSelected([]);
       const snackbarMessage =
         selected.length === 1
           ? response.data.message
-          : t(`Selected ${selected.length} coupons are deleted`);
+          : t(`Selected ${selected.length} reviews are deleted`);
 
       toast.success(snackbarMessage);
     } catch (error) {
       setPopoverAnchor(null);
-      toast.error(t("Error deleting coupons:"), error);
+      toast.error(t("Error deleting reviews:"), error);
     } finally {
       setLoadingDelete(false);
     }
@@ -94,7 +91,7 @@ export default function CouponTableToolbar({
           <OutlinedInput
             value={filterName}
             onChange={onFilterName}
-            placeholder={t("Search for Coupons...")}
+            placeholder={t("Search for Reviews...")}
             startAdornment={
               <InputAdornment position="start">
                 <Iconify
@@ -160,7 +157,7 @@ export default function CouponTableToolbar({
   );
 }
 
-CouponTableToolbar.propTypes = {
+ReviewTableToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,

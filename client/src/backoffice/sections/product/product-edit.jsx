@@ -172,6 +172,11 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
           ar: DOMPurify.sanitize(data.long_description.ar),
         },
       };
+  
+      if (data.sku !== Product.sku) {
+        sanitizedData.sku = DOMPurify.sanitize(data.sku);
+      }
+  
       await onSave(sanitizedData, selectedImages);
     } catch (error) {
       console.error("Error saving product:", error);
@@ -180,7 +185,7 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
       reset();
       setSelectedImages([]);
     }
-  };
+  };  
 
   return (
     <Modal open={open} onClose={onClose}>

@@ -64,7 +64,7 @@ export default function Nav({ openNav, onCloseNav }) {
       <Avatar
         src={`${admin?.user_image}`}
         alt="photoURL"
-        sx={{ width: 120, height: 120, my: 2 }}
+        sx={{ width: 120, height: 120, my: 0.5 }}
       />
 
       <Typography sx={{ my: 0.5 }}>

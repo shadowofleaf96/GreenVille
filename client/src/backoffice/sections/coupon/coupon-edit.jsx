@@ -1,54 +1,37 @@
 import React, { useState, useEffect } from "react";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
+import { Controller, useForm } from "react-hook-form";
 import Modal from "@mui/material/Modal";
 import Stack from "@mui/material/Stack";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
+import TextField from "@mui/material/TextField";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import Button from "@mui/material/Button";
 
 function EditCouponForm({ coupon, onSave, onCancel, open, onClose }) {
   const { t } = useTranslation();
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toISOString().split("T")[0]; 
-  };
-
-  const [editedCoupon, setEditedCoupon] = useState({
-    _id: coupon._id,
-    code: coupon.code || "",
-    discount: coupon.discount || "",
-    expiresAt: formatDate(coupon.expiresAt) || "",
-    usageLimit: coupon.usageLimit || "",
-    status: coupon.status || "inactive",
+  const { control, register, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: {
+      _id: coupon._id,
+      code: coupon.code,
+      discount: coupon.discount,
+      expiresAt: coupon.expiresAt.slice(0, 10),
+      usageLimit: coupon.usageLimit,
+      status: coupon.status,
+    }
   });
 
   const [loadingSave, setLoadingSave] = useState(false);
 
-  const handleFieldChange = (e) => {
-    const { name, value } = e.target;
-    setEditedCoupon({ ...editedCoupon, [name]: value });
-  };
-
-  const handleSwitchChange = (event) => {
-    const isActive = event.target.checked;
-    setEditedCoupon({
-      ...editedCoupon,
-      status: isActive ? "active" : "inactive",
-    });
-  };
-
-  const handleSave = async () => {
+  const onSubmit = async (data) => {
     setLoadingSave(true);
-
     try {
       await onSave({
-        ...editedCoupon,
-        expiresAt: new Date(editedCoupon.expiresAt).toISOString(),
+        ...data,
+        expiresAt: new Date(data.expiresAt).toISOString(),
+        status: data.status,
       });
       onClose();
     } catch (error) {
@@ -85,81 +68,91 @@ function EditCouponForm({ coupon, onSave, onCancel, open, onClose }) {
           {t("Edit Coupon")}
         </Typography>
 
-        <TextField
-          label={t("Coupon Code")}
-          name="code"
-          value={editedCoupon.code}
-          onChange={handleFieldChange}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-        />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <TextField
+            label={t("Coupon Code")}
+            name="code"
+            {...register("code", { required: true })}
+            error={!!errors.code}
+            helperText={errors.code?.message || ""}
+            fullWidth
+            sx={{ marginBottom: 2 }}
+          />
 
-        <TextField
-          label={t("Discount (%)")}
-          name="discount"
-          value={editedCoupon.discount}
-          onChange={handleFieldChange}
-          fullWidth
-          type="number"
-          sx={{ marginBottom: 2 }}
-        />
+          <TextField
+            label={t("Discount (%)")}
+            name="discount"
+            {...register("discount", { required: true })}
+            error={!!errors.discount}
+            helperText={errors.discount?.message || ""}
+            fullWidth
+            type="number"
+            sx={{ marginBottom: 2 }}
+          />
 
-        <TextField
-          label={t("Expiration Date")}
-          name="expiresAt"
-          value={editedCoupon.expiresAt}
-          onChange={handleFieldChange}
-          fullWidth
-          type="date"
-          sx={{ marginBottom: 2 }}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
+          <TextField
+            label={t("Expiration Date")}
+            name="expiresAt"
+            {...register("expiresAt", { required: true })}
+            error={!!errors.expiresAt}
+            helperText={errors.expiresAt?.message || ""}
+            fullWidth
+            type="date"
+            sx={{ marginBottom: 2 }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
 
-        <TextField
-          label={t("Usage Limit")}
-          name="usageLimit"
-          value={editedCoupon.usageLimit}
-          onChange={handleFieldChange}
-          fullWidth
-          type="number"
-          sx={{ marginBottom: 2 }}
-        />
+          <TextField
+            label={t("Usage Limit")}
+            name="usageLimit"
+            {...register("usageLimit")}
+            error={!!errors.usageLimit}
+            helperText={errors.usageLimit?.message || ""}
+            fullWidth
+            type="number"
+            sx={{ marginBottom: 2 }}
+          />
 
-        <Stack direction="column" alignItems="center" sx={{ marginBottom: 2 }}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <FormControlLabel
-              labelPlacement="start"
-              label={
-                <Typography variant="body2">
-                  {editedCoupon.status === "active" ? t("Active") : t("Inactive")}
-                </Typography>
-              }
-              control={
-                <Switch
-                  name="status"
-                  checked={editedCoupon.status === "active"}
-                  onChange={handleSwitchChange}
+          <Stack direction="row" spacing={2} alignItems="center" justifyContent="center">
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <FormControlLabel
+                  label={
+                    <Typography variant="body2">
+                      {field.value === "active" ? t("Active") : t("Inactive")}
+                    </Typography>
+                  }
+                  control={
+                    <Switch
+                      checked={field.value === "active"}
+                      onChange={(e) =>
+                        field.onChange(e.target.checked ? "active" : "inactive")
+                      }
+                    />
+                  }
                 />
-              }
+              )}
             />
           </Stack>
-        </Stack>
 
-        <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
-          <LoadingButton
-            loading={loadingSave}
-            onClick={handleSave}
-            variant="contained"
-            sx={{ flex: 1 }}
-          >
-            {t("Save")}
-          </LoadingButton>
-          <Button onClick={onCancel} variant="outlined" sx={{ flex: 1 }}>
-            {t("Cancel")}
-          </Button>
-        </Stack>
+          <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
+            <LoadingButton
+              loading={loadingSave}
+              type="submit"
+              variant="contained"
+              sx={{ flex: 1 }}
+            >
+              {t("Save")}
+            </LoadingButton>
+            <Button onClick={onCancel} variant="outlined" sx={{ flex: 1 }}>
+              {t("Cancel")}
+            </Button>
+          </Stack>
+        </form>
       </Stack>
     </Modal>
   );

@@ -1,6 +1,7 @@
 // Shadow Of Leaf Was Here
 
 const { Product } = require("../models/Product");
+const { Review } = require("../models/Review");
 const { SubCategory } = require("../models/SubCategory");
 const { Category } = require("../models/Category");
 
@@ -212,9 +213,50 @@ const DeleteProductById = async (req, res) => {
   }
 };
 
+const updateReview = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { newRating, newComment } = req.body;
+
+    try {
+      const review = await Review.findById(reviewId);
+      if (!review) throw new Error("Review not found");
+
+      const product = await Product.findById(review.product);
+      if (!product) throw new Error("Product not found");
+
+      const oldRating = review.rating;
+      const totalRating = product.average_rating * product.total_reviews;
+      const newAverageRating =
+        (totalRating - oldRating + newRating) / product.total_reviews;
+
+      review.rating = newRating;
+      review.comment = newComment;
+      await review.save();
+
+      product.average_rating = newAverageRating.toFixed(1);
+      await product.save();
+
+      console.log("Product review and ratings updated successfully!");
+      return {
+        success: true,
+        message: "Review updated in product model successfully!",
+      };
+    } catch (error) {
+      console.error("Error updating review in product model:", error.message);
+      throw new Error("Failed to update review in product model");
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createData,
   searchingItems,
+  updateReview,
   RetrievingItems,
   categorySub,
   RetrieveById,

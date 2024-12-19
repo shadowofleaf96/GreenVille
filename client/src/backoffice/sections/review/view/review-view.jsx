@@ -10,8 +10,6 @@ import TableBody from "@mui/material/TableBody";
 import Typography from "@mui/material/Typography";
 import Popover from "@mui/material/Popover";
 import TableContainer from "@mui/material/TableContainer";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
 import { useTranslation } from "react-i18next";
 import TablePagination from "@mui/material/TablePagination";
 
@@ -19,16 +17,14 @@ import Iconify from "../../../components/iconify/index.js";
 import Scrollbar from "../../../components/scrollbar/index.js";
 
 import TableNoDataFilter from "../table-no-data.jsx";
-import axios from "axios";
 
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import CouponTableRow from "../coupon-table-row.jsx";
-import CouponTableHead from "../coupon-table-head.jsx";
+import ReviewTableRow from "../review-table-row.jsx";
+import ReviewTableHead from "../review-table-head.jsx";
 import TableEmptyRows from "../table-empty-rows.jsx";
-import CouponTableToolbar from "../coupon-table-toolbar.jsx";
-import EditCouponForm from "../coupon-edit.jsx";
-import NewCouponForm from "../new-coupon-form.jsx";
+import ReviewTableToolbar from "../review-table-toolbar.jsx";
+import EditReviewForm from "../review-edit.jsx";
 
 import { emptyRows, applyFilter, getComparator } from "../utils.js";
 import {
@@ -36,7 +32,7 @@ import {
   setLoading,
   setError,
   setFilterName,
-} from "../../../../redux/backoffice/couponSlice.js";
+} from "../../../../redux/backoffice/reviewSlice.js";
 import Loader from "../../../../frontoffice/components/loader/Loader.jsx";
 import createAxiosInstance from "../../../../utils/axiosConfig.jsx";
 import { toast } from "react-toastify";
@@ -44,25 +40,24 @@ import { Backdrop } from "@mui/material";
 
 // ----------------------------------------------------------------------
 
-export default function CouponView() {
+export default function ReviewView() {
   const dispatch = useDispatch();
-  const { t } = useTranslation();
-
-  const data = useSelector((state) => state.adminCoupon.data);
-  const error = useSelector((state) => state.adminCoupon.error);
-  const loading = useSelector((state) => state.adminCoupon.loading);
-  const filterName = useSelector((state) => state.adminCoupon.filterName);
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language
+  const data = useSelector((state) => state.adminReview.data);
+  const error = useSelector((state) => state.adminReview.error);
+  const loading = useSelector((state) => state.adminReview.loading);
+  const filterName = useSelector((state) => state.adminReview.filterName);
   const [page, setPage] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const [order, setOrder] = useState("asc");
   const [selected, setSelected] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  const [editingCoupon, setEditingCoupon] = useState(null);
+  const [editingReview, setEditingReview] = useState(null);
   const [orderBy, setOrderBy] = useState("name");
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [isNewCouponFormOpen, setNewCouponFormOpen] = useState(false);
   const [isDeleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
-  const [selectedDeleteCouponId, setSelectedDeleteCouponId] =
+  const [selectedDeleteReviewId, setSelectedDeleteReviewId] =
     useState(null);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const axiosInstance = createAxiosInstance("admin")
@@ -71,8 +66,8 @@ export default function CouponView() {
     try {
       dispatch(setLoading(true));
 
-      const response = await axiosInstance.get("/coupons");
-      const data = response?.data?.data;
+      const response = await axiosInstance.get("/reviews");
+      const data = response?.data.data;
       dispatch(setData(data));
     } catch (err) {
       dispatch(setError(err));
@@ -85,8 +80,6 @@ export default function CouponView() {
     fetchData();
     dispatch(setData(data));
   }, [dispatch]);
-
-
 
   if (loading) {
     return (
@@ -139,14 +132,14 @@ export default function CouponView() {
     setSelected(newSelected);
   };
 
-  const openDeleteConfirmation = (event, couponId) => {
-    setSelectedDeleteCouponId(couponId);
+  const openDeleteConfirmation = (event, reviewId) => {
+    setSelectedDeleteReviewId(reviewId);
     setAnchorEl(event.currentTarget);
     setDeleteConfirmationOpen(true);
   };
 
   const closeDeleteConfirmation = () => {
-    setSelectedDeleteCouponId(null);
+    setSelectedDeleteReviewId(null);
     setDeleteConfirmationOpen(false);
     setAnchorEl(null);
   };
@@ -166,39 +159,31 @@ export default function CouponView() {
     setPage(0);
   };
 
-  const handleEditCoupon = (coupon) => {
-    setEditingCoupon(coupon);
+  const handleEditReview = (review) => {
+    setEditingReview(review);
     setOpenModal(true);
   };
 
-  const handleSaveEditedCoupon = async (editedCoupon) => {
+  const handleSaveEditedReview = async (editedReview) => {
+    console.log('Edited Review before API call:', editedReview);
+
     setLoadingDelete(true);
     try {
       const response = await axiosInstance.put(
-        `/coupons/${editedCoupon._id}`,
-        editedCoupon
+        `/reviews/${editedReview._id}`,
+        editedReview
       );
 
-      const index = data.findIndex((coupon) => coupon._id === editedCoupon._id);
-
+      const index = data.findIndex((review) => review._id === editedReview._id);
       if (index !== -1) {
-        const updatedCoupons = [...data];
-        updatedCoupons[index] = {
-          ...updatedCoupons[index],
-          code: editedCoupon.code,
-          discount: editedCoupon.discount,
-          expiresAt: editedCoupon.expiresAt,
-          usageLimit: editedCoupon.usageLimit,
-          status: editedCoupon.status,
-        };
-
-        dispatch(setData(updatedCoupons));
+        const updatedReviews = response.data.data;
+        dispatch(setData([updatedReviews]));
         toast.success(response.data.message);
-        setEditingCoupon(null);
+        setEditingReview(null);
         setOpenModal(false);
       }
     } catch (error) {
-      console.error("Error editing coupon:", error);
+      console.error("Error editing review:", error);
       toast.error("Error: " + (error.response?.data?.message || "An error occurred"));
     } finally {
       setLoadingDelete(false);
@@ -207,61 +192,22 @@ export default function CouponView() {
 
 
   const handleCancelEdit = () => {
-    setEditingCoupon(null);
+    setEditingReview(null);
   };
 
-  const handleDeleteCoupon = async (couponId) => {
+  const handleDeleteReview = async (reviewId) => {
     setLoadingDelete(true);
     try {
-      const response = await axiosInstance.delete(`/coupons/${couponId}`);
-      const updatedCoupons = data.filter(
-        (coupon) => coupon._id !== couponId
+      const response = await axiosInstance.delete(`/reviews/${reviewId}`);
+      const updatedReviews = data.filter(
+        (review) => review._id !== reviewId
       );
-      dispatch(setData(updatedCoupons));
+      dispatch(setData(updatedReviews));
       toast.success(response.data.message);
     } catch (error) {
-      console.error("Error deleting coupon:", error);
+      console.error("Error deleting review:", error);
       toast.error("Error: " + error.response.data.message);
     } finally {
-      setLoadingDelete(false);
-    }
-  };
-
-  const handleOpenNewCouponForm = () => {
-    setNewCouponFormOpen(true);
-  };
-
-  const handleCloseNewCouponForm = () => {
-    setNewCouponFormOpen(false);
-  };
-
-  const handleSaveNewCoupon = async (newCoupon) => {
-    setLoadingDelete(true);
-
-    try {
-      const response = await axiosInstance.post("/coupons/create", newCoupon);
-      const coupondata = response.data.data;
-      console.log(coupondata)
-      console.log(newCoupon)
-      const AddedCoupons = {
-        key: coupondata._id,
-        _id: coupondata._id,
-        code: newCoupon.code,
-        discount: newCoupon.discount,
-        expiresAt: newCoupon.expiresAt,
-        usageLimit: newCoupon.usageLimit,
-        status: coupondata.status,
-      };
-
-      dispatch(setData([...data, AddedCoupons]));
-      toast.success(response.data.message);
-      console.log(response.data.message)
-
-    } catch (error) {
-      console.error("Error creating new coupon:", error);
-      toast.error("Error: " + error.response.data.message);
-    } finally {
-      handleCloseNewCouponForm();
       setLoadingDelete(false);
     }
   };
@@ -270,6 +216,7 @@ export default function CouponView() {
     inputData: data,
     comparator: getComparator(order, orderBy),
     filterName,
+    currentLanguage
   });
 
   const notFound = !dataFiltered.length;
@@ -282,19 +229,11 @@ export default function CouponView() {
         justifyContent="space-between"
         mb={5}
       >
-        <Typography variant="h4">{t("Coupons")}</Typography>
-        <Fab
-          variant="contained"
-          onClick={handleOpenNewCouponForm}
-          color="primary"
-          aria-label="add"
-        >
-          <Iconify icon="material-symbols-light:add" width={36} height={36} />
-        </Fab>
+        <Typography variant="h4">{t("Reviews")}</Typography>
       </Stack>
 
       <Card>
-        <CouponTableToolbar
+        <ReviewTableToolbar
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
@@ -306,7 +245,7 @@ export default function CouponView() {
         <Scrollbar>
           <TableContainer sx={{ overflow: "unset" }}>
             <Table sx={{ minWidth: 800 }}>
-              <CouponTableHead
+              <ReviewTableHead
                 order={order}
                 orderBy={orderBy}
                 rowCount={data.length}
@@ -314,10 +253,11 @@ export default function CouponView() {
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: "code", label: t("Coupon Code") },
-                  { id: "discount", label: t("Discount (%)") },
-                  { id: "expiresAt", label: t("Expires At") },
-                  { id: "usageLimit", label: t("Usage Limit") },
+                  { id: "product", label: t("Prdouct Name") },
+                  { id: "customer", label: t("Customer Name") },
+                  { id: "rating", label: t("Rating") },
+                  { id: "comment", label: t("Comment") },
+                  { id: "review_date", label: t("Review Date") },
                   { id: "status", label: t("Status") },
                   { id: " " },
                 ]}
@@ -326,20 +266,21 @@ export default function CouponView() {
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => {
-                    const { code, discount, usageLimit, expiresAt, status } = row;
-                    const expirationDate = new Date(expiresAt).toLocaleDateString();
+                    const { product_id, customer_id, rating, comment, review_date, status } = row;
+                    const reviewDate = new Date(review_date).toLocaleDateString();
 
                     return (
-                      <CouponTableRow
+                      <ReviewTableRow
                         key={row._id}
-                        code={code}
-                        discount={discount}
-                        expiresAt={expirationDate}
-                        usageLimit={usageLimit}
+                        product={product_id.product_name[currentLanguage]}
+                        customer={customer_id.first_name + " " + customer_id.last_name}
+                        rating={rating}
+                        comment={comment}
+                        review_date={reviewDate}
                         status={status}
                         selected={selected.indexOf(row._id) !== -1}
                         handleClick={(event) => handleClick(event, row._id)}
-                        onEdit={() => handleEditCoupon(row)}
+                        onEdit={() => handleEditReview(row)}
                         onDelete={(event) => openDeleteConfirmation(event, row._id)}
                       />
                     );
@@ -367,17 +308,10 @@ export default function CouponView() {
         />
       </Card>
 
-      <NewCouponForm
-        open={isNewCouponFormOpen}
-        onSave={handleSaveNewCoupon}
-        onCancel={handleCloseNewCouponForm}
-        onClose={handleCloseNewCouponForm}
-      />
-
-      {editingCoupon && (
-        <EditCouponForm
-          coupon={editingCoupon}
-          onSave={handleSaveEditedCoupon}
+      {editingReview && (
+        <EditReviewForm
+          review={editingReview}
+          onSave={handleSaveEditedReview}
           onCancel={handleCancelEdit}
           open={openModal}
           onClose={() => setOpenModal(false)}
@@ -417,7 +351,7 @@ export default function CouponView() {
           color="primary"
           loading={loadingDelete}
           onClick={() => {
-            handleDeleteCoupon(selectedDeleteCouponId);
+            handleDeleteReview(selectedDeleteReviewId);
             closeDeleteConfirmation();
           }}
         >

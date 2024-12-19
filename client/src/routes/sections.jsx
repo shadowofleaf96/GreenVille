@@ -15,6 +15,7 @@ import SetGooglePassword from "../frontoffice/pages/auth/setGooglePassword/SetGo
 import CheckEmail from "../frontoffice/pages/auth/checkEmail/CheckEmail";
 import SingleProduct from "../frontoffice/pages/singleProduct/SingleProduct";
 import Cart from "../frontoffice/pages/cart/Cart";
+import Reviews from "../frontoffice/pages/review/Review";
 import Shipping from "../frontoffice/pages/cart/shipping/Shipping";
 import ConfirmOrder from "../frontoffice/pages/cart/confirmOrder/ConfirmOrder";
 import Payment from "../frontoffice/pages/cart/payment/Payment";
@@ -35,6 +36,7 @@ import TermsAndConditions from "../frontoffice/pages/policies/TermsConditions";
 import ReturnsAndExchanges from "../frontoffice/pages/policies/ReturnsExchanges";
 import ShippingAndDeliveryPolicy from "../frontoffice/pages/policies/ShippingDelivery";
 import RefundPolicy from "../frontoffice/pages/policies/RefundPolicy";
+import ReviewPage from "../backoffice/pages/review";
 
 export const IndexPage = lazy(() => import("../backoffice/pages/app"));
 export const CategoryPage = lazy(() => import("../backoffice/pages/category"));
@@ -65,6 +67,7 @@ export default function Router() {
         hideProgressBar={true}
         position="bottom-left" transition={Slide}
       />
+      {/* Public Frontoffice routes */}
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route path="/" element={<Home />} />
@@ -75,6 +78,7 @@ export default function Router() {
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/return" element={<ReturnsAndExchanges />} />
           <Route path="/shippingpolicy" element={<ShippingAndDeliveryPolicy />} />
+          <Route path="/review" element={<Reviews />} />
           <Route path="/refund" element={<RefundPolicy />} />
           <Route path="/categories" element={<Category />} />
           <Route path="/products/:subcategory/*" element={<Products />} />
@@ -88,6 +92,7 @@ export default function Router() {
         <Route path="/login" element={<Login />} exact />
         <Route path="*" element={<Page404 />} />
 
+        {/* Private Backoffice routes */}
         <Route path="/admin" element={<ProtectedRoute />}>
           <Route index element={<IndexPage />} />
           <Route path="profile" element={<ProfilePage />} />
@@ -96,12 +101,15 @@ export default function Router() {
           <Route path="subcategory" element={<SubCategoryPage />} />
           <Route path="coupon" element={<CouponPage />} />
           <Route path="order" element={<OrderPage />} />
-          <Route path="products" element={<ProductPage />} />
+          <Route path="product" element={<ProductPage />} />
+          <Route path="review" element={<ReviewPage />} />
           <Route path="paymentlist" element={<PaymentListPage />} />
           <Route path="customer" element={<CustomerPage />} />
         </Route>
+        {/* Public Backoffice routes */}
         <Route path="admin/login" element={<LoginView />} />
 
+        {/* Private Frontoffice routes */}
         <Route path="/" element={<FrontProtectedRoute />}>
           <Route path="/profile/update" element={<UpdateProfile />} />
           <Route path="/profile/orders" element={<MyOrders />} />

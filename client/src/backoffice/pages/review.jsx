@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 
-import { CouponView } from '../sections/coupon/view';
+import { ReviewView } from '../sections/review/view';
 
 // ----------------------------------------------------------------------
 
-export default function CouponPage() {
+export default function ReviewPage() {
   return (
     <>
       <Helmet>
-        <title> Coupon | GreenVille </title>
+        <title> Review | GreenVille </title>
       </Helmet>
 
-      <CouponView />
+      <ReviewView />
     </>
   );
 }

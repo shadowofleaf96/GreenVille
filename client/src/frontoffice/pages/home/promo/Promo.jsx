@@ -18,9 +18,19 @@ const Promo = ({ products }) => {
     const { current } = ref;
     if (current) {
       if (direction === "left") {
-        current.scrollLeft -= 300;
-      } else {
-        current.scrollLeft += 300;
+        current.scrollTo({ left: 0, behavior: "smooth" });
+      } else if (direction === "right") {
+        const scrollWidth = current.scrollWidth;
+        const clientWidth = current.clientWidth;
+        const scrollLeft = current.scrollLeft;
+
+        const buffer = 10;
+
+        if (scrollLeft + clientWidth + buffer >= scrollWidth) {
+          current.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          current.scrollTo({ left: current.scrollWidth - current.offsetWidth, behavior: "smooth" });
+        }
       }
     }
   };
@@ -28,7 +38,18 @@ const Promo = ({ products }) => {
   const setupAutoScroll = (ref, intervalTime) => {
     useEffect(() => {
       const interval = setInterval(() => {
-        scroll("right", ref);
+        const { current } = ref;
+        if (current) {
+          const scrollWidth = current.scrollWidth;
+          const clientWidth = current.clientWidth;
+          const scrollLeft = current.scrollLeft;
+
+          if (scrollLeft + clientWidth >= scrollWidth) {
+            current.scrollTo({ left: 0, behavior: "smooth" });
+          } else {
+            scroll("right", ref);
+          }
+        }
       }, intervalTime);
 
       return () => clearInterval(interval);
@@ -50,7 +71,6 @@ const Promo = ({ products }) => {
   setupAutoScroll(scrollRef3, 7500);
 
   const noProductsAvailable = !products || products.length === 0;
-
 
   return (
     <div className="relative mt-6 mb-6 mx-4 md:mx-0 select-none">
