@@ -86,7 +86,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link
-                    className="flex items-center justify-center md:justify-start text-gray-600 hover:text-[#8DC63F] transition duration-300"
+                    className="flex items-center md:justify-start text-gray-600 hover:text-[#8DC63F] transition duration-300"
                     to="/shippingpolicy"
                   >
                     <Iconify icon="mdi:truck-delivery-outline" width={16} className="mr-2 rtl:ml-2" />

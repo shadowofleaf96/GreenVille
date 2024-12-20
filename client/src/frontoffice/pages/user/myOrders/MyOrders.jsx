@@ -49,14 +49,14 @@ const MyOrders = () => {
                         <ProfileLink />
                     </div>
 
-                    <div className="md:col-span-3 place-content-center bg-white shadow-lg rounded-lg p-6">
+                    <div className="md:col-span-3 place-content-center bg-white shadow-lg rounded-lg p-2 md:p-6">
                         {loading ? (
                             <Loader />
                         ) : (
                             <>
                                 {orders && (
                                     <Fragment>
-                                        <div className="p-6 bg-white shadow-sm rounded-lg">
+                                        <div className="p-2 md:p-6 bg-white shadow-sm rounded-lg">
                                             {orders.length === 0 ? (
                                                 <div className="flex flex-col items-center justify-center text-justify">
                                                     <Iconify className="mb-2" icon="mdi:cart" width={100} height={100} />
@@ -125,18 +125,28 @@ const MyOrders = () => {
                                                                                 src={typeof item?.product.product_images === "string" ? `${item?.product.product_images}` : `${item?.product.product_images[0]}`}
                                                                                 alt={item.product.product_name[currentLanguage]}
                                                                             />
-                                                                            <p className="text-gray-700 font-medium text-right">{item.product.product_name[currentLanguage]}</p>
-                                                                            <p className="text-gray-500 text-justify">x{item.quantity}</p>
-                                                                            <p className="font-semibold text-gray-700 text-justify">{item.price} DH</p>
+                                                                            <p className="text-gray-700 font-medium text-xs md:text-sm text-right">{item.product.product_name[currentLanguage]}</p>
+                                                                            <p className="text-gray-500 text-justify text-xs md:text-sm">x{item.quantity}</p>
+                                                                            <p className="font-semibold text-gray-700 text-justify text-xs lg:text-sm">{item.price} DH</p>
 
                                                                             <button
-                                                                                className={`px-4 py-2 mt-2 text-white rounded-md ${!order.is_review_allowed ? "bg-gray-400 cursor-not-allowed" : "bg-[#8DC63F] shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"}`}
+                                                                                className={`px-2 py-2 md:px-4 md:py-2 mt-2 flex items-center justify-center text-white text-xs md:text-sm rounded-md ${!order.is_review_allowed ? "bg-gray-400 cursor-not-allowed" : "bg-[#8DC63F] shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"}`}
                                                                                 disabled={!order.is_review_allowed}
                                                                                 onClick={() =>
                                                                                     handleLeaveReview(item.product._id, order.order_date, order.customer._id)
                                                                                 }
                                                                             >
-                                                                                {!order.is_review_allowed ? t("reviewClosed") : t("leaveReview")}
+                                                                                <Iconify
+                                                                                    icon="material-symbols-light:reviews-outline-rounded"
+                                                                                    width={24}
+                                                                                    height={24}
+                                                                                    className="mr-0 md:mr-1 rtl:ml-1"
+                                                                                >
+
+                                                                                </Iconify>
+                                                                                <span className="hidden md:block">
+                                                                                    {!order.is_review_allowed ? t("reviewClosed") : t("leaveReview")}
+                                                                                </span>
                                                                             </button>
                                                                         </div>
                                                                     ))}

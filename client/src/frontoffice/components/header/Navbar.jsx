@@ -6,6 +6,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Announcement from "../announcement/Announcement";
 import Loader from "../loader/Loader";
+import { Avatar } from "@mui/material";
 import { logout, fetchCustomerProfile } from "../../../redux/frontoffice/customerSlice";
 import LanguagePopover from "../../../backoffice/layouts/dashboard/common/language-popover";
 import { useTranslation } from "react-i18next";
@@ -43,7 +44,7 @@ const Navbar = () => {
   const logoutHandler = async () => {
     localStorage.removeItem("customer_access_token");
     dispatch(logout());
-    toast.success("You have been Logged out");
+    toast.success(t("You have been Logged out"));
     router("/");
   };
 
@@ -132,7 +133,7 @@ const Navbar = () => {
                 {customer ? (
                   <div className="relative" ref={dropdownRef}>
                     <button className="focus:outline-none" onClick={() => setDropdown(!dropdown)}>
-                      <img className="h-12 w-12 rounded-full border-5 border-black" src={`${customer.customer_image}`} alt={`${customer.first_name} ${customer.last_name}`} />
+                      <Avatar className="h-12 w-12 rounded-full border-5 border-black" src={`${customer.customer_image}`} alt={`${customer.first_name} ${customer.last_name}`} />
                     </button>
                     {dropdown && (
                       <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
@@ -154,7 +155,7 @@ const Navbar = () => {
                 )}
               </>
             )}
-          <LanguagePopover />
+            <LanguagePopover />
           </div>
           <div className="md:hidden flex items-center ml-4">
             <Iconify icon="material-symbols-light:menu-rounded" width={28} height={28} onClick={() => setToggle(true)} />

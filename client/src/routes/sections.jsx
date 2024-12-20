@@ -50,7 +50,11 @@ export const UserPage = lazy(() => import("../backoffice/pages/user"));
 export const LoginPage = lazy(() => import("../backoffice/pages/login"));
 export const ProductPage = lazy(() => import("../backoffice/pages/product"));
 export const Page404 = lazy(() => import("../backoffice/pages/page-not-found"));
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
+import i18n from 'i18next';
 
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+const googleCaptchaKey = import.meta.env.VITE_CAPTCHA_SITE_KEY
 const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
 
 const initialOptions = {
@@ -58,6 +62,7 @@ const initialOptions = {
   currency: "USD",
   intent: "capture",
 };
+
 
 export default function Router() {
 
@@ -85,11 +90,33 @@ export default function Router() {
           <Route path="/product/:id" element={<SingleProduct />} />
         </Route>
 
-        <Route path="/register" element={<Register />} exact />
+        <Route path="/register" element={
+          <GoogleReCaptchaProvider
+            reCaptchaKey={googleCaptchaKey}
+            language={i18n.language}
+            container={{
+              parameters: {
+                badge: 'inline',
+              }
+            }}
+          >
+            <Register />
+          </GoogleReCaptchaProvider>} exact />
         <Route path="/reset-password/:token" element={<ResetPassword />} exact />
         <Route path="/set-password" element={<SetGooglePassword />} exact />
         <Route path="/check-email" element={<CheckEmail />} exact />
-        <Route path="/login" element={<Login />} exact />
+        <Route path="/login" element={
+          <GoogleReCaptchaProvider
+            reCaptchaKey={googleCaptchaKey}
+            language={i18n.language}
+            container={{
+              parameters: {
+                badge: 'inline',
+              }
+            }}
+          >
+            <Login />
+          </GoogleReCaptchaProvider>} exact />
         <Route path="*" element={<Page404 />} />
 
         {/* Private Backoffice routes */}

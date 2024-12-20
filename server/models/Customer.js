@@ -3,7 +3,7 @@ const { Schema, model, Types } = require("mongoose");
 
 const customerJoiSchema = Joi.object({
   _id: Joi.any().strip(),
-  customer_image: Joi.string(),
+  customer_image: Joi.string().allow(null, '').optional(),
   first_name: Joi.string().trim().max(25).required(),
   last_name: Joi.string().trim().max(25).required(),
   email: Joi.string().email().required(),

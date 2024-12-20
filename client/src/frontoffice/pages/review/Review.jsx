@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useForm } from "react-hook-form";
+import DOMPurify from "dompurify";
 import createAxiosInstance from "../../../utils/axiosConfig";
 import Iconify from "../../../backoffice/components/iconify";
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -8,12 +10,12 @@ import { toast } from "react-toastify";
 const Review = ({ productId, customerId, closeModal }) => {
   const { t, i18n } = useTranslation();
   const [productInfo, setProductInfo] = useState(null);
-  const [reviewMessage, setReviewMessage] = useState("");
   const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState("");
   const [submitDisabled, setSubmitDisabled] = useState(false);
   const axiosInstance = createAxiosInstance("customer");
   const currentLanguage = i18n.language;
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
   useEffect(() => {
     const fetchProductInfo = async () => {
@@ -27,27 +29,28 @@ const Review = ({ productId, customerId, closeModal }) => {
     fetchProductInfo();
   }, [axiosInstance, productId]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (data) => {
     setSubmitDisabled(true);
+
     try {
+      const sanitizedComment = DOMPurify.sanitize(data.comment);
       const response = await axiosInstance.post("/reviews/", {
         product_id: productId,
         customer_id: customerId,
         rating,
-        comment,
+        comment: sanitizedComment,
       });
 
       if (response.status === 201) {
         toast.success(t("reviewSubmitted"));
         closeModal();
+        reset();
       } else {
-        setReviewMessage(t("somethingWentWrong"));
+        toast.error(t("somethingWentWrong"));
       }
     } catch (error) {
-      setReviewMessage(t("somethingWentWrong"));
-      console.log(error);
+      toast.error(t("somethingWentWrong"));
+      console.error(error);
     } finally {
       setSubmitDisabled(false);
     }
@@ -73,7 +76,7 @@ const Review = ({ productId, customerId, closeModal }) => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-6">
           <label htmlFor="rating" className="block text-lg font-medium text-gray-700">
             {t("rating")}
@@ -100,10 +103,17 @@ const Review = ({ productId, customerId, closeModal }) => {
             id="comment"
             rows="4"
             className="w-full mt-3 p-4 border bg-white border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            required
+            {...register("comment", {
+              required: t("commentRequired"),
+              maxLength: {
+                value: 500,
+                message: t("commentTooLong"),
+              },
+            })}
           ></textarea>
+          {errors.comment && (
+            <p className="text-sm text-red-500 mt-1">{errors.comment.message}</p>
+          )}
         </div>
 
         <LoadingButton
@@ -116,12 +126,6 @@ const Review = ({ productId, customerId, closeModal }) => {
           {submitDisabled ? t("Loading...") : t("submitReview")}
         </LoadingButton>
       </form>
-
-      {reviewMessage && (
-        <div className="mt-4 text-center text-sm text-gray-600">
-          {reviewMessage}
-        </div>
-      )}
     </div>
   );
 };

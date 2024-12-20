@@ -6,6 +6,7 @@ import { logout } from "../../../redux/frontoffice/customerSlice";
 import Iconify from "../../../backoffice/components/iconify";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
+import { Avatar } from "@mui/material";
 const backend = import.meta.env.VITE_BACKEND_URL;
 
 
@@ -39,10 +40,10 @@ const ProfileLink = () => {
           <div className="bg-white shadow-lg rounded-2xl p-4">
             <div className="text-center mt-3">
               {customer && (
-                <img
+                <Avatar
                   src={`${customer?.customer_image}`}
                   alt={customer?.first_name + customer?.last_name}
-                  className="h-36 w-36 rounded-full border-4 border-[#e8daff] mx-auto"
+                  className="!h-36 !w-36 !rounded-full !border-4 !border-[#e8daff] !mx-auto"
                 />
               )}
 

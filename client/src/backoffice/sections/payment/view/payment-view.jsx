@@ -80,6 +80,10 @@ export default function PaymentView() {
     }
   };
 
+
+  /* to not forgot about this, if you see error 500, it means that there are some payments
+  that contains order_id, and that order_id is not existed */
+
   useEffect(() => {
     fetchData();
     dispatch(setData(data));

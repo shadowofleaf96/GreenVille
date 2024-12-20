@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import {
   loginStart,
@@ -14,8 +14,6 @@ import {
   Button,
   Paper,
   Typography,
-  Checkbox,
-  FormControlLabel,
   Link as MuiLink,
   Dialog,
   DialogTitle,
@@ -31,12 +29,17 @@ import { LoadingButton } from "@mui/lab";
 import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
+import {
+  GoogleReCaptchaProvider,
+  useGoogleReCaptcha
+} from 'react-google-recaptcha-v3';
 
 const Login = () => {
   const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const history = useNavigate();
   const [searchParams] = useSearchParams();
+  const [refreshReCaptcha, setRefreshReCaptcha] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [enteredForgotEmail, setEnteredForgotEmail] = useState("");
   const [loadingSave, setLoadingSave] = useState(false);
@@ -60,6 +63,17 @@ const Login = () => {
     }
   }, [loginSuccessFlag, searchParams, history]);
 
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
+  const handleReCaptchaVerify = useCallback(async () => {
+    if (!executeRecaptcha) {
+      return;
+    }
+    const captchaToken = await executeRecaptcha('loginAction');
+    return captchaToken;
+  }, [executeRecaptcha]);
+
+
   const handleOpenDialog = () => {
     setOpenDialog(true);
   };
@@ -80,10 +94,18 @@ const Login = () => {
     const sanitizedEmail = DOMPurify.sanitize(data.email);
     const sanitizedPassword = DOMPurify.sanitize(data.password);
 
+    const recaptchaToken = await handleReCaptchaVerify();
+    if (!recaptchaToken) {
+      toast.error("reCAPTCHA verification failed.");
+      setLoadingSave(false);
+      return;
+    }
+
     try {
       const response = await axiosInstance.post("/customers/login", {
         email: sanitizedEmail,
         password: sanitizedPassword,
+        recaptchaToken,
       });
 
       if (response.status === 200) {
@@ -101,6 +123,7 @@ const Login = () => {
     } catch (error) {
       toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
     } finally {
+      setRefreshReCaptcha(!refreshReCaptcha);
       setLoadingSave(false);
     }
   };
@@ -168,7 +191,7 @@ const Login = () => {
             textAlign: "center",
           }}
         >
-          <div className="max-w-[360px] md:max-w-[420px] p-5 md:p-10"
+          <div className="max-w-[400px] md:max-w-[450px] p-5 md:p-10"
           >
             <div className="flex justify-center mb-4">
               <Logo />

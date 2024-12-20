@@ -34,5 +34,5 @@ root.render(
         </GoogleOAuthProvider>
       </HelmetProvider>
     </PersistGate>
-  </Provider>
+  </Provider >
 );
