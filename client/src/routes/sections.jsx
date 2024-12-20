@@ -21,7 +21,9 @@ import ConfirmOrder from "../frontoffice/pages/cart/confirmOrder/ConfirmOrder";
 import Payment from "../frontoffice/pages/cart/payment/Payment";
 import Success from "../frontoffice/pages/cart/success/Success";
 import UpdateProfile from "../frontoffice/pages/user/updateProfile/UpdateProfile";
+import UpdateAddress from "../frontoffice/pages/user/updateAddress/UpdateAddress";
 import MyOrders from "../frontoffice/pages/user/myOrders/MyOrders";
+import MyProfile from "../frontoffice/pages/user/myProfile/myProfile";
 import About from "../frontoffice/pages/about/About";
 import Home from "../frontoffice/pages/home/Home";
 import Products from "../frontoffice/pages/products/Products";
@@ -138,7 +140,9 @@ export default function Router() {
 
         {/* Private Frontoffice routes */}
         <Route path="/" element={<FrontProtectedRoute />}>
-          <Route path="/profile/update" element={<UpdateProfile />} />
+        <Route path="/profile" element={<MyProfile />} />
+          <Route path="/profile/updateprofile" element={<UpdateProfile />} />
+          <Route path="/profile/updateaddress" element={<UpdateAddress />} />
           <Route path="/profile/orders" element={<MyOrders />} />
           <Route path="/shipping" element={<Shipping />} />
           <Route path="/confirm" element={<ConfirmOrder />} />

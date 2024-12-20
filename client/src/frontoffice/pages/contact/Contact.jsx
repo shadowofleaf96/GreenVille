@@ -113,7 +113,7 @@ const Contact = () => {
                   id="checkbox1"
                   type="checkbox"
                   {...register("agreeToTerms")}
-                  className="w-4 h-4 mr-3 accent-green-400"
+                  className="w-4 h-4 mr-3 accent-[#8DC63F]"
                 />
                 <label htmlFor="checkbox1" className="text-sm text-gray-600 rtl:mr-2">
                   {t("I agree to the")} <Link to="/terms" className="text-green-500">{t("Terms and Conditions")}</Link> {/* Translate link */}
@@ -124,7 +124,7 @@ const Contact = () => {
                 type="submit"
                 variant="contained"
                 loading={loading}
-                className="w-full bg-green-500 hover:bg-green-600 text-white rounded-md !py-3 !mt-4 !font-medium"
+                className="w-full bg-[#8DC63F] text-white !py-3 !mt-4 !font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
               >
                 {loading ? t("Sending...") : t("Send Message")}
               </LoadingButton>

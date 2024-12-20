@@ -137,7 +137,7 @@ const Navbar = () => {
                     </button>
                     {dropdown && (
                       <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
-                        <Link to="/profile/update" className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400" onClick={() => setDropdown(false)}>
+                        <Link to="/profile" className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400" onClick={() => setDropdown(false)}>
                           <Iconify className="m-2" icon="material-symbols-light:supervised-user-circle-outline" width={30} height={30} />
                           {t("Profile")}
                         </Link>

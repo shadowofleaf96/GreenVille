@@ -478,7 +478,8 @@ const validateCustomer = async (req, res) => {
 const updateCustomer = async (req, res) => {
   const customer_image = req.file;
   const customerId = req.params.id;
-  const { first_name, last_name, email, password, active } = req.body;
+  const { first_name, last_name, email, password, active, shipping_address } =
+    req.body;
 
   try {
     const customer = await Customer.findById(customerId);
@@ -502,20 +503,30 @@ const updateCustomer = async (req, res) => {
       customer.last_name = last_name;
     }
 
-    if (email) {
+   
+    if (email && email !== customer.email) {
+      const existingEmail = await Customer.findOne({ email });
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email is already in use" });
+      }
       customer.email = email;
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
 
     if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
       customer.password = hashedPassword;
+    }
+
+    if (shipping_address) {
+      customer.shipping_address = shipping_address;
     }
 
     if (active) {
       customer.active = active;
     }
 
+    await customer.validate();
     await customer.save();
 
     res.status(200).json({
@@ -523,7 +534,9 @@ const updateCustomer = async (req, res) => {
       data: customer,
     });
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({
+      message: "Internal server error " + error,
+    });
     console.log(error);
   }
 };

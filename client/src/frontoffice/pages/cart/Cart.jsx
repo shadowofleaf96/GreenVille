@@ -46,8 +46,7 @@ const Cart = () => {
       history("/login?redirect=/shipping");
     }
   };
-  console.log(cartItems)
-
+  
   return (
     <Fragment>
       <MetaData title={t("Cart")} />

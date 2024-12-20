@@ -4,14 +4,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import CheckoutSteps from "../checkoutSteps/CheckoutSteps";
 import { countries } from "countries-list";
+import { toast } from "react-toastify";
+import createAxiosInstance from "../../../../utils/axiosConfig";
 import { applyCouponCode, saveShippingInfo } from "../../../../redux/frontoffice/cartSlice";
 import MetaData from "../../../components/MetaData";
+import { LoadingButton } from "@mui/lab";
 
 const Shipping = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const history = useNavigate();
   const countriesList = Object.values(countries);
+  const { customer } = useSelector((state) => state.customers);
+  const axiosInstance = createAxiosInstance("customer")
   const { cartItems, shippingInfo } = useSelector((state) => state.carts);
 
   const itemsPrice = cartItems.reduce(
@@ -29,15 +34,46 @@ const Shipping = () => {
 
   const [address, setAddress] = useState(shippingInfo.address);
   const [city, setCity] = useState(shippingInfo.city);
+  const [loading, setLoading] = useState(false);
   const [postalCode, setPostalCode] = useState(shippingInfo.postalCode);
   const [phoneNo, setPhoneNo] = useState(shippingInfo.phoneNo);
   const [country, setCountry] = useState("Morocco");
+  const [saveToProfile, setSaveToProfile] = useState(true);
 
-  const submitHandler = (e) => {
+  const saveAddressToProfile = async () => {
+    setLoading(true);
+
+    try {
+      const shipping_address = {
+        street: address,
+        city,
+        postal_code: postalCode,
+        phone_no: phoneNo,
+        country,
+      };
+
+      console.log("shipping_address", shipping_address)
+      await axiosInstance.put(`/customers/${customer._id}`, { shipping_address });
+    } catch (error) {
+      console.error(error);
+      toast.error(t("Failed to save address to profile."));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitHandler = async (e) => {
     e.preventDefault();
+
     dispatch(saveShippingInfo({ address, city, phoneNo, postalCode, country }));
     dispatch(applyCouponCode(null));
+
+    if (saveToProfile) {
+      await saveAddressToProfile();
+    }
+
     history("/confirm", { replace: true });
+
   };
 
   return (
@@ -119,15 +155,29 @@ const Shipping = () => {
                     className="h-10 rounded-md border border-gray-300 px-4 bg-gray-200 w-full"
                   />
                 </div>
+                <div className="grid grid-cols-1 gap-2">
+                  <label htmlFor="save_to_profile" className="text-sm text-gray-600">
+                    <input
+                      type="checkbox"
+                      id="save_to_profile"
+                      checked={saveToProfile}
+                      onChange={(e) => setSaveToProfile(e.target.checked)}
+                      className="w-4 h-4 mr-3 accent-[#8DC63F]"
+                    />
+                    {t("SaveToProfile")}
+                  </label>
+                </div>
               </div>
 
               <div className="flex justify-center">
-                <button
+                <LoadingButton
                   type="submit"
-                  className="bg-[#8DC63F] text-white font-medium py-3 px-8 rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
+                  variant="contained"
+                  loading={loading}
+                  className="bg-[#8DC63F] text-white !font-medium !py-3 !px-8 rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
                 >
-                  {t("Continue")}
-                </button>
+                  {loading ? t("Loading...") : t("Continue")}
+                </LoadingButton>
               </div>
             </form>
           </div>

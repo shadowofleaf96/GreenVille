@@ -63,10 +63,10 @@ const UpdateProfile = () => {
       const response = await axiosInstance.put(`/customers/${customerId}`, formData);
       dispatch(fetchCustomerProfile(customerId));
       setLoading(false);
-      toast.success(response.data.message);
+      toast.success(t(response.data.message));
     } catch (error) {
       setLoading(false);
-      toast.error("Error: " + error.response.data.message);
+      toast.error("Error: " + (t(error.response.data.message)));
       console.log(error.response.data);
     }
   };

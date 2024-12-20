@@ -56,6 +56,21 @@ const ProfileLink = () => {
 
             <div className="flex flex-col mt-4 gap-3">
               <Link
+                to="/profile"
+                className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/profile")
+                  ? "bg-[#8DC63F] text-white"
+                  : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
+                  }`}
+              >
+                <Iconify
+                  icon="material-symbols-light:person-outline"
+                  width={28}
+                  height={28}
+                  className="mr-3"
+                />
+                {t("My Profile")}
+              </Link>
+              <Link
                 to="/profile/orders"
                 className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/profile/orders")
                   ? "bg-[#8DC63F] text-white"
@@ -71,8 +86,8 @@ const ProfileLink = () => {
                 {t("My Orders")}
               </Link>
               <Link
-                to="/profile/update"
-                className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/profile/update")
+                to="/profile/updateprofile"
+                className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/profile/updateprofile")
                   ? "bg-[#8DC63F] text-white"
                   : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
                   }`}
@@ -83,7 +98,22 @@ const ProfileLink = () => {
                   height={28}
                   className="mr-3"
                 />
-                {t('Edit Profile')}
+                {t('updateCustomer')}
+              </Link>
+              <Link
+                to="/profile/updateaddress"
+                className={`flex items-center py-2 px-4 rounded-lg transition duration-300 ${isActive("/profile/updateaddress")
+                  ? "bg-[#8DC63F] text-white"
+                  : "text-gray-600 hover:bg-[#8DC63F] hover:text-white"
+                  }`}
+              >
+                <Iconify
+                  icon="material-symbols-light:edit-rounded"
+                  width={28}
+                  height={28}
+                  className="mr-3"
+                />
+                {t('updateShippingAddress')}
               </Link>
               <button
                 onClick={logoutHandler}

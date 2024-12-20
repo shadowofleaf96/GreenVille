@@ -3,11 +3,18 @@ const { Schema, model, Types } = require("mongoose");
 
 const customerJoiSchema = Joi.object({
   _id: Joi.any().strip(),
-  customer_image: Joi.string().allow(null, '').optional(),
+  customer_image: Joi.string().allow(null, "").optional(),
   first_name: Joi.string().trim().max(25).required(),
   last_name: Joi.string().trim().max(25).required(),
   email: Joi.string().email().required(),
   password: Joi.string().required(),
+  shipping_address: Joi.object({
+    street: Joi.string().required(),
+    city: Joi.string().required(),
+    postal_code: Joi.string().required(),
+    phone_no: Joi.string().required(),
+    country: Joi.string().optional(), // since is a moroccan store, no need for country input //
+  }).optional(),
   creation_date: Joi.number(),
   last_login: Joi.number(),
   resetPasswordExpires: Joi.date(),
@@ -65,6 +72,13 @@ const customerSchema = new Schema(
     active: {
       type: Boolean,
       default: false,
+    },
+    shipping_address: {
+      street: String,
+      city: String,
+      phone_no: String,
+      postal_code: String,
+      country: String,
     },
   },
   { collection: "Customers", versionKey: false }

@@ -90,6 +90,7 @@ const Payment = () => {
         street: shippingInfo.address,
         city: shippingInfo.city,
         postal_code: shippingInfo.postalCode,
+        phone_no: shippingInfo.phoneNo,
         country: shippingInfo.country,
         state: shippingInfo.state || "",
       };
@@ -112,6 +113,7 @@ const Payment = () => {
       const orderResponse = await axiosInstance.post("/orders", orderData);
       return orderResponse.data.order._id;
     } catch (error) {
+      setLoading(false);
       console.error("Error creating order:", error);
       throw error;
     }

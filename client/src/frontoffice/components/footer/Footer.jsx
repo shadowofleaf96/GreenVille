@@ -60,7 +60,7 @@ const Footer = () => {
                 <li>
                   <Link
                     className="flex items-center justify-center md:justify-start text-gray-600 hover:text-[#8DC63F] transition duration-300"
-                    to="/profile/update"
+                    to="/profile/updateprofile"
                   >
                     <Iconify icon="ic:outline-account-circle" width={16} className="mr-2 rtl:ml-2" />
                     {t("footer.my_account")}

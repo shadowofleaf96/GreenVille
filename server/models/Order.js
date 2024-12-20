@@ -23,6 +23,7 @@ const orderJoiSchema = Joi.object({
     city: Joi.string().required(),
     postal_code: Joi.string().required(),
     country: Joi.string().required(),
+    phone_no: Joi.string().required(),
   }).required(),
   shipping_method: Joi.string().optional(),
   shipping_status: Joi.string()
@@ -81,6 +82,7 @@ const ordersSchema = mongoose.Schema(
       city: String,
       postal_code: String,
       country: String,
+      phone_no: String,
     },
     shipping_method: {
       type: String,
