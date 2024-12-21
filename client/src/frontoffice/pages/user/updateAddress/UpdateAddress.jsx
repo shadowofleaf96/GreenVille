@@ -31,10 +31,8 @@ const UpdateAddress = () => {
       city: data.city,
       postal_code: data.postal_code,
       phone_no: data.phone_number,
-      // country: data.country,
+      // country: data.country, not needed for now
     };
-
-    console.log("updatedShippingAddress", updatedShippingAddress);
 
     try {
       await handleSaveEditedShippingAddress(customer._id, updatedShippingAddress);
@@ -61,11 +59,11 @@ const UpdateAddress = () => {
     <Fragment>
       <MetaData title={t("Update Address")} />
       <div className="flex flex-col bg-white py-6 px-4">
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-4 px-4">
           <div className="md:col-span-1 mb-4 md:mb-0">
             <ProfileLink />
           </div>
-          <div className="md:col-span-3 bg-white shadow-lg rounded-lg p-6 md:p-8">
+          <div className="md:col-span-3 bg-white shadow-lg rounded-2xl p-4 md:p-8">
             <h4 className="text-xl font-bold mb-4">{t("Update Address")}</h4>
             <form
               className="space-y-4"
@@ -143,7 +141,7 @@ const UpdateAddress = () => {
                 loading={loading}
                 variant="contained"
                 sx={{ fontWeight: 500, fontSize: 15 }}
-                className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2"
+                className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-3 !mb-2 !bottom-0"
                 loadingPosition="center"
               >
                 {loading ? t("Updating...") : t("Update")}

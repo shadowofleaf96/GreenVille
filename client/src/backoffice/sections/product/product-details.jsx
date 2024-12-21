@@ -14,7 +14,7 @@ const backend = import.meta.env.VITE_BACKEND_URL;
 const ProductDetailsPopup = ({ product, open, onClose }) => {
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language;
-  const isActive = product?.active;
+  const isActive = product?.status;
   const color = isActive ? "primary" : "secondary";
   const imageArray = typeof product?.product_images === 'string' ? product?.product_images.split(',') : product?.product_images[0];
 

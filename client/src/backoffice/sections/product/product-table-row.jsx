@@ -23,7 +23,7 @@ export default function ProductTableRow({
   discount_price,
   option,
   creation_date,
-  active,
+  status,
   handleClick,
   onEdit,
   onDelete,
@@ -33,7 +33,7 @@ export default function ProductTableRow({
   const currentLanguage = i18n.language;
 
   const [open, setOpen] = useState(null);
-  const isActive = active;
+  const isActive = status;
   const color = isActive ? 'primary' : 'secondary';
 
   return (
@@ -80,7 +80,7 @@ export default function ProductTableRow({
                 discount_price,
                 option,
                 creation_date,
-                active,
+                status,
               })
             }
           >
@@ -125,7 +125,7 @@ ProductTableRow.propTypes = {
   quantity: PropTypes.number,
   option: PropTypes.array,
   creation_date: PropTypes.number,
-  active: PropTypes.bool,
+  status: PropTypes.bool,
   selected: PropTypes.bool,
   onDelete: PropTypes.func,
   onEdit: PropTypes.func,

@@ -10,7 +10,7 @@ const subcategoryJoiSchema = Joi.object({
     ar: Joi.string().trim().max(25).required(),
   }).required(),
   category_id: Joi.any().required(),
-  active: Joi.boolean().default(false),
+  status: Joi.boolean().default(false),
 });
 
 const subcategorieSchema = new Schema(
@@ -24,7 +24,7 @@ const subcategorieSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
-    active: {
+    status: {
       type: Boolean,
       default: false,
     },

@@ -187,7 +187,7 @@ export default function CustomerView() {
       formData.append("password", editedCustomer.password);
       formData.append("email", editedCustomer.email);
       formData.append("role", editedCustomer.role);
-      formData.append("active", editedCustomer.active);
+      formData.append("status", editedCustomer.status);
 
       if (selectedImage) {
         formData.append("customer_image", selectedImage);
@@ -213,7 +213,7 @@ export default function CustomerView() {
           email: editedCustomer.email,
           customer_name: editedCustomer.customer_name,
           role: editedCustomer.role,
-          active: editedCustomer.active,
+          status: editedCustomer.status,
         };
         dispatch(setData(updatedCustomers));
         toast.success(response.data.message);
@@ -309,7 +309,7 @@ export default function CustomerView() {
                   { id: "last_name", label: t("Last Name") },
                   { id: "email", label: t("Email Address") },
                   { id: "creation_date", label: t("Creation Date") },
-                  { id: "active", label: t("Active") },
+                  { id: "status", label: t("Status") },
                   { id: " " },
                 ]}
               />
@@ -325,7 +325,7 @@ export default function CustomerView() {
                         last_name={row.last_name}
                         email={row.email}
                         creation_date={row.creation_date}
-                        active={row.active}
+                        status={row.status}
                         selected={selected.indexOf(row._id) !== -1}
                         handleClick={(event) => handleClick(event, row._id)}
                         onEdit={() => handleEditCustomer(row)}

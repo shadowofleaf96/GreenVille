@@ -183,13 +183,14 @@ const Login = () => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
       >
+        <video autoPlay loop muted playsInline className="background-video" preload="auto"
+        >
+          <source src="https://res.cloudinary.com/donffivrz/video/upload/f_auto:video,q_auto/v1/greenville/public/videos/qdbnvi7dzfw7mc4i1mt7" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
         <Paper
           elevation={3}
-          style={{
-            backgroundColor: "white",
-            borderRadius: "20px",
-            textAlign: "center",
-          }}
+          className="form-container p-0.5 md:p-0 !rounded-2xl"
         >
           <div className="max-w-[400px] md:max-w-[450px] p-5 md:p-10"
           >

@@ -24,7 +24,7 @@ export default function SubCategoryTableRow({
   subcategory_name,
   category_id,
   category,
-  active,
+  status,
   handleClick,
   onEdit,
   onDelete,
@@ -35,7 +35,7 @@ export default function SubCategoryTableRow({
   const currentLanguage = i18n.language
 
   const [open, setOpen] = useState(null);
-  const isActive = active;
+  const isActive = status;
   const color = isActive ? "primary" : "secondary";
 
   return (
@@ -101,13 +101,12 @@ export default function SubCategoryTableRow({
   );
 }
 
-// PropType definitions for the component
 SubCategoryTableRow.propTypes = {
   handleClick: PropTypes.func,
   subcategory_name: PropTypes.string,
   category_id: PropTypes.string,
   category: PropTypes.string,
-  active: PropTypes.bool,
+  status: PropTypes.bool,
   selected: PropTypes.bool,
   onDelete: PropTypes.func,
   onEdit: PropTypes.func,

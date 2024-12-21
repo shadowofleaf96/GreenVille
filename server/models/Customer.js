@@ -20,7 +20,7 @@ const customerJoiSchema = Joi.object({
   resetPasswordExpires: Joi.date(),
   resetPasswordToken: Joi.string(),
   validation_token: Joi.string().allow(null),
-  active: Joi.boolean(),
+  status: Joi.boolean(),
 });
 
 const customerSchema = new Schema(
@@ -69,7 +69,7 @@ const customerSchema = new Schema(
       type: String,
       default: null,
     },
-    active: {
+    status: {
       type: Boolean,
       default: false,
     },

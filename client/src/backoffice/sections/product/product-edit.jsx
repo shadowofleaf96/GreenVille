@@ -50,7 +50,7 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
       discount_price: Product?.discount_price || 0,
       quantity: Product?.quantity || 0,
       option: Product?.option || "",
-      active: Product?.active || false,
+      status: Product?.status || false,
     },
     mode: "onChange",
   });
@@ -276,7 +276,7 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
 
                 <Stack direction="row" spacing={2} alignItems="center" justifyContent={"center"}>
                   <Controller
-                    name="active"
+                    name="status"
                     control={control}
                     render={({ field }) => (
                       <FormControlLabel

@@ -19,16 +19,16 @@ const MyProfile = () => {
         <Fragment>
             <MetaData title={t("title")} />
             <div className="min-h-screen bg-gray-100 py-10">
-                <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 px-4">
                     <div className="md:col-span-1">
                         <ProfileLink />
                     </div>
 
-                    <div className="md:col-span-3 place-content-center bg-white shadow-lg rounded-lg p-2 md:p-6">
+                    <div className="md:col-span-3 place-content-center bg-white shadow-lg rounded-2xl p-3 md:p-6">
                         {loading ? (
                             <Loader />
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-3 md:p-6">
                                 <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 flex flex-col">
                                     <h2 className="text-2xl font-semibold text-gray-800 mb-4">{t("customerInformation")}</h2>
                                     <div className="space-y-2 flex-grow">
@@ -43,7 +43,7 @@ const MyProfile = () => {
                                             loading={loading}
                                             variant="contained"
                                             sx={{ fontWeight: 500, fontSize: 15 }}
-                                            className="bg-[#8DC63F] text-white rounded-md text-sm px-6 py-2"
+                                            className="bg-[#8DC63F] text-white rounded-lg !px-6 !py-2"
                                             loadingPosition="center"
                                         >
                                             {loading ? t("updating") : t("updateCustomer")}
@@ -65,7 +65,7 @@ const MyProfile = () => {
                                             loading={loading}
                                             variant="contained"
                                             sx={{ fontWeight: 500, fontSize: 15 }}
-                                            className="bg-[#8DC63F] text-white rounded-md text-sm px-6 py-2"
+                                            className="bg-[#8DC63F] text-white rounded-lg !px-6 !py-2"
                                             loadingPosition="center"
                                         >
                                             {loading ? t("updating") : t("updateShippingAddress")}

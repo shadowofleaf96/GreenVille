@@ -14,7 +14,7 @@ function NewCouponForm({ onSave, onCancel, open, onClose }) {
   const { t } = useTranslation();
   const { control, register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
-      active: false,
+      status: false,
     },
   });
 
@@ -113,7 +113,7 @@ function NewCouponForm({ onSave, onCancel, open, onClose }) {
             <FormControlLabel
               control={
                 <Controller
-                  name="active"
+                  name="status"
                   control={control}
                   render={({ field }) => (
                     <FormControlLabel

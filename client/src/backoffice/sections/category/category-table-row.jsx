@@ -24,14 +24,14 @@ export default function CategoryTableRow({
   selected,
   category_name,
   handleClick,
-  active,
+  status,
   onEdit,
   onDelete,
   onDetails,
 }) {
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(null);
-  const isActive = active;
+  const isActive = status;
   const color = isActive ? "primary" : "secondary";
   const currentLanguage = i18n.language
 
@@ -99,7 +99,7 @@ export default function CategoryTableRow({
 
 CategoryTableRow.propTypes = {
   category_name: PropTypes.string,
-  active: PropTypes.bool,
+  status: PropTypes.bool,
   handleClick: PropTypes.func,
   selected: PropTypes.bool,
   onDelete: PropTypes.func,

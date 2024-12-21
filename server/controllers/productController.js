@@ -24,7 +24,7 @@ const createData = async (req, res) => {
     discount_price,
     option,
     quantity,
-    active,
+    status,
   } = req.body;
 
   const processedOption = Array.isArray(option) ? option[0] : option;
@@ -40,7 +40,7 @@ const createData = async (req, res) => {
     discount_price,
     option: processedOption,
     quantity,
-    active,
+    status,
   });
 
   product

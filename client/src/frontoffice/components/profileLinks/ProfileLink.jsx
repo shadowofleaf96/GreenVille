@@ -37,7 +37,7 @@ const ProfileLink = () => {
         <Loader />
       ) : (
         <Fragment>
-          <div className="bg-white shadow-lg rounded-2xl p-4">
+          <div className="bg-white shadow-lg rounded-2xl p-2 md:p-4">
             <div className="text-center mt-3">
               {customer && (
                 <Avatar

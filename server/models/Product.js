@@ -27,7 +27,7 @@ const productJoiSchema = Joi.object({
   total_reviews: Joi.number().positive().optional(),
   quantity: Joi.number().integer().required(),
   option: Joi.array().items(Joi.string()).optional(),
-  active: Joi.boolean().default(false),
+  status: Joi.boolean().default(false),
   creation_date: Joi.number().optional(),
   last_update: Joi.number().optional(),
 });
@@ -73,7 +73,7 @@ const productSchema = mongoose.Schema(
       required: true,
     },
     option: Array,
-    active: {
+    status: {
       type: Boolean,
       default: false,
     },

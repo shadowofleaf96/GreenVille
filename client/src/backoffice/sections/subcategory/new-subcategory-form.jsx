@@ -35,7 +35,7 @@ function NewSubCategoryForm({ onSave, onCancel, open, onClose }) {
         ar: "",
       },
       category_id: "",
-      active: false,
+      status: false,
     },
   });
 
@@ -64,7 +64,7 @@ function NewSubCategoryForm({ onSave, onCancel, open, onClose }) {
           ar: DOMPurify.sanitize(data.subcategory_name.ar),
         },
         category_id: data.category_id,
-        active: data.active,
+        status: data.status,
       };
       await onSave(sanitizedData);
       onClose();
@@ -184,7 +184,7 @@ function NewSubCategoryForm({ onSave, onCancel, open, onClose }) {
               <FormControlLabel
                 control={
                   <Controller
-                    name="active"
+                    name="status"
                     control={control}
                     render={({ field }) => (
                       <FormControlLabel

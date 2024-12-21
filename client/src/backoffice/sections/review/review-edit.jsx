@@ -133,12 +133,12 @@ function EditReviewForm({ review, onSave, onCancel, open, onClose }) {
                 <FormControlLabel
                   label={
                     <Typography variant="body2">
-                      {field.value === "active" ? t("Active") : t("Inactive")}
+                      {field.value === "status" ? t("Active") : t("Inactive")}
                     </Typography>
                   }
                   control={
                     <Switch
-                      checked={field.value === "active"}
+                      checked={field.value === "status"}
                       onChange={(e) =>
                         field.onChange(e.target.checked ? "active" : "inactive")
                       }

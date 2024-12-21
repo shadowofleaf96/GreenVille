@@ -2,7 +2,7 @@ const { Category } = require("../models/Category");
 const SubCategory = require("../models/SubCategory");
 
 const createCategory = async (req, res) => {
-  const { category_name, active } = req.body;
+  const { category_name, status } = req.body;
 
   if (
     !category_name ||
@@ -32,7 +32,7 @@ const createCategory = async (req, res) => {
 
     const newCategory = new Category({
       category_name,
-      active: active || false,
+      status: status || false,
     });
 
     await newCategory.save();
@@ -133,7 +133,7 @@ const getCategoryDetails = async (req, res, next) => {
 const updateCategory = async (req, res) => {
   try {
     const catId = req.params.id;
-    const { category_name, active } = req.body;
+    const { category_name, status } = req.body;
     const invalidFields = [];
 
     if (
@@ -164,8 +164,8 @@ const updateCategory = async (req, res) => {
       invalidFields.push("category_name");
     }
 
-    if (typeof active !== "undefined" && typeof active !== "boolean") {
-      invalidFields.push("active");
+    if (typeof status !== "undefined" && typeof status !== "boolean") {
+      invalidFields.push("status");
     }
 
     if (invalidFields.length > 0) {
@@ -177,8 +177,8 @@ const updateCategory = async (req, res) => {
     }
 
     existingCategory.category_name = category_name;
-    if (typeof active !== "undefined") {
-      existingCategory.active = active;
+    if (typeof status !== "undefined") {
+      existingCategory.status = status;
     }
 
     await existingCategory.save();

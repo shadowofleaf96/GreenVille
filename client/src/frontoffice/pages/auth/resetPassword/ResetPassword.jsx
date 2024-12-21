@@ -65,77 +65,84 @@ const ResetPassword = () => {
 
   return (
     <div className="backImage">
-      <Paper
-        elevation={3}
-        style={{
-          backgroundColor: "white",
-          borderRadius: "20px",
-          textAlign: "center",
-        }}
+      <motion.div
+        initial={{ scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
       >
-        <div className="max-w-[360px] md:max-w-[420px] p-5 md:p-10">
-          <div className="flex justify-center mb-4">
-            <Logo />
-          </div>
-          <Typography variant="h5" gutterBottom style={{ color: "black" }}>
-            {resetSuccess ? t("Password Reset Successful") : t("Reset Password")}
-          </Typography>
-          {resetSuccess ? (
-            <Typography variant="body1" style={{ color: "green" }}>
-              {t("Your password has been successfully reset.")}
+        <video autoPlay loop muted playsInline className="background-video" preload="auto"
+        >
+          <source src="https://res.cloudinary.com/donffivrz/video/upload/f_auto:video,q_auto/v1/greenville/public/videos/qdbnvi7dzfw7mc4i1mt7" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <Paper
+          elevation={3}
+          className="form-container p-0.5 md:p-0 !rounded-2xl"
+        >
+          <div className="max-w-[360px] md:max-w-[420px] p-5 md:p-10">
+            <div className="flex justify-center mb-4">
+              <Logo />
+            </div>
+            <Typography variant="h5" gutterBottom style={{ color: "black" }}>
+              {resetSuccess ? t("Password Reset Successful") : t("Reset Password")}
             </Typography>
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <TextField
-                {...register("newPassword", {
-                  required: t("Password is required"),
-                  minLength: {
-                    value: 8,
-                    message: t("Password must be at least 8 characters long"),
-                  },
-                })}
-                label={t("New Password")}
-                type="password"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                error={Boolean(errors.newPassword)}
-                helperText={errors.newPassword?.message}
-              />
-              <TextField
-                {...register("confirmPassword", {
-                  required: t("Please confirm your password"),
-                })}
-                label={t("Confirm Password")}
-                type="password"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                error={Boolean(errors.confirmPassword)}
-                helperText={errors.confirmPassword?.message}
-              />
-              {resetError && (
-                <Typography
-                  variant="body1"
-                  style={{ color: "red", marginTop: "10px" }}
+            {resetSuccess ? (
+              <Typography variant="body1" style={{ color: "green" }}>
+                {t("Your password has been successfully reset.")}
+              </Typography>
+            ) : (
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <TextField
+                  {...register("newPassword", {
+                    required: t("Password is required"),
+                    minLength: {
+                      value: 8,
+                      message: t("Password must be at least 8 characters long"),
+                    },
+                  })}
+                  label={t("New Password")}
+                  type="password"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  error={Boolean(errors.newPassword)}
+                  helperText={errors.newPassword?.message}
+                />
+                <TextField
+                  {...register("confirmPassword", {
+                    required: t("Please confirm your password"),
+                  })}
+                  label={t("Confirm Password")}
+                  type="password"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  error={Boolean(errors.confirmPassword)}
+                  helperText={errors.confirmPassword?.message}
+                />
+                {resetError && (
+                  <Typography
+                    variant="body1"
+                    style={{ color: "red", marginTop: "10px" }}
+                  >
+                    {resetError}
+                  </Typography>
+                )}
+                <LoadingButton
+                  type="submit"
+                  fullWidth
+                  loading={loadingSave}
+                  variant="contained"
+                  sx={{ fontWeight: 500, fontSize: 15 }}
+                  className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2 !mt-2"
                 >
-                  {resetError}
-                </Typography>
-              )}
-              <LoadingButton
-                type="submit"
-                fullWidth
-                loading={loadingSave}
-                variant="contained"
-                sx={{ fontWeight: 500, fontSize: 15 }}
-                className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2 !mt-2"
-              >
-                {loadingSave ? t("Loading...") : t("Reset Password")}
-              </LoadingButton>
-            </form>
-          )}
-        </div>
-      </Paper>
+                  {loadingSave ? t("Loading...") : t("Reset Password")}
+                </LoadingButton>
+              </form>
+            )}
+          </div>
+        </Paper>
+      </motion.div>
     </div>
   );
 };

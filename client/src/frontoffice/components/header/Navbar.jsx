@@ -80,6 +80,7 @@ const Navbar = () => {
     return location.pathname.startsWith(path);
   };
 
+
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value)
     const results = products.filter((product) =>
@@ -169,7 +170,7 @@ const Navbar = () => {
             <div className="relative w-full">
               <input
                 type="text"
-                placeholder="Search Products..."
+                placeholder={t("Search for products...")}
                 className="border-2 border-[#8DC63F]  rounded-md px-4 py-2 w-full bg-white focus:outline-none transition-all"
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e)}
@@ -189,7 +190,7 @@ const Navbar = () => {
                     >
                       <img className="h-10 w-10" src={typeof product?.product_images === "string" ? `${product?.product_images}` : `${product?.product_images[0]}`}
                       />
-                      {product.product_name}
+                      {product.product_name[currentLanguage]}
                     </Link>
                   ))}
                 </div>

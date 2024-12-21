@@ -27,7 +27,7 @@ export default function CustomerTableRow({
   last_name,
   email,
   creation_date,
-  active,
+  status,
   last_login,
   handleClick,
   onEdit,
@@ -36,7 +36,7 @@ export default function CustomerTableRow({
 }) {
   // Toggle the selection
   const [open, setOpen] = useState(null);
-  const isActive = active;
+  const isActive = status;
   const { t } = useTranslation();
   const color = isActive ? "primary" : "secondary";
   return (
@@ -79,7 +79,7 @@ export default function CustomerTableRow({
                 first_name,
                 last_name,
                 email,
-                active,
+                status,
                 creation_date,
                 last_login,
               })
@@ -129,7 +129,7 @@ CustomerTableRow.propTypes = {
   last_name: PropTypes.string,
   email: PropTypes.string,
   creation_date: PropTypes.number,
-  active: PropTypes.bool,
+  status: PropTypes.bool,
   last_login: PropTypes.number,
   selected: PropTypes.bool,
   onDelete: PropTypes.func,

@@ -16,7 +16,7 @@ const userJoiSchema = Joi.object({
   creation_date: Joi.number(),
   last_login: Joi.number(),
   last_update: Joi.number(),
-  active: Joi.boolean(),
+  status: Joi.boolean(),
   resetPasswordToken:Joi.string(),
   resetPasswordExpires:Joi.date()
 });
@@ -63,7 +63,7 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: Date.now,
     },
-    active: {
+    status: {
       type: Boolean,
       default: true,
     },
@@ -100,7 +100,7 @@ userSchema.pre("save", async function (next) {
     this.creation_date = validatedData.creation_date;
     this.last_login = validatedData.last_login;
     this.last_update = validatedData.last_update;
-    this.active = validatedData.active;
+    this.status = validatedData.status;
     this.resetPasswordToken = validatedData.resetPasswordToken;
     this.resetPasswordExpires = validatedData.resetPasswordExpires;
   

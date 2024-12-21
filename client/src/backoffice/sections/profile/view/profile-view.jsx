@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 const ProfilePage = () => {
   const { t } = useTranslation();
   const { admin } = useSelector((state) => state.adminAuth);
-  const isActive = admin?.active;
+  const isActive = admin?.status;
   const color = isActive ? "primary" : "secondary";
 
   return (

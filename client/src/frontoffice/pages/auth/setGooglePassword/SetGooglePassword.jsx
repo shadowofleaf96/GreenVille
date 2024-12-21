@@ -80,97 +80,104 @@ const SetGooglePassword = () => {
 
   return (
     <div className="backImage">
-      <Paper
-        elevation={3}
-        style={{
-          backgroundColor: "white",
-          borderRadius: "20px",
-          textAlign: "center",
-        }}
+      <motion.div
+        initial={{ scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
       >
-        <div className="max-w-[360px] md:max-w-[420px] p-5 md:p-10">
-          <div className="flex justify-center mb-4">
-            <Logo />
-          </div>
-          <Typography
-            variant="h5"
-            gutterBottom
-            style={{ textAlign: "center", color: "black" }}
-          >
-            {completeSuccess ? t("AccountSetupSuccess") : t("Set Your Password")}
-          </Typography>
-
-          {!completeSuccess ? (
-            <>
-              <Typography variant="body1" style={{ marginBottom: "20px" }}>
-                {t("As a new user, please set a password to complete your registration.")}
-              </Typography>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <Controller
-                  name="newPassword"
-                  control={control}
-                  rules={{
-                    required: t("PasswordRequired"),
-                    minLength: {
-                      value: 6,
-                      message: t("PasswordMinLength"),
-                    },
-                  }}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label={t("New Password")}
-                      type="password"
-                      variant="outlined"
-                      fullWidth
-                      margin="normal"
-                      error={!!errors.newPassword}
-                      helperText={errors.newPassword?.message}
-                    />
-                  )}
-                />
-                <Controller
-                  name="confirmPassword"
-                  control={control}
-                  rules={{
-                    validate: (value) =>
-                      value === newPassword || t("PasswordsDoNotMatch"),
-                  }}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label={t("Confirm Password")}
-                      type="password"
-                      variant="outlined"
-                      fullWidth
-                      margin="normal"
-                      error={!!errors.confirmPassword}
-                      helperText={errors.confirmPassword?.message}
-                    />
-                  )}
-                />
-                <LoadingButton
-                  type="submit"
-                  fullWidth
-                  loading={loadingSave}
-                  variant="contained"
-                  sx={{ fontWeight: 500, fontSize: 15 }}
-                  className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2 !mt-2"
-                >
-                  {loadingSave ? t("Loading") : t("Set Password")}
-                </LoadingButton>
-              </form>
-            </>
-          ) : (
+        <video autoPlay loop muted playsInline className="background-video" preload="auto"
+        >
+          <source src="https://res.cloudinary.com/donffivrz/video/upload/f_auto:video,q_auto/v1/greenville/public/videos/qdbnvi7dzfw7mc4i1mt7" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <Paper
+          elevation={3}
+          className="form-container p-0.5 md:p-0 !rounded-2xl"
+        >
+          <div className="max-w-[360px] md:max-w-[420px] p-5 md:p-10">
+            <div className="flex justify-center mb-4">
+              <Logo />
+            </div>
             <Typography
-              variant="body1"
-              style={{ textAlign: "center", color: "green", marginTop: "20px" }}
+              variant="h5"
+              gutterBottom
+              style={{ textAlign: "center", color: "black" }}
             >
-              {t("AccountSetupComplete")}
+              {completeSuccess ? t("AccountSetupSuccess") : t("Set Your Password")}
             </Typography>
-          )}
-        </div>
-      </Paper>
+
+            {!completeSuccess ? (
+              <>
+                <Typography variant="body1" style={{ marginBottom: "20px" }}>
+                  {t("As a new user, please set a password to complete your registration.")}
+                </Typography>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <Controller
+                    name="newPassword"
+                    control={control}
+                    rules={{
+                      required: t("PasswordRequired"),
+                      minLength: {
+                        value: 6,
+                        message: t("PasswordMinLength"),
+                      },
+                    }}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label={t("New Password")}
+                        type="password"
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        error={!!errors.newPassword}
+                        helperText={errors.newPassword?.message}
+                      />
+                    )}
+                  />
+                  <Controller
+                    name="confirmPassword"
+                    control={control}
+                    rules={{
+                      validate: (value) =>
+                        value === newPassword || t("PasswordsDoNotMatch"),
+                    }}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label={t("Confirm Password")}
+                        type="password"
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        error={!!errors.confirmPassword}
+                        helperText={errors.confirmPassword?.message}
+                      />
+                    )}
+                  />
+                  <LoadingButton
+                    type="submit"
+                    fullWidth
+                    loading={loadingSave}
+                    variant="contained"
+                    sx={{ fontWeight: 500, fontSize: 15 }}
+                    className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2 !mt-2"
+                  >
+                    {loadingSave ? t("Loading") : t("Set Password")}
+                  </LoadingButton>
+                </form>
+              </>
+            ) : (
+              <Typography
+                variant="body1"
+                style={{ textAlign: "center", color: "green", marginTop: "20px" }}
+              >
+                {t("AccountSetupComplete")}
+              </Typography>
+            )}
+          </div>
+        </Paper>
+      </motion.div>
     </div>
   );
 };

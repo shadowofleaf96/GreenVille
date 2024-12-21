@@ -90,7 +90,7 @@ ReviewTableRow.propTypes = {
   rating: PropTypes.number,
   comment: PropTypes.string,
   review_date: PropTypes.string,
-  active: PropTypes.bool,
+  status: PropTypes.bool,
   selected: PropTypes.bool,
   onDelete: PropTypes.func,
   onEdit: PropTypes.func,

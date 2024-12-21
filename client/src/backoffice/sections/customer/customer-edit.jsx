@@ -211,13 +211,13 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
             labelPlacement="start"
             label={
               <Typography variant="body2">
-                {editedCustomer.active ? t("Active") : t("Inactive")}
+                {editedCustomer.status ? t("Active") : t("Inactive")}
               </Typography>
             }
             control={
               <Switch
-                name="active"
-                checked={editedCustomer.active}
+                name="status"
+                checked={editedCustomer.status}
                 onChange={handleSwitchChange}
               />
             }

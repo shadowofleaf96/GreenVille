@@ -25,7 +25,7 @@ function AddUserForm({ onSave, onCancel, open, onClose }) {
     password: "",
     confirmPassword: "",
     role: "admin",
-    active: false,
+    status: false,
   });
   const [selectedImage, setSelectedImage] = useState(null);
   const [loadingSave, setLoadingSave] = useState(false);
@@ -97,7 +97,7 @@ function AddUserForm({ onSave, onCancel, open, onClose }) {
         password: "",
         confirmPassword: "",
         role: "admin",
-        active: false,
+        status: false,
       });
       setSelectedImage(null);
       onClose();
@@ -230,13 +230,13 @@ function AddUserForm({ onSave, onCancel, open, onClose }) {
               labelPlacement="start"
               label={
                 <Typography variant="body2">
-                  {newUser.active ? t("Active") : t("Inactive")}
+                  {newUser.status ? t("Active") : t("Inactive")}
                 </Typography>
               }
               control={
                 <Switch
-                  name="active"
-                  checked={newUser.active}
+                  name="status"
+                  checked={newUser.status}
                   onChange={handleSwitchChange}
                 />
               }
@@ -266,13 +266,7 @@ function AddUserForm({ onSave, onCancel, open, onClose }) {
             loading={loadingSave}
             onClick={handleSave}
             variant="contained"
-            sx={{
-              flex: 1,
-              "&:disabled": {
-                backgroundColor: "#c0c0c0",
-                color: "#000",
-              },
-            }}
+            sx={{ flex: 1 }}
             disabled={
               !emailValid || newUser.password.length < 8 || !passwordsMatch
             }

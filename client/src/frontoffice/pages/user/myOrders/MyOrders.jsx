@@ -44,19 +44,19 @@ const MyOrders = () => {
         <Fragment>
             <MetaData title={t("MyOrders.title")} />
             <div className="min-h-screen bg-gray-100 py-10">
-                <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 px-4">
                     <div className="md:col-span-1">
                         <ProfileLink />
                     </div>
 
-                    <div className="md:col-span-3 place-content-center bg-white shadow-lg rounded-lg p-2 md:p-6">
+                    <div className="md:col-span-3 place-content-center bg-white shadow-lg rounded-2xl p-2 md:p-6">
                         {loading ? (
                             <Loader />
                         ) : (
                             <>
                                 {orders && (
                                     <Fragment>
-                                        <div className="p-2 md:p-6 bg-white shadow-sm rounded-lg">
+                                        <div className="p-2 md:p-6 bg-white shadow-sm rounded-2xl">
                                             {orders.length === 0 ? (
                                                 <div className="flex flex-col items-center justify-center text-justify">
                                                     <Iconify className="mb-2" icon="mdi:cart" width={100} height={100} />

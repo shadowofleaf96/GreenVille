@@ -194,7 +194,7 @@ export default function UserView() {
       formData.append("email", editedUser.email);
       formData.append("user_name", editedUser.user_name);
       formData.append("role", editedUser.role);
-      formData.append("active", editedUser.active);
+      formData.append("status", editedUser.status);
 
       if (selectedImage) {
         formData.append("user_image", selectedImage);
@@ -216,7 +216,7 @@ export default function UserView() {
           email: editedUser.email,
           user_name: editedUser.user_name,
           role: editedUser.role,
-          active: editedUser.active,
+          status: editedUser.status,
         };
 
         dispatch(setData(updatedUsers));
@@ -280,7 +280,7 @@ export default function UserView() {
       formData.append("email", newUser.email);
       formData.append("user_name", newUser.user_name);
       formData.append("role", newUser.role);
-      formData.append("active", newUser.active);
+      formData.append("status", newUser.status);
 
       if (selectedImage) {
         formData.append("user_image", selectedImage);
@@ -301,7 +301,7 @@ export default function UserView() {
         email: newUser.email,
         user_name: newUser.user_name,
         role: newUser.role,
-        active: newUser.active,
+        status: newUser.status,
         creation_date: userdata.creation_date,
       };
 
@@ -377,7 +377,7 @@ export default function UserView() {
                   { id: "role", label: t("Role") },
                   { id: "user_name", label: t("User Name") },
                   { id: "creation_date", label: t("Creation Date") },
-                  { id: "active", label: t("Active") },
+                  { id: "status", label: t("Status") },
                   { id: " " },
                 ]}
               />
@@ -393,7 +393,7 @@ export default function UserView() {
                       role={row.role}
                       user_name={row.user_name}
                       creation_date={row.creation_date}
-                      active={row.active}
+                      status={row.status}
                       selected={selected.indexOf(row._id) !== -1}
                       handleClick={(event) => handleClick(event, row._id)}
                       onEdit={() => handleEditUser(row)}

@@ -49,7 +49,7 @@ const login = async (req, res) => {
   try {
     const customer = await Customer.findOne({ email });
 
-    if (customer && customer.active === true) {
+    if (customer && customer.status === true) {
       const isPasswordValid = await bcrypt.compare(password, customer.password);
 
       if (isPasswordValid) {
@@ -178,7 +178,7 @@ const completeRegistration = async (req, res) => {
       email,
       password: hashedPassword,
       creation_date: Date.now(),
-      active: true,
+      status: true,
     });
 
     await newCustomer.save();
@@ -267,7 +267,7 @@ const createCustomer = async (req, res) => {
       email,
       password: hashedPassword,
       creation_date: Date.now(),
-      active: false,
+      status: false,
       validation_token: validationToken,
     });
 
@@ -434,7 +434,7 @@ const validateCustomer = async (req, res) => {
         );
     }
 
-    if (matchingCustomer.active) {
+    if (matchingCustomer.status) {
       return res
         .status(400)
         .send(
@@ -442,7 +442,7 @@ const validateCustomer = async (req, res) => {
         );
     }
 
-    matchingCustomer.active = true;
+    matchingCustomer.status = true;
     matchingCustomer.validation_token = null;
     await matchingCustomer.save();
 
@@ -478,7 +478,7 @@ const validateCustomer = async (req, res) => {
 const updateCustomer = async (req, res) => {
   const customer_image = req.file;
   const customerId = req.params.id;
-  const { first_name, last_name, email, password, active, shipping_address } =
+  const { first_name, last_name, email, password, status, shipping_address } =
     req.body;
 
   try {
@@ -522,8 +522,8 @@ const updateCustomer = async (req, res) => {
       customer.shipping_address = shipping_address;
     }
 
-    if (active) {
-      customer.active = active;
+    if (status) {
+      customer.status = status;
     }
 
     await customer.validate();

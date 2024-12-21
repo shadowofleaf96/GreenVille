@@ -29,7 +29,7 @@ export default function UserTableRow({
   role,
   user_name,
   creation_date,
-  active,
+  status,
   handleClick,
   onEdit,
   onDelete,
@@ -39,7 +39,7 @@ export default function UserTableRow({
   const [open, setOpen] = useState(null);
   const { t } = useTranslation();
   const admin = useSelector((state) => state.adminAuth);
-  const isActive = active;
+  const isActive = status;
   const color = isActive ? "primary" : "secondary";
 
   return (
@@ -84,7 +84,7 @@ export default function UserTableRow({
                 first_name,
                 last_name,
                 user_name,
-                active,
+                status,
                 creation_date,
               })
             }
@@ -138,7 +138,7 @@ UserTableRow.propTypes = {
   role: PropTypes.string,
   user_name: PropTypes.string,
   creation_date: PropTypes.number,
-  active: PropTypes.bool,
+  status: PropTypes.bool,
   selected: PropTypes.bool,
   onDelete: PropTypes.func,
   onEdit: PropTypes.func,
