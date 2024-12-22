@@ -18,6 +18,12 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
   const [editedCustomer, setEditedCustomer] = useState({
     ...customer,
     password: "",
+    shipping_address: customer.shipping_address || {
+      street: "",
+      city: "",
+      phone_no: "",
+      postal_code: "",
+    },
   });
   const [selectedImage, setSelectedImage] = useState(null);
   const [avatarRemoved, setAvatarRemoved] = useState(false);
@@ -30,13 +36,26 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
     const sanitizedValue = DOMPurify.sanitize(value);
+
+    if (name.startsWith("shipping_address.")) {
+      const field = name.split(".")[1];
+      setEditedCustomer((prev) => ({
+        ...prev,
+        shipping_address: {
+          ...prev.shipping_address,
+          [field]: sanitizedValue,
+        },
+      }));
+    } else {
+      setEditedCustomer((prev) => ({ ...prev, [name]: sanitizedValue }));
+    }
+
     if (name === "email") {
       setEmailValid(isEmailValid(sanitizedValue));
     }
-
-    setEditedCustomer({ ...editedCustomer, [name]: sanitizedValue });
     setPasswordsMatch(editedCustomer.password === confirmPassword);
   };
+
 
   const isEmailValid = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -68,7 +87,7 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
     setLoadingSave(true);
 
     try {
-      await onSave(editedCustomer, selectedImage, avatarRemoved);
+      await onSave(editedCustomer, selectedImage);
       setConfirmPassword("");
       onClose();
     } catch (error) {
@@ -141,25 +160,25 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
           </div>
         )}
 
-        <TextField
-          label={t("First Name")}
-          name="first_name"
-          placeholder={t("First Name")}
-          value={editedCustomer.first_name}
-          onChange={handleFieldChange}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-        />
+        <Stack direction="row" spacing={2} sx={{ width: "100%", flexWrap: "wrap", marginBottom: 2 }}>
+          <TextField
+            label={t("First Name")}
+            name="first_name"
+            placeholder={t("First Name")}
+            value={editedCustomer.first_name}
+            onChange={handleFieldChange}
+            sx={{ marginBottom: 2 }}
+          />
 
-        <TextField
-          label={t("Last Name")}
-          name="last_name"
-          placeholder={t("Last Name")}
-          value={editedCustomer.last_name}
-          onChange={handleFieldChange}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-        />
+          <TextField
+            label={t("Last Name")}
+            name="last_name"
+            placeholder={t("Last Name")}
+            value={editedCustomer.last_name}
+            onChange={handleFieldChange}
+            sx={{ marginBottom: 2 }}
+          />
+        </Stack>
 
         <TextField
           label={t("Email")}
@@ -173,6 +192,38 @@ function EditCustomerForm({ customer, onSave, onCancel, open, onClose }) {
           helperText={!emailValid ? "Invalid email format" : ""}
           sx={{ marginBottom: 2 }}
         />
+        <Stack direction="row" spacing={2} sx={{ width: "100%", flexWrap: "wrap", marginBottom: 2 }}>
+          <TextField
+            label={t("Street")}
+            name="shipping_address.street"
+            value={editedCustomer.shipping_address.street}
+            onChange={handleFieldChange}
+            sx={{ marginBottom: 2 }}
+          />
+          <TextField
+            label={t("City")}
+            name="shipping_address.city"
+            value={editedCustomer.shipping_address.city}
+            onChange={handleFieldChange}
+            sx={{ marginBottom: 2 }}
+          />
+        </Stack>
+        <Stack direction="row" spacing={2} sx={{ width: "100%", flexWrap: "wrap", marginBottom: 2 }}>
+          <TextField
+            label={t("PhoneNumber")}
+            name="shipping_address.phone_no"
+            value={editedCustomer.shipping_address.phone_no}
+            onChange={handleFieldChange}
+            sx={{ marginBottom: 2 }}
+          />
+          <TextField
+            label={t("Postal Code")}
+            name="shipping_address.postal_code"
+            value={editedCustomer.shipping_address.postal_code}
+            onChange={handleFieldChange}
+            sx={{ marginBottom: 2 }}
+          />
+        </Stack>
 
         {/* Password and Confirm Password Fields */}
         <TextField

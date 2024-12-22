@@ -503,7 +503,6 @@ const updateCustomer = async (req, res) => {
       customer.last_name = last_name;
     }
 
-   
     if (email && email !== customer.email) {
       const existingEmail = await Customer.findOne({ email });
       if (existingEmail) {
@@ -511,7 +510,6 @@ const updateCustomer = async (req, res) => {
       }
       customer.email = email;
     }
-
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);

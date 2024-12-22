@@ -188,6 +188,10 @@ export default function CustomerView() {
       formData.append("email", editedCustomer.email);
       formData.append("role", editedCustomer.role);
       formData.append("status", editedCustomer.status);
+      Object.entries(editedCustomer.shipping_address).forEach(([key, value]) => {
+        formData.append(`shipping_address[${key}]`, value);
+      });
+
 
       if (selectedImage) {
         formData.append("customer_image", selectedImage);
@@ -211,6 +215,7 @@ export default function CustomerView() {
           last_name: editedCustomer.last_name,
           password: editedCustomer.password,
           email: editedCustomer.email,
+          shipping_address: editedCustomer.shipping_address,
           customer_name: editedCustomer.customer_name,
           role: editedCustomer.role,
           status: editedCustomer.status,
