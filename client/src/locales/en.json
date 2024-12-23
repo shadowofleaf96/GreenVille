@@ -660,5 +660,10 @@
   "PhoneNumber": "Phone Number",
   "PhoneNumberRequired": "Phone number is required.",
   "PhoneNumberInvalid": "Please enter a valid 10-digit phone number.",
-  "Account updated successfully": "Account updated successfully"
+  "Account updated successfully": "Account updated successfully",
+  "nonExistent": "Non-existent",
+  "streetNotExist": "Street is not available. Please update your shipping address to include your street.",
+  "cityNotExist": "City is not available. Please update your shipping address to include your city.",
+  "postalCodeNotExist": "Postal code is not available. Please update your shipping address to include your postal code.",
+  "shippingAddressMissing": "Shipping address is not available. Please update your profile with a valid shipping address."
 }

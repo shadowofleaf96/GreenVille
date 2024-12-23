@@ -69,6 +69,17 @@ const TranslatedNavConfig = () => {
       ),
     },
     {
+      title: "contact",
+      path: "/admin/contact",
+      icon: (
+        <Iconify
+          icon="material-symbols-light:contact-mail-outline-rounded"
+          width={30}
+          height={30}
+        />
+      ),
+    },
+    {
       title: "product",
       path: "/admin/product",
       icon: (

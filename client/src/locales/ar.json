@@ -645,7 +645,7 @@
   "review": "التعليقات",
   "Product Description": "وصف المنتج",
   "Comments": "التعليقات",
-  "SaveToProfile":"احفظ هذه المعلومات في ملفك الشخصي",
+  "SaveToProfile": "احفظ هذه المعلومات في ملفك الشخصي",
   "title": "ملفي الشخصي",
   "customerInformation": "معلومات العميل",
   "name": "الاسم",
@@ -669,5 +669,10 @@
   "PhoneNumber": "رقم الهاتف",
   "PhoneNumberRequired": "رقم الهاتف مطلوب.",
   "PhoneNumberInvalid": "يرجى إدخال رقم هاتف صالح مكون من 10 أرقام.",
-  "Account updated successfully": "تم تحديث الحساب بنجاح"
+  "Account updated successfully": "تم تحديث الحساب بنجاح",
+  "nonExistent": "غير موجود",
+  "streetNotExist": "الشارع غير متوفر. يرجى تحديث عنوان الشحن الخاص بك لتضمين الشارع.",
+  "cityNotExist": "المدينة غير متوفرة. يرجى تحديث عنوان الشحن الخاص بك لتضمين المدينة.",
+  "postalCodeNotExist": "الرمز البريدي غير متوفر. يرجى تحديث عنوان الشحن الخاص بك لتضمين الرمز البريدي.",
+  "shippingAddressMissing": "عنوان الشحن غير متوفر. يرجى تحديث ملفك الشخصي بعنوان شحن صالح."
 }

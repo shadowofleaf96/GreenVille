@@ -4,6 +4,7 @@ import storage from "redux-persist/lib/storage";
 import adminAuthReducer from "./backoffice/authSlice";
 import adminUserReducer from "./backoffice/userSlice";
 import adminProductReducer from "./backoffice/productSlice";
+import adminContactReducer from "./backoffice/contactSlice";
 import adminPaymentListReducer from "./backoffice/paymentListSlice";
 import adminCategoryReducer from "./backoffice/categorySlice";
 import adminSubCategoryReducer from "./backoffice/subCategorySlice";
@@ -32,6 +33,7 @@ const store = configureStore({
     adminProduct: adminProductReducer,
     adminCoupon: adminCouponReducer,
     adminReview: adminReviewReducer,
+    adminContact: adminContactReducer,
     adminCategory: adminCategoryReducer,
     adminSubcategory: adminSubCategoryReducer,
     adminCustomer: adminCustomerReducer,
