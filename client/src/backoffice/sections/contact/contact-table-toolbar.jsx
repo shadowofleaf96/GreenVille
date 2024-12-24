@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteContact } from "../../../redux/backoffice/ContactSlice";
+import { deleteContact } from "../../../redux/backoffice/contactSlice";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Alert from "@mui/material/Alert";
 import InputAdornment from "@mui/material/InputAdornment";
