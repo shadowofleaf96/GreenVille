@@ -44,7 +44,7 @@ export default function NotFoundView() {
             href="/"
             size="large"
             variant="contained"
-            className="mt-4 mb-4 text-white flex justify-center rounded-lg text-md font-medium normal-case shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
+            className="mt-4 mb-4 text-white flex justify-center rounded-lg !text-md !font-medium normal-case shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
             component={RouterLink}
           >
             {t("Home")}

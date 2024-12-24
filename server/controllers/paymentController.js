@@ -1,6 +1,7 @@
 const Payment = require("../models/Payment");
 const Order = require("../models/Order");
-require("dotenv").config({ path: "../.env" });
+require("dotenv").config();
+const mongoose = require("mongoose");
 const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
 const axios = require("axios");
 
@@ -8,20 +9,27 @@ const retrievePayments = async (req, res) => {
   try {
     const payments = await Payment.find();
 
-    const paymentsWithOrders = await Promise.all(payments.map(async (payment) => {
-      const order = await Order.findById(payment.order_id).populate('customer_id', 'first_name last_name');
-      
-      return {
-        ...payment._doc, 
-        order: {
-          ...order._doc, 
-          customer: {
-            first_name: order.customer_id.first_name,
-            last_name: order.customer_id.last_name,
-          }
-        }
-      };
-    }));
+    const paymentsWithOrders = await Promise.all(
+      payments.map(async (payment) => {
+        const orderId = new mongoose.Types.ObjectId(payment.order_id);
+
+        const order = await Order.findById(orderId).populate(
+          "customer_id",
+          "first_name last_name"
+        );
+
+        return {
+          ...payment._doc,
+          order: {
+            ...order._doc,
+            customer: {
+              first_name: order.customer_id?.first_name || "Unknown",
+              last_name: order.customer_id?.last_name || "Unknown",
+            },
+          },
+        };
+      })
+    );
 
     res.status(200).json({ data: paymentsWithOrders });
   } catch (error) {
@@ -110,7 +118,14 @@ const createStripePayment = async (req, res) => {
 
 const savePaymentInfo = async (req, res) => {
   try {
-    const { order_id, amount, paymentMethod, paymentStatus, currency, paymentCredentials } = req.body;
+    const {
+      order_id,
+      amount,
+      paymentMethod,
+      paymentStatus,
+      currency,
+      paymentCredentials,
+    } = req.body;
 
     const order = await Order.findById({ _id: order_id });
 
@@ -123,8 +138,8 @@ const savePaymentInfo = async (req, res) => {
       amount,
       paymentMethod,
       paymentStatus: paymentStatus,
-      currency: currency || "USD", 
-      ...(paymentMethod === "credit_card" && { paymentCredentials })
+      currency: currency || "USD",
+      ...(paymentMethod === "credit_card" && { paymentCredentials }),
     });
 
     await payment.save();

@@ -7,7 +7,7 @@ import ProfileLink from "../../../components/profileLinks/ProfileLink";
 import UploadButton from "../../../../backoffice/components/button/UploadButton";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { toast } from "react-toastify";
-import { logout, fetchCustomerProfile } from "../../../../redux/frontoffice/customerSlice";
+import { fetchCustomerProfile } from "../../../../redux/frontoffice/customerSlice";
 import { LoadingButton } from "@mui/lab";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
@@ -63,10 +63,10 @@ const UpdateProfile = () => {
       const response = await axiosInstance.put(`/customers/${customerId}`, formData);
       dispatch(fetchCustomerProfile(customerId));
       setLoading(false);
-      toast.success(response.data.message);
+      toast.success(t(response.data.message));
     } catch (error) {
       setLoading(false);
-      toast.error("Error: " + error.response.data.message);
+      toast.error("Error: " + (t(error.response.data.message)));
       console.log(error.response.data);
     }
   };
@@ -75,11 +75,11 @@ const UpdateProfile = () => {
     <Fragment>
       <MetaData title={t("Update Profile")} />
       <div className="flex flex-col bg-white py-6 px-4">
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-4 px-4">
           <div className="md:col-span-1 mb-4 md:mb-0">
             <ProfileLink />
           </div>
-          <div className="md:col-span-3 bg-white shadow-lg rounded-lg p-6 md:p-8">
+          <div className="md:col-span-3 bg-white shadow-lg rounded-2xl p-6 md:p-8">
             <h4 className="text-xl font-bold mb-4">{t("Update Profile")}</h4>
             <form
               className="space-y-4"
@@ -154,7 +154,7 @@ const UpdateProfile = () => {
                   {...register("confirmPassword", {
                     required: t("ConfirmPasswordRequired"),
                     validate: (value) => {
-                      const { password } = getValues(); // Get the password value from the form state
+                      const { password } = getValues();
                       return value === password || t("PasswordsDoNotMatch");
                     },
                   })}
@@ -190,7 +190,7 @@ const UpdateProfile = () => {
                 loading={loading}
                 variant="contained"
                 sx={{ fontWeight: 500, fontSize: 15 }}
-                className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2"
+                className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-3 !mb-2"
                 loadingPosition="center"
               >
                 {loading ? t("Updating...") : t("Update")}

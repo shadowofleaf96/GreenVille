@@ -263,13 +263,13 @@ function EditUserForm({ user, onSave, onCancel, open, onClose }) {
               labelPlacement="start"
               label={
                 <Typography variant="body2">
-                  {editedUser.active ? t("Active") : t("Inactive")}
+                  {editedUser.status ? t("Active") : t("Inactive")}
                 </Typography>
               }
               control={
                 <Switch
-                  name="active"
-                  checked={editedUser.active}
+                  name="status"
+                  checked={editedUser.status}
                   onChange={handleSwitchChange}
                 />
               }
@@ -295,22 +295,12 @@ function EditUserForm({ user, onSave, onCancel, open, onClose }) {
         </Stack>
 
         <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
-          <LoadingButton
+        <LoadingButton
             loading={loadingSave}
             onClick={handleSave}
             variant="contained"
-            sx={{
-              flex: 1,
-              "&:disabled": {
-                backgroundColor: "#c0c0c0",
-                color: "#000",
-              },
-            }}
-            disabled={
-              !emailValid ||
-              editedUser.password.length < 8 ||
-              !passwordsMatch
-            }
+            sx={{ flex: 1 }}
+            disabled={!emailValid || editedUser.password.length < 8 || !passwordsMatch}
           >
             {t("Save")}
           </LoadingButton>

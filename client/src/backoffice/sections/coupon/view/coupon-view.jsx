@@ -189,7 +189,7 @@ export default function CouponView() {
           discount: editedCoupon.discount,
           expiresAt: editedCoupon.expiresAt,
           usageLimit: editedCoupon.usageLimit,
-          active: editedCoupon.active,
+          status: editedCoupon.status,
         };
 
         dispatch(setData(updatedCoupons));
@@ -241,6 +241,8 @@ export default function CouponView() {
     try {
       const response = await axiosInstance.post("/coupons/create", newCoupon);
       const coupondata = response.data.data;
+      console.log(coupondata)
+      console.log(newCoupon)
       const AddedCoupons = {
         key: coupondata._id,
         _id: coupondata._id,
@@ -248,11 +250,12 @@ export default function CouponView() {
         discount: newCoupon.discount,
         expiresAt: newCoupon.expiresAt,
         usageLimit: newCoupon.usageLimit,
-        status: newCoupon.status,
+        status: coupondata.status,
       };
 
       dispatch(setData([...data, AddedCoupons]));
       toast.success(response.data.message);
+      console.log(response.data.message)
 
     } catch (error) {
       console.error("Error creating new coupon:", error);

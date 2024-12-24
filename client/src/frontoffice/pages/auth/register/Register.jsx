@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { TextField, Typography, Paper, Box } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
@@ -9,6 +9,10 @@ import { motion } from "framer-motion";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
+import {
+  GoogleReCaptchaProvider,
+  useGoogleReCaptcha
+} from 'react-google-recaptcha-v3';
 import DOMPurify from "dompurify";
 
 
@@ -17,16 +21,43 @@ const RegistrationForm = () => {
   const { register, handleSubmit, formState: { errors }, watch, reset } = useForm();
   const router = useRouter();
   const [loadingSave, setLoadingSave] = useState(false);
+  const [refreshReCaptcha, setRefreshReCaptcha] = useState(false);
   const axiosInstance = createAxiosInstance("customer");
+
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
+  const handleReCaptchaVerify = useCallback(async () => {
+    if (!executeRecaptcha) {
+      return;
+    }
+    const captchaToken = await executeRecaptcha('RegisterAction');
+    return captchaToken;
+  }, [executeRecaptcha]);
+
+  const isLoggedin = localStorage.getItem("customer_access_token")
+
+  useEffect(() => {
+    if (isLoggedin) {
+      const redirect = searchParams.get("redirect");
+      history(redirect || "/", { replace: true });
+    }
+  }, [isLoggedin, searchParams, history]);
 
   const onSubmit = async (data) => {
     setLoadingSave(true);
     try {
+      const recaptchaToken = await handleReCaptchaVerify();
+      if (!recaptchaToken) {
+        toast.error("reCAPTCHA verification failed.");
+        setLoadingSave(false);
+        return;
+      }
       const sanitizedData = {
         first_name: DOMPurify.sanitize(data.firstName),
         last_name: DOMPurify.sanitize(data.lastName),
         email: DOMPurify.sanitize(data.email),
         password: data.password,
+        recaptchaToken,
       };
 
       const response = await axiosInstance.post("/customers", sanitizedData);
@@ -38,21 +69,25 @@ const RegistrationForm = () => {
       toast.error(t("RegistrationError"));
       console.error("Error:", error.response?.data?.error);
       setLoadingSave(false);
+    } finally {
+      setRefreshReCaptcha(!refreshReCaptcha);
+      setLoadingSave(false);
     }
   };
 
   return (
     <div className="backImage">
       <motion.div initial={{ scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
+        <video autoPlay loop muted playsInline className="background-video" preload="auto"
+        >
+          <source src="https://res.cloudinary.com/donffivrz/video/upload/f_auto:video,q_auto/v1/greenville/public/videos/qdbnvi7dzfw7mc4i1mt7" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
         <Paper
           elevation={3}
-          style={{
-            backgroundColor: "white",
-            borderRadius: "20px",
-            textAlign: "center",
-          }}
+          className="form-container p-0.5 md:p-0 !rounded-2xl"
         >
-          <div className="max-w-[360px] md:max-w-[420px] p-5 md:p-10">
+          <div className="max-w-[400px] md:max-w-[450px] p-5 md:p-10">
             <div className="flex justify-center mb-4">
               <Logo />
             </div>

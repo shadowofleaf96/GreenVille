@@ -94,7 +94,7 @@ export default function CouponTableToolbar({
           <OutlinedInput
             value={filterName}
             onChange={onFilterName}
-            placeholder={t("Search for Subcategory...")}
+            placeholder={t("Search for Coupons...")}
             startAdornment={
               <InputAdornment position="start">
                 <Iconify

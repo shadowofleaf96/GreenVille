@@ -64,7 +64,7 @@ export default function Nav({ openNav, onCloseNav }) {
       <Avatar
         src={`${admin?.user_image}`}
         alt="photoURL"
-        sx={{ width: 120, height: 120, my: 2 }}
+        sx={{ width: 120, height: 120, my: 0.5 }}
       />
 
       <Typography sx={{ my: 0.5 }}>
@@ -180,7 +180,7 @@ function NavItem({ item }) {
         }),
       }}
     >
-      <Box component="span" sx={{ width: 24, height: 24, mr: 2, mb: 1 }}>
+      <Box component="span" sx={{ width: 24, height: 24, mr: 2, mb: 0.5 }}>
         {item.icon}
       </Box>
 

@@ -69,8 +69,19 @@ const TranslatedNavConfig = () => {
       ),
     },
     {
+      title: "contact",
+      path: "/admin/contact",
+      icon: (
+        <Iconify
+          icon="material-symbols-light:contact-mail-outline-rounded"
+          width={30}
+          height={30}
+        />
+      ),
+    },
+    {
       title: "product",
-      path: "/admin/products",
+      path: "/admin/product",
       icon: (
         <Iconify
           icon="material-symbols-light:shopping-cart-outline-rounded"
@@ -107,6 +118,17 @@ const TranslatedNavConfig = () => {
       icon: (
         <Iconify
           icon="material-symbols-light:payments-outline-rounded"
+          width={30}
+          height={30}
+        />
+      ),
+    },
+    {
+      title: "review",
+      path: "/admin/review",
+      icon: (
+        <Iconify
+          icon="material-symbols-light:reviews-outline-rounded"
           width={30}
           height={30}
         />

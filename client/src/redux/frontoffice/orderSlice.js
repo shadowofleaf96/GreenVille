@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 import createAxiosInstance from "../../utils/axiosConfig";
 
 const axiosInstance = createAxiosInstance("customer");
@@ -11,7 +10,7 @@ export const ordersList = createAsyncThunk(
       if (!orders) {
         const { data } = await axiosInstance.get(`/orders/${userId}`);
         orders = data.orders;
-        return data.orders;
+        return orders;
       }
     } catch (error) {
       return rejectWithValue(error.response.data.message);
@@ -27,7 +26,7 @@ export const getOrderDetails = createAsyncThunk(
       if (!order) {
         const { data } = await axiosInstance.get(`/orders/${id}`);
         order = data.order;
-        return data.order;
+        return order;
       }
     } catch (error) {
       return rejectWithValue(error.response.data.message);

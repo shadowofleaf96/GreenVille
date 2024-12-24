@@ -13,16 +13,43 @@ const { log } = require("console");
 const transporter = require("../middleware/mailMiddleware");
 const secretKey = process.env.SECRETKEY;
 const secretRefreshKey = process.env.REFRESHSECRETLEY;
-const expiration = process.env.EXPIRATIONDATE;
+const captchaSecretKey = process.env.CAPTCHA_SECRET_KEY;
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+const verifyReCaptcha = async (recaptchaToken) => {
+  const url = `https://www.google.com/recaptcha/api/siteverify`;
+
+  try {
+    const response = await axios.post(url, null, {
+      params: {
+        secret: captchaSecretKey,
+        response: recaptchaToken,
+      },
+    });
+
+    return response.data.success;
+  } catch (error) {
+    console.error("Error verifying reCAPTCHA:", error);
+    return false;
+  }
+};
+
 const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, recaptchaToken } = req.body;
+
+  if (!recaptchaToken) {
+    return res.status(400).json({ message: "reCAPTCHA token is missing" });
+  }
+
+  const isVerified = await verifyReCaptcha(recaptchaToken);
+  if (!isVerified) {
+    return res.status(400).json({ message: "reCAPTCHA verification failed" });
+  }
 
   try {
     const customer = await Customer.findOne({ email });
 
-    if (customer && customer.active === true) {
+    if (customer && customer.status === true) {
       const isPasswordValid = await bcrypt.compare(password, customer.password);
 
       if (isPasswordValid) {
@@ -110,31 +137,6 @@ const googleLogin = async (req, res) => {
   }
 };
 
-const downloadImage = async (url, filename) => {
-  const filepath = path.resolve(__dirname, "..", "public", "images", filename);
-
-  try {
-    const response = await axios({ url, responseType: "stream" });
-
-    fs.mkdirSync(path.dirname(filepath), { recursive: true });
-
-    const writer = fs.createWriteStream(filepath);
-
-    return new Promise((resolve, reject) => {
-      response.data.pipe(writer);
-      writer.on("finish", () => {
-        resolve(filepath);
-      });
-      writer.on("error", (err) => {
-        reject(err);
-      });
-    });
-  } catch (error) {
-    console.error("Error downloading image:", error.message);
-    throw new Error("Image download failed");
-  }
-};
-
 function completeRegistrationEmailTemplate(name) {
   return `
     <html>
@@ -176,7 +178,7 @@ const completeRegistration = async (req, res) => {
       email,
       password: hashedPassword,
       creation_date: Date.now(),
-      active: true,
+      status: true,
     });
 
     await newCustomer.save();
@@ -231,7 +233,16 @@ function validationEmailTemplate(name, validationLink) {
 const createCustomer = async (req, res) => {
   const customer_image = req.file;
 
-  const { first_name, last_name, email, password } = req.body;
+  const { first_name, last_name, email, password, recaptchaToken } = req.body;
+
+  if (!recaptchaToken) {
+    return res.status(400).json({ message: "reCAPTCHA token is missing" });
+  }
+
+  const isVerified = await verifyReCaptcha(recaptchaToken);
+  if (!isVerified) {
+    return res.status(400).json({ message: "reCAPTCHA verification failed" });
+  }
 
   try {
     const existingCustomer = await Customer.findOne({ email });
@@ -247,13 +258,16 @@ const createCustomer = async (req, res) => {
     const validationToken = crypto.randomBytes(32).toString("hex");
 
     const newCustomer = new Customer({
-      customer_image: typeof customer_image === "string" ? customer_image : customer_image.path,
+      customer_image:
+        typeof customer_image === "string"
+          ? customer_image
+          : customer_image?.path || null,
       first_name,
       last_name,
       email,
       password: hashedPassword,
       creation_date: Date.now(),
-      active: false,
+      status: false,
       validation_token: validationToken,
     });
 
@@ -420,7 +434,7 @@ const validateCustomer = async (req, res) => {
         );
     }
 
-    if (matchingCustomer.active) {
+    if (matchingCustomer.status) {
       return res
         .status(400)
         .send(
@@ -428,7 +442,7 @@ const validateCustomer = async (req, res) => {
         );
     }
 
-    matchingCustomer.active = true;
+    matchingCustomer.status = true;
     matchingCustomer.validation_token = null;
     await matchingCustomer.save();
 
@@ -464,7 +478,8 @@ const validateCustomer = async (req, res) => {
 const updateCustomer = async (req, res) => {
   const customer_image = req.file;
   const customerId = req.params.id;
-  const { first_name, last_name, email, password, active } = req.body;
+  const { first_name, last_name, email, password, status, shipping_address } =
+    req.body;
 
   try {
     const customer = await Customer.findById(customerId);
@@ -488,20 +503,28 @@ const updateCustomer = async (req, res) => {
       customer.last_name = last_name;
     }
 
-    if (email) {
+    if (email && email !== customer.email) {
+      const existingEmail = await Customer.findOne({ email });
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email is already in use" });
+      }
       customer.email = email;
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
       customer.password = hashedPassword;
     }
 
-    if (active) {
-      customer.active = active;
+    if (shipping_address) {
+      customer.shipping_address = shipping_address;
     }
 
+    if (status) {
+      customer.status = status;
+    }
+
+    await customer.validate();
     await customer.save();
 
     res.status(200).json({
@@ -509,7 +532,9 @@ const updateCustomer = async (req, res) => {
       data: customer,
     });
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({
+      message: "Internal server error " + error,
+    });
     console.log(error);
   }
 };

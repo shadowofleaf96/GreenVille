@@ -3,9 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getProductDetails, clearErrors } from "../../../redux/frontoffice/productSlice";
 import Loader from "../../components/loader/Loader";
+import Avatar from "@mui/material/Avatar";
 import Iconify from "../../../backoffice/components/iconify";
 import { addItemToCart } from "../../../redux/frontoffice/cartSlice";
 import MetaData from "../../components/MetaData";
+import createAxiosInstance from "../../../utils/axiosConfig";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from 'react-i18next';
 
@@ -18,8 +20,10 @@ const SingleProduct = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("description");
   const [commentary, setCommentary] = useState("");
+  const axiosInstance = createAxiosInstance("customer");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [reviews, setReviews] = useState([]);
   const { id } = useParams();
   const currentLanguage = i18n.language;
 
@@ -32,6 +36,19 @@ const SingleProduct = () => {
       dispatch(clearErrors());
     };
   }, [dispatch, id]);
+
+  const fetchReviews = async () => {
+    try {
+      const response = await axiosInstance.get(`/reviews/${id}`);
+      setReviews(response.data.data);
+    } catch (error) {
+      console.error("Failed to fetch reviews:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchReviews();
+  }, []);
 
   useEffect(() => {
     if (product?.product_images && product?.product_images.length > 0) {
@@ -157,11 +174,24 @@ const SingleProduct = () => {
                         </strike>
                       </h2>
                       <p className="text-gray-600 my-4 h-auto min-h-16">{product.short_description[currentLanguage]}</p>
-                      {/* Rating Section */}
                       <div className="flex items-center space-x-2 mt-2">
-                        <span className="text-yellow-500">★</span>
-                        <span>{product.rating}</span>
-                        <span>({product.numReviews} {t("reviews")})</span>
+                        <div className="flex items-center">
+                          {Array.from({ length: 5 }, (_, index) => {
+                            const star = index + 1;
+                            return (
+                              <Iconify
+                                key={star}
+                                className={`w-8 h-8 cursor-pointer transition-transform transform hover:scale-125 ${(product.average_rating / product.total_reviews) >= star ? "text-yellow-500" : "text-gray-300"
+                                  }`}
+                                icon="ic:round-star-rate"
+                                width={26}
+                                height={26}
+                              />
+                            );
+                          })}
+                        </div>
+                        <span>{(product.average_rating / product.total_reviews).toFixed(2)}</span>
+                        <span>({product.total_reviews} {t("Reviews")})</span>
                       </div>
                     </div>
 
@@ -245,36 +275,30 @@ const SingleProduct = () => {
 
               {activeTab === "commentary" && (
                 <div className="mt-6">
-                  <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 mb-6">
-                    <textarea
-                      value={commentary}
-                      onChange={(e) => setCommentary(e.target.value)}
-                      placeholder={t("Enter your comment here...")}
-                      rows={4}
-                      className="w-full p-4 border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 mb-4"
-                    />
-                    <button
-                      onClick={handleCommentarySubmit}
-                      className="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-600 transition-colors duration-300"
-                    >
-                      {t("Submit")}
-                    </button>
-                  </div>
-
-                  <div className="space-y-6">
-                    <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                          <span className="text-white font-semibold">A</span>
+                  {reviews.length === 0 ? (
+                    <p className="text-gray-700 text-center">{t("noReviews")}</p>
+                  ) : (
+                    <div className="space-y-6">
+                      {reviews.map((review) => (
+                        <div key={review._id} className="bg-gray-100 p-4 rounded-lg shadow-sm">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+                              <Avatar className="text-white font-semibold"
+                                src={review.customer_id.customer_image}
+                                alt={review.customer_id.first_name?.toUpperCase() + review.customer_id.last_name?.toUpperCase()}
+                              />
+                            </div>
+                            <div>
+                              <p className="text-gray-800 font-semibold">{review.customer_id.first_name + ' ' + review.customer_id.last_name}
+                              </p>
+                              <p className="text-gray-500 text-sm">{new Date(review.review_date).toLocaleString()}</p>
+                            </div>
+                          </div>
+                          <p className="text-gray-700 mt-2">{review.comment}</p>
                         </div>
-                        <div>
-                          <p className="text-gray-800 font-semibold">Barbara142</p>
-                          <p className="text-gray-500 text-sm">21 minutes ago</p>
-                        </div>
-                      </div>
-                      <p className="text-gray-700 mt-2">Good Product, Thanks</p>
+                      ))}
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
             </div>

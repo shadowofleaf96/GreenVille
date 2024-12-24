@@ -50,7 +50,7 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
       discount_price: 0,
       quantity: 0,
       option: "",
-      active: false,
+      status: false,
     },
     mode: "onChange",
   });
@@ -168,11 +168,11 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
         },
       };
       await onSave(sanitizedData, selectedImages);
+      reset();
     } catch (error) {
       console.error("Error saving product:", error);
     } finally {
       setLoadingSave(false);
-      reset();
       setSelectedImages([])
     }
   };
@@ -301,7 +301,7 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
 
                 <Stack direction="row" spacing={2} alignItems="center" justifyContent={"center"}>
                   <Controller
-                    name="active"
+                    name="status"
                     control={control}
                     render={({ field }) => (
                       <FormControlLabel

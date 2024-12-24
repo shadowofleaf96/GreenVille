@@ -215,7 +215,7 @@ export default function ProductPage() {
       formData.append("discount_price", editedProduct.discount_price);
       formData.append("option", editedProduct.option);
       formData.append("quantity", editedProduct.quantity);
-      formData.append("active", editedProduct.active);
+      formData.append("status", editedProduct.status);
 
       if (selectedImages) {
         Array.from(selectedImages).forEach((image) => {
@@ -236,12 +236,13 @@ export default function ProductPage() {
           sku: editedProduct.sku,
           product_name: editedProduct.product_name,
           short_description: editedProduct.short_description,
+          long_description: editedProduct.long_description,
           subcategory_id: editedProduct.subcategory_id,
           price: editedProduct.price,
           discount_price: editedProduct.discount_price,
           option: editedProduct.option,
           quantity: editedProduct.quantity,
-          active: editedProduct.active,
+          status: editedProduct.status,
           creation_date: productData.creation_date,
           last_update: productData.last_update,
         };
@@ -323,7 +324,7 @@ export default function ProductPage() {
       formData.append("discount_price", newProduct.discount_price);
       formData.append("option", String(newProduct.option));
       formData.append("quantity", newProduct.quantity);
-      formData.append("active", newProduct.active);
+      formData.append("status", newProduct.status);
 
       if (selectedImages) {
         Array.from(selectedImages).forEach((image) => {
@@ -341,22 +342,23 @@ export default function ProductPage() {
         sku: newProduct.sku,
         product_name: newProduct.product_name,
         short_description: newProduct.short_description,
+        long_description: newProduct.long_description,
         subcategory_id: newProduct.subcategory_id,
         price: newProduct.price,
         discount_price: newProduct.discount_price,
         quantity: newProduct.quantity,
         option: newProduct.option,
-        active: newProduct.active,
+        status: newProduct.status,
         creation_date: productdata.creation_date,
         last_update: productdata.last_update,
       };
 
       dispatch(setData([...data, AddedProducts]));
-      toast.success(response.data.message);
+      toast.success(t(response.data.message));
 
     } catch (error) {
       console.error("Error creating new product:", error);
-      toast.error("Error: " + error.response.data.message);
+      toast.error(t("Error: ") + error.response.data.message);
     } finally {
       handleCloseNewProductForm();
       setLoadingDelete(false);
@@ -430,7 +432,7 @@ export default function ProductPage() {
                   { id: "price", label: t("Price") },
                   { id: "quantity", label: t("Quantity") },
                   { id: "creation_date", label: t("Creation Date") },
-                  { id: "active", label: t("Active") },
+                  { id: "status", label: t("Status") },
                   { id: " " },
                 ]}
               />
@@ -447,7 +449,7 @@ export default function ProductPage() {
                         price={row.price}
                         quantity={row.quantity}
                         creation_date={row.creation_date}
-                        active={row.active}
+                        status={row.status}
                         selected={selected.indexOf(row._id) !== -1}
                         handleClick={(event) => handleClick(event, row._id)}
                         onEdit={() => handleEditProduct(row)}

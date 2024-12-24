@@ -22,7 +22,7 @@ function AddCategoryForm({ onSave, onCancel, open, onClose }) {
         fr: "",
         ar: "",
       },
-      active: false,
+      status: false,
     },
   });
 
@@ -36,7 +36,7 @@ function AddCategoryForm({ onSave, onCancel, open, onClose }) {
           fr: DOMPurify.sanitize(data.category_name.fr),
           ar: DOMPurify.sanitize(data.category_name.ar),
         },
-        active: data.active,
+        status: data.status,
       };
       await onSave(sanitizedData);
       onClose();
@@ -125,7 +125,7 @@ function AddCategoryForm({ onSave, onCancel, open, onClose }) {
               <FormControlLabel
                 control={
                   <Controller
-                    name="active"
+                    name="status"
                     control={control}
                     render={({ field }) => (
                       <FormControlLabel
@@ -143,13 +143,7 @@ function AddCategoryForm({ onSave, onCancel, open, onClose }) {
                 loading={loadingSave}
                 type="submit"
                 variant="contained"
-                sx={{
-                  flex: 1,
-                  "&:disabled": {
-                    backgroundColor: "#c0c0c0",
-                    color: "#000",
-                  },
-                }}
+                sx={{ flex: 1 }}
               >
                 {t("Save")}
               </LoadingButton>

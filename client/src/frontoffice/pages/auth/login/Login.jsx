@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import {
   loginStart,
@@ -14,8 +14,6 @@ import {
   Button,
   Paper,
   Typography,
-  Checkbox,
-  FormControlLabel,
   Link as MuiLink,
   Dialog,
   DialogTitle,
@@ -31,16 +29,20 @@ import { LoadingButton } from "@mui/lab";
 import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
+import {
+  GoogleReCaptchaProvider,
+  useGoogleReCaptcha
+} from 'react-google-recaptcha-v3';
 
 const Login = () => {
   const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const history = useNavigate();
   const [searchParams] = useSearchParams();
+  const [refreshReCaptcha, setRefreshReCaptcha] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [enteredForgotEmail, setEnteredForgotEmail] = useState("");
   const [loadingSave, setLoadingSave] = useState(false);
-  const [loginSuccessFlag, setLoginSuccessFlag] = useState(false);
   const axiosInstance = createAxiosInstance("customer");
 
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -53,12 +55,25 @@ const Login = () => {
     }
   }, [searchParams, t]);
 
+   const isLoggedin = localStorage.getItem("customer_access_token")
+
   useEffect(() => {
-    if (loginSuccessFlag) {
+    if (isLoggedin) {
       const redirect = searchParams.get("redirect");
       history(redirect || "/", { replace: true });
     }
-  }, [loginSuccessFlag, searchParams, history]);
+  }, [isLoggedin, searchParams, history]);
+
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
+  const handleReCaptchaVerify = useCallback(async () => {
+    if (!executeRecaptcha) {
+      return;
+    }
+    const captchaToken = await executeRecaptcha('loginAction');
+    return captchaToken;
+  }, [executeRecaptcha]);
+
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -80,15 +95,22 @@ const Login = () => {
     const sanitizedEmail = DOMPurify.sanitize(data.email);
     const sanitizedPassword = DOMPurify.sanitize(data.password);
 
+    const recaptchaToken = await handleReCaptchaVerify();
+    if (!recaptchaToken) {
+      toast.error("reCAPTCHA verification failed.");
+      setLoadingSave(false);
+      return;
+    }
+
     try {
       const response = await axiosInstance.post("/customers/login", {
         email: sanitizedEmail,
         password: sanitizedPassword,
+        recaptchaToken,
       });
 
       if (response.status === 200) {
         localStorage.setItem("customer_access_token", response.data.access_token);
-        localStorage.setItem("customer_refresh_token", response.data.refresh_token);
 
         dispatch(
           loginSuccess({
@@ -96,11 +118,11 @@ const Login = () => {
             isLoggedIn: true
           })
         );
-        setLoginSuccessFlag(true);
       }
     } catch (error) {
       toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
     } finally {
+      setRefreshReCaptcha(!refreshReCaptcha);
       setLoadingSave(false);
     }
   };
@@ -116,15 +138,12 @@ const Login = () => {
           window.location.href = res.data.cleanUrl;
         } else {
           localStorage.setItem("customer_access_token", res.data.access_token);
-          localStorage.setItem("customer_refresh_token", res.data.refresh_token);
 
           dispatch(
             loginSuccess({
               customerToken: res.data.access_token,
-              isLoggedIn: true
             })
           );
-          setLoginSuccessFlag(true);
         }
       }
     } catch (error) {
@@ -160,15 +179,16 @@ const Login = () => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
       >
+        <video autoPlay loop muted playsInline className="background-video" preload="auto"
+        >
+          <source src="https://res.cloudinary.com/donffivrz/video/upload/f_auto:video,q_auto/v1/greenville/public/videos/qdbnvi7dzfw7mc4i1mt7" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
         <Paper
           elevation={3}
-          style={{
-            backgroundColor: "white",
-            borderRadius: "20px",
-            textAlign: "center",
-          }}
+          className="form-container p-0.5 md:p-0 !rounded-2xl"
         >
-          <div className="max-w-[360px] md:max-w-[420px] p-5 md:p-10"
+          <div className="max-w-[400px] md:max-w-[450px] p-5 md:p-10"
           >
             <div className="flex justify-center mb-4">
               <Logo />

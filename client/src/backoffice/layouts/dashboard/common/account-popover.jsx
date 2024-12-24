@@ -32,7 +32,6 @@ export default function AccountPopover() {
   const logOut = async () => {
     try {
       localStorage.removeItem("user_access_token");
-      localStorage.removeItem("user_refresh_token");
       dispatch(logout({}));
       router.push("/admin/login");
     } catch (error) {

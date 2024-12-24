@@ -106,6 +106,7 @@ const getUserOrders = async (req, res) => {
       shipping_method: order.shipping_method,
       shipping_status: order.shipping_status,
       order_notes: order.order_notes,
+      is_review_allowed: order.is_review_allowed,
       order_items: order.order_items.map((item) => ({
         product: item.product_id,
         quantity: item.quantity,
@@ -192,12 +193,11 @@ const DeleteOrdersById = async (req, res) => {
   }
 };
 
-
 module.exports = {
   CreateOrders,
   RetrievingOrders,
   searchingOrders,
   getUserOrders,
   UpdateOrdersById,
-  DeleteOrdersById
+  DeleteOrdersById,
 };

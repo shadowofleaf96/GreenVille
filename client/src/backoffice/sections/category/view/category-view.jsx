@@ -188,7 +188,7 @@ export default function CategoryView() {
         updatedCategory[index] = {
           ...updatedCategory[index],
           category_name: editedCategory.category_name,
-          active: editedCategory.active,
+          status: editedCategory.status,
         };
         dispatch(setData(updatedCategory));
         toast.success(response.data.message);
@@ -252,7 +252,7 @@ export default function CategoryView() {
         key: categorydata._id,
         _id: categorydata._id,
         category_name: newCategory.category_name,
-        active: newCategory.active,
+        status: newCategory.status,
       };
 
       dispatch(setData([...data, AddedCategory]));
@@ -319,7 +319,7 @@ export default function CategoryView() {
                     id: "category_name",
                     label: t("categoryPage.categoryName"),
                   },
-                  { id: "active", label: t("categoryPage.active") },
+                  { id: "status", label: t("categoryPage.status") },
                   { id: " " },
                 ]}
               />
@@ -331,7 +331,7 @@ export default function CategoryView() {
                       <CategoryTableRow
                         key={row._id}
                         category_name={row.category_name}
-                        active={row.active}
+                        status={row.status}
                         selected={selected.indexOf(row._id) !== -1}
                         handleClick={(event) => handleClick(event, row._id)}
                         onEdit={() => handleEditCategory(row)}

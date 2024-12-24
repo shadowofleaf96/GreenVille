@@ -4,7 +4,7 @@ const { Category } = require("../models/Category");
 
 const subcategoriesController = {
   async createSubcategory(req, res) {
-    const { subcategory_name, category_id, active } = req.body;
+    const { subcategory_name, category_id, status } = req.body;
 
     try {
       if (
@@ -35,7 +35,7 @@ const subcategoriesController = {
       const newSubcategory = new SubCategory({
         subcategory_name,
         category_id,
-        active: active !== undefined ? active : false,
+        status: status !== undefined ? status : false,
       });
 
       await newSubcategory.save();
@@ -114,7 +114,7 @@ const subcategoriesController = {
   },
   async updateSubcategoryById(req, res) {
     const subcategoryId = req.params.id;
-    const { subcategory_name, category_id, active } = req.body;
+    const { subcategory_name, category_id, status } = req.body;
 
     try {
       const subcategory = await SubCategory.findById(subcategoryId);
@@ -141,8 +141,8 @@ const subcategoriesController = {
         subcategory.category_id = category_id;
       }
 
-      if (typeof active !== "undefined") {
-        subcategory.active = active;
+      if (typeof status !== "undefined") {
+        subcategory.status = status;
       }
 
       await subcategory.save();

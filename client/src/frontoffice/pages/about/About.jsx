@@ -110,7 +110,7 @@ const About = () => {
                   className="p-4 text-center border-b-2 border-white hover:border-yellow-400 hover:shadow-lg transition rounded-lg"
                   whileHover={{ scale: 1.05 }}
                 >
-                  <span className="flex justify-center mb-4 text-green-500">
+                  <span className="flex justify-center mb-4 text-[#8DC63F]">
                     {about.icon}
                   </span>
                   <h5 className="font-semibold mt-4">{about.title}</h5>

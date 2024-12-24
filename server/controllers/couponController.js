@@ -17,7 +17,9 @@ exports.createCoupon = async (req, res) => {
       status,
     });
     await coupon.save();
-    res.status(201).json({ data: coupon });
+    res
+      .status(201)
+      .json({ data: coupon, message: "Coupon created successfully" });
   } catch (error) {
     res.status(500).json(error);
     console.log(error);
@@ -67,7 +69,9 @@ exports.editCoupon = async (req, res) => {
     if (!updatedCoupon)
       return res.status(404).json({ error: "Coupon not found" });
 
-    res.status(200).json(updatedCoupon);
+    res
+      .status(200)
+      .json({ data: updatedCoupon, message: "Coupon updated successfully" });
   } catch (error) {
     res.status(400).json({ error: error.message || "Failed to edit coupon" });
   }

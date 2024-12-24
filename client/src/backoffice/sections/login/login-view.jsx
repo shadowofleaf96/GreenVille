@@ -1,3 +1,4 @@
+import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginSuccess } from "../../../redux/backoffice/authSlice";
@@ -29,36 +30,38 @@ import Logo from "../../components/logo";
 import Iconify from "../../components/iconify";
 import createAxiosInstance from "../../../utils/axiosConfig";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function LoginView() {
   const theme = useTheme();
   const router = useRouter();
+  const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
+  const history = useNavigate();
   const { t, i18n } = useTranslation();
-  const [user_name, setUserName] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-
+  const { control, handleSubmit, setError } = useForm();
   const [loadingSave, setLoadingSave] = useState(false);
-  const axiosInstance = createAxiosInstance("admin")
-  const isRtl = i18n.language === 'ar';
+  const [showPassword, setShowPassword] = useState(false);
+  const axiosInstance = createAxiosInstance("admin");
+  const isRtl = i18n.language === "ar";
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const isLoggedin = localStorage.getItem("user_access_token")
+
+  useEffect(() => {
+    if (isLoggedin) {
+      const redirect = searchParams.get("redirect");
+      history(redirect || "/admin/", { replace: true });
+    }
+  }, [isLoggedin, searchParams, history]);
+
+
+  const onSubmit = async (data) => {
     setLoadingSave(true);
-
     try {
-      const requestBody = {
-        user_name,
-        password,
-      };
-      const response = await axiosInstance.post("/users/login", requestBody);
+      const response = await axiosInstance.post("/users/login", data);
 
       if (response.status === 200) {
-        localStorage.setItem('user_access_token', response.data.access_token);
-        localStorage.setItem('user_refresh_token', response.data.refresh_token);
+        localStorage.setItem("user_access_token", response.data.access_token);
 
         dispatch(
           loginSuccess({
@@ -70,116 +73,13 @@ export default function LoginView() {
       }
     } catch (error) {
       toast.error("Error: " + error.response.data.message);
+      setError("server", { type: "manual", message: error.response.data.message });
     } finally {
       setLoadingSave(false);
     }
   };
 
-  const handleChangeEmail = (event) => {
-    setUserName(event.target.value);
-  };
-
-  const handleChangePassword = (event) => {
-    setPassword(event.target.value);
-  };
-
-  const handleClickShowPassword = () => {
-    setShowPassword((prevState) => !prevState);
-  };
-
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault();
-  };
-
-  const renderForm = (
-    <>
-      <form id="loginForm" onSubmit={handleSubmit}>
-        <Stack spacing={3}>
-          <TextField
-            name="user_name"
-            label={t("User Name")}
-            autoComplete="username"
-            value={user_name}
-            onChange={handleChangeEmail}
-          />
-
-          <TextField
-            name="password"
-            label={t("Password")}
-            autoComplete="current-password"
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={handleChangePassword}
-            InputProps={{
-              ...(isRtl
-                ? {
-                  startAdornment: (  // For RTL
-                    <InputAdornment position="start">
-                      <IconButton
-                        onClick={handleClickShowPassword}
-                        onMouseDown={handleMouseDownPassword}
-                        edge="start"
-                      >
-                        <Iconify
-                          icon={
-                            showPassword
-                              ? "material-symbols-light:visibility-outline-rounded"
-                              : "material-symbols-light:visibility-off-outline-rounded"
-                          }
-                          width={24}
-                          height={24}
-                        />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }
-                : {
-                  endAdornment: (  // For LTR
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={handleClickShowPassword}
-                        onMouseDown={handleMouseDownPassword}
-                        edge="end"
-                      >
-                        <Iconify
-                          icon={
-                            showPassword
-                              ? "material-symbols-light:visibility-outline-rounded"
-                              : "material-symbols-light:visibility-off-outline-rounded"
-                          }
-                          width={24}
-                          height={24}
-                        />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }),
-            }}
-          />
-        </Stack>
-
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="flex-end"
-          sx={{ my: 3 }}
-        >
-        </Stack>
-
-        <LoadingButton
-          fullWidth
-          loading={loadingSave}
-          size="large"
-          type="submit"
-          variant="contained"
-          color="primary"
-          form="loginForm"
-        >
-          {t("Login")}
-        </LoadingButton>
-      </form>
-    </>
-  );
+  const handleClickShowPassword = () => setShowPassword((prev) => !prev);
 
   return (
     <Box
@@ -194,8 +94,7 @@ export default function LoginView() {
         justifyContent: "center",
       }}
     >
-      <Stack alignItems="center" justifyContent="center"
-        sx={{ height: 1, width: "100%" }}>
+      <Stack alignItems="center" justifyContent="center" sx={{ height: 1, width: "100%" }}>
         <Card
           sx={{
             p: 5,
@@ -208,9 +107,90 @@ export default function LoginView() {
           </Stack>
           <Divider sx={{ my: 3 }}></Divider>
 
-          {renderForm}
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Stack spacing={3}>
+              <Controller
+                name="user_name"
+                control={control}
+                defaultValue=""
+                rules={{ required: t("Username is required") }}
+                render={({ field, fieldState }) => (
+                  <TextField
+                    {...field}
+                    label={t("User Name")}
+                    error={!!fieldState.error}
+                    helperText={fieldState.error?.message}
+                  />
+                )}
+              />
+
+              <Controller
+                name="password"
+                control={control}
+                defaultValue=""
+                rules={{ required: t("Password is required") }}
+                render={({ field, fieldState }) => (
+                  <TextField
+                    {...field}
+                    label={t("Password")}
+                    type={showPassword ? "text" : "password"}
+                    error={!!fieldState.error}
+                    helperText={fieldState.error?.message}
+                    InputProps={{
+                      ...(isRtl
+                        ? {
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <IconButton onClick={handleClickShowPassword}>
+                                <Iconify
+                                  icon={
+                                    showPassword
+                                      ? "material-symbols-light:visibility-outline-rounded"
+                                      : "material-symbols-light:visibility-off-outline-rounded"
+                                  }
+                                  width={24}
+                                />
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }
+                        : {
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton onClick={handleClickShowPassword}>
+                                <Iconify
+                                  icon={
+                                    showPassword
+                                      ? "material-symbols-light:visibility-outline-rounded"
+                                      : "material-symbols-light:visibility-off-outline-rounded"
+                                  }
+                                  width={24}
+                                />
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }),
+                    }}
+                  />
+                )}
+              />
+            </Stack>
+
+            <LoadingButton
+              fullWidth
+              loading={loadingSave}
+              size="large"
+              type="submit"
+              variant="contained"
+              color="primary"
+              sx={{ mt: 3 }}
+              className="!py-3 !mt-4 !font-medium !rounded-lg !shadow-none !transition-shadow !duration-300 !cursor-pointer hover:!shadow-lg hover:!shadow-yellow-400"
+            >
+              {t("Login")}
+            </LoadingButton>
+          </form>
         </Card>
       </Stack>
-    </Box >
+    </Box>
   );
 }

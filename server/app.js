@@ -96,7 +96,7 @@ app.use((req, res, next) => {
   if (["POST", "PUT", "DELETE"].includes(req.method)) {
     softLimiter(req, res, next);
   } else {
-    next(); // Skip rate limiting for other methods
+    next();
   }
 });
 

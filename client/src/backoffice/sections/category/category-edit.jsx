@@ -22,7 +22,7 @@ function EditCategoryForm({ category, onSave, onCancel, open, onClose }) {
         fr: "",
         ar: "",
       },
-      active: category?.active || false,
+      status: category?.status || false,
     },
   });
 
@@ -36,7 +36,7 @@ function EditCategoryForm({ category, onSave, onCancel, open, onClose }) {
           fr: DOMPurify.sanitize(data.category_name.fr),
           ar: DOMPurify.sanitize(data.category_name.ar),
         },
-        active: data.active,
+        status: data.status,
       };
       await onSave(sanitizedData);
       onClose();
@@ -122,7 +122,7 @@ function EditCategoryForm({ category, onSave, onCancel, open, onClose }) {
 
             <Stack direction="row" spacing={2} alignItems="center" justifyContent={"center"}>
               <Controller
-                name="active"
+                name="status"
                 control={control}
                 render={({ field }) => (
                   <FormControlLabel
@@ -140,13 +140,7 @@ function EditCategoryForm({ category, onSave, onCancel, open, onClose }) {
                 loading={loadingSave}
                 type="submit"
                 variant="contained"
-                sx={{
-                  flex: 1,
-                  "&:disabled": {
-                    backgroundColor: "#c0c0c0",
-                    color: "#000",
-                  },
-                }}
+                sx={{ flex: 1 }}
               >
                 {t("Save")}
               </LoadingButton>

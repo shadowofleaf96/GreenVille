@@ -22,7 +22,11 @@ root.render(
     <PersistGate loading={null} persistor={persistor}>
       <HelmetProvider>
         <GoogleOAuthProvider clientId={googleClientId}>
-          <BrowserRouter>
+          <BrowserRouter future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+          >
             <Suspense>
               <App />
             </Suspense>
@@ -30,5 +34,5 @@ root.render(
         </GoogleOAuthProvider>
       </HelmetProvider>
     </PersistGate>
-  </Provider>
+  </Provider >
 );

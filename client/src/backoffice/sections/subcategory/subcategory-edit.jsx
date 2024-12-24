@@ -35,7 +35,7 @@ function EditSubCategoryForm({ subcategory, onSave, onCancel, open, onClose }) {
         ar: "",
       },
       category_id: subcategory?.category_id || "",
-      active: subcategory?.active || false,
+      status: subcategory?.status || false,
     },
   });
 
@@ -178,7 +178,7 @@ function EditSubCategoryForm({ subcategory, onSave, onCancel, open, onClose }) {
                 <FormControlLabel
                   control={
                     <Controller
-                      name="active"
+                      name="status"
                       control={control}
                       render={({ field }) => (
                         <FormControlLabel

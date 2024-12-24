@@ -16,6 +16,7 @@ const {
   RetrieveById,
   UpdateProductById,
   DeleteProductById,
+  updateReview,
 } = require("../controllers/productController");
 router.post(
   "/",
@@ -35,6 +36,7 @@ router.put(
   upload.array("product_images", 5),
   UpdateProductById
 );
+router.put("/:reviewId", verifyToken, requireAdminOrManager, updateReview);
 router.delete("/:id", verifyToken, requireAdminOrManager, DeleteProductById);
 
 module.exports = router;

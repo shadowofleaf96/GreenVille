@@ -200,7 +200,7 @@ const Products = () => {
         <Loader />
       ) : (
         <>
-          <div className="flex flex-col min-h-[80vh] py-10">
+          <div className="flex flex-col min-h-[80vh] py-10 bg-gray-200">
             <div className="container mx-auto px-8 sm:px-10 lg:px-12">
               <motion.div
                 className="grid grid-cols-1 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-3"
@@ -213,7 +213,7 @@ const Products = () => {
                 {!isMobile ? (
                   <div>
                     <motion.div
-                      className="mt-5 p-4 rounded-3xl"
+                      className="mt-5 p-4 rounded-3xl bg-gray-100"
                       initial={{ opacity: 0, x: -50 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.5 }}

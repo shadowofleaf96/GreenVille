@@ -38,7 +38,7 @@ const createUser = async (req, res) => {
     email,
     password: hashedPassword,
     creation_date: Date.now(),
-    active: true,
+    status: true,
   })
     .then((newUser) => {
       res.status(201).json({
@@ -166,7 +166,7 @@ const updateUser = async (req, res) => {
   try {
     const user_image = req.file;
     const userId = req.params.id;
-    const { role, first_name, last_name, user_name, email, password, active } =
+    const { role, first_name, last_name, user_name, email, password, status } =
       req.body;
     const invalidFields = [];
 
@@ -216,7 +216,7 @@ const updateUser = async (req, res) => {
     existingUser.user_name = user_name;
     existingUser.email = email;
     existingUser.password = password;
-    existingUser.active = active;
+    existingUser.status = status;
     existingUser.last_update = new Date();
 
     await existingUser.save();
@@ -263,7 +263,7 @@ const loginUser = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    if (user && !user.active) {
+    if (user && !user.status) {
       return res.status(403).json({ message: "Account is inactive" });
     }
 

@@ -4,7 +4,7 @@ import { CouponView } from '../sections/coupon/view';
 
 // ----------------------------------------------------------------------
 
-export default function SubCategoryPage() {
+export default function CouponPage() {
   return (
     <>
       <Helmet>

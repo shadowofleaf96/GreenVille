@@ -10,7 +10,7 @@ import { fDateTime } from "../../../utils/format-time";
 import { useTranslation } from "react-i18next";
 
 const CustomerDetailsPopup = ({ customer, open, onClose }) => {
-  const isActive = customer?.active;
+  const isActive = customer?.status;
   const { t } = useTranslation();
   const color = isActive ? "primary" : "secondary";
   return (

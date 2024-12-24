@@ -189,7 +189,7 @@ export default function SubCategoryView() {
           ...updatedSubCategories[index],
           subcategory_name: editedSubCategory.subcategory_name[currentLanguage],
           category_id: editedSubCategory.category_id,
-          active: editedSubCategory.active,
+          status: editedSubCategory.status,
         };
         dispatch(setData(updatedSubCategories));
         toast.success(response.data.message);
@@ -244,7 +244,7 @@ export default function SubCategoryView() {
         _id: subcategorydata._id,
         subcategory_name: newSubCategory.subcategory_name[currentLanguage],
         category_id: newSubCategory.category_id,
-        active: newSubCategory.active,
+        status: newSubCategory.status,
       };
 
       dispatch(setData([...data, AddedSubCategories]));
@@ -310,7 +310,7 @@ export default function SubCategoryView() {
                 headLabel={[
                   { id: "subcategory_name", label: t("Subcategory Name") },
                   { id: "category", label: t("Category") },
-                  { id: "active", label: t("Active") },
+                  { id: "status", label: t("Status") },
                   { id: " " },
                 ]}
               />
@@ -323,7 +323,7 @@ export default function SubCategoryView() {
                         key={row._id}
                         subcategory_name={row.subcategory_name}
                         category={row.category.category_name[currentLanguage]}
-                        active={row.active}
+                        status={row.status}
                         selected={selected.indexOf(row._id) !== -1}
                         handleClick={(event) => handleClick(event, row._id)}
                         onEdit={() => handleEditSubCategory(row)}

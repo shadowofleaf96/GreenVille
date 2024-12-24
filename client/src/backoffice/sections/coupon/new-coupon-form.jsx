@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
@@ -7,49 +8,23 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import Switch from "@mui/material/Switch";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 
 function NewCouponForm({ onSave, onCancel, open, onClose }) {
   const { t } = useTranslation();
-
-  const [newCoupon, setNewCoupon] = useState({
-    code: "",
-    discount: "",
-    expiresAt: "",
-    usageLimit: "",
-    status: "inactive",
+  const { control, register, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: {
+      status: false,
+    },
   });
 
   const [loadingSave, setLoadingSave] = useState(false);
 
-  const handleFieldChange = (e) => {
-    const { name, value } = e.target;
-    setNewCoupon({ ...newCoupon, [name]: value });
-  };
-
-  const handleSwitchChange = (event) => {
-    const isActive = event.target.checked;
-    setNewCoupon({
-      ...newCoupon,
-      status: isActive ? "active" : "inactive",
-    });
-  };
-
-  const handleSave = async () => {
+  const handleSave = async (data) => {
     setLoadingSave(true);
 
     try {
-      await onSave(newCoupon);
-      setNewCoupon({
-        code: "",
-        discount: "",
-        expiresAt: "",
-        usageLimit: "",
-        status: "inactive",
-      });
-
+      await onSave(data);
       onClose();
     } catch (error) {
       console.error("Error saving coupon:", error);
@@ -87,87 +62,84 @@ function NewCouponForm({ onSave, onCancel, open, onClose }) {
           {t("Add Coupon")}
         </Typography>
 
-        <TextField
-          label={t("Coupon Code")}
-          name="code"
-          value={newCoupon.code}
-          onChange={handleFieldChange}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-        />
+        <form onSubmit={handleSubmit(handleSave)}>
+          <TextField
+            label={t("Coupon Code")}
+            name="code"
+            {...register("code", { required: true })}
+            error={!!errors.code}
+            helperText={errors.code?.message || ""}
+            fullWidth
+            sx={{ marginBottom: 2 }}
+          />
 
-        <TextField
-          label={t("Discount (%)")}
-          name="discount"
-          value={newCoupon.discount}
-          onChange={handleFieldChange}
-          fullWidth
-          type="number"
-          sx={{ marginBottom: 2 }}
-        />
+          <TextField
+            label={t("Discount (%)")}
+            name="discount"
+            {...register("discount", { required: true })}
+            error={!!errors.discount}
+            helperText={errors.discount?.message || ""}
+            fullWidth
+            type="number"
+            sx={{ marginBottom: 2 }}
+          />
 
-        <TextField
-          label={t("Expiration Date")}
-          name="expiresAt"
-          value={newCoupon.expiresAt}
-          onChange={handleFieldChange}
-          fullWidth
-          type="date"
-          sx={{ marginBottom: 2 }}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
+          <TextField
+            label={t("Expiration Date")}
+            name="expiresAt"
+            {...register("expiresAt", { required: true })}
+            error={!!errors.expiresAt}
+            helperText={errors.expiresAt?.message || ""}
+            fullWidth
+            type="date"
+            sx={{ marginBottom: 2 }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
 
-        <TextField
-          label={t("Usage Limit")}
-          name="usageLimit"
-          value={newCoupon.usageLimit}
-          onChange={handleFieldChange}
-          fullWidth
-          type="number"
-          sx={{ marginBottom: 2 }}
-        />
+          <TextField
+            label={t("Usage Limit")}
+            name="usageLimit"
+            {...register("usageLimit")}
+            error={!!errors.usageLimit}
+            helperText={errors.usageLimit?.message || ""}
+            fullWidth
+            type="number"
+            sx={{ marginBottom: 2 }}
+          />
 
-        <Stack direction="column" alignItems="center" sx={{ marginBottom: 2 }}>
-          <Stack direction="row" spacing={2} alignItems="center">
+          <Stack direction="row" spacing={2} alignItems="center" justifyContent={"center"} sx={{ marginBottom: 2 }}>
             <FormControlLabel
-              labelPlacement="start"
-              label={
-                <Typography variant="body2">
-                  {newCoupon.status === "active" ? t("Active") : t("Inactive")}
-                </Typography>
-              }
               control={
-                <Switch
+                <Controller
                   name="status"
-                  checked={newCoupon.status === "active"}
-                  onChange={handleSwitchChange}
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      label={<Typography variant="body2">{field.value ? t("Active") : t("Inactive")}</Typography>}
+                      control={<Switch {...field} checked={field.value} />}
+                    />
+                  )}
                 />
               }
             />
           </Stack>
-        </Stack>
 
-        <Stack direction="row" spacing={2} className="rtl:gap-4" sx={{ width: "100%" }}>
-          <LoadingButton
-            loading={loadingSave}
-            onClick={handleSave}
-            variant="contained"
-            sx={{ flex: 1 }}
-          >
-            {t("Save")}
-          </LoadingButton>
-          <Button
-            onClick={onCancel}
-            variant="outlined"
-            sx={{
-              flex: 1,
-            }}
-          >
-            {t("Cancel")}
-          </Button>
-        </Stack>
+          <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
+            <LoadingButton
+              loading={loadingSave}
+              type="submit"
+              variant="contained"
+              sx={{ flex: 1 }}
+            >
+              {t("Save")}
+            </LoadingButton>
+            <Button onClick={onCancel} variant="outlined" sx={{ flex: 1 }}>
+              {t("Cancel")}
+            </Button>
+          </Stack>
+        </form>
       </Stack>
     </Modal>
   );

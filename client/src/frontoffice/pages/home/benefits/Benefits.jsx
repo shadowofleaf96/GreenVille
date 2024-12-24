@@ -15,7 +15,7 @@ const Benefits = () => {
               <div className="flow-root">
                 <Iconify
                   icon="fa-solid:shipping-fast"
-                  className="w-auto h-auto mx-auto text-green-500 text-2xl cursor-pointer rounded-md hover:text-yellow-400"
+                  className="w-auto h-auto mx-auto text-2xl text-[#8DC63F] font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:text-yellow-400"
                   width={60}
                   height={60}
                 />
@@ -32,7 +32,7 @@ const Benefits = () => {
               <div className="flow-root">
                 <Iconify
                   icon="bx:support"
-                  className="w-auto h-auto mx-auto text-green-500 text-2xl cursor-pointer rounded-md hover:text-yellow-400"
+                  className="w-auto h-auto mx-auto text-[#8DC63F] font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:text-yellow-400"
                   width={60}
                   height={60}
                 />
@@ -49,7 +49,7 @@ const Benefits = () => {
               <div className="flow-root">
                 <Iconify
                   icon="wpf:worldwide-location"
-                  className="w-auto h-auto mx-auto text-green-500 text-2xl cursor-pointer rounded-md hover:text-yellow-400"
+                  className="w-auto h-auto mx-auto text-[#8DC63F] font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:text-yellow-400"
                   width={60}
                   height={60}
                 />

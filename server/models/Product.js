@@ -23,9 +23,11 @@ const productJoiSchema = Joi.object({
   }).optional(),
   price: Joi.number().positive().required(),
   discount_price: Joi.number().positive().optional(),
+  average_rating: Joi.number().optional(),
+  total_reviews: Joi.number().optional(),
   quantity: Joi.number().integer().required(),
   option: Joi.array().items(Joi.string()).optional(),
-  active: Joi.boolean().default(false),
+  status: Joi.boolean().default(false),
   creation_date: Joi.number().optional(),
   last_update: Joi.number().optional(),
 });
@@ -71,7 +73,7 @@ const productSchema = mongoose.Schema(
       required: true,
     },
     option: Array,
-    active: {
+    status: {
       type: Boolean,
       default: false,
     },
@@ -82,6 +84,14 @@ const productSchema = mongoose.Schema(
     last_update: {
       type: Number,
       default: Date.now,
+    },
+    average_rating: {
+      type: Number,
+      default: 0,
+    },
+    total_reviews: {
+      type: Number,
+      default: 0,
     },
   },
   {

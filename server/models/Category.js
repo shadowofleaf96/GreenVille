@@ -10,7 +10,7 @@ const CategoryJoiSchema = Joi.object({
     fr: Joi.string().required(),
     ar: Joi.string().required(),
   }).required(),
-  active: Joi.boolean(),
+  status: Joi.boolean(),
 });
 
 const CategorySchema = new mongoose.Schema(
@@ -20,7 +20,7 @@ const CategorySchema = new mongoose.Schema(
       fr: { type: String, required: true },
       ar: { type: String, required: true },
     },
-    active: {
+    status: {
       type: Boolean,
       default: false,
     },
@@ -36,7 +36,7 @@ CategorySchema.pre("save", async function (next) {
     const validatedData = await CategoryJoiSchema.validateAsync(this.toObject());
 
     this.category_name = validatedData.category_name;
-    this.active = validatedData.active;
+    this.status = validatedData.status;
 
     next();
   } catch (error) {

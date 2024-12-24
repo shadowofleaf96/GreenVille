@@ -11,7 +11,7 @@ const backend = import.meta.env.VITE_BACKEND_URL;
 
 const UserDetailsPopup = ({ user, open, onClose }) => {
   const { t } = useTranslation();
-  const isActive = user?.active;
+  const isActive = user?.status;
   const color = isActive ? "primary" : "secondary";
 
   return (
