@@ -20,7 +20,7 @@ import Success from "../frontoffice/pages/cart/success/Success";
 import UpdateProfile from "../frontoffice/pages/user/updateProfile/UpdateProfile";
 import UpdateAddress from "../frontoffice/pages/user/updateAddress/UpdateAddress";
 import MyOrders from "../frontoffice/pages/user/myOrders/MyOrders";
-import MyProfile from "../frontoffice/pages/user/myProfile/myProfile";
+import MyProfile from "../frontoffice/pages/user/myProfile/MyProfile";
 import About from "../frontoffice/pages/about/About";
 import Home from "../frontoffice/pages/home/Home";
 import Products from "../frontoffice/pages/products/Products";
