@@ -2,16 +2,13 @@ import React, { Fragment, useEffect, useState } from "react";
 import Loader from "../../../components/loader/Loader";
 import ProfileLink from "../../../components/profileLinks/ProfileLink";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import MetaData from "../../../components/MetaData";
 import { useTranslation } from "react-i18next";
-import Review from "../../review/Review";
 import LoadingButton from "@mui/lab/LoadingButton";
 
-const backend = import.meta.env.VITE_BACKEND_URL;
-
 const MyProfile = () => {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
 
     const { customer, loading } = useSelector((state) => state.customers);
 

@@ -1,11 +1,9 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import { Outlet, Navigate, Routes, Route } from "react-router-dom";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
-import DashboardLayout from "../backoffice/layouts/dashboard";
-import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Slide, Zoom, Flip, Bounce } from 'react-toastify';
+import { Slide } from 'react-toastify';
 
 import Login from "../frontoffice/pages/auth/login/Login";
 import Register from "../frontoffice/pages/auth/register/Register";
