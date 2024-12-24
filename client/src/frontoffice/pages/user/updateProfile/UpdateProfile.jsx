@@ -7,7 +7,7 @@ import ProfileLink from "../../../components/profileLinks/ProfileLink";
 import UploadButton from "../../../../backoffice/components/button/UploadButton";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { toast } from "react-toastify";
-import { logout, fetchCustomerProfile } from "../../../../redux/frontoffice/customerSlice";
+import { fetchCustomerProfile } from "../../../../redux/frontoffice/customerSlice";
 import { LoadingButton } from "@mui/lab";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";

@@ -177,7 +177,7 @@
   "Price": "Prix",
   "Discount Price": "Prix avec réduction",
   "Quantity": "Quantité",
-  "Options (comma-separated)": "Options (séparées par des virgules)",
+  "Options (comma-separated)": "Options (séparées par des virgules, pouvant être 'Top Deals, Flash Sales or New Arrivals'))",
   "Welcome": "Bienvenue",
   "Revenues": "Revenus",
   "Last Sign in Customers and New Orders Added": "Derniers clients connectés et nouvelles commandes ajoutées",
@@ -672,10 +672,11 @@
   "PhoneNumberRequired": "Le numéro de téléphone est requis.",
   "PhoneNumberInvalid": "Veuillez entrer un numéro de téléphone valide à 10 chiffres.",
   "Account updated successfully": "Compte mis à jour avec succès",
-  "nonExistent":"Inexistant",
+  "nonExistent": "Inexistant",
   "streetNotExist": "La rue n'est pas disponible. Veuillez mettre à jour votre adresse de livraison pour inclure votre rue.",
   "cityNotExist": "La ville n'est pas disponible. Veuillez mettre à jour votre adresse de livraison pour inclure votre ville.",
   "postalCodeNotExist": "Le code postal n'est pas disponible. Veuillez mettre à jour votre adresse de livraison pour inclure votre code postal.",
   "shippingAddressMissing": "L'adresse de livraison n'est pas disponible. Veuillez mettre à jour votre profil avec une adresse de livraison valide.",
-  "sessionExpired": "La session a expiré, veuillez vous reconnecter !"
+  "sessionExpired": "La session a expiré, veuillez vous reconnecter !",
+  "Product created successfully": "Produit créé avec succès"
 }

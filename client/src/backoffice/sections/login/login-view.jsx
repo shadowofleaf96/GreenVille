@@ -30,18 +30,30 @@ import Logo from "../../components/logo";
 import Iconify from "../../components/iconify";
 import createAxiosInstance from "../../../utils/axiosConfig";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function LoginView() {
   const theme = useTheme();
   const router = useRouter();
+  const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
+  const history = useNavigate();
   const { t, i18n } = useTranslation();
   const { control, handleSubmit, setError } = useForm();
   const [loadingSave, setLoadingSave] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const axiosInstance = createAxiosInstance("admin");
   const isRtl = i18n.language === "ar";
+
+  const isLoggedin = localStorage.getItem("user_access_token")
+
+  useEffect(() => {
+    if (isLoggedin) {
+      const redirect = searchParams.get("redirect");
+      history(redirect || "/admin/", { replace: true });
+    }
+  }, [isLoggedin, searchParams, history]);
+
 
   const onSubmit = async (data) => {
     setLoadingSave(true);
@@ -50,7 +62,6 @@ export default function LoginView() {
 
       if (response.status === 200) {
         localStorage.setItem("user_access_token", response.data.access_token);
-        localStorage.setItem("user_refresh_token", response.data.refresh_token);
 
         dispatch(
           loginSuccess({
@@ -128,37 +139,37 @@ export default function LoginView() {
                     InputProps={{
                       ...(isRtl
                         ? {
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <IconButton onClick={handleClickShowPassword}>
-                                  <Iconify
-                                    icon={
-                                      showPassword
-                                        ? "material-symbols-light:visibility-outline-rounded"
-                                        : "material-symbols-light:visibility-off-outline-rounded"
-                                    }
-                                    width={24}
-                                  />
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          }
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <IconButton onClick={handleClickShowPassword}>
+                                <Iconify
+                                  icon={
+                                    showPassword
+                                      ? "material-symbols-light:visibility-outline-rounded"
+                                      : "material-symbols-light:visibility-off-outline-rounded"
+                                  }
+                                  width={24}
+                                />
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }
                         : {
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <IconButton onClick={handleClickShowPassword}>
-                                  <Iconify
-                                    icon={
-                                      showPassword
-                                        ? "material-symbols-light:visibility-outline-rounded"
-                                        : "material-symbols-light:visibility-off-outline-rounded"
-                                    }
-                                    width={24}
-                                  />
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          }),
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton onClick={handleClickShowPassword}>
+                                <Iconify
+                                  icon={
+                                    showPassword
+                                      ? "material-symbols-light:visibility-outline-rounded"
+                                      : "material-symbols-light:visibility-off-outline-rounded"
+                                  }
+                                  width={24}
+                                />
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }),
                     }}
                   />
                 )}

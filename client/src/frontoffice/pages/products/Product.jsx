@@ -30,7 +30,7 @@ const Product = ({ product }) => {
 
   return (
     <div id="mainDiv" className="w-full p-2 sm:p-4">
-      <div className="p-3 sm:p-4 rounded-lg sm:rounded-2xl relative transition-all duration-500 border bg-gray-200 hover:shadow-lg">
+      <div className="p-3 sm:p-4 rounded-lg sm:rounded-2xl relative transition-all duration-500 border bg-gray-100 hover:shadow-lg">
         <Link to={`/product/${product?._id}`} className="block text-center">
           <div className="mb-2 sm:mb-4 transition-transform duration-500 transform hover:scale-105">
             <img

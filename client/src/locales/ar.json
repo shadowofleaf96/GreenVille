@@ -29,7 +29,7 @@
   "Options": "الخيارات",
   "Quantity": "الكمية",
   "Last Update": "آخر تحديث",
-  "Options (comma-separated)": "الخيارات (مفصولة بفواصل)",
+  "Options (comma-separated)": "الخيارات (مفصولة بفواصل, 'Top Deals, Flash Sales or New Arrivals' يمكن أن تكون)",
   "order": "الطلب",
   "categoryPage": {
     "title": "الفئة",
@@ -675,5 +675,6 @@
   "cityNotExist": "المدينة غير متوفرة. يرجى تحديث عنوان الشحن الخاص بك لتضمين المدينة.",
   "postalCodeNotExist": "الرمز البريدي غير متوفر. يرجى تحديث عنوان الشحن الخاص بك لتضمين الرمز البريدي.",
   "shippingAddressMissing": "عنوان الشحن غير متوفر. يرجى تحديث ملفك الشخصي بعنوان شحن صالح.",
-  "sessionExpired": "انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى!"
+  "sessionExpired": "انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى!",
+  "Product created successfully": "تم إنشاء المنتج بنجاح"
 }

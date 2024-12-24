@@ -22,7 +22,7 @@ const FrontProtectedRoute = () => {
                 }
             } catch (err) {
                 console.error(err);
-                toast.error(t("Session expired, please log in again!"));
+                toast.error("Failed to fetch customer data!");
                 setIsAuthenticated(false);
             }
         } else {

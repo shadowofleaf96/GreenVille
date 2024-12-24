@@ -165,9 +165,9 @@ const UpdateProductById = async (req, res) => {
     return res.status(404).json({ message: "Invalid product id" });
   }
 
-  if (!product_images || product_images.length === 0) {
-    return res.status(400).json({ message: "No images uploaded." });
-  }
+  // if (!product_images || product_images.length === 0) {
+  //   return res.status(400).json({ message: "No images uploaded." });
+  // }
 
   if (product_images.length > 5) {
     return res.status(400).json({ message: "Maximum 5 images allowed." });

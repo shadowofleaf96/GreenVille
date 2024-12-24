@@ -1,6 +1,5 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import { Outlet, Navigate, Routes, Route } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import DashboardLayout from "../backoffice/layouts/dashboard";
 import axios from "axios";

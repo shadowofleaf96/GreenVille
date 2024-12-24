@@ -122,7 +122,7 @@
   "Error deleting users:": "Error deleting users:",
   "Discount Price": "Discount Price",
   "Quantity": "Quantity",
-  "Options (comma-separated)": "Options (comma-separated)",
+  "Options (comma-separated)": "Options (comma-separated, could be 'Top Deals, Flash Sales or New Arrivals')",
   "Welcome": "Welcome",
   "Revenues": "Revenues",
   "Last Sign in Customers and New Orders Added": "Last Sign in Customers and New Orders Added",
@@ -666,5 +666,6 @@
   "streetNotExist": "Street is not available. Please update your shipping address to include your street.",
   "cityNotExist": "City is not available. Please update your shipping address to include your city.",
   "postalCodeNotExist": "Postal code is not available. Please update your shipping address to include your postal code.",
-  "shippingAddressMissing": "Shipping address is not available. Please update your profile with a valid shipping address."
+  "shippingAddressMissing": "Shipping address is not available. Please update your profile with a valid shipping address.",
+  "Product created successfully": "Product created successfully"
 }

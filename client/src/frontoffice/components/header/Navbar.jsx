@@ -43,6 +43,7 @@ const Navbar = () => {
 
   const logoutHandler = async () => {
     localStorage.removeItem("customer_access_token");
+    localStorage.removeItem("isAuthenticated");
     dispatch(logout());
     toast.success(t("You have been Logged out"));
     router("/");

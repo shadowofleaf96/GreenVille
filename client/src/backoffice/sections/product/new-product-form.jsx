@@ -168,11 +168,11 @@ function NewProductForm({ onSave, onCancel, open, onClose }) {
         },
       };
       await onSave(sanitizedData, selectedImages);
+      reset();
     } catch (error) {
       console.error("Error saving product:", error);
     } finally {
       setLoadingSave(false);
-      reset();
       setSelectedImages([])
     }
   };

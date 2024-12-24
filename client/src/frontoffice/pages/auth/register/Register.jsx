@@ -34,6 +34,14 @@ const RegistrationForm = () => {
     return captchaToken;
   }, [executeRecaptcha]);
 
+  const isLoggedin = localStorage.getItem("customer_access_token")
+
+  useEffect(() => {
+    if (isLoggedin) {
+      const redirect = searchParams.get("redirect");
+      history(redirect || "/", { replace: true });
+    }
+  }, [isLoggedin, searchParams, history]);
 
   const onSubmit = async (data) => {
     setLoadingSave(true);

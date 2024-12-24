@@ -43,7 +43,6 @@ const Login = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [enteredForgotEmail, setEnteredForgotEmail] = useState("");
   const [loadingSave, setLoadingSave] = useState(false);
-  const [loginSuccessFlag, setLoginSuccessFlag] = useState(false);
   const axiosInstance = createAxiosInstance("customer");
 
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -56,12 +55,14 @@ const Login = () => {
     }
   }, [searchParams, t]);
 
+   const isLoggedin = localStorage.getItem("customer_access_token")
+
   useEffect(() => {
-    if (loginSuccessFlag) {
+    if (isLoggedin) {
       const redirect = searchParams.get("redirect");
       history(redirect || "/", { replace: true });
     }
-  }, [loginSuccessFlag, searchParams, history]);
+  }, [isLoggedin, searchParams, history]);
 
   const { executeRecaptcha } = useGoogleReCaptcha();
 
@@ -110,7 +111,6 @@ const Login = () => {
 
       if (response.status === 200) {
         localStorage.setItem("customer_access_token", response.data.access_token);
-        localStorage.setItem("customer_refresh_token", response.data.refresh_token);
 
         dispatch(
           loginSuccess({
@@ -118,7 +118,6 @@ const Login = () => {
             isLoggedIn: true
           })
         );
-        setLoginSuccessFlag(true);
       }
     } catch (error) {
       toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
@@ -139,15 +138,12 @@ const Login = () => {
           window.location.href = res.data.cleanUrl;
         } else {
           localStorage.setItem("customer_access_token", res.data.access_token);
-          localStorage.setItem("customer_refresh_token", res.data.refresh_token);
 
           dispatch(
             loginSuccess({
               customerToken: res.data.access_token,
-              isLoggedIn: true
             })
           );
-          setLoginSuccessFlag(true);
         }
       }
     } catch (error) {

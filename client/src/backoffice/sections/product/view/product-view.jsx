@@ -236,6 +236,7 @@ export default function ProductPage() {
           sku: editedProduct.sku,
           product_name: editedProduct.product_name,
           short_description: editedProduct.short_description,
+          long_description: editedProduct.long_description,
           subcategory_id: editedProduct.subcategory_id,
           price: editedProduct.price,
           discount_price: editedProduct.discount_price,
@@ -341,6 +342,7 @@ export default function ProductPage() {
         sku: newProduct.sku,
         product_name: newProduct.product_name,
         short_description: newProduct.short_description,
+        long_description: newProduct.long_description,
         subcategory_id: newProduct.subcategory_id,
         price: newProduct.price,
         discount_price: newProduct.discount_price,
@@ -352,11 +354,11 @@ export default function ProductPage() {
       };
 
       dispatch(setData([...data, AddedProducts]));
-      toast.success(response.data.message);
+      toast.success(t(response.data.message));
 
     } catch (error) {
       console.error("Error creating new product:", error);
-      toast.error("Error: " + error.response.data.message);
+      toast.error(t("Error: ") + error.response.data.message);
     } finally {
       handleCloseNewProductForm();
       setLoadingDelete(false);
