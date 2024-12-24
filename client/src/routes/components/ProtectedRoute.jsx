@@ -8,7 +8,7 @@ import createAxiosInstance from "../../utils/axiosConfig";
 const ProtectedRoute = () => {
     const userToken = localStorage.getItem('user_access_token');
     const [isAuthenticated, setIsAuthenticated] = useState(null);
-    const [loading, setLoading] = useState(true); 
+    const [loading, setLoading] = useState(true);
 
     const fetchUserData = async () => {
         if (userToken) {
@@ -22,13 +22,13 @@ const ProtectedRoute = () => {
                 }
             } catch (err) {
                 console.error(err);
-                toast.error("Session expired, please log in again!");
+                toast.error(t("Session expired, please log in again!"));
                 setIsAuthenticated(false);
             }
         } else {
-            setIsAuthenticated(false); 
+            setIsAuthenticated(false);
         }
-        setLoading(false); 
+        setLoading(false);
     };
 
     useEffect(() => {

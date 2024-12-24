@@ -676,5 +676,6 @@
   "streetNotExist": "La rue n'est pas disponible. Veuillez mettre à jour votre adresse de livraison pour inclure votre rue.",
   "cityNotExist": "La ville n'est pas disponible. Veuillez mettre à jour votre adresse de livraison pour inclure votre ville.",
   "postalCodeNotExist": "Le code postal n'est pas disponible. Veuillez mettre à jour votre adresse de livraison pour inclure votre code postal.",
-  "shippingAddressMissing": "L'adresse de livraison n'est pas disponible. Veuillez mettre à jour votre profil avec une adresse de livraison valide."
+  "shippingAddressMissing": "L'adresse de livraison n'est pas disponible. Veuillez mettre à jour votre profil avec une adresse de livraison valide.",
+  "sessionExpired": "La session a expiré, veuillez vous reconnecter !"
 }

@@ -202,7 +202,7 @@ const Payment = () => {
             <h4 className="mb-4 text-lg font-semibold text-center">{t("SelectPaymentMethod")}</h4>
             <div className="flex flex-col md:flex-row justify-center mb-4">
               <label className="flex items-center w-auto mb-2 md:mb-0 md:mr-4 text-left justify-start">
-                <Iconify icon="mdi:cod" width={30} height={30} className="mr-2 md:flex-1 " />
+                <Iconify icon="mdi:cod" width={30} height={30} className="mr-2 md:flex " />
                 <input
                   type="radio"
                   name="paymentMethod"
@@ -214,7 +214,7 @@ const Payment = () => {
                 <span className="ml-2">{t("CashOnDelivery")}</span>
               </label>
               <label className="flex items-center mb-2 md:mb-0 md:mr-4 text-left justify-start">
-                <Iconify icon="ic:baseline-paypal" width={30} height={30} className="mr-2 md:flex-1" />
+                <Iconify icon="ic:baseline-paypal" width={30} height={30} className="mr-2 md:flex" />
                 <input
                   type="radio"
                   name="paymentMethod"
@@ -226,7 +226,7 @@ const Payment = () => {
                 <span className="ml-2">{t("PayPal")}</span>
               </label>
               <label className="flex items-center text-left justify-start">
-                <Iconify icon="material-symbols-light:credit-card" width={30} height={30} className="mr-2 md:flex-1" />
+                <Iconify icon="material-symbols-light:credit-card" width={30} height={30} className="mr-2 md:flex" />
                 <input
                   type="radio"
                   name="paymentMethod"
