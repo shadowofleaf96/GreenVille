@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GreenVille</string>
+    <string name="title_activity_main">GreenVille</string>
+    <string name="package_name">ma.mk.greenville</string>
+    <string name="custom_url_scheme">ma.mk.greenville</string>
+</resources>
