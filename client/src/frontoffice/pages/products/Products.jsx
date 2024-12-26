@@ -3,7 +3,7 @@ import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { useDispatch, useSelector } from "react-redux";
 import { getProducts } from "../../../redux/frontoffice/productSlice";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Product from "./Product";
 import Loader from "../../components/loader/Loader";
 import Footer from "../../components/footer/Footer";
@@ -23,6 +23,7 @@ const Products = () => {
   const [selectedSubcategories, setSelectedSubcategories] = useState([]);
   const [selectedPriceRange, setSelectedPriceRange] = useState([0, 1000]);
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const location = useLocation();
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
   const [isOptionOpen, setIsOptionOpen] = useState(false);
@@ -42,7 +43,7 @@ const Products = () => {
   const subcategoriesState = useSelector((state) => state.subcategories);
   const { categories } = categoriesState;
   const { subcategories } = subcategoriesState;
-  const { subcategory } = useParams();
+  const { subcategory, deals, sales, arrivals } = useParams();
 
   useEffect(() => {
     setProductsPerPage(isMobile ? 10 : 9);
@@ -83,6 +84,26 @@ const Products = () => {
       }
     }
   }, [subcategory, subcategories]);
+
+  useEffect(() => {
+    if (salesQuery !== null && salesQuery !== "") {
+      setSelectedOptions(['Flash Sales']);
+    } else {
+      setSelectedOptions([]);
+    }
+
+    if (arrivalsQuery !== null) {
+      setSelectedOptions(['New Arrivals']);
+    } else {
+      setSelectedOptions([]);
+    }
+    if (dealsQuery !== null) {
+      setSelectedOptions(['Top Deals']);
+    } else {
+      setSelectedOptions([]);
+    }
+
+  }, [location.search]);
 
   const filterProducts = () => {
     let filtered = products;

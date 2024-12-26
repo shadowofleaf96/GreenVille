@@ -667,5 +667,24 @@
   "cityNotExist": "City is not available. Please update your shipping address to include your city.",
   "postalCodeNotExist": "Postal code is not available. Please update your shipping address to include your postal code.",
   "shippingAddressMissing": "Shipping address is not available. Please update your profile with a valid shipping address.",
-  "Product created successfully": "Product created successfully"
+  "Product created successfully": "Product created successfully",
+  "testimonialsTitle": "What are people saying?",
+  "noReviews": "No reviews yet",
+  "testimonials": {
+    "1": {
+      "quote": "The quality of the organic vegetables is outstanding! My order was delivered on time, and the experience was seamless. Highly recommend Greenville Organic Store!",
+      "attribution": "Fatima Zahra, Casablanca"
+    },
+    "2": {
+      "quote": "Greenville’s customer service is excellent. I had an issue with an order, and they resolved it so quickly. Thank you for your great service!",
+      "attribution": "Ahmed El Yousfi, Marrakech"
+    },
+    "3": {
+      "quote": "I bought organic skincare products, and they exceeded my expectations. My skin feels amazing, and I will definitely shop again from Greenville!",
+      "attribution": "Karim Amrani, Rabat"
+    }
+  },
+  "cta2_heading": "Fresh Vegetables. \n Free Shipping!",
+  "cta2_paragraph": "Get fresh and organic vegetables delivered straight to your door with free shipping on all orders over <1>{{amount}}</1>. Shop now and enjoy healthy eating made easy!",
+  "cta2_link": "Order Now"
 }

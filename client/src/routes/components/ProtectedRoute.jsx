@@ -4,11 +4,14 @@ import DashboardLayout from '../../backoffice/layouts/dashboard';
 import Loader from '../../frontoffice/components/loader/Loader';
 import { toast } from 'react-toastify';
 import createAxiosInstance from "../../utils/axiosConfig";
+import { useTranslation } from 'react-i18next';
 
 const ProtectedRoute = () => {
     const userToken = localStorage.getItem('user_access_token');
     const [isAuthenticated, setIsAuthenticated] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { t } = useTranslation();
+
 
     const fetchUserData = async () => {
         if (userToken) {
@@ -23,6 +26,7 @@ const ProtectedRoute = () => {
             } catch (err) {
                 console.error(err);
                 toast.error(t("Session expired, please log in again!"));
+                localStorage.removeItem("user_access_token");
                 setIsAuthenticated(false);
             }
         } else {

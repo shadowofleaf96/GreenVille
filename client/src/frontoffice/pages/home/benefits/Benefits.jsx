@@ -7,7 +7,7 @@ const Benefits = () => {
 
   return (
     <div className="bg-gray-50">
-      <div className="max-w-7xl mx-auto py-16 sm:px-2 lg:px-4">
+      <div className="max-w-7xl mx-auto py-12 sm:px-2 lg:px-4">
         <div className="max-w-2xl mx-auto px-4 grid grid-cols-1 gap-y-10 gap-x-8 lg:max-w-none lg:grid-cols-3">
 
           <div className="text-center sm:flex sm:text-left rtl:sm:text-center lg:block lg:text-center">
