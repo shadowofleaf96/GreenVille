@@ -43,7 +43,7 @@ const Products = () => {
   const subcategoriesState = useSelector((state) => state.subcategories);
   const { categories } = categoriesState;
   const { subcategories } = subcategoriesState;
-  const { subcategory, deals, sales, arrivals } = useParams();
+  const { subcategory } = useParams();
 
   useEffect(() => {
     setProductsPerPage(isMobile ? 10 : 9);
@@ -75,6 +75,11 @@ const Products = () => {
   }, [dispatch, products.length, categories.length, subcategories.length]);
 
   useEffect(() => {
+    filterProducts();
+  }, [selectedCategories, selectedSubcategories, selectedOptions, selectedPriceRange]);
+
+
+  useEffect(() => {
     if (subcategory) {
       const foundSubcategory = subcategories.find(sub => sub._id === subcategory);
       if (foundSubcategory) {
@@ -87,13 +92,10 @@ const Products = () => {
 
   useEffect(() => {
     const query = new URLSearchParams(location.search);
-    console.log(query.toString());
 
     const salesQuery = query.has('sales');
     const arrivalsQuery = query.has('arrivals');
     const dealsQuery = query.has('deals');
-
-    console.log(salesQuery, arrivalsQuery, dealsQuery);
 
     let newSelectedOptions = [];
 
@@ -193,7 +195,7 @@ const Products = () => {
   };
 
   useEffect(() => {
-    setFilteredProduct(products);
+    setFilteredProduct(filterProducts());
     if (!isMobile) {
       setFilteredProduct(filterProducts());
       setCurrentPage(1);
