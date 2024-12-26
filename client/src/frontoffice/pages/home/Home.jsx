@@ -6,10 +6,13 @@ import { useInView } from 'react-intersection-observer';
 import Loader from "../../components/loader/Loader";
 import MetaData from "../../components/MetaData";
 import CTA from "../../../frontoffice/pages/home/cta/CTA";
+import CTA2 from "../../../frontoffice/pages/home/cta/CTA2";
 import Banner from "./banner/Banner";
 import Category from "./category/Category";
-import Promo from "./promo/Promo";
+import FlashSales from "./promo/FlashSales";
+import TopDeals from "./promo/TopDeals";
 import Benefits from "./benefits/Benefits";
+import Testimonials from "./testimonials/Testimonials";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -34,7 +37,10 @@ const Home = () => {
   const [bannerRef, bannerInView] = useInView({ triggerOnce: true, threshold: 0.1 });
   const [categoryRef, categoryInView] = useInView({ triggerOnce: true, threshold: 0.1 });
   const [ctaRef, ctaInView] = useInView({ triggerOnce: true, threshold: 0.1 });
-  const [promoRef, promoInView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  const [cta2Ref, cta2InView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  const [fsRef, fsInView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  const [tdRef, tdInView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  const [testimonialsRef, testimonialsInView] = useInView({ triggerOnce: true, threshold: 0.1 });
   const [benefitsRef, benefitsInView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
@@ -51,10 +57,21 @@ const Home = () => {
       </motion.div>
 
       <motion.div
+        ref={benefitsRef}
+        initial="hidden"
+        animate={benefitsInView ? "visible" : "hidden"}
+        variants={slideIn}
+      >
+        <Benefits />
+      </motion.div>
+
+      <hr />
+
+      <motion.div
         ref={categoryRef}
         initial="hidden"
         animate={categoryInView ? "visible" : "hidden"}
-        variants={slideIn}
+        variants={fadeIn}
       >
         <Category />
       </motion.div>
@@ -65,7 +82,7 @@ const Home = () => {
         ref={ctaRef}
         initial="hidden"
         animate={ctaInView ? "visible" : "hidden"}
-        variants={fadeIn}
+        variants={slideIn}
       >
         <CTA />
       </motion.div>
@@ -76,24 +93,51 @@ const Home = () => {
         <Loader />
       ) : (
         <motion.div
-          ref={promoRef}
+          ref={fsRef}
           initial="hidden"
-          animate={promoInView ? "visible" : "hidden"}
+          animate={fsInView ? "visible" : "hidden"}
           variants={fadeIn}
         >
-          <Promo products={products} />
+          <FlashSales products={products} />
         </motion.div>
       )}
 
       <hr />
 
       <motion.div
-        ref={benefitsRef}
+        ref={cta2Ref}
         initial="hidden"
-        animate={benefitsInView ? "visible" : "hidden"}
+        animate={cta2InView ? "visible" : "hidden"}
         variants={slideIn}
       >
-        <Benefits />
+        <CTA2 />
+      </motion.div>
+
+      <hr />
+
+      {loading ? (
+        <Loader />
+      ) : (
+        <motion.div
+          ref={tdRef}
+          initial="hidden"
+          animate={tdInView ? "visible" : "hidden"}
+          variants={fadeIn}
+        >
+          <TopDeals products={products} />
+        </motion.div>
+      )}
+
+      <hr />
+
+      <motion.div
+        ref={testimonialsRef}
+        initial="hidden"
+        animate={testimonialsInView ? "visible" : "hidden"}
+        variants={slideIn}
+      >
+        <Testimonials />
+
       </motion.div>
     </Fragment>
   );

@@ -199,7 +199,6 @@ export default function ProductPage() {
     setLoadingDelete(true);
     try {
       const formData = new FormData();
-      // Add product details to formData
       formData.append("sku", editedProduct.sku);
       formData.append("product_name[en]", editedProduct.product_name.en);
       formData.append("product_name[fr]", editedProduct.product_name.fr);
@@ -238,6 +237,7 @@ export default function ProductPage() {
           short_description: editedProduct.short_description,
           long_description: editedProduct.long_description,
           subcategory_id: editedProduct.subcategory_id,
+          subcategory: productData.subcategory,
           price: editedProduct.price,
           discount_price: editedProduct.discount_price,
           option: editedProduct.option,
@@ -344,6 +344,7 @@ export default function ProductPage() {
         short_description: newProduct.short_description,
         long_description: newProduct.long_description,
         subcategory_id: newProduct.subcategory_id,
+        subcategory: newProduct.subcategory,
         price: newProduct.price,
         discount_price: newProduct.discount_price,
         quantity: newProduct.quantity,

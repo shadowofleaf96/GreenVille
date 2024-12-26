@@ -190,7 +190,11 @@ const SingleProduct = () => {
                             );
                           })}
                         </div>
-                        <span>{(product.average_rating / product.total_reviews).toFixed(2)}</span>
+                        <span>
+                          {product.total_reviews > 0
+                            ? (product.average_rating / product.total_reviews).toFixed(2)
+                            : "0"}
+                        </span>
                         <span>({product.total_reviews} {t("Reviews")})</span>
                       </div>
                     </div>
@@ -269,29 +273,42 @@ const SingleProduct = () => {
 
               {activeTab === "description" && (
                 <div className="mt-6">
-                  <p className="text-gray-700 text-lg">{product?.long_description[currentLanguage]}</p>
+                  <p className="text-gray-700 text-lg flex items-center justify-center min-h-48">{product?.long_description[currentLanguage]}</p>
                 </div>
               )}
-
               {activeTab === "commentary" && (
                 <div className="mt-6">
                   {reviews.length === 0 ? (
-                    <p className="text-gray-700 text-center">{t("noReviews")}</p>
+                    <div className="flex items-center justify-center min-h-48">
+                      <p className="text-gray-700 text-center">{t("noReviews")}</p>
+                    </div>
                   ) : (
                     <div className="space-y-6">
                       {reviews.map((review) => (
-                        <div key={review._id} className="bg-gray-100 p-4 rounded-lg shadow-sm">
+                        <div
+                          key={review._id}
+                          className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center justify-center min-h-48"
+                        >
                           <div className="flex items-center space-x-4">
                             <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                              <Avatar className="text-white font-semibold"
+                              <Avatar
+                                className="text-white font-semibold"
                                 src={review.customer_id.customer_image}
-                                alt={review.customer_id.first_name?.toUpperCase() + review.customer_id.last_name?.toUpperCase()}
+                                alt={
+                                  review.customer_id.first_name?.toUpperCase() +
+                                  review.customer_id.last_name?.toUpperCase()
+                                }
                               />
                             </div>
                             <div>
-                              <p className="text-gray-800 font-semibold">{review.customer_id.first_name + ' ' + review.customer_id.last_name}
+                              <p className="text-gray-800 font-semibold">
+                                {review.customer_id.first_name +
+                                  " " +
+                                  review.customer_id.last_name}
                               </p>
-                              <p className="text-gray-500 text-sm">{new Date(review.review_date).toLocaleString()}</p>
+                              <p className="text-gray-500 text-sm">
+                                {new Date(review.review_date).toLocaleString()}
+                              </p>
                             </div>
                           </div>
                           <p className="text-gray-700 mt-2">{review.comment}</p>

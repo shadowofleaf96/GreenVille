@@ -1,11 +1,9 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import { Outlet, Navigate, Routes, Route } from "react-router-dom";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
-import DashboardLayout from "../backoffice/layouts/dashboard";
-import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Slide, Zoom, Flip, Bounce } from 'react-toastify';
+import { Slide } from 'react-toastify';
 
 import Login from "../frontoffice/pages/auth/login/Login";
 import Register from "../frontoffice/pages/auth/register/Register";
@@ -22,7 +20,7 @@ import Success from "../frontoffice/pages/cart/success/Success";
 import UpdateProfile from "../frontoffice/pages/user/updateProfile/UpdateProfile";
 import UpdateAddress from "../frontoffice/pages/user/updateAddress/UpdateAddress";
 import MyOrders from "../frontoffice/pages/user/myOrders/MyOrders";
-import MyProfile from "../frontoffice/pages/user/myProfile/myProfile";
+import MyProfile from "../frontoffice/pages/user/myProfile/MyProfile";
 import About from "../frontoffice/pages/about/About";
 import Home from "../frontoffice/pages/home/Home";
 import Products from "../frontoffice/pages/products/Products";

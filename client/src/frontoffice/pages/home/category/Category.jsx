@@ -1,29 +1,29 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next"; // Import the useTranslation hook
+import { useTranslation } from "react-i18next";
 
 const Category = () => {
-  const { t } = useTranslation(); // Use the t function for translations
+  const { t } = useTranslation();
 
   const categories = [
     {
       image: "https://images.unsplash.com/photo-1563865436874-9aef32095fad?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      title: t("Vegetables"), // Translate 'Vegetables'
+      title: t("Vegetables"),
       _id: "655c721c82ea0f3d8fc1db2d",
     },
     {
       image: "https://i.pinimg.com/564x/a6/d4/71/a6d4719eec4b10f3c0dc3fc0fae7cc3b.jpg",
-      title: t("MakeupAccessories"), // Translate 'Make-up and Accessories'
+      title: t("MakeupAccessories"),
       _id: "655c6d0682ea0f3d8fc1db03",
     },
     {
       image: "https://i.pinimg.com/564x/b1/0b/35/b10b35415eda92e675002e12cc9ab769.jpg",
-      title: t("EggsMilk"), // Translate 'Eggs & Milk'
+      title: t("EggsMilk"),
       _id: "6570cd56e4122425be4b73e9",
     },
     {
       image: "https://i.pinimg.com/564x/88/36/d9/8836d903f33c8fc7eb4153e59ac9ef01.jpg",
-      title: t("Honeys"), // Translate 'Honeys'
+      title: t("Honeys"),
       _id: "655c6e8d82ea0f3d8fc1db0f",
     },
   ];
@@ -33,7 +33,7 @@ const Category = () => {
       <div className="mx-auto mb-12 mt-12">
         <div className="container mx-auto">
           <h4 className="font-semibold text-3xl flex justify-center mx-auto mb-8 text-center md:text-start text-gray-900 select-none">
-            {t("TopSubCategories")} {/* Translate the heading */}
+            {t("TopSubCategories")}
           </h4>
         </div>
         <div className="flex flex-wrap gap-6 justify-center">

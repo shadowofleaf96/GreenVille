@@ -678,5 +678,24 @@
   "postalCodeNotExist": "Le code postal n'est pas disponible. Veuillez mettre à jour votre adresse de livraison pour inclure votre code postal.",
   "shippingAddressMissing": "L'adresse de livraison n'est pas disponible. Veuillez mettre à jour votre profil avec une adresse de livraison valide.",
   "sessionExpired": "La session a expiré, veuillez vous reconnecter !",
-  "Product created successfully": "Produit créé avec succès"
+  "Product created successfully": "Produit créé avec succès",
+  "testimonialsTitle": "Que disent les gens ?",
+  "noReviews": "Pas encore d'avis",
+  "testimonials": {
+    "1": {
+      "quote": "La qualité des légumes bio est exceptionnelle ! Ma commande a été livrée à temps, et l'expérience a été fluide. Je recommande vivement Greenville Organic Store !",
+      "attribution": "Fatima Zahra, Casablanca"
+    },
+    "2": {
+      "quote": "Le service client de Greenville est excellent. J'ai eu un problème avec une commande, et ils l'ont résolu très rapidement. Merci pour votre excellent service !",
+      "attribution": "Ahmed El Yousfi, Marrakech"
+    },
+    "3": {
+      "quote": "J'ai acheté des produits de soin bio, et ils ont dépassé mes attentes. Ma peau se sent incroyable, et je vais certainement acheter à nouveau chez Greenville !",
+      "attribution": "Karim Amrani, Rabat"
+    }
+  },
+  "cta2_heading": "Légumes frais. \n Livraison gratuite!",
+  "cta2_paragraph": "Recevez des légumes frais et biologiques livrés directement chez vous avec la livraison gratuite pour toutes les commandes supérieures à <1>{{amount}}</1>. Commandez maintenant et profitez d'une alimentation saine facilitée!",
+  "cta2_link": "Commander maintenant"
 }

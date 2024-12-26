@@ -3,7 +3,7 @@ import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { useDispatch, useSelector } from "react-redux";
 import { getProducts } from "../../../redux/frontoffice/productSlice";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Product from "./Product";
 import Loader from "../../components/loader/Loader";
 import Footer from "../../components/footer/Footer";
@@ -23,6 +23,7 @@ const Products = () => {
   const [selectedSubcategories, setSelectedSubcategories] = useState([]);
   const [selectedPriceRange, setSelectedPriceRange] = useState([0, 1000]);
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const location = useLocation();
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
   const [isOptionOpen, setIsOptionOpen] = useState(false);
@@ -74,6 +75,11 @@ const Products = () => {
   }, [dispatch, products.length, categories.length, subcategories.length]);
 
   useEffect(() => {
+    filterProducts();
+  }, [selectedCategories, selectedSubcategories, selectedOptions, selectedPriceRange]);
+
+
+  useEffect(() => {
     if (subcategory) {
       const foundSubcategory = subcategories.find(sub => sub._id === subcategory);
       if (foundSubcategory) {
@@ -83,6 +89,30 @@ const Products = () => {
       }
     }
   }, [subcategory, subcategories]);
+
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+
+    const salesQuery = query.has('sales');
+    const arrivalsQuery = query.has('arrivals');
+    const dealsQuery = query.has('deals');
+
+    let newSelectedOptions = [];
+
+    if (salesQuery) {
+      newSelectedOptions.push('Flash Sales');
+    }
+
+    if (arrivalsQuery) {
+      newSelectedOptions.push('New Arrivals');
+    }
+
+    if (dealsQuery) {
+      newSelectedOptions.push('Top Deals');
+    }
+
+    setSelectedOptions(newSelectedOptions);
+  }, [location.search]);
 
   const filterProducts = () => {
     let filtered = products;
@@ -165,7 +195,7 @@ const Products = () => {
   };
 
   useEffect(() => {
-    setFilteredProduct(products);
+    setFilteredProduct(filterProducts());
     if (!isMobile) {
       setFilteredProduct(filterProducts());
       setCurrentPage(1);
