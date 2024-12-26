@@ -84,7 +84,7 @@ const FlashSales = ({ products }) => {
                   <h4 className="font-bold text-gray-900">{t("Flash Sales")}</h4>
                   <span className="bg-[#8DC63F] text-white px-4 py-2 rounded-md shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400">
                     <Link
-                      to="/products/sales"
+                      to="/products/option?sales"
                       className="no-underline font-medium transition-colors duration-300 hover:text-gray-300"
                     >
                       {t("See all")}

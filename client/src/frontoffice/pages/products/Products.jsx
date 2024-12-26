@@ -86,23 +86,30 @@ const Products = () => {
   }, [subcategory, subcategories]);
 
   useEffect(() => {
-    if (salesQuery !== null && salesQuery !== "") {
-      setSelectedOptions(['Flash Sales']);
-    } else {
-      setSelectedOptions([]);
+    const query = new URLSearchParams(location.search);
+    console.log(query.toString());
+
+    const salesQuery = query.has('sales');
+    const arrivalsQuery = query.has('arrivals');
+    const dealsQuery = query.has('deals');
+
+    console.log(salesQuery, arrivalsQuery, dealsQuery);
+
+    let newSelectedOptions = [];
+
+    if (salesQuery) {
+      newSelectedOptions.push('Flash Sales');
     }
 
-    if (arrivalsQuery !== null) {
-      setSelectedOptions(['New Arrivals']);
-    } else {
-      setSelectedOptions([]);
-    }
-    if (dealsQuery !== null) {
-      setSelectedOptions(['Top Deals']);
-    } else {
-      setSelectedOptions([]);
+    if (arrivalsQuery) {
+      newSelectedOptions.push('New Arrivals');
     }
 
+    if (dealsQuery) {
+      newSelectedOptions.push('Top Deals');
+    }
+
+    setSelectedOptions(newSelectedOptions);
   }, [location.search]);
 
   const filterProducts = () => {

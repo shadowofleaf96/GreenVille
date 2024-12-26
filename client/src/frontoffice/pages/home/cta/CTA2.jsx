@@ -9,7 +9,7 @@ const CTA2 = () => {
         <section aria-labelledby="cta2-heading">
             <div className="overflow-hidden mt-2 lg:mt-8 mb-4 lg:mb-12 pt-4 mx-4 md:pt-8">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 bg-gray-200 rounded-xl">
-                    <div className="relative flex items-center gap-8 md:pb-8 md:pt-8">
+                    <div className="relative flex items-center gap-6 py-6 px-6 md:pb-8 md:pt-8">
                         <div className="flex-1">
                             <h2
                                 id="cta2-heading"
