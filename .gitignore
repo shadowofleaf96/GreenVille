@@ -11,6 +11,10 @@ lerna-debug.log*
 node_modules
 client/.env
 server/.env
+ios
+android
+client/ios
+client/android
 dist
 dist-ssr
 *.local
