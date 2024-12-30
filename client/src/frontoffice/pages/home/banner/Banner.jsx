@@ -15,7 +15,7 @@ import { Autoplay, Pagination, Navigation, EffectFade } from "swiper/modules";
 const slidesData = [
   {
     id: 1,
-    image: "../../../../../assets/swiper1.webp",
+    image: "https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/public/images/5abad3e4c5ae1384ec8069cfd9908b72",
     titleKey: "slider.slide1.title",
     subtitleKey: "slider.slide1.subtitle",
     descriptionKey: "slider.slide1.description",
@@ -24,7 +24,7 @@ const slidesData = [
   },
   {
     id: 2,
-    image: "../../../../../assets/swiper2.webp",
+    image: "https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/public/images/7ab333861bbc00e07cd2f5f056593b84",
     titleKey: "slider.slide2.title",
     subtitleKey: "slider.slide2.subtitle",
     descriptionKey: "slider.slide2.description",
@@ -33,7 +33,7 @@ const slidesData = [
   },
   {
     id: 3,
-    image: "../../../../../assets/swiper3.webp",
+    image: "https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/public/images/bcaa0b503122b27a955ee8e87cc7e6c2",
     titleKey: "slider.slide3.title",
     subtitleKey: "slider.slide3.subtitle",
     descriptionKey: "slider.slide3.description",

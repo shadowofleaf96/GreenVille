@@ -20,7 +20,7 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import Logo from "../../../components/logo";
+import Logo from "../../../../backoffice/components/logo";
 import Link from "@mui/material/Link";
 import InputAdornment from "@mui/material/InputAdornment";
 import createAxiosInstance from "../../../../utils/axiosConfig";

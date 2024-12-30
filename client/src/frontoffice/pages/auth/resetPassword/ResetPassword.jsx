@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { TextField, Paper, Typography } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
-import Logo from "../../../components/logo";
+import Logo from "../../../../backoffice/components/logo";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";

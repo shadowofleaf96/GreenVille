@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import DOMPurify from "dompurify";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { LoadingButton } from "@mui/lab";
+import optimizeImage from "../../../components/optimizeImage";
 
 const backend = import.meta.env.VITE_BACKEND_URL;
 
@@ -120,7 +121,7 @@ const ConfirmOrder = () => {
                                 <div className="flex items-center py-2">
                                     <div className="w-1/4 lg:w-1/6">
                                         <img
-                                            src={typeof item?.image === "string" ? `${item?.image}` : `${item?.image[0]}`}
+                                            src={typeof item?.image === "string" ? `${optimizeImage(item?.image, 100)}` : `${optimizeImage(item?.image[0], 100)}`}
                                             alt={item.name[currentLanguage]}
                                             className="w-16 h-16 object-cover"
                                         />

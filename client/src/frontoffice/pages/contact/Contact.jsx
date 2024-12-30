@@ -54,7 +54,8 @@ const Contact = () => {
 
   return (
     <Fragment>
-      <MetaData title={"GreenVille - Contact Page"} />
+      <MetaData title={t("contactTitle")}
+        description={t("contactDescription")} />
       <div className="font-[sans-serif] max-w-6xl mx-auto relative overflow-hidden">
         <motion.div
           className="grid md:grid-cols-2 gap-8 py-8 px-6"
@@ -65,7 +66,7 @@ const Contact = () => {
         >
           <div className="text-center flex flex-col items-center justify-center">
             <img
-              src="../../../../assets/contact.webp"
+              src="https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/0795f22ca97561d128ebfe91961e1384"
               className="shrink-0 w-5/6"
               alt="Contact"
             />

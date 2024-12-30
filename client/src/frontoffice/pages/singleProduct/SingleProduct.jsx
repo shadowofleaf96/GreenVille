@@ -10,6 +10,7 @@ import MetaData from "../../components/MetaData";
 import createAxiosInstance from "../../../utils/axiosConfig";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from 'react-i18next';
+import optimizeImage from "../../components/optimizeImage";
 
 const backend = import.meta.env.VITE_BACKEND_URL;
 
@@ -103,7 +104,7 @@ const SingleProduct = () => {
 
   return (
     <Fragment>
-      <MetaData title={t("product_details")} />
+      <MetaData title={product?.product_name[currentLanguage]} />
       <div className="w-full h-auto flex flex-col items-center justify-center p-8 my-6">
         {loading ? (
           <Loader />
@@ -126,7 +127,7 @@ const SingleProduct = () => {
                                 duration: 0.5,
                                 ease: "easeInOut",
                               }}
-                              src={selectedImage}
+                              src={optimizeImage(selectedImage, 600)}
                               alt={t("selected_product")}
                               className="object-contain w-full h-[200px] sm:h-[250px]"
                             />
@@ -140,7 +141,7 @@ const SingleProduct = () => {
                         product.product_images.map((image, index) => (
                           <img
                             key={index}
-                            src={`${image}`}
+                            src={`${optimizeImage(image, 60)}`}
                             alt={`${t("product_image")} ${index + 1}`}
                             className={`w-10 h-10 md:w-12 md:h-12 object-contain cursor-pointer border-2 border-gray-300 rounded-lg hover:border-green-500 ${currentIndex === index ? 'border-green-500' : ''
                               }`}
@@ -152,7 +153,7 @@ const SingleProduct = () => {
                         ))
                       ) : (
                         <img
-                          src={`${product.product_images}`}
+                          src={`${optimizeImage(product.product_images, 60)}`}
                           alt={t("main_product")}
                           className={`w-14 h-14 object-contain cursor-pointer border-2 shadow-lg border-gray-300 rounded-lg hover:border-green-500 ${currentIndex === 0 ? 'border-green-500' : ''}`} // Highlight selected image
                           onClick={() => {
