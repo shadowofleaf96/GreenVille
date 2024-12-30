@@ -169,7 +169,7 @@ const subcategoriesController = {
           message: "Subcategory cannot be deleted, it has some products",
         });
       }
-      const Subcategory = await SubCategory.findOneAndRemove({
+      const Subcategory = await SubCategory.findOneAndDelete({
         _id: SubcategoryId,
       });
 

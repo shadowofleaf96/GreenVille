@@ -543,7 +543,7 @@ const deleteCustomer = async (req, res) => {
   const customerId = req.params.id;
 
   try {
-    const customer = await Customer.findOneAndRemove({ _id: customerId });
+    const customer = await Customer.findOneAndDelete({ _id: customerId });
 
     if (!customer) {
       return res.status(404).json({ message: "Customer not found" });

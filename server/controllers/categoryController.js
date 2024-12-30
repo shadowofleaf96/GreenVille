@@ -1,5 +1,5 @@
 const { Category } = require("../models/Category");
-const SubCategory = require("../models/SubCategory");
+const { SubCategory } = require("../models/SubCategory");
 
 const createCategory = async (req, res) => {
   const { category_name, status } = req.body;
@@ -146,7 +146,7 @@ const updateCategory = async (req, res) => {
         message: "Category name must include 'en', 'fr', and 'ar' fields",
       });
     }
-    
+
     const existingCategory = await Category.findById(catId);
 
     if (!existingCategory) {
@@ -206,7 +206,7 @@ const deleteCategory = async (req, res) => {
         message: "Category cannot be deleted, it has some subCategories",
       });
     }
-    const category = await Category.findOneAndRemove({
+    const category = await Category.findOneAndDelete({
       _id: categoryId,
     });
 
