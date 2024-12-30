@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { TextField, Typography, Paper, Box } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import Logo from "../../../components/logo";
+import Logo from "../../../../backoffice/components/logo";
 import { Link } from "react-router-dom";
 import { useRouter } from "../../../../routes/hooks";
 import { motion } from "framer-motion";

@@ -13,7 +13,7 @@ const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
   const logo = (
     <Box
       component="img"
-      src="/assets/logo.webp"
+      src="https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/8fbac764fe0d88e3ff18944c621294d5"
       sx={{ width: 213, height: 139, cursor: "pointer", ...sx }}
     />
   );

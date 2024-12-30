@@ -13,7 +13,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-center md:text-left rtl:md:text-right">
           <div className="space-y-4">
             <Link to="/" className="flex justify-center md:justify-start rtl:md:justify-start">
-              <img className="w-32 h-auto bg-cover" src="/assets/logo.webp" alt="logo" />
+              <img className="w-32 h-auto bg-cover" src="https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/8fbac764fe0d88e3ff18944c621294d5" alt="logo" />
             </Link>
             <div className="flex justify-center md:justify-start">
               <Link to="https://facebook.com/greenville">

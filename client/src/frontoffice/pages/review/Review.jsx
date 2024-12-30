@@ -6,6 +6,7 @@ import createAxiosInstance from "../../../utils/axiosConfig";
 import Iconify from "../../../backoffice/components/iconify";
 import LoadingButton from '@mui/lab/LoadingButton';
 import { toast } from "react-toastify";
+import optimizeImage from "../../components/optimizeImage";
 
 const Review = ({ productId, customerId, closeModal }) => {
   const { t, i18n } = useTranslation();
@@ -65,7 +66,7 @@ const Review = ({ productId, customerId, closeModal }) => {
       {productInfo && (
         <div className="mb-6 text-center">
           <img
-            src={productInfo?.product_images[0]}
+            src={optimizeImage(productInfo?.product_images[0], 200)}
             alt={productInfo?.product_name[currentLanguage]}
             className="w-32 h-32 mx-auto object-cover rounded-lg"
           />

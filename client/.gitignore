@@ -9,14 +9,13 @@ lerna-debug.log*
 .env
 
 node_modules
-dist
-dist-ssr
-*.local
-
 ios
 android
 client/ios
 client/android
+dist
+dist-ssr
+*.local
 
 # Editor directories and files
 .vscode/*

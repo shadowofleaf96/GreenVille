@@ -225,7 +225,10 @@ const Products = () => {
 
   return (
     <Fragment>
-      <MetaData title={"GreenVille - All Products"} />
+      <MetaData
+        title={t("allProducts")}
+        description={t("allProductsDescription")}
+      />
       {loading ? (
         <Loader />
       ) : (

@@ -20,7 +20,7 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import Logo from "../../../components/logo";
+import Logo from "../../../../backoffice/components/logo";
 import Link from "@mui/material/Link";
 import InputAdornment from "@mui/material/InputAdornment";
 import createAxiosInstance from "../../../../utils/axiosConfig";
@@ -55,7 +55,7 @@ const Login = () => {
     }
   }, [searchParams, t]);
 
-   const isLoggedin = localStorage.getItem("customer_access_token")
+  const isLoggedin = localStorage.getItem("customer_access_token")
 
   useEffect(() => {
     if (isLoggedin) {
@@ -145,6 +145,8 @@ const Login = () => {
             })
           );
         }
+        const redirect = searchParams.get("redirect");
+        history(redirect || "/", { replace: true });
       }
     } catch (error) {
       toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
@@ -286,6 +288,7 @@ const Login = () => {
                   theme="outline"
                   locale={i18n.language}
                   auto_select={false}
+                  use_fedcm_for_prompt={true}
                   ux_mode="popup"
                   context="signin"
                 />

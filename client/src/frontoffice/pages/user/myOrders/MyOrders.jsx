@@ -8,6 +8,7 @@ import Iconify from "../../../../backoffice/components/iconify";
 import MetaData from "../../../components/MetaData";
 import { useTranslation } from "react-i18next";
 import Review from "../../review/Review";
+import optimizeImage from "../../../components/optimizeImage";
 
 const backend = import.meta.env.VITE_BACKEND_URL;
 
@@ -122,7 +123,7 @@ const MyOrders = () => {
                                                                         >
                                                                             <img
                                                                                 className="w-12 h-12 object-contain"
-                                                                                src={typeof item?.product.product_images === "string" ? `${item?.product.product_images}` : `${item?.product.product_images[0]}`}
+                                                                                src={typeof item?.product.product_images === "string" ? `${optimizeImage(item?.product.product_images, 60)}` : `${optimizeImage(item?.product.product_images[0], 60)}`}
                                                                                 alt={item.product.product_name[currentLanguage]}
                                                                             />
                                                                             <p className="text-gray-700 font-medium text-xs md:text-sm text-right">{item.product.product_name[currentLanguage]}</p>

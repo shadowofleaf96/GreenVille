@@ -9,7 +9,11 @@ export const fetchCustomerProfile = () => async (dispatch) => {
     const response = await axiosInstance.get("/customers/profile");
     dispatch(setCustomer(response.data));
   } catch (error) {
-    dispatch(loginFailure(error.message));
+    dispatch(loginFailure(error.response.data.message));
+    console.log(error.response.data.message)
+    if(error.response.data.message === "This session has expired. Please login") {
+      localStorage.removeItem("customer_access_token")
+    }
   }
 };
 

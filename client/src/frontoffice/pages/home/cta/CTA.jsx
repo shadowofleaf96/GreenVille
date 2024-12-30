@@ -19,7 +19,7 @@ export default function CTA() {
             <span className="flex justify-center items-center mt-4">
               <img
                 className="h-12 w-auto bg-cover mx-2 sm:h-16 md:h-24 md:mx-4 animate-pulse"
-                src="/assets/logo-text.webp"
+                src="https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/1f1c7b42092395de1674162dbc636e86"
                 alt="GreenVille logo"
               />
             </span>

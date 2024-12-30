@@ -7,7 +7,7 @@ import DOMPurify from "dompurify";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import createAxiosInstance from "../../../../utils/axiosConfig";
-import Logo from "../../../components/logo";
+import Logo from "../../../../backoffice/components/logo";
 
 const SetGooglePassword = () => {
   const { t } = useTranslation();
