@@ -55,7 +55,7 @@ const login = async (req, res) => {
       if (isPasswordValid) {
         const payload = { id: customer._id, role: customer.role };
         const accessToken = jwt.sign(payload, secretKey, {
-          expiresIn: "8h",
+          expiresIn: "3d",
         });
 
         const refreshTokenPayload = { id: customer._id, role: customer.role };
@@ -67,7 +67,7 @@ const login = async (req, res) => {
           message: "Login success",
           access_token: accessToken,
           token_type: "Bearer",
-          expires_in: "8h",
+          expires_in: "3d",
           refresh_token: refreshToken,
           customer: customer,
         });
@@ -116,7 +116,7 @@ const googleLogin = async (req, res) => {
     const tokenPayload = { id: customer._id, role: customer.role };
 
     const accessToken = jwt.sign(tokenPayload, secretKey, {
-      expiresIn: "8h",
+      expiresIn: "3d",
     });
 
     const refreshToken = jwt.sign(tokenPayload, secretRefreshKey, {
@@ -127,7 +127,7 @@ const googleLogin = async (req, res) => {
       message: "Google login success",
       access_token: accessToken,
       token_type: "Bearer",
-      expires_in: "8h",
+      expires_in: "3d",
       refresh_token: refreshToken,
       customer: customer,
     });

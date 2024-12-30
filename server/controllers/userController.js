@@ -279,7 +279,7 @@ const loginUser = async (req, res, next) => {
     };
 
     const accessToken = jwt.sign(payload, secretKey, {
-      expiresIn: "8h",
+      expiresIn: "3d",
     });
 
     const refreshTokenPayload = {
@@ -297,7 +297,7 @@ const loginUser = async (req, res, next) => {
       message: "Login success",
       access_token: accessToken,
       token_type: "Bearer",
-      expires_in: "8h",
+      expires_in: "3d",
       refresh_token: refreshToken,
       user: user,
     });
