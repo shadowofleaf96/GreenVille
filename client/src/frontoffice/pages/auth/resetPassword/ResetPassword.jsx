@@ -6,6 +6,7 @@ import Logo from "../../../../backoffice/components/logo";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 import DOMPurify from "dompurify";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
