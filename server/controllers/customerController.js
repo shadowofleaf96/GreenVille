@@ -104,7 +104,7 @@ const googleLogin = async (req, res) => {
     if (!customer) {
       const cleanUrl = `${
         process.env.FRONTEND_URL
-      }set-password?email=${encodeURIComponent(
+      }/set-password?email=${encodeURIComponent(
         email
       )}&name=${encodeURIComponent(name)}&picture=${encodeURIComponent(
         picture
