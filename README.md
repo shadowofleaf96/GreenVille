@@ -14,7 +14,6 @@ GreenVille is a bio-organic eCommerce store that offers eco-friendly products, c
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-- [Usage](#usage)
 - [Contributing](#contributing)
 
 ## Features
@@ -235,20 +234,38 @@ Make sure you have the following installed on your machine:
    npm install
    ```
 
-5. Create a `.env` file in the project root and configure your environment variables:
+5. Create a `.env` files in the project root and configure your environment variables:
 
-   ```env
-   VITE_PORT = 3000
-   VITE_SECRETKEY = your token secret key
-   VITE_REFRESHSECRETLEY = your refresh token secret token
-   VITE_STMPHOST = Mailtrap host
-   VITE_STMPUSER = Mailtrap username
-   VITE_URLFRONTEND = localhost:5173 
-   VITE_URLBACKEND = localhost:3000
-   VITE_STMPASS = Mailtrap password
-   VITE_SENDER = your email
-   VITE_EXPIRATIONDATE = 120000 (you can change this)
-   VITE_MONGOOSE = MongoDB atlas db link
+   ```env client
+    VITE_BACKEND_URL = your backend url
+    VITE_PAYPAL_CLIENT_ID = Paypal client id
+    VITE_PAYPAL_SECRET_KEY = Paypal Secret key
+    VITE_STRIPE_PUBLISHABLE_KEY = Stripe publishable key
+    VITE_GOOGLE_API_KEY = google api key
+    VITE_GOOGLE_CLIENT_ID = google client id
+    VITE_CAPTCHA_SITE_KEY= captcha site key
+   ```
+
+      ```env server
+    EXPIRATIONDATE = token expiration date
+    MONGOOSE = mongodb url
+    PORT = server port
+    REFRESHSECRETLEY = refresh token secret code
+    SECRETKEY = access token secret code
+    STRIPE_PRIVATE_KEY = stripe private key
+    STRIPE_PUBLIC_KEY = stripe public key
+    GOOGLE_CLIENT_ID = google client id for login
+    FRONTEND_URL = frontend url (localhost:5173 for local)
+    BACKEND_URL = backend url (localhost:3000 for local)
+    EMAIL_HOST= stmp host           
+    EMAIL_PORT=587 or 465
+    EMAIL_USER= stmp username
+    EMAIL_PASS= stmp password
+    EMAIL_FROM="GreenVille <contact email>"
+    CLOUDINARY_CLOUD_NAME= cloudinary cloud name
+    CLOUDINARY_API_KEY= cloudinary api key 
+    CLOUDINARY_API_SECRET= cloudinary api secret
+    CAPTCHA_SECRET_KEY= cloudinary api secret key
    ```
 
 6. Start the development server:
@@ -260,20 +277,6 @@ Make sure you have the following installed on your machine:
    cd server
    npx nodemon
    ```
-   
-## Usage
-Client:
-1. **Create an Account**: Register for a new account on the GreenVille website.
-2. **Explore Products**: Browse through the available products and categories.
-3. **Add to Cart**: Add desired products to your shopping cart.
-4. **Proceed to Checkout**: Complete the purchase by providing necessary details.
-5. **Manage Orders**: View and manage your order history.
-Admin:
-1. **Analytics**: See sales and revenues data through dashboard.
-2. **Add Products**: Add Product from the admin menu.
-3. **Add Users**: Add admins or managers.
-4. **Add Categories and Subcategories**: Add Categories and Subcategories.
-5. **Edit and remove existant Infos**: .
 
 ## Contributing
 
