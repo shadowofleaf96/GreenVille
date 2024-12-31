@@ -31,7 +31,10 @@ const ConfirmOrder = () => {
         history("/products");
     }
 
-    let shippingPrice = 30;
+    let shippingPrice = 30
+    if (itemsPrice >= 1500) {
+        shippingPrice = 0
+    }
 
     const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
     let discountedTotal

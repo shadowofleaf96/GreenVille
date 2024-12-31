@@ -29,6 +29,9 @@ const Shipping = () => {
   }
 
   let shippingPrice = 30
+  if (itemsPrice >= 1500) {
+    shippingPrice = 0
+  }
   const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
   const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
 

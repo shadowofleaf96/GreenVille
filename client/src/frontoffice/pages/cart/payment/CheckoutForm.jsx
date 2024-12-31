@@ -28,8 +28,10 @@ const CheckoutForm = () => {
 
     const itemsPrice = cartItems.reduce((acc, item) => acc + item.discountPrice * item.quantity, 0);
 
-    let shippingPrice = 30;
-    const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
+    let shippingPrice = 30
+    if (itemsPrice >= 1500) {
+        shippingPrice = 0
+    } const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
     let discountedTotal
     if (coupon) {
         discountedTotal = itemsPrice - (itemsPrice * coupon.discount) / 100;
