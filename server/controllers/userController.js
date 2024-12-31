@@ -282,13 +282,13 @@ const loginUser = async (req, res, next) => {
       expiresIn: "3d",
     });
 
-    const refreshTokenPayload = {
-      id: user._id,
-      role: user.role,
-    };
-    const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
-      expiresIn: "7d",
-    });
+    // const refreshTokenPayload = {
+    //   id: user._id,
+    //   role: user.role,
+    // };
+    // const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
+    //   expiresIn: "7d",
+    // });
 
     user.last_login = new Date();
     await user.save();
@@ -298,7 +298,7 @@ const loginUser = async (req, res, next) => {
       access_token: accessToken,
       token_type: "Bearer",
       expires_in: "3d",
-      refresh_token: refreshToken,
+      // refresh_token: refreshToken,
       user: user,
     });
   } catch (error) {
@@ -330,7 +330,7 @@ const forgotPassword = async (req, res) => {
       subject: "Password Reset",
       text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
         Please click on the following link, or paste this into your browser to complete the process:\n\n
-        ${process.env.URL}/admin/reset-password/${resetToken}\n\n
+        ${process.env.FRONTEND_URL}/admin/reset-password/${resetToken}\n\n
         If you did not request this, please ignore this email and your password will remain unchanged.\n`,
     };
 

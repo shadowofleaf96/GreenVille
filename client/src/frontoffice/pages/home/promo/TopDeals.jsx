@@ -142,7 +142,7 @@ const TopDeals = ({ products }) => {
                     <Iconify
                       icon="material-symbols-light:chevron-left-rounded"
                       className="text-white text-2xl cursor-pointer bg-lime-600 rounded-md hover:text-gray-300"
-                      onClick={() => scroll("left", scrollRef)}
+                      onClick={() => scroll("left", scrollRef, 300)}
                       width={32}
                       height={32}
                     />
@@ -151,7 +151,7 @@ const TopDeals = ({ products }) => {
                     <Iconify
                       icon="material-symbols-light:chevron-right-rounded"
                       className="text-white text-2xl cursor-pointer bg-lime-600 rounded-md hover:text-gray-300"
-                      onClick={() => scroll("right", scrollRef)}
+                      onClick={() => scroll("right", scrollRef, 300)}
                       width={32}
                       height={32}
                     />

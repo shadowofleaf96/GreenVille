@@ -25,7 +25,7 @@ export default function TableNoData({ query }) {
               <br /> Try checking for typos or using complete words.
             </Typography>
           ) : (
-            <Typography variant="body2">No Categories found</Typography>
+            <Typography variant="body2">No Reviews found</Typography>
           )}
         </Paper>
       </TableCell>

@@ -27,7 +27,7 @@ export default function TableNoData({ query }) {
             </Typography>
           ) : (
             // Display this message when query is empty
-            <Typography variant="body2">No Users found</Typography>
+            <Typography variant="body2">No Categories found</Typography>
           )}
         </Paper>
       </TableCell>

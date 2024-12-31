@@ -27,7 +27,7 @@ export default function TableNoData({ query }) {
             </Typography>
           ) : (
             // Display this message when query is empty
-            <Typography variant="body2">No Categories found</Typography>
+            <Typography variant="body2">No Subcategories found</Typography>
           )}
         </Paper>
       </TableCell>
