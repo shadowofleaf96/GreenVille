@@ -41,6 +41,8 @@ const MyOrders = () => {
         setActiveOrder((prev) => (prev === orderId ? null : orderId));
     };
 
+    console.log(orders)
+
     return (
         <Fragment>
             <MetaData title={t("MyOrders.title")} />
@@ -131,8 +133,8 @@ const MyOrders = () => {
                                                                             <p className="font-semibold text-gray-700 text-justify text-xs lg:text-sm">{item.price} DH</p>
 
                                                                             <button
-                                                                                className={`px-2 py-2 md:px-4 md:py-2 mt-2 flex items-center justify-center text-white text-xs md:text-sm rounded-md ${!order.is_review_allowed ? "bg-gray-400 cursor-not-allowed" : "bg-[#8DC63F] shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"}`}
-                                                                                disabled={!order.is_review_allowed}
+                                                                                className={`px-2 py-2 md:px-4 md:py-2 mt-2 flex items-center justify-center text-white text-xs md:text-sm rounded-md ${!order.is_review_allowed || item.reviewed ? "bg-gray-400 cursor-not-allowed" : "bg-[#8DC63F] shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"}`}
+                                                                                disabled={!order.is_review_allowed || item.reviewed}
                                                                                 onClick={() =>
                                                                                     handleLeaveReview(item.product._id, order.order_date, order.customer._id)
                                                                                 }
@@ -146,7 +148,7 @@ const MyOrders = () => {
 
                                                                                 </Iconify>
                                                                                 <span className="hidden md:block">
-                                                                                    {!order.is_review_allowed ? t("reviewClosed") : t("leaveReview")}
+                                                                                    {!order.is_review_allowed || item.reviewed ? t("reviewClosed") : t("leaveReview")}
                                                                                 </span>
                                                                             </button>
                                                                         </div>

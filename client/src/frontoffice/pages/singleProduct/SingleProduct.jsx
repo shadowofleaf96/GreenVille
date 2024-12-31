@@ -272,8 +272,8 @@ const SingleProduct = () => {
               </div>
 
               {activeTab === "description" && (
-                <div className="mt-6">
-                  <p className="text-gray-700 text-lg flex items-center min-h-48">{product?.long_description[currentLanguage]}</p>
+                <div className="mt-6 bg-gray-200 p-4 rounded-lg shadow-sm min-h-72 md:min-h-48">
+                  <p className="text-gray-700 text-lg flex items-center">{product?.long_description[currentLanguage]}</p>
                 </div>
               )}
               {activeTab === "commentary" && (
@@ -283,11 +283,11 @@ const SingleProduct = () => {
                       <p className="text-gray-700 text-center">{t("noReviews")}</p>
                     </div>
                   ) : (
-                    <div className="space-y-6">
+                    <div className="space-y-6 min-h-48">
                       {reviews.map((review) => (
                         <div
                           key={review._id}
-                          className="bg-gray-100 p-4 rounded-lg shadow-sm flex flex-col min-h-48"
+                          className="bg-gray-200 p-4 rounded-lg shadow-sm flex flex-col"
                         >
                           <div className="flex items-center space-x-4">
                             <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">

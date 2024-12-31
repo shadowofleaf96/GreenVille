@@ -46,12 +46,7 @@ exports.createReview = async (req, res) => {
     product.total_reviews = newTotalReviews;
     product.average_rating = newAverageRating.toFixed(1);
     await product.save();
-
-    await Order.updateOne(
-      { _id: order._id, "order_items.product_id": product_id },
-      { $set: { "order_items.$.reviewed": true } }
-    );
-
+    
     res.status(201).json({
       message: "Review added successfully.",
       data: review,
@@ -61,10 +56,11 @@ exports.createReview = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error creating review:", error.message);
+    console.error("Error creating review:", error);
     res.status(500).json({ error: "Internal server error." });
   }
 };
+
 
 exports.getProductReviews = async (req, res) => {
   const { id } = req.params;
@@ -97,7 +93,7 @@ exports.getAllReviews = async (req, res) => {
 exports.editReview = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log("Request Body:", req.body); // Debug incoming data
+    console.log("Request Body:", req.body);
     const { rating, comment, status, review_date } = req.body;
 
     const review = await Review.findById(id);

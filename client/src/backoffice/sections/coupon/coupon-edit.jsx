@@ -24,6 +24,7 @@ function EditCouponForm({ coupon, onSave, onCancel, open, onClose }) {
   });
 
   const [loadingSave, setLoadingSave] = useState(false);
+  console.log(coupon)
 
   const onSubmit = async (data) => {
     setLoadingSave(true);
@@ -123,12 +124,12 @@ function EditCouponForm({ coupon, onSave, onCancel, open, onClose }) {
                 <FormControlLabel
                   label={
                     <Typography variant="body2">
-                      {field.value === "status" ? t("Active") : t("Inactive")}
+                      {field.value === "active" ? t("Active") : t("Inactive")}
                     </Typography>
                   }
                   control={
                     <Switch
-                      checked={field.value === "status"}
+                      checked={field.value === "active"}
                       onChange={(e) =>
                         field.onChange(e.target.checked ? "active" : "inactive")
                       }

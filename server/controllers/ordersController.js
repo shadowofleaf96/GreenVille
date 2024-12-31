@@ -67,6 +67,7 @@ const RetrievingOrders = async (req, res) => {
         product: item.product_id,
         quantity: item.quantity,
         price: item.price,
+        reviewed: item.reviewed,
       })),
     }));
 
@@ -111,6 +112,7 @@ const getUserOrders = async (req, res) => {
         product: item.product_id,
         quantity: item.quantity,
         price: item.price,
+        reviewed: item.reviewed,
       })),
     }));
 
