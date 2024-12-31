@@ -296,7 +296,7 @@ const createCustomer = async (req, res) => {
     res.status(200).json({
       message:
         "Customer created successfully. Please check your email to validate your account.",
-      redirectUrl: `${process.env.FRONTEND_URL}check-email`,
+      redirectUrl: `${process.env.FRONTEND_URL}/check-email`,
     });
   } catch (error) {
     console.error(error);
@@ -465,7 +465,7 @@ const validateCustomer = async (req, res) => {
     });
 
     res.redirect(
-      `${process.env.FRONTEND_URL}login?validationSuccess=true`
+      `${process.env.FRONTEND_URL}/login?validationSuccess=true`
     );
   } catch (error) {
     console.error("Validation error:", error);
@@ -568,7 +568,7 @@ function passwordResetEmailTemplate(name, resetToken) {
           <p>You requested a password reset for your account.</p>
           <p style="color: #555;">Please click on the link below to reset your password:</p>
           <p>
-            <a href="${process.env.FRONTEND_URL}reset-password/${resetToken}" style="text-decoration: none; color: #fff; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px;">Reset Password</a>
+            <a href="${process.env.FRONTEND_URL}/reset-password/${resetToken}" style="text-decoration: none; color: #fff; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px;">Reset Password</a>
           </p>
           <p style="color: #555;">If you did not request this, please ignore this email and your password will remain unchanged.</p>
           <p>Best regards,<br/>GreenVille</p>
