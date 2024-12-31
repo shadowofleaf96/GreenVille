@@ -78,7 +78,7 @@ const Cart = () => {
                     <Fragment key={item.product}>
                       <div className="flex flex-col md:flex-row items-center gap-4 my-4">
                         <img
-                          src={typeof item?.image === "string" ? `${optimizeImage(item?.image, 60)}` : `${optimizeImage(item?.image[0], 60)}`}
+                          src={typeof item?.image === "string" ? `${optimizeImage(item?.image, 120)}` : `${optimizeImage(item?.image[0], 120)}`}
                           alt={item.name[currentLanguage]}
                           className="w-24 h-24 object-cover rounded-md"
                         />

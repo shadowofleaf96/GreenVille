@@ -108,7 +108,7 @@ const SingleProduct = () => {
         {loading ? (
           <Loader />
         ) : (
-          <div className="flex flex-col items-center justify-center">
+          <div className="flex container flex-col items-center justify-center">
             <div className="flex flex-col lg:flex-row items-center justify-center gap-8 w-full max-w-5xl">
               {product ? (
                 <>
@@ -273,7 +273,7 @@ const SingleProduct = () => {
 
               {activeTab === "description" && (
                 <div className="mt-6">
-                  <p className="text-gray-700 text-lg flex items-center justify-center min-h-48">{product?.long_description[currentLanguage]}</p>
+                  <p className="text-gray-700 text-lg flex items-center min-h-48">{product?.long_description[currentLanguage]}</p>
                 </div>
               )}
               {activeTab === "commentary" && (
@@ -287,7 +287,7 @@ const SingleProduct = () => {
                       {reviews.map((review) => (
                         <div
                           key={review._id}
-                          className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center justify-center min-h-48"
+                          className="bg-gray-100 p-4 rounded-lg shadow-sm flex flex-col min-h-48"
                         >
                           <div className="flex items-center space-x-4">
                             <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
