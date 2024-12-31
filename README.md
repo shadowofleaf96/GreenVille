@@ -21,157 +21,181 @@ GreenVille is a bio-organic eCommerce store that offers eco-friendly products, c
 
 ### 🛒 Frontoffice (Customer-Facing Features)
 
-- **Responsive Design:** Fully responsive user interface optimized for desktop and mobile.
-- **Global Image Optimization:** 
-  - All images (products, banners, logos, etc.) are served from **Cloudinary** for optimized performance. Cloudinary automatically handles image resizing, format conversion, and compression to ensure fast load times across all pages.
-  - Optimized images are applied across the **Product Listings**, **Product Details**, **About Page**, **Contact Page**, etc.
+* **Responsive Design:** 
+    * Fully responsive user interface optimized for desktop and mobile.
 
-- **Global SEO Optimization using Helmet:**
-  - **react-helmet** is used across all pages (Product Listings, Product Details, Contact, About, etc.) to set dynamic metadata such as titles, descriptions for SEO purposes.
-  - **SEO Title Tags and Meta Descriptions** are automatically updated based on the page content (e.g., Product Name, Categories).
+* **Global Image Optimization:**
+    * All images (products, banners, logos, etc.) are served from **Cloudinary** for optimized performance. 
+    * Cloudinary automatically handles image resizing, format conversion, and compression to ensure fast load times across all pages.
+    * Optimized images are applied across the **Product Listings**, **Product Details**, **About Page**, **Contact Page**, etc.
 
-- **Product Listings:**
-  - Browse products by categories and subcategory.
-  - Advanced filtering options (price, option).
-  
-- **Product Details Page:**
-  - Detailed product descriptions (short description and product description), Translated title, Rating.
-  - Add to cart or buy immediately.
-  - Product Commentary with account name and comment.
-  - Real-time stock availability.
+* **Global SEO Optimization using Helmet:**
+    * **react-helmet** is used across all pages (Product Listings, Product Details, Contact, About, etc.) to set dynamic metadata such as titles, descriptions for SEO purposes.
+    * **SEO Title Tags and Meta Descriptions** are automatically updated based on the page content (e.g., Product Name, Categories).
 
-- **Shopping Cart:**
-  - Add/remove items.
-  - Dynamic cart updates with price calculation.
-  - **Redux Integration:** Cart information is saved and managed using Redux, ensuring that cart state persists across page reloads and provides a seamless user experience.
+* **Product Listings:**
+    * Browse products by categories and subcategory.
+    * Advanced filtering options (price, option).
 
-- **Checkout System:**
-  - Secure order placement.
-  - Option to save shipping address to be used later.
-  - **Coupon Support:** Apply discount coupons during checkout.
-  - Integration with payment gateways (Cash on Delivery, PayPal, Stripe).
+* **Product Details Page:**
+    * Detailed product descriptions (short description and product description), Translated title, Rating.
+    * Add to cart or buy immediately.
+    * Product Commentary with account name and comment.
+    * Real-time stock availability.
 
-- **User Authentication:**
-  - Register, log in, and manage profiles (edit customer info, edit shipping address).
-  - Password reset functionality.
-  - Google Login integration for quick authentication.
-  - **reCAPTCHA v3 Integration:** Added to login and register forms to prevent bot attacks.
+* **Shopping Cart:**
+    * Add/remove items.
+    * Dynamic cart updates with price calculation.
+    * **Redux Integration:** Cart information is saved and managed using Redux, ensuring that cart state persists across page reloads and provides a seamless user experience.
 
-- **Order Tracking:**
-  - View order history, detailed information, and status updates.
-  - **Review and Rating:** Submit reviews and rate products for completed orders.
+* **Checkout System:**
+    * Secure order placement.
+    * Option to save shipping address to be used later.
+    * **Coupon Support:** Apply discount coupons during checkout.
+    * Integration with payment gateways (Cash on Delivery, PayPal, Stripe).
 
-- **Search Functionality:**
-  - Search for products by name directly from the navigation bar.
+* **User Authentication:**
+    * Register, log in, and manage profiles (edit customer info, edit shipping address).
+    * Password reset functionality.
+    * Google Login integration for quick authentication.
+    * **reCAPTCHA v3 Integration:** Added to login and register forms to prevent bot attacks.
 
-- **Contact Page:**
-  - Contact form for inquiries with validation.
-  - Embedded Google Maps showing store location(s).
-  - Company information (address, phone, email, etc.).
+* **Order Tracking:**
+    * View order history, detailed information, and status updates.
+    * **Review and Rating:** Submit reviews and rate products for completed orders.
 
-- **About Page:**
-  - Dedicated page to describe the company’s mission, vision, and history.
+* **Search Functionality:**
+    * Search for products by name directly from the navigation bar.
 
-- **Multi-Language Support:**
-  - Languages supported: English (EN), French (FR), and Arabic (AR).
-  - Implemented using **i18n** for seamless language switching.
+* **Contact Page:**
+    * Contact form for inquiries with validation.
+    * Embedded Google Maps showing store location(s).
+    * Company information (address, phone, email, etc.).
 
----
+* **About Page:**
+    * Dedicated page to describe the company’s mission, vision, and history.
 
-### 🛠 Admin Panel Features
+* **Multi-Language Support:**
+    * Languages supported: English (EN), French (FR), and Arabic (AR).
+    * Implemented using **i18n** for seamless language switching.
 
-- **Dashboard:**
-  - Overview of **sales**, **orders**, **customers**, **revenues from the sales** and New Orders performance metrics.
+## Admin Panel Features
 
-- **Product Management:**
-  - Add, edit, and delete products.
-  - Set product name, short description, and long description in a 3 languages(en, fr, ar) for product.
-  - Manage **product categories** and **subcategories**.
-  - Upload and optimize product images with **Cloudinary**.
-  - Set sku, product price, stock levels, and option and status.
+**🛠 Frontend**
 
-- **Order Management:**
-  - View all orders with detailed information (products, quantities, shipping addresses).
-  - **Delete order**
-  - **Update order statuses** (e.g., Not Shipped, Shipped, Delivered, In Transit).
-  - **Update order details** (customer infos, order details, order items).
-  - Cancel orders or modify customer orders.
-  - View order history for each customer.
+* **Dashboard**
+    * Overview of sales, orders, customers, revenues from the sales, and New Orders performance metrics.
+* **Profile**
+    * Overview of user info (Admin or Manager).
+* **Product Management**
+    * Add, edit, and delete products.
+    * Set product name, short description, and long description in 3 languages (EN, FR, AR).
+    * Manage product categories and subcategories.
+    * Upload and optimize product images with Cloudinary.
+    * Set SKU, product price, stock levels, options, and status.
+    * **Search and Filter:**
+        * Search products by name.
+        * Filter products by SKU, price, or quantity.
+        * Advanced sorting.
+* **Order Management**
+    * View all orders with detailed information (products, quantities, shipping addresses).
+    * Delete or modify customer orders.
+    * Update order statuses (Not Shipped, Shipped, Delivered, In Transit).
+    * View order history for each customer.
+    * **Search and Filter:**
+        * Search orders by customer name.
+        * Filter orders by items or total price.
+        * Advanced sorting.
+* **User Management**
+    * View, add, manage, and delete internal user accounts.
+    * Assign admin roles for role-based access control.
+    * Search and filter users by name or email.
+    * Advanced sorting.
+* **Customer Management**
+    * View and edit customer details and shipping addresses.
+    * Disable or delete customer accounts.
+    * **Search and Filter:**
+        * Search customers by name.
+        * Filter by email or name.
+        * Advanced sorting.
+* **Category and Subcategory Management**
+    * Create, edit, and delete product categories/subcategories.
+    * Manage multilingual names (EN, FR, AR) and link products.
+    * Enable/disable categories and subcategories.
+    * Advanced sorting.
+* **Coupon Management**
+    * Create, edit, and delete discount coupons.
+    * Define discount percentage, expiration date, usage limit, and status.
+    * Search coupons by code with advanced sorting.
+* **Payment List Management**
+    * View, edit, and delete payments.
+    * Track payment methods (Stripe, PayPal, Cash on Delivery).
+    * Filter payments by method, total, or customer name.
+    * Advanced sorting.
+* **Review and Contact Management**
+    * Manage product reviews and customer contact form submissions.
+    * Reply to inquiries directly from the panel.
+    * Search and sort reviews/messages by name or product.
+* **Form Handling**
+    * **React Hook Form:**
+        * Manage forms for adding/editing products, categories, orders, etc.
+        * Display validation errors dynamically to users.
+    * **Data Sanitization:**
+        * Use DOMPurify to clean all user-input fields to prevent XSS attacks.
+        * Applied to product descriptions, reviews, and contact messages.
+* **Multi-Language Support**
+    * Seamless switching between EN, FR, and AR using i18n.
 
-- **User Management:**
-  - View, add, and manage customer accounts.
-  - Assign admin roles to specific users for role-based access control.
-  - Edit user details (e.g., name, email, address).
-  - Track user activity (last login, order history, etc.).
+**🖧 Backend**
 
-- **Customer Management:**
-  - View customer informations.
-  - Edit Customer infos(customer details, shipping address details).
-  - Delete customer account
-
-- **Category Management:**
-  - Create, edit, and delete product categories.
-  - Set name in 3 languages(en, fr, ar) and status.
-  
-- **Subcategory Management:**
-  - Manage subcategories under product categories.
-  - Link products to appropriate subcategories.
-  - Control sorting and filtering of products by subcategory.
-
-- **Coupon Management:**
-  - Create, edit, and delete discount coupons.
-  - Define coupon properties such as **Discount percentage**, **Expiration Date**, and **usage limit** and status.
-  
-- **Payment List Management:**
-  - Create, edit, and delete payments.
-  - View a list of payment methods used by customers (Stripe, PayPal, Cash on Delivery).
-
-- **Review Management:**
-  - View and manage **product reviews** submitted by customers.
-  - Moderate and approve/reject reviews based on content.
-  - Respond to customer reviews for better engagement.
-  - View review ratings and reports to improve product quality and customer satisfaction.
-
-- **Inventory Management:**
-  - Track inventory levels across multiple locations.
-  - Sync inventory with external sources (e.g., Shopify API, or other e-commerce platforms).
-  - **Automated Stock Updates**: Automatic inventory updates when products are sold or restocked.
-  - Set reorder alerts when stock levels are low.
-  - Manage **inventory locations** (e.g., warehouses, stores).
-  
-- **Contact Management:**
-  - View, manage, and respond to customer **contact form submissions**.
-  - Manage **customer support emails**, view their inquiry details, and respond directly from the admin panel.
-  - View **contact message history** (email, messages from form submissions).
-
----
-
-### 🖧 Backend Features
-- **RESTful API:**
-  - Built with Express.js for efficient communication between frontend and backend.
-  - Secure endpoints for admin and customer operations.
-- **Database:**
-  - MongoDB database with models for users, products, orders, and inventory.
-- **Authentication & Authorization:**
-  - JWT-based authentication for secure user sessions.
-  - Role-based access control for admin and customer operations(Admin and Manager).
-- **Data Validation:**
-  - Schema validation using Mongoose and JOI to ensure clean data.
-- **Error Handling:**
-  - Global error handling middleware for API stability.
-- **Third-Party Integrations:**
-  - Payment gateway for secure transactions.
-  - Shopify API for inventory synchronization.
-- **Deployment-Ready:**
-  - Environment configuration for production and development modes.
-  - Deployed using platforms like Vercel (frontend) and Heroku (backend).
-
----
+* **RESTful API**
+    * Built with Express.js for efficient communication between frontend and backend.
+    * **Secure Endpoints:** All endpoints require proper authentication and role-based authorization.
+* **Database**
+    * MongoDB database with models for users, products, orders, inventory, and reviews.
+* **Email Sending**
+    * **Nodemailer:** 
+        * Used for sending transactional emails (order confirmations, password resets, contact forms).
+        * Supports various email providers (Gmail, SMTP, etc.).
+        * Templates can be used for creating customized email layouts.
+* **Authentication & Authorization**
+    * **JWT-Based Authentication:**
+        * Tokens are signed with secret keys, also added middleware to verify access token in backend
+        * Secure Local Storage management.
+    * **Role-Based Access Control:**
+        * Different access levels for admins, managers, and customers.
+* **Security Features**
+    * **Input Validation:**
+        * Validate all incoming requests using JOI and Mongoose schema validation.
+        * Prevent malicious input, such as SQL injections or invalid JSON payloads.
+    * **Data Sanitization:**
+        * Use DOMPurify on the backend to clean rich text inputs from users.
+        * Strip harmful scripts from long descriptions, comments, and form submissions.
+    * **Rate Limiting:**
+        * Apply rate limits on sensitive endpoints like login and signup using express-rate-limit.
+        * Prevent brute force attacks by limiting requests from the same IP.
+    * **CORS Configuration:**
+        * Strict CORS policies to allow only whitelisted origins.
+        * Prevent unauthorized access from external domains.
+    * **Helmet:**
+        * Use helmet middleware for enhanced HTTP header security.
+    * **Password Hashing:**
+        * Passwords hashed using bcrypt before storage in the database.
+        * Secure user authentication.
+* **Error Handling**
+    * Centralized error handling middleware for consistent API responses.
+* **Third-Party Integrations**
+    * Payment gateways for secure transactions (Stripe, PayPal).
+    * Cloudinary for image storage and optimization.
+* **Deployment-Ready**
+    * Environment-based configuration for development and production.
+    * Deployed on Render or similar hosting platforms with automatic scaling.
 
 ### 🚀 Future Enhancements
 - Add real-time chat support for customers.
 - Implement advanced analytics for admin insights.
 - Integrate AI-powered product recommendations.
+- Use Bun instead of Node.js
 
 ## Getting Started
 
