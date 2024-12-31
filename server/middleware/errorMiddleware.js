@@ -1,5 +1,5 @@
 function errorHandler(err, req, res, next) {
-    console.error(err.stack); // Log the error for debugging
+    console.error(err.stack);
   
     if (res.headersSent) {
       return next(err);

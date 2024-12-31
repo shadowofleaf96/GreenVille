@@ -58,17 +58,17 @@ const login = async (req, res) => {
           expiresIn: "3d",
         });
 
-        const refreshTokenPayload = { id: customer._id, role: customer.role };
-        const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
-          expiresIn: "7d",
-        });
+        // const refreshTokenPayload = { id: customer._id, role: customer.role };
+        // const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
+        //   expiresIn: "7d",
+        // });
 
         return res.status(200).json({
           message: "Login success",
           access_token: accessToken,
           token_type: "Bearer",
           expires_in: "3d",
-          refresh_token: refreshToken,
+          // refresh_token: refreshToken,
           customer: customer,
         });
       } else {
@@ -119,16 +119,16 @@ const googleLogin = async (req, res) => {
       expiresIn: "3d",
     });
 
-    const refreshToken = jwt.sign(tokenPayload, secretRefreshKey, {
-      expiresIn: "7d",
-    });
+    // const refreshToken = jwt.sign(tokenPayload, secretRefreshKey, {
+    //   expiresIn: "7d",
+    // });
 
     res.status(200).json({
       message: "Google login success",
       access_token: accessToken,
       token_type: "Bearer",
       expires_in: "3d",
-      refresh_token: refreshToken,
+      // refresh_token: refreshToken,
       customer: customer,
     });
   } catch (error) {

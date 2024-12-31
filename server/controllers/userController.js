@@ -282,13 +282,13 @@ const loginUser = async (req, res, next) => {
       expiresIn: "3d",
     });
 
-    const refreshTokenPayload = {
-      id: user._id,
-      role: user.role,
-    };
-    const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
-      expiresIn: "7d",
-    });
+    // const refreshTokenPayload = {
+    //   id: user._id,
+    //   role: user.role,
+    // };
+    // const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
+    //   expiresIn: "7d",
+    // });
 
     user.last_login = new Date();
     await user.save();
@@ -298,7 +298,7 @@ const loginUser = async (req, res, next) => {
       access_token: accessToken,
       token_type: "Bearer",
       expires_in: "3d",
-      refresh_token: refreshToken,
+      // refresh_token: refreshToken,
       user: user,
     });
   } catch (error) {
