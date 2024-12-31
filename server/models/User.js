@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 
 const userJoiSchema = Joi.object({
   _id: Joi.any().strip(),
-  user_image: Joi.string(),
+  user_image: Joi.string().allow(null, "").optional(),
   first_name: Joi.string().required(),
   last_name: Joi.string().required(),
   email: Joi.string().required(),
