@@ -93,7 +93,6 @@ exports.getAllReviews = async (req, res) => {
 exports.editReview = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log("Request Body:", req.body);
     const { rating, comment, status, review_date } = req.body;
 
     const review = await Review.findById(id);

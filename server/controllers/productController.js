@@ -58,7 +58,7 @@ const createData = async (req, res) => {
       data: enrichedProduct,
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: "Error creating product" });
   }
 };
@@ -250,7 +250,6 @@ const updateReview = async (req, res) => {
       product.average_rating = newAverageRating.toFixed(1);
       await product.save();
 
-      console.log("Product review and ratings updated successfully!");
       return {
         success: true,
         message: "Review updated in product model successfully!",
