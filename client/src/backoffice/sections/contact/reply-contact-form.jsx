@@ -36,7 +36,7 @@ export default function ReplyContactForm({ contact, onSave, onCancel, open, onCl
             toast.success("response has sent successfully!");
             onClose();
         } catch (error) {
-            console.log("Error saving contact:", error);
+            console.error("Error saving contact:", error);
             toast.error("Failed to send response. Please try again.");
         } finally {
             setLoading(false);

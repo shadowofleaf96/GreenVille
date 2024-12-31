@@ -30,7 +30,7 @@ export const addItemToCart = createAsyncThunk(
         subcategory: productData.subcategory,
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 );

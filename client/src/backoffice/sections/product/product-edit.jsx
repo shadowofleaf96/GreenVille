@@ -55,8 +55,6 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
     mode: "onChange",
   });
 
-  console.log(selectedImages)
-
   useEffect(() => {
     const fetchSubcategories = async () => {
       if (subcategories && subcategories.length > 0) {

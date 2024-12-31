@@ -111,7 +111,7 @@ const CheckoutForm = () => {
 
 
             if (error && (error.type === "card_error" || error.type === "validation_error")) {
-                console.log(error.message);
+                console.error(error.message);
             }
 
             if (paymentIntent.status === "succeeded") {

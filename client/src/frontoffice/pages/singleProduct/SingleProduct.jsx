@@ -92,7 +92,6 @@ const SingleProduct = () => {
       alert(t("Please enter a valid comment"));
       return;
     }
-    console.log("Comment submitted:", commentary);
     setCommentary("");
   };
 

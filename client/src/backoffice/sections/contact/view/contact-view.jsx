@@ -243,7 +243,6 @@ export default function ContactView() {
   const handleDeleteContact = async (contactId) => {
     setLoadingDelete(true);
     try {
-      console.log(contactId)
       const response = await axiosInstance.delete(`/contact/${contactId}`);
       const updatedContacts = data.filter(
         (contact) => contact._id !== contactId

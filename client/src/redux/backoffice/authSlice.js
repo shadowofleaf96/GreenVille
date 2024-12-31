@@ -13,7 +13,7 @@ export const fetchUserProfile = () => async (dispatch) => {
       localStorage.removeItem("user_access_token")
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 

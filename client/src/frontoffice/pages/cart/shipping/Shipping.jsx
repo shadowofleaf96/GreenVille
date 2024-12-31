@@ -52,7 +52,6 @@ const Shipping = () => {
         country,
       };
 
-      console.log("shipping_address", shipping_address)
       await axiosInstance.put(`/customers/${customer._id}`, { shipping_address });
     } catch (error) {
       console.error(error);

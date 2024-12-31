@@ -154,7 +154,7 @@ const Login = () => {
   };
 
   const errorMessage = (error) => {
-    console.log(error);
+    console.error(error);
   };
 
   const handleForgotPassword = async (e) => {

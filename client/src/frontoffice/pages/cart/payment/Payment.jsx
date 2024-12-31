@@ -76,7 +76,7 @@ const Payment = () => {
           console.error("Client secret not found in response");
         }
       } catch (error) {
-        console.log("Error fetching client secret:", error);
+        console.error("Error fetching client secret:", error);
       }
     };
 

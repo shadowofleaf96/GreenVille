@@ -55,7 +55,7 @@ const ConfirmOrder = () => {
             setMessage({ text: t("Coupon applied successfully"), type: "success" });
         } catch (error) {
             setMessage({ text: t("Failed to apply coupon"), type: "error" });
-            console.log(error)
+            console.error(error)
         } finally {
             setIsLoading(false);
         }
