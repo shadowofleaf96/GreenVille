@@ -19,15 +19,13 @@ export default function TableNoData({ query }) {
           </Typography>
 
           {query ? (
-            // Display this message when query is not empty
             <Typography variant="body2">
               No results found for &nbsp;
               <strong>&quot;{query}&quot;</strong>.
               <br /> Try checking for typos or using complete words.
             </Typography>
           ) : (
-            // Display this message when query is empty
-            <Typography variant="body2">No Users found</Typography>
+            <Typography variant="body2">No Customers found</Typography>
           )}
         </Paper>
       </TableCell>
