@@ -43,18 +43,24 @@ const createData = async (req, res) => {
     status,
   });
 
-  product
-    .save()
-    .then((data) => {
-      res.status(201).json({
-        message: "Product created successfully",
-        data,
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({ message: "Error creating product" });
+  try {
+    const savedProduct = await product.save();
+
+    const subcategory = await SubCategory.findById(subcategory_id).lean();
+
+    const enrichedProduct = {
+      ...savedProduct.toObject(),
+      subcategory: subcategory,
+    };
+
+    res.status(201).json({
+      message: "Product created successfully",
+      data: enrichedProduct,
     });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error creating product" });
+  }
 };
 
 const searchingItems = async (req, res) => {
@@ -185,9 +191,16 @@ const UpdateProductById = async (req, res) => {
       new: true,
     });
 
+    const subcategory = await SubCategory.findById(newData.subcategory_id).lean();
+
+    const enrichedProduct = {
+      ...updatedProduct.toObject(),
+      subcategory: subcategory,
+    };
+
     res.status(200).json({
       message: "Product edited successfully",
-      data: updatedProduct,
+      data: enrichedProduct,
     });
   } catch (error) {
     console.error(error);

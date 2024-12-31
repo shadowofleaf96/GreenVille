@@ -41,8 +41,6 @@ const MyOrders = () => {
         setActiveOrder((prev) => (prev === orderId ? null : orderId));
     };
 
-    console.log(orders)
-
     return (
         <Fragment>
             <MetaData title={t("MyOrders.title")} />

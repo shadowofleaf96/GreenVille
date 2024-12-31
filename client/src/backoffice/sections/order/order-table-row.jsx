@@ -57,19 +57,7 @@ export default function OrderTableRow({
         </TableCell>
         <TableCell>{customerFullName}</TableCell>
         <TableCell>
-          {order_items.map((orderItem, index) => (
-            <Stack key={index}>
-              <Stack>
-                <Typography sx={{ fontSize: "small" }}>
-                  <strong>{t('Product N°')} {index + 1}</strong>
-                </Typography>
-                <Typography sx={{ fontSize: "small" }}>
-                  <strong>{t('Name')}: </strong> {orderItem.product.product_name[currentLanguage]}
-                </Typography>
-              </Stack>
-              {index < order_items.length - 1 && <div style={{ height: 8 }} />}
-            </Stack>
-          ))}
+          {order_items.length + " Products"}
         </TableCell>
         <TableCell>{cart_total_price} DH</TableCell>
         <TableCell>{fDateTime(order_date)}</TableCell>

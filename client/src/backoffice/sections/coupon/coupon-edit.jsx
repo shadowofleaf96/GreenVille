@@ -24,7 +24,6 @@ function EditCouponForm({ coupon, onSave, onCancel, open, onClose }) {
   });
 
   const [loadingSave, setLoadingSave] = useState(false);
-  console.log(coupon)
 
   const onSubmit = async (data) => {
     setLoadingSave(true);
