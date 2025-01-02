@@ -88,15 +88,14 @@ const Banner = () => {
                     <p className="text-white text-sm md:text-lg mb-28 md:mb-20">
                       {t(slide.descriptionKey)}
                     </p>
-                    <button className="flex bg-[#8DC63F] text-white py-2 md:py-3 px-6 md:px-8 rounded-md justify-center items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 mx-auto md:mx-0">
-                      <Link to={slide.link}>{t(slide.buttonTextKey)}</Link>
+                    <Link className="flex bg-[#8DC63F] w-56 sm:w-64 md:w-80 text-white py-2 md:py-3 px-6 md:px-8 rounded-md justify-center items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 mx-auto md:mx-0" to="/products">{t(slide.buttonTextKey)}
                       <Iconify
                         icon="ep:right"
                         width={20}
                         height={20}
                         className="ml-2 rtl:rotate-180 rtl:mr-2"
                       />
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
