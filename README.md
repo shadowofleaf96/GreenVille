@@ -51,6 +51,7 @@ GreenVille is a bio-organic eCommerce store that offers eco-friendly products, c
 * **Checkout System:**
     * Secure order placement.
     * Option to save shipping address to be used later.
+    * Add option to choose shipping method
     * **Coupon Support:** Apply discount coupons during checkout.
     * Integration with payment gateways (Cash on Delivery, PayPal, Stripe).
 
