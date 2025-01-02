@@ -191,8 +191,6 @@ const Products = () => {
     );
   };
 
-  console.log(products)
-
   const HandleCloseButton = () => {
     setIsFilterOpen(!isFilterOpen);
     setIsButtonHided(true)

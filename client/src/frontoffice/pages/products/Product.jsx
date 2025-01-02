@@ -37,12 +37,12 @@ const Product = ({ product }) => {
           <Link to={`/product/${product?._id}`} className="block text-center">
             <div className="mb-2 sm:mb-4 transition-transform duration-500 transform hover:scale-105">
               <img
-                className="w-32 h-32 sm:w-48 sm:h-48 mx-auto object-contain"
+                className="w-32 h-32 sm:w-48 sm:h-48 mx-auto object-contain bg-transparent"
                 src={getImageSrc()}
                 alt={product?.product_name[currentLanguage]}
               />
             </div>
-            <p className="h-12 sm:h-16 mt-1 sm:mt-2 text-md sm:text-lg xl:text-xl font-semibold hover:text-gray-500 overflow-hidden whitespace-normal">
+            <p className="h-12 sm:h-16 mt-1 sm:mt-2 text-md sm:text-lg xl:text-xl font-semibold hover:text-gray-500 overflow-hidden whitespace-nowrap truncate">
               {product?.product_name[currentLanguage]}
             </p>
           </Link>
