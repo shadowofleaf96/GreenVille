@@ -28,20 +28,26 @@ const Shipping = () => {
     history("/products");
   }
 
-  let shippingPrice = 30
-  if (itemsPrice >= 1500) {
-    shippingPrice = 0
-  }
-  const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
-  const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
-
   const [address, setAddress] = useState(shippingInfo.address);
   const [city, setCity] = useState(shippingInfo.city);
   const [loading, setLoading] = useState(false);
   const [postalCode, setPostalCode] = useState(shippingInfo.postalCode);
   const [phoneNo, setPhoneNo] = useState(shippingInfo.phoneNo);
+  const [shippingMethod, setShippingMethod] = useState("standard");
   const [country, setCountry] = useState("Morocco");
   const [saveToProfile, setSaveToProfile] = useState(true);
+
+  const getShippingPrice = () => {
+    if (itemsPrice >= 1500) return 0;
+    if (shippingMethod === "standard") return 30;
+    if (shippingMethod === "express") return 45;
+    if (shippingMethod === "overnight") return 65;
+    return 0;
+  };
+
+  const shippingPrice = getShippingPrice();
+  const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
+  const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
 
   const saveAddressToProfile = async () => {
     setLoading(true);
@@ -66,15 +72,18 @@ const Shipping = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+    try {
+      dispatch(saveShippingInfo({ address, city, phoneNo, postalCode, taxPrice, shippingPrice, shippingMethod, country }));
+      dispatch(applyCouponCode(null));
 
-    dispatch(saveShippingInfo({ address, city, phoneNo, postalCode, country }));
-    dispatch(applyCouponCode(null));
+      if (saveToProfile) {
+        await saveAddressToProfile();
+      }
 
-    if (saveToProfile) {
-      await saveAddressToProfile();
+      history("/confirm", { replace: true });
+    } catch (error) {
+      console.log(error)
     }
-
-    history("/confirm", { replace: true });
 
   };
 
@@ -124,39 +133,54 @@ const Shipping = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 gap-2">
-                  <label
-                    htmlFor="phone_field"
-                    className="text-gray-800 font-semibold"
-                  >
-                    {t("Phone")}
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone_field"
-                    value={phoneNo}
-                    onChange={(e) => setPhoneNo(e.target.value)}
-                    required
-                    className="h-10 rounded-md border border-gray-300 px-4 bg-gray-200 w-full"
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-2">
+                    <label htmlFor="phone_field" className="text-gray-800 font-semibold">
+                      {t("Phone")}
+                    </label>
+                    <input
+                      type="tel"
+                      id="phone_field"
+                      value={phoneNo}
+                      onChange={(e) => setPhoneNo(e.target.value)}
+                      required
+                      className="h-10 rounded-md border border-gray-300 px-4 bg-gray-200 w-full"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2">
+                    <label htmlFor="postal_code_field" className="text-gray-800 font-semibold">
+                      {t("PostalCode")}
+                    </label>
+                    <input
+                      type="number"
+                      id="postal_code_field"
+                      value={postalCode}
+                      onChange={(e) => setPostalCode(e.target.value)}
+                      required
+                      className="h-10 rounded-md border border-gray-300 px-4 bg-gray-200 w-full"
+                    />
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-2">
-                  <label
-                    htmlFor="postal_code_field"
-                    className="text-gray-800 font-semibold"
-                  >
-                    {t("PostalCode")}
+                <div className="grid grid-cols-1 gap-2 mt-4">
+                  <label htmlFor="shipping_method" className="text-gray-800 font-semibold">
+                    {t("Shipping Method")}
                   </label>
-                  <input
-                    type="number"
-                    id="postal_code_field"
-                    value={postalCode}
-                    onChange={(e) => setPostalCode(e.target.value)}
-                    required
-                    className="h-10 rounded-md border border-gray-300 px-4 bg-gray-200 w-full"
-                  />
+                  <select
+                    id="shipping_method"
+                    onChange={(e) => setShippingMethod(e.target.value)}
+                    value={shippingMethod}
+                    disabled={itemsPrice >= 1500}
+                    className={`h-10 rounded-md border px-4 w-full ${itemsPrice >= 1500 ? "bg-gray-300 text-gray-500" : "bg-gray-200 text-black"
+                      }`}
+                  >
+                    <option value="standard">{t("Standard Shipping")} (30 DH)</option>
+                    <option value="express">{t("Express Shipping")} (45 DH)</option>
+                    <option value="overnight">{t("Overnight Shipping")} (65 DH)</option>
+                  </select>
                 </div>
+
                 <div className="grid grid-cols-1 gap-2">
                   <label htmlFor="save_to_profile" className="text-sm text-gray-600">
                     <input

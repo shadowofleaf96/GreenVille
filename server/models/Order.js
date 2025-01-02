@@ -17,6 +17,9 @@ const orderJoiSchema = Joi.object({
   order_date: Joi.date().default(Date.now),
   is_review_allowed: Joi.boolean(),
   cart_total_price: Joi.number().min(0).required(),
+  shipping_price: Joi.number().min(0).default(0),
+  coupon_discount: Joi.number().default(0),
+  tax: Joi.number().default(0),
   status: Joi.string().valid("open", "processing", "canceled").default("open"),
   shipping_address: Joi.object({
     street: Joi.string().required(),
@@ -74,6 +77,19 @@ const ordersSchema = mongoose.Schema(
       type: Number,
       required: true,
       min: [0, "Total price cannot be negative."],
+    },
+    shipping_price: {
+      type: Number,
+      default: 0,
+      min: [0, "Shipping price cannot be negative."],
+    },
+    coupon_discount: {
+      type: Number,
+    },
+    tax: {
+      type: Number,
+      default: 0,
+      min: [0, "Tax cannot be negative."],
     },
     status: {
       type: String,

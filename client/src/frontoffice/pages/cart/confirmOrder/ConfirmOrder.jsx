@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import MetaData from "../../../components/MetaData";
 import CheckoutSteps from "../checkoutSteps/CheckoutSteps";
-import { applyCouponCode } from "../../../../redux/frontoffice/cartSlice"
 import { useTranslation } from "react-i18next";
 import DOMPurify from "dompurify";
+import { toast } from 'react-toastify';
+import { applyCouponCode, saveShippingInfo } from "../../../../redux/frontoffice/cartSlice";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { LoadingButton } from "@mui/lab";
 import optimizeImage from "../../../components/optimizeImage";
@@ -19,7 +20,6 @@ const ConfirmOrder = () => {
     const currentLanguage = i18n.language
     const history = useNavigate();
     const [couponCode, setCouponCode] = useState("");
-    const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const axiosInstance = createAxiosInstance("customer")
     const dispatch = useDispatch();
@@ -31,19 +31,14 @@ const ConfirmOrder = () => {
         history("/products");
     }
 
-    let shippingPrice = 30
-    if (itemsPrice >= 1500) {
-        shippingPrice = 0
-    }
-
-    const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
     let discountedTotal
+    let discountedPrice = ((itemsPrice * coupon?.discount) / 100).toFixed(2)
     if (coupon) {
-        discountedTotal = itemsPrice - (itemsPrice * coupon.discount) / 100;
+        discountedTotal = itemsPrice - discountedPrice;
     } else {
         discountedTotal = itemsPrice;
     }
-    const totalPrice = (discountedTotal + shippingPrice + taxPrice).toFixed(2);
+    const totalPrice = (discountedTotal + shippingInfo.shippingPrice + shippingInfo.taxPrice).toFixed(2);
 
     const applyCoupon = async () => {
         setIsLoading(true);
@@ -55,9 +50,10 @@ const ConfirmOrder = () => {
                 userId: customer._id,
             });
             dispatch(applyCouponCode({ code: response.data.code, discount: response.data.discount }));
-            setMessage({ text: t("Coupon applied successfully"), type: "success" });
+            setCouponCode("");
+            toast.success(t("Coupon applied successfully"));
         } catch (error) {
-            setMessage({ text: t("Failed to apply coupon"), type: "error" });
+            toast.error(t("Failed to apply coupon"));
             console.error(error)
         } finally {
             setIsLoading(false);
@@ -65,6 +61,13 @@ const ConfirmOrder = () => {
     };
 
     const processToPayment = () => {
+        const updatedShippingInfo = {
+            ...shippingInfo,
+            totalPrice,
+            discountedTotal,
+            discountedPrice
+        };
+        dispatch(saveShippingInfo(updatedShippingInfo));
         history("/payment", { replace: true });
     };
 
@@ -99,11 +102,6 @@ const ConfirmOrder = () => {
                                 </LoadingButton>
                             </div>
                         </div>
-                        {message.text && (
-                            <p className={`mt-2 text-sm ${message.type === "success" ? "text-green-600" : "text-red-600"}`}>
-                                {message.text}
-                            </p>
-                        )}
                         <hr className="my-2" />
 
                         <h4 className="text-lg font-semibold mb-3">{t("Shipping Info")}</h4>
@@ -113,8 +111,12 @@ const ConfirmOrder = () => {
                         <p className="text-gray-700 mb-2">
                             <b>{t("Phone")}: </b> {shippingInfo.phoneNo}
                         </p>
-                        <p className="text-gray-700 mb-4">
-                            <b>{t("Address")}: </b> {`${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.postalCode}, ${shippingInfo.country}`}
+                        <p className="text-gray-700 mb-2">
+                            <b>{t("Address")}: </b> {`${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.postalCode}`}
+                        </p>
+                        <p className="text-gray-700 mb-4 flex">
+                            <b>{t("Shipping Method")}:</b>
+                            <span className="ml-1 capitalize">{`${t(shippingInfo.shippingMethod)}`}</span>
                         </p>
                         <hr className="my-4" />
                         <h4 className="text-lg font-semibold mt-4">{t("Your Cart Items")}:</h4>
@@ -158,7 +160,7 @@ const ConfirmOrder = () => {
                             {t("Subtotal")} <span>{itemsPrice} DH</span>
                         </p>
                         <p className="flex justify-between mb-2">
-                            {t("Shipping")} <span>{shippingPrice} DH</span>
+                            {t("Shipping")} <span>{shippingInfo?.shippingPrice} DH</span>
                         </p>
                         {coupon && (
                             <p className="flex justify-between mb-2">
@@ -166,7 +168,7 @@ const ConfirmOrder = () => {
                             </p>
                         )}
                         <p className="flex justify-between mb-2">
-                            {t("Tax")} <span>{taxPrice} DH</span>
+                            {t("Tax")} <span>{shippingInfo?.taxPrice} DH</span>
                         </p>
                         <hr className="my-4" />
                         <p className="flex justify-between text-xl font-bold">

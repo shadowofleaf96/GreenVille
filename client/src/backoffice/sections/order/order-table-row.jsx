@@ -83,10 +83,10 @@ export default function OrderTableRow({
     const x = (pageWidth - imageWidth) / 2;
     doc.addImage(logoUrl, "JPEG", x, 5, imageWidth, imageHeight);
 
-    doc.setFontSize(32);
+    doc.setFontSize(26);
     doc.text(t('invoice_title'), 105, 50, { align: "center" });
 
-    doc.setFontSize(12);
+    doc.setFontSize(9);
     doc.text(`${t('invoice_date')}: ${formattedDate}`, leftMargin, 80);
 
     doc.setFontSize(14);
@@ -95,7 +95,6 @@ export default function OrderTableRow({
     doc.setFontSize(12);
     doc.text(`${t('name')}: ${customerFullName}`, leftMargin, 100);
     doc.text(`${t('shipping_method')}: ${t(shippingMethod)}`, leftMargin, 110);
-    doc.text(`${t('shipping_status')}: ${t(shippingStatus)}`, leftMargin, 120);
 
     doc.autoTable({
       startY: 130,
@@ -112,22 +111,24 @@ export default function OrderTableRow({
         index + 1,
         item.product?.product_name[currentLanguage],
         item.quantity,
-        item.price.toFixed(2),
-        (item.quantity * item.price).toFixed(2),
+        item.price.toFixed(2) + " DH",
+        (item.quantity * item.price).toFixed(2) + " DH",
       ]),
       theme: "grid",
       styles: {
         fontSize: 10,
       },
+      headStyles: {
+        fillColor: [141, 198, 63],
+        textColor: 255,           
+        fontStyle: "bold",        
+      },
     });
 
     const finalY = doc.lastAutoTable.finalY + 10;
-    doc.setFontSize(14);
-    doc.text(t('order_summary'), pageWidth - 10, finalY, { align: "right" });
 
     doc.setFontSize(12);
     doc.text(`${t('total_price')}: ${cart_total_price.toFixed(2)} DH`, pageWidth - 10, finalY + 10, { align: "right" });
-    doc.text(`${t('order_status')}: ${t(status)}`, pageWidth - 10, finalY + 20, { align: "right" });
 
     const footerTextX = pageWidth / 2;
     doc.setFontSize(10);
