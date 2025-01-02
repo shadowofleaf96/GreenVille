@@ -1,8 +1,10 @@
 const mongoose = require("mongoose");
-require('dotenv').config({ path: '../.env' });
+require("dotenv").config();
 
 mongoose
-  .connect(process.env.MONGOOSE)
+  .connect(process.env.MONGOOSE, {
+    serverSelectionTimeoutMS: 5000, 
+  })
   .then(() => {
     console.log("Connected to the database");
   })

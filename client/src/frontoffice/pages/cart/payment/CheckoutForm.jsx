@@ -81,7 +81,7 @@ const CheckoutForm = () => {
                 shipping_address,
                 shipping_method: "standard",
                 shipping_status: "not_shipped",
-                order_notes: "testing for now",
+                order_notes: "Your order is being processed with care. We will notify you once it's ready for shipment.",
                 status: "processing",
             };
 

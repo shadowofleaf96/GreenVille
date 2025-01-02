@@ -1,7 +1,7 @@
 // Shadow Of Leaf Was Here
 
 const { Product } = require("../models/Product");
-const { Review } = require("../models/Review");
+const Review = require("../models/Review");
 const { SubCategory } = require("../models/SubCategory");
 const { Category } = require("../models/Category");
 
@@ -191,7 +191,9 @@ const UpdateProductById = async (req, res) => {
       new: true,
     });
 
-    const subcategory = await SubCategory.findById(newData.subcategory_id).lean();
+    const subcategory = await SubCategory.findById(
+      newData.subcategory_id
+    ).lean();
 
     const enrichedProduct = {
       ...updatedProduct.toObject(),

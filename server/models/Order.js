@@ -25,7 +25,10 @@ const orderJoiSchema = Joi.object({
     country: Joi.string().required(),
     phone_no: Joi.string().required(),
   }).required(),
-  shipping_method: Joi.string().optional(),
+  shipping_method: Joi.string()
+    .valid("standard", "express", "overnight")
+    .default("standard")
+    .optional(),
   shipping_status: Joi.string()
     .valid("not_shipped", "shipped", "in_transit", "delivered")
     .default("not_shipped"),
@@ -86,6 +89,8 @@ const ordersSchema = mongoose.Schema(
     },
     shipping_method: {
       type: String,
+      enum: ["standard", "express", "overnight"],
+      default: "standard",
     },
     shipping_status: {
       type: String,
