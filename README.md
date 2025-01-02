@@ -35,6 +35,7 @@ GreenVille is a bio-organic eCommerce store that offers eco-friendly products, c
 * **Product Listings:**
     * Browse products by categories and subcategory.
     * Advanced filtering options (price, option).
+    * Sorting Products by name and price (a to z and z to a, low to high and high to low)
 
 * **Product Details Page:**
     * Detailed product descriptions (short description and product description), Translated title, Rating.
@@ -99,7 +100,8 @@ GreenVille is a bio-organic eCommerce store that offers eco-friendly products, c
 * **Order Management**
     * View all orders with detailed information (products, quantities, shipping addresses).
     * Delete or modify customer orders.
-    * Update order statuses (Not Shipped, Shipped, Delivered, In Transit).
+    * Update order shipping statuses (Not Shipped, Shipped, Delivered, In Transit).
+    * Export Order as Invoice PDF
     * View order history for each customer.
     * **Search and Filter:**
         * Search orders by customer name.
