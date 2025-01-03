@@ -66,7 +66,7 @@ const CheckoutForm = () => {
                 tax: shippingInfo.taxPrice,
                 order_date: new Date(),
                 shipping_address,
-                coupon_discount: shippingInfo.discountedPrice,
+                coupon_discount: Number(shippingInfo?.discountedPrice) || 0,
                 shipping_price: shippingInfo.shippingPrice,
                 cart_total_price: shippingInfo.totalPrice,
                 shipping_method: shippingInfo.shippingMethod,
