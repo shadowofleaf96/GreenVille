@@ -10,7 +10,10 @@ export const fetchUserProfile = () => async (dispatch) => {
     const response = await axiosInstance.get("/users/profile");
     dispatch(setUser(response.data));
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    if(error.response.data.message === "This session has expired. Please login") {
+      localStorage.removeItem("user_access_token")
+    }
   }
 };
 

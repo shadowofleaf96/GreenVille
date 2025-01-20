@@ -55,20 +55,20 @@ const login = async (req, res) => {
       if (isPasswordValid) {
         const payload = { id: customer._id, role: customer.role };
         const accessToken = jwt.sign(payload, secretKey, {
-          expiresIn: "8h",
+          expiresIn: "3d",
         });
 
-        const refreshTokenPayload = { id: customer._id, role: customer.role };
-        const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
-          expiresIn: "7d",
-        });
+        // const refreshTokenPayload = { id: customer._id, role: customer.role };
+        // const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
+        //   expiresIn: "7d",
+        // });
 
         return res.status(200).json({
           message: "Login success",
           access_token: accessToken,
           token_type: "Bearer",
-          expires_in: "8h",
-          refresh_token: refreshToken,
+          expires_in: "3d",
+          // refresh_token: refreshToken,
           customer: customer,
         });
       } else {
@@ -103,8 +103,8 @@ const googleLogin = async (req, res) => {
 
     if (!customer) {
       const cleanUrl = `${
-        process.env.FRONTEND_LOCAL_URL
-      }set-password?email=${encodeURIComponent(
+        process.env.FRONTEND_URL
+      }/set-password?email=${encodeURIComponent(
         email
       )}&name=${encodeURIComponent(name)}&picture=${encodeURIComponent(
         picture
@@ -116,19 +116,19 @@ const googleLogin = async (req, res) => {
     const tokenPayload = { id: customer._id, role: customer.role };
 
     const accessToken = jwt.sign(tokenPayload, secretKey, {
-      expiresIn: "8h",
+      expiresIn: "3d",
     });
 
-    const refreshToken = jwt.sign(tokenPayload, secretRefreshKey, {
-      expiresIn: "7d",
-    });
+    // const refreshToken = jwt.sign(tokenPayload, secretRefreshKey, {
+    //   expiresIn: "7d",
+    // });
 
     res.status(200).json({
       message: "Google login success",
       access_token: accessToken,
       token_type: "Bearer",
-      expires_in: "8h",
-      refresh_token: refreshToken,
+      expires_in: "3d",
+      // refresh_token: refreshToken,
       customer: customer,
     });
   } catch (error) {
@@ -273,7 +273,7 @@ const createCustomer = async (req, res) => {
 
     await newCustomer.save();
 
-    const validationLink = `${process.env.BACKEND_LOCAL_URL}v1/customers/validate/${newCustomer._id}/${validationToken}`;
+    const validationLink = `${process.env.BACKEND_URL}v1/customers/validate/${newCustomer._id}/${validationToken}`;
     const emailTemplate = validationEmailTemplate(
       newCustomer.first_name,
       validationLink
@@ -296,7 +296,7 @@ const createCustomer = async (req, res) => {
     res.status(200).json({
       message:
         "Customer created successfully. Please check your email to validate your account.",
-      redirectUrl: `${process.env.FRONTEND_LOCAL_URL}check-email`,
+      redirectUrl: `${process.env.FRONTEND_URL}/check-email`,
     });
   } catch (error) {
     console.error(error);
@@ -465,7 +465,7 @@ const validateCustomer = async (req, res) => {
     });
 
     res.redirect(
-      `${process.env.FRONTEND_LOCAL_URL}login?validationSuccess=true`
+      `${process.env.FRONTEND_URL}/login?validationSuccess=true`
     );
   } catch (error) {
     console.error("Validation error:", error);
@@ -543,7 +543,7 @@ const deleteCustomer = async (req, res) => {
   const customerId = req.params.id;
 
   try {
-    const customer = await Customer.findOneAndRemove({ _id: customerId });
+    const customer = await Customer.findOneAndDelete({ _id: customerId });
 
     if (!customer) {
       return res.status(404).json({ message: "Customer not found" });
@@ -568,7 +568,7 @@ function passwordResetEmailTemplate(name, resetToken) {
           <p>You requested a password reset for your account.</p>
           <p style="color: #555;">Please click on the link below to reset your password:</p>
           <p>
-            <a href="${process.env.FRONTEND_LOCAL_URL}reset-password/${resetToken}" style="text-decoration: none; color: #fff; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px;">Reset Password</a>
+            <a href="${process.env.FRONTEND_URL}/reset-password/${resetToken}" style="text-decoration: none; color: #fff; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px;">Reset Password</a>
           </p>
           <p style="color: #555;">If you did not request this, please ignore this email and your password will remain unchanged.</p>
           <p>Best regards,<br/>GreenVille</p>

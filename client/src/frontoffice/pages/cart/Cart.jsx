@@ -9,6 +9,7 @@ import {
 import MetaData from "../../components/MetaData";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
+import optimizeImage from "../../components/optimizeImage";
 
 const backend = import.meta.env.VITE_BACKEND_URL;
 
@@ -46,10 +47,10 @@ const Cart = () => {
       history("/login?redirect=/shipping");
     }
   };
-  
+
   return (
     <Fragment>
-      <MetaData title={t("Cart")} />
+      <MetaData title={t("Cart")} description={t("CartDescription")} />
       <div className="min-h-screen flex flex-col mt-8 px-4">
         <div className="container mx-auto grid gap-4 grid-cols-1 md:grid-cols-3">
           <div className="md:col-span-2">
@@ -77,7 +78,7 @@ const Cart = () => {
                     <Fragment key={item.product}>
                       <div className="flex flex-col md:flex-row items-center gap-4 my-4">
                         <img
-                          src={typeof item?.image === "string" ? `${item?.image}` : `${item?.image[0]}`}
+                          src={typeof item?.image === "string" ? `${optimizeImage(item?.image, 120)}` : `${optimizeImage(item?.image[0], 120)}`}
                           alt={item.name[currentLanguage]}
                           className="w-24 h-24 object-cover rounded-md"
                         />

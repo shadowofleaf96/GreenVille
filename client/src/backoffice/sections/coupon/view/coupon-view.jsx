@@ -241,8 +241,6 @@ export default function CouponView() {
     try {
       const response = await axiosInstance.post("/coupons/create", newCoupon);
       const coupondata = response.data.data;
-      console.log(coupondata)
-      console.log(newCoupon)
       const AddedCoupons = {
         key: coupondata._id,
         _id: coupondata._id,
@@ -255,7 +253,6 @@ export default function CouponView() {
 
       dispatch(setData([...data, AddedCoupons]));
       toast.success(response.data.message);
-      console.log(response.data.message)
 
     } catch (error) {
       console.error("Error creating new coupon:", error);

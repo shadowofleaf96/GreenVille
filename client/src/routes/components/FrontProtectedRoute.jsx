@@ -13,27 +13,30 @@ const FrontProtectedRoute = () => {
     const { t } = useTranslation();
 
     const fetchCustomerData = async () => {
-        if (customerToken) {
-            try {
-                const axiosInstance = createAxiosInstance("customer");
-                const { status } = await axiosInstance.get("/customers/profile");
-                if (status >= 200 && status < 300) {
-                    setIsAuthenticated(true);
-                } else {
-                    setIsAuthenticated(false);
-                }
-            } catch (err) {
-                console.error(err);
-                toast.error(t("Session expired, please log in again!"));
-                localStorage.removeItem("customer_access_token");
+        try {
+            if (!customerToken) {
                 setIsAuthenticated(false);
+                setLoading(false);
+                return;
             }
-        } else {
-            setIsAuthenticated(false);
-        }
-        setLoading(false);
-    };
 
+            const axiosInstance = createAxiosInstance("customer");
+            const { status } = await axiosInstance.get("/customers/profile");
+
+            if (status >= 200 && status < 300) {
+                setIsAuthenticated(true);
+            } else {
+                throw new Error("Invalid status");
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error(t("Session expired, please log in again!"));
+            localStorage.removeItem("customer_access_token");
+            setIsAuthenticated(false);
+        } finally {
+            setLoading(false);
+        }
+    };
     useEffect(() => {
         fetchCustomerData();
     }, [customerToken]);

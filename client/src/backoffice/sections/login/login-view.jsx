@@ -73,7 +73,6 @@ export default function LoginView() {
       }
     } catch (error) {
       toast.error("Error: " + error.response.data.message);
-      setError("server", { type: "manual", message: error.response.data.message });
     } finally {
       setLoadingSave(false);
     }

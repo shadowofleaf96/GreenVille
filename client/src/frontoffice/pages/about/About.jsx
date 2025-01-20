@@ -42,7 +42,7 @@ const About = () => {
 
   return (
     <Fragment>
-      <MetaData title={t('about.title')} />
+      <MetaData title={t('about.title')} description={t('about.description')} />
       <div className="py-8">
         <div className="container mx-auto px-8">
           <motion.div
@@ -54,7 +54,7 @@ const About = () => {
           >
             <div className="flex justify-center md:justify-start">
               <motion.img
-                src="../../../../assets/about.webp"
+                src="https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/60f4d65bbc8d4b945becdec497945657"
                 alt="About"
                 className="max-w-xs md:max-w-md"
                 variants={fadeInVariants}
@@ -68,7 +68,7 @@ const About = () => {
                 {t('about.subtitle')}{" "}
                 <img
                   className="w-28 ml-1 h-auto"
-                  src="../../../../assets/logo-text.webp"
+                  src="https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/1f1c7b42092395de1674162dbc636e86"
                   alt="Logo"
                 />
               </h4>

@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import Announcement from "../announcement/Announcement";
 import Loader from "../loader/Loader";
 import { Avatar } from "@mui/material";
+import optimizeImage from "../../components/optimizeImage"
 import { logout, fetchCustomerProfile } from "../../../redux/frontoffice/customerSlice";
 import LanguagePopover from "../../../backoffice/layouts/dashboard/common/language-popover";
 import { useTranslation } from "react-i18next";
@@ -100,7 +101,7 @@ const Navbar = () => {
       <nav className="bg-white shadow-lg py-4">
         <div className="container mx-auto flex items-center justify-between px-4">
           <Link to="/">
-            <img className="w-24 h-auto bg-cover" src="/assets/logo.webp" alt="logo" />
+            <img className="w-24 h-auto bg-cover" src="https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/8fbac764fe0d88e3ff18944c621294d5" alt="logo" />
           </Link>
           <div className="flex-grow">
             <div className="font-medium text-lg justify-center gap-8 hidden sm:hidden md:flex">
@@ -189,7 +190,7 @@ const Navbar = () => {
                       className="flex items-center px-6 py-4 rounded text-black hover:bg-green-200"
                       onClick={handleSearchProductClick}
                     >
-                      <img className="h-10 w-10" src={typeof product?.product_images === "string" ? `${product?.product_images}` : `${product?.product_images[0]}`}
+                      <img className="h-10 w-10" src={typeof product?.product_images === "string" ? `${optimizeImage(product?.product_images, 60)}` : `${optimizeImage(product?.product_images[0], 60)}`}
                       />
                       {product.product_name[currentLanguage]}
                     </Link>

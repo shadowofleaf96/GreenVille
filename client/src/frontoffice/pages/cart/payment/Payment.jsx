@@ -37,23 +37,16 @@ const Payment = () => {
 
   const navigate = useNavigate();
 
+  const itemsPrice = cartItems.reduce(
+    (acc, item) => acc + item.discountPrice * item.quantity,
+    0
+  );
 
   // if (itemsPrice === 0) {
   //   navigate("/products")
   // }
 
-  const itemsPrice = cartItems.reduce((acc, item) => acc + item.discountPrice * item.quantity, 0);
-
-  let shippingPrice = 30;
-  const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
-  let discountedTotal
-  if (coupon) {
-    discountedTotal = itemsPrice - (itemsPrice * coupon.discount) / 100;
-  } else {
-    discountedTotal = itemsPrice;
-  }
-  const totalPrice = (discountedTotal + shippingPrice + taxPrice).toFixed(2);
-  const totalPriceUSD = (totalPrice * 0.11).toFixed(2);
+  const totalPriceUSD = (shippingInfo?.totalPrice * 0.11).toFixed(2);
 
   const handlePaymentMethodChange = (e) => {
     setPaymentMethod(e.target.value);
@@ -62,7 +55,7 @@ const Payment = () => {
   useEffect(() => {
     const fetchStripeKey = async () => {
       try {
-        const response = await axiosInstance.post("/payments/create-stripe-payment", { amount: totalPrice, currency: "mad", isSavingCard: true },
+        const response = await axiosInstance.post("/payments/create-stripe-payment", { amount: shippingInfo?.totalPrice, currency: "mad", isSavingCard: true },
           {
             headers: {
               "Content-Type": "application/json",
@@ -76,7 +69,7 @@ const Payment = () => {
           console.error("Client secret not found in response");
         }
       } catch (error) {
-        console.log("Error fetching client secret:", error);
+        console.error("Error fetching client secret:", error);
       }
     };
 
@@ -101,12 +94,15 @@ const Payment = () => {
           quantity: item.quantity,
           price: item.discountPrice
         })),
-        cart_total_price: totalPrice,
+        tax: shippingInfo.taxPrice,
         order_date: new Date(),
         shipping_address,
-        shipping_method: "standard",
+        coupon_discount: Number(shippingInfo?.discountedPrice) || 0,
+        shipping_price: shippingInfo.shippingPrice,
+        cart_total_price: shippingInfo.totalPrice,
+        shipping_method: shippingInfo.shippingMethod,
         shipping_status: "not_shipped",
-        order_notes: "Working on your order",
+        order_notes: "Your order is being processed with care. We will notify you once it's ready for shipment.",
         status: "processing",
       };
 
@@ -137,7 +133,7 @@ const Payment = () => {
       try {
         const paymentData = {
           order_id: orderId,
-          amount: totalPrice,
+          amount: shippingInfo?.totalPrice,
           paymentMethod: "paypal",
           paymentStatus: "completed",
           currency: "mad"
@@ -160,7 +156,7 @@ const Payment = () => {
     try {
       const paymentData = {
         order_id: orderId,
-        amount: totalPrice,
+        amount: shippingInfo?.totalPrice,
         paymentMethod: paymentMethod,
         paymentStatus: "pending",
         currency: currency
@@ -288,7 +284,7 @@ const Payment = () => {
               {t("Subtotal")} <span>{itemsPrice} DH</span>
             </p>
             <p className="flex justify-between mb-2">
-              {t("Shipping")} <span>{shippingPrice} DH</span>
+              {t("Shipping")} <span>{shippingInfo?.shippingPrice} DH</span>
             </p>
             {coupon && (
               <p className="flex justify-between mb-2">
@@ -296,11 +292,11 @@ const Payment = () => {
               </p>
             )}
             <p className="flex justify-between mb-2">
-              {t("Tax")} <span>{taxPrice} DH</span>
+              {t("Tax")} <span>{shippingInfo?.taxPrice} DH</span>
             </p>
             <hr className="my-4" />
             <p className="flex justify-between text-xl font-bold">
-              {t("Total")} <span>{totalPrice} DH</span>
+              {t("Total")} <span>{shippingInfo?.totalPrice} DH</span>
             </p>
           </div>
         </div>

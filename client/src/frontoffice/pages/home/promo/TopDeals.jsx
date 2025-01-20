@@ -2,10 +2,10 @@ import React, { useRef, useEffect } from "react";
 import Iconify from "../../../../backoffice/components/iconify";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import optimizeImage from "../../../components/optimizeImage"
 
 
 const TopDeals = ({ products }) => {
-
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language
   const scrollRef = useRef(null);
@@ -108,7 +108,11 @@ const TopDeals = ({ products }) => {
                           className="no-underline text-black font-semibold text-lg hover:text-gray-500"
                         >
                           <img
-                            src={typeof product?.product_images === "string" ? `${product?.product_images}` : `${product?.product_images[0]}`}
+                            src={
+                              typeof product?.product_images === "string"
+                                ? `${optimizeImage(product?.product_images, 400)}`
+                                : `${optimizeImage(product?.product_images[0], 400)}`
+                            }
                             alt={product?.product_name[currentLanguage]}
                             className="h-40 w-full md:h-52 m-4 rounded-t-lg object-contain mx-auto"
                           />
@@ -138,7 +142,7 @@ const TopDeals = ({ products }) => {
                     <Iconify
                       icon="material-symbols-light:chevron-left-rounded"
                       className="text-white text-2xl cursor-pointer bg-lime-600 rounded-md hover:text-gray-300"
-                      onClick={() => scroll("left", scrollRef)}
+                      onClick={() => scroll("left", scrollRef, 300)}
                       width={32}
                       height={32}
                     />
@@ -147,7 +151,7 @@ const TopDeals = ({ products }) => {
                     <Iconify
                       icon="material-symbols-light:chevron-right-rounded"
                       className="text-white text-2xl cursor-pointer bg-lime-600 rounded-md hover:text-gray-300"
-                      onClick={() => scroll("right", scrollRef)}
+                      onClick={() => scroll("right", scrollRef, 300)}
                       width={32}
                       height={32}
                     />

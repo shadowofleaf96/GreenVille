@@ -13,10 +13,12 @@ import FlashSales from "./promo/FlashSales";
 import TopDeals from "./promo/TopDeals";
 import Benefits from "./benefits/Benefits";
 import Testimonials from "./testimonials/Testimonials";
+import { useTranslation } from "react-i18next";
 
 const Home = () => {
   const dispatch = useDispatch();
   const { loading, error, products } = useSelector((state) => state.products);
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (products.length === 0) {
@@ -45,8 +47,10 @@ const Home = () => {
 
   return (
     <Fragment>
-      <MetaData title={"Home"} />
-
+      <MetaData
+        title={t("HomeSEO")}
+        description={t("HomeDescription")}
+      />
       <motion.div
         ref={bannerRef}
         initial="hidden"

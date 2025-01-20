@@ -24,6 +24,7 @@ const Products = () => {
   const [selectedPriceRange, setSelectedPriceRange] = useState([0, 1000]);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const location = useLocation();
+  const [sortOption, setSortOption] = useState("sortby");
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
   const [isOptionOpen, setIsOptionOpen] = useState(false);
@@ -53,6 +54,7 @@ const Products = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
     };
+
 
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -144,6 +146,24 @@ const Products = () => {
     return filtered;
   };
 
+  const sortProducts = (products) => {
+    let sortedProducts = [...products];
+    if (sortOption === "name-asc") {
+      sortedProducts.sort((a, b) => a.product_name[currentLanguage].localeCompare(b.product_name[currentLanguage]));
+    } else if (sortOption === "name-desc") {
+      sortedProducts.sort((a, b) => b.product_name[currentLanguage].localeCompare(a.product_name[currentLanguage]));
+    } else if (sortOption === "price-asc") {
+      sortedProducts.sort((a, b) => a.price - b.price);
+    } else if (sortOption === "price-desc") {
+      sortedProducts.sort((a, b) => b.price - a.price);
+    }
+    return sortedProducts;
+  };
+
+  const handleSortChange = (e) => {
+    setSortOption(e.target.value);
+  };
+
   const handleCategoryChange = (categoryId) => {
     setSelectedCategories((prev) => {
       const newSelectedCategories = prev.includes(categoryId)
@@ -194,13 +214,18 @@ const Products = () => {
     }
   };
 
+  const filterAndSortProducts = () => {
+    let filtered = filterProducts();
+    return sortProducts(filtered);
+  };
+
   useEffect(() => {
-    setFilteredProduct(filterProducts());
+    setFilteredProduct(filterAndSortProducts());
     if (!isMobile) {
-      setFilteredProduct(filterProducts());
+      setFilteredProduct(filterAndSortProducts());
       setCurrentPage(1);
     }
-  }, [subcategory, selectedCategories, selectedSubcategories, selectedPriceRange, selectedOptions, products]);
+  }, [subcategory, sortOption, selectedCategories, selectedSubcategories, selectedPriceRange, selectedOptions, products]);
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
@@ -225,7 +250,10 @@ const Products = () => {
 
   return (
     <Fragment>
-      <MetaData title={"GreenVille - All Products"} />
+      <MetaData
+        title={t("allProducts")}
+        description={t("allProductsDescription")}
+      />
       {loading ? (
         <Loader />
       ) : (
@@ -551,6 +579,20 @@ const Products = () => {
                       {currentProducts.length > 0 ? (
                         <>
                           <h2 className="text-2xl font-semibold mt-2 mb-2">{t("Products")}</h2>
+                          <div className="mb-2 flex justify-end">
+                            <select
+                              id="sort"
+                              value={sortOption}
+                              onChange={handleSortChange}
+                              className="p-3 rounded-lg bg-white font-medium text-md"
+                            >
+                              <option value="default">{t('sort.sortby')}</option>
+                              <option value="name-asc">{t('sort.nameAsc')}</option>
+                              <option value="name-desc">{t('sort.nameDesc')}</option>
+                              <option value="price-asc">{t('sort.priceAsc')}</option>
+                              <option value="price-desc">{t('sort.priceDesc')}</option>
+                            </select>
+                          </div>
                           <div className={`h-auto grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 lg:gap-4 ${isFilterOpen ? "overflow-hidden" : "overflow-auto"}`}>
                             {currentProducts.map((product) => (
                               <Product key={product._id} product={product} />

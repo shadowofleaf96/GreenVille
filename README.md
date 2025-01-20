@@ -14,17 +14,179 @@ GreenVille is a bio-organic eCommerce store that offers eco-friendly products, c
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-- [Usage](#usage)
 - [Contributing](#contributing)
 
 ## Features
 
-- **User Authentication**: Secure user authentication and authorization. (Completed)
-- **Product Management**: Easily manage products, categories, subcategories. (Completed)
-- **Shopping Cart**: Intuitive shopping cart functionality for users. (Completed)
-- **Payment Integration**: Seamless integration with popular payment gateways (Cash on delivery, Paypal, Stripe). (Completed)
-- **Order Management**: Track and manage customer orders efficiently. (Completed)
-- **Responsive Design**: Mobile-friendly and responsive UI for a great user experience. (In Progress)
+### 🛒 Frontoffice (Customer-Facing Features)
+
+* **Responsive Design:** 
+    * Fully responsive user interface optimized for desktop and mobile.
+* **Global Image Optimization:**
+    * All images (products, banners, logos, etc.) are served from **Cloudinary** for optimized performance. 
+    * Cloudinary automatically handles image resizing, format conversion, and compression to ensure fast load times across all pages.
+    * Optimized images are applied across the **Product Listings**, **Product Details**, **About Page**, **Contact Page**, etc.
+* **Global SEO Optimization using Helmet:**
+    * **react-helmet** is used across all pages (Product Listings, Product Details, Contact, About, etc.) to set dynamic metadata such as titles, descriptions for SEO purposes.
+    * **SEO Title Tags and Meta Descriptions** are automatically updated based on the page content (e.g., Product Name, Categories).
+* **Product Listings:**
+    * Browse products by categories and subcategory.
+    * Advanced filtering options (price, option).
+    * Sorting Products by name and price (a to z and z to a, low to high and high to low)
+* **Product Details Page:**
+    * Detailed product descriptions (short description and product description), Translated title, Rating.
+    * Add to cart or buy immediately.
+    * Product Commentary with account name and comment.
+    * Real-time stock availability.
+* **Shopping Cart:**
+    * Add/remove items.
+    * Dynamic cart updates with price calculation.
+    * **Redux Integration:** Cart information is saved and managed using Redux, ensuring that cart state persists across page reloads and provides a seamless user experience.
+* **Checkout System:**
+    * Secure order placement.
+    * Option to save shipping address to be used later.
+    * Add option to choose shipping method
+    * **Coupon Support:** Apply discount coupons during checkout.
+    * Integration with payment gateways (Cash on Delivery, PayPal, Stripe).
+* **User Authentication:**
+    * Register, log in, and manage profiles (edit customer info, edit shipping address).
+    * Password reset functionality.
+    * Google Login integration for quick authentication.
+    * **reCAPTCHA v3 Integration:** Added to login and register forms to prevent bot attacks.
+* **Order Tracking:**
+    * View order history, detailed information, and status updates.
+    * **Review and Rating:** Submit reviews and rate products for completed orders.
+* **Search Functionality:**
+    * Search for products by name directly from the navigation bar.
+* **Contact Page:**
+    * Contact form for inquiries with validation.
+    * Embedded Google Maps showing store location(s).
+    * Company information (address, phone, email, etc.).
+* **About Page:**
+    * Dedicated page to describe the company’s mission, vision, and history.
+* **Multi-Language Support:**
+    * Languages supported: English (EN), French (FR), and Arabic (AR).
+    * Implemented using **i18n** for seamless language switching.
+
+## Admin Panel Features
+
+**🛠 Frontend**
+
+* **Dashboard**
+    * Overview of sales, orders, customers, revenues from the sales, and New Orders performance metrics.
+* **Profile**
+    * Overview of user info (Admin or Manager).
+* **Product Management**
+    * Add, edit, and delete products.
+    * Set product name, short description, and long description in 3 languages (EN, FR, AR).
+    * Manage product categories and subcategories.
+    * Upload and optimize product images with Cloudinary.
+    * Set SKU, product price, stock levels, options, and status.
+    * **Search and Filter:**
+        * Search products by name.
+        * Filter products by SKU, price, or quantity.
+        * Advanced sorting.
+* **Order Management**
+    * View all orders with detailed information (products, quantities, shipping addresses).
+    * Delete or modify customer orders.
+    * Update order shipping statuses (Not Shipped, Shipped, Delivered, In Transit).
+    * Export Order as Invoice PDF
+    * View order history for each customer.
+    * **Search and Filter:**
+        * Search orders by customer name.
+        * Filter orders by items or total price.
+        * Advanced sorting.
+* **User Management**
+    * View, add, manage, and delete internal user accounts.
+    * Assign admin roles for role-based access control.
+    * Search and filter users by name or email.
+    * Advanced sorting.
+* **Customer Management**
+    * View and edit customer details and shipping addresses.
+    * Disable or delete customer accounts.
+    * **Search and Filter:**
+        * Search customers by name.
+        * Filter by email or name.
+        * Advanced sorting.
+* **Category and Subcategory Management**
+    * Create, edit, and delete product categories/subcategories.
+    * Manage multilingual names (EN, FR, AR) and link products.
+    * Enable/disable categories and subcategories.
+    * Advanced sorting.
+* **Coupon Management**
+    * Create, edit, and delete discount coupons.
+    * Define discount percentage, expiration date, usage limit, and status.
+    * Search coupons by code with advanced sorting.
+* **Payment List Management**
+    * View, edit, and delete payments.
+    * Track payment methods (Stripe, PayPal, Cash on Delivery).
+    * Filter payments by method, total, or customer name.
+    * Advanced sorting.
+* **Review and Contact Management**
+    * Manage product reviews and customer contact form submissions.
+    * Reply to inquiries directly from the panel.
+    * Search and sort reviews/messages by name or product.
+* **Form Handling**
+    * **React Hook Form:**
+        * Manage forms for adding/editing products, categories, orders, etc.
+        * Display validation errors dynamically to users.
+    * **Data Sanitization:**
+        * Use DOMPurify to clean all user-input fields to prevent XSS attacks.
+        * Applied to product descriptions, reviews, and contact messages.
+* **Multi-Language Support**
+    * Seamless switching between EN, FR, and AR using i18n.
+
+**🖧 Backend**
+
+* **RESTful API**
+    * Built with Express.js for efficient communication between frontend and backend.
+    * **Secure Endpoints:** All endpoints require proper authentication and role-based authorization.
+* **Database**
+    * MongoDB database with models for users, products, orders, inventory, and reviews.
+* **Email Sending**
+    * **Nodemailer:** 
+        * Used for sending transactional emails (order confirmations, password resets, contact forms).
+        * Supports various email providers (Gmail, SMTP, etc.).
+        * Templates can be used for creating customized email layouts.
+* **Authentication & Authorization**
+    * **JWT-Based Authentication:**
+        * Tokens are signed with secret keys, also added middleware to verify access token in backend
+        * Secure Local Storage management.
+    * **Role-Based Access Control:**
+        * Different access levels for admins, managers, and customers.
+* **Security Features**
+    * **Input Validation:**
+        * Validate all incoming requests using JOI and Mongoose schema validation.
+        * Prevent malicious input, such as SQL injections or invalid JSON payloads.
+    * **Data Sanitization:**
+        * Use DOMPurify on the backend to clean rich text inputs from users.
+        * Strip harmful scripts from long descriptions, comments, and form submissions.
+    * **Rate Limiting:**
+        * Apply rate limits on sensitive endpoints like login and signup using express-rate-limit.
+        * Prevent brute force attacks by limiting requests from the same IP.
+    * **CORS Configuration:**
+        * Strict CORS policies to allow only whitelisted origins.
+        * Prevent unauthorized access from external domains.
+    * **Helmet:**
+        * Use helmet middleware for enhanced HTTP header security.
+    * **Password Hashing:**
+        * Passwords hashed using bcrypt before storage in the database.
+        * Secure user authentication.
+* **Error Handling**
+    * Centralized error handling middleware for consistent API responses.
+* **Third-Party Integrations**
+    * Payment gateways for secure transactions (Stripe, PayPal).
+    * Cloudinary for image storage and optimization.
+* **Deployment-Ready**
+    * Environment-based configuration for development and production.
+    * Deployed on Render or similar hosting platforms with automatic scaling.
+
+### 🚀 Future Enhancements
+- Add real-time chat support for customers.
+- Implement advanced analytics for admin insights.
+- Integrate AI-powered product recommendations.
+- Use Bun instead of Node.js
+- Android app using capacitor
 
 ## Getting Started
 
@@ -64,20 +226,38 @@ Make sure you have the following installed on your machine:
    npm install
    ```
 
-5. Create a `.env` file in the project root and configure your environment variables:
+5. Create a `.env` files in the project root and configure your environment variables:
 
-   ```env
-   VITE_PORT = 3000
-   VITE_SECRETKEY = your token secret key
-   VITE_REFRESHSECRETLEY = your refresh token secret token
-   VITE_STMPHOST = Mailtrap host
-   VITE_STMPUSER = Mailtrap username
-   VITE_URLFRONTEND = localhost:5173 
-   VITE_URLBACKEND = localhost:3000
-   VITE_STMPASS = Mailtrap password
-   VITE_SENDER = your email
-   VITE_EXPIRATIONDATE = 120000 (you can change this)
-   VITE_MONGOOSE = MongoDB atlas db link
+   ```env client
+    VITE_BACKEND_URL = your backend url
+    VITE_PAYPAL_CLIENT_ID = Paypal client id
+    VITE_PAYPAL_SECRET_KEY = Paypal Secret key
+    VITE_STRIPE_PUBLISHABLE_KEY = Stripe publishable key
+    VITE_GOOGLE_API_KEY = google api key
+    VITE_GOOGLE_CLIENT_ID = google client id
+    VITE_CAPTCHA_SITE_KEY= captcha site key
+   ```
+
+      ```env server
+    EXPIRATIONDATE = token expiration date
+    MONGOOSE = mongodb url
+    PORT = server port
+    REFRESHSECRETLEY = refresh token secret code
+    SECRETKEY = access token secret code
+    STRIPE_PRIVATE_KEY = stripe private key
+    STRIPE_PUBLIC_KEY = stripe public key
+    GOOGLE_CLIENT_ID = google client id for login
+    FRONTEND_URL = frontend url (localhost:5173 for local)
+    BACKEND_URL = backend url (localhost:3000 for local)
+    EMAIL_HOST= stmp host           
+    EMAIL_PORT=587 or 465
+    EMAIL_USER= stmp username
+    EMAIL_PASS= stmp password
+    EMAIL_FROM="GreenVille <contact email>"
+    CLOUDINARY_CLOUD_NAME= cloudinary cloud name
+    CLOUDINARY_API_KEY= cloudinary api key 
+    CLOUDINARY_API_SECRET= cloudinary api secret
+    CAPTCHA_SECRET_KEY= cloudinary api secret key
    ```
 
 6. Start the development server:
@@ -89,20 +269,6 @@ Make sure you have the following installed on your machine:
    cd server
    npx nodemon
    ```
-   
-## Usage
-Client:
-1. **Create an Account**: Register for a new account on the GreenVille website.
-2. **Explore Products**: Browse through the available products and categories.
-3. **Add to Cart**: Add desired products to your shopping cart.
-4. **Proceed to Checkout**: Complete the purchase by providing necessary details.
-5. **Manage Orders**: View and manage your order history.
-Admin:
-1. **Analytics**: See sales and revenues data through dashboard.
-2. **Add Products**: Add Product from the admin menu.
-3. **Add Users**: Add admins or managers.
-4. **Add Categories and Subcategories**: Add Categories and Subcategories.
-5. **Edit and remove existant Infos**: .
 
 ## Contributing
 

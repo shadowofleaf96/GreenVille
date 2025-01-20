@@ -7,22 +7,22 @@ const Category = () => {
 
   const categories = [
     {
-      image: "https://images.unsplash.com/photo-1563865436874-9aef32095fad?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      image: "https://res.cloudinary.com/donffivrz/image/upload/c_scale,w_400,q_auto,f_auto/v1/greenville/03929db4ade075a1f1108d6d234cefec",
       title: t("Vegetables"),
       _id: "655c721c82ea0f3d8fc1db2d",
     },
     {
-      image: "https://i.pinimg.com/564x/a6/d4/71/a6d4719eec4b10f3c0dc3fc0fae7cc3b.jpg",
+      image: "https://res.cloudinary.com/donffivrz/image/upload/c_scale,w_400,q_auto,f_auto/v1/greenville/b4c743a7cb116e8ef87629ca7e8f41e7",
       title: t("MakeupAccessories"),
       _id: "655c6d0682ea0f3d8fc1db03",
     },
     {
-      image: "https://i.pinimg.com/564x/b1/0b/35/b10b35415eda92e675002e12cc9ab769.jpg",
+      image: "https://res.cloudinary.com/donffivrz/image/upload/c_scale,w_400,q_auto,f_auto/v1/greenville/a112987bf27a8fecac3ed125243a064b",
       title: t("EggsMilk"),
       _id: "6570cd56e4122425be4b73e9",
     },
     {
-      image: "https://i.pinimg.com/564x/88/36/d9/8836d903f33c8fc7eb4153e59ac9ef01.jpg",
+      image: "https://res.cloudinary.com/donffivrz/image/upload/c_scale,w_400,q_auto,f_auto/v1/greenville/e0760715d1923ecb31222fad2661a6f3",
       title: t("Honeys"),
       _id: "655c6e8d82ea0f3d8fc1db0f",
     },

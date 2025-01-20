@@ -10,6 +10,7 @@ import MetaData from "../../components/MetaData";
 import createAxiosInstance from "../../../utils/axiosConfig";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from 'react-i18next';
+import optimizeImage from "../../components/optimizeImage";
 
 const backend = import.meta.env.VITE_BACKEND_URL;
 
@@ -91,7 +92,6 @@ const SingleProduct = () => {
       alert(t("Please enter a valid comment"));
       return;
     }
-    console.log("Comment submitted:", commentary);
     setCommentary("");
   };
 
@@ -103,12 +103,12 @@ const SingleProduct = () => {
 
   return (
     <Fragment>
-      <MetaData title={t("product_details")} />
+      <MetaData title={product?.product_name[currentLanguage]} />
       <div className="w-full h-auto flex flex-col items-center justify-center p-8 my-6">
         {loading ? (
           <Loader />
         ) : (
-          <div className="flex flex-col items-center justify-center">
+          <div className="flex container flex-col items-center justify-center">
             <div className="flex flex-col lg:flex-row items-center justify-center gap-8 w-full max-w-5xl">
               {product ? (
                 <>
@@ -126,7 +126,7 @@ const SingleProduct = () => {
                                 duration: 0.5,
                                 ease: "easeInOut",
                               }}
-                              src={selectedImage}
+                              src={optimizeImage(selectedImage, 600)}
                               alt={t("selected_product")}
                               className="object-contain w-full h-[200px] sm:h-[250px]"
                             />
@@ -140,7 +140,7 @@ const SingleProduct = () => {
                         product.product_images.map((image, index) => (
                           <img
                             key={index}
-                            src={`${image}`}
+                            src={`${optimizeImage(image, 60)}`}
                             alt={`${t("product_image")} ${index + 1}`}
                             className={`w-10 h-10 md:w-12 md:h-12 object-contain cursor-pointer border-2 border-gray-300 rounded-lg hover:border-green-500 ${currentIndex === index ? 'border-green-500' : ''
                               }`}
@@ -152,7 +152,7 @@ const SingleProduct = () => {
                         ))
                       ) : (
                         <img
-                          src={`${product.product_images}`}
+                          src={`${optimizeImage(product.product_images, 60)}`}
                           alt={t("main_product")}
                           className={`w-14 h-14 object-contain cursor-pointer border-2 shadow-lg border-gray-300 rounded-lg hover:border-green-500 ${currentIndex === 0 ? 'border-green-500' : ''}`} // Highlight selected image
                           onClick={() => {
@@ -272,8 +272,8 @@ const SingleProduct = () => {
               </div>
 
               {activeTab === "description" && (
-                <div className="mt-6">
-                  <p className="text-gray-700 text-lg flex items-center justify-center min-h-48">{product?.long_description[currentLanguage]}</p>
+                <div className="mt-6 bg-gray-200 p-4 rounded-lg shadow-sm min-h-72 md:min-h-48">
+                  <p className="text-gray-700 text-lg flex items-center">{product?.long_description[currentLanguage]}</p>
                 </div>
               )}
               {activeTab === "commentary" && (
@@ -283,11 +283,11 @@ const SingleProduct = () => {
                       <p className="text-gray-700 text-center">{t("noReviews")}</p>
                     </div>
                   ) : (
-                    <div className="space-y-6">
+                    <div className="space-y-6 min-h-48">
                       {reviews.map((review) => (
                         <div
                           key={review._id}
-                          className="bg-gray-100 p-4 rounded-lg shadow-sm flex items-center justify-center min-h-48"
+                          className="bg-gray-200 p-4 rounded-lg shadow-sm flex flex-col"
                         >
                           <div className="flex items-center space-x-4">
                             <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">

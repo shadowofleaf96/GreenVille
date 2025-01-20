@@ -26,7 +26,7 @@ const CTA2 = () => {
                             </p>
                             <div className="mt-6 text-base">
                                 <Link
-                                    to="/products"
+                                    to="/products/655c721c82ea0f3d8fc1db2d"
                                     className="font-semibold text-[#8DC63F]"
                                 >
                                     {t("cta2_link")}<span aria-hidden="true"> &rarr;</span>
@@ -38,14 +38,14 @@ const CTA2 = () => {
                             <div className="flex-shrink-0">
                                 <img
                                     className="h-64 w-64 rounded-lg object-contain md:h-72 md:w-72"
-                                    src="https://res.cloudinary.com/donffivrz/image/upload/v1735078577/0bca71897aa053232e6c77888dbd8b95.png"
+                                    src="https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/0bca71897aa053232e6c77888dbd8b95"
                                     alt="Fresh Vegetables"
                                 />
                             </div>
                             <div className="flex-shrink-0">
                                 <img
                                     className="h-64 w-64 rounded-lg object-contain md:h-72 md:w-72"
-                                    src="https://res.cloudinary.com/donffivrz/image/upload/v1735078796/b642bedbad44c86730a61fe43340f1c2.png"
+                                    src="https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/b642bedbad44c86730a61fe43340f1c2"
                                     alt="Fresh Vegetables"
                                 />
                             </div>

@@ -15,7 +15,7 @@ import { Autoplay, Pagination, Navigation, EffectFade } from "swiper/modules";
 const slidesData = [
   {
     id: 1,
-    image: "../../../../../assets/swiper1.webp",
+    image: "https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/public/images/5abad3e4c5ae1384ec8069cfd9908b72",
     titleKey: "slider.slide1.title",
     subtitleKey: "slider.slide1.subtitle",
     descriptionKey: "slider.slide1.description",
@@ -24,7 +24,7 @@ const slidesData = [
   },
   {
     id: 2,
-    image: "../../../../../assets/swiper2.webp",
+    image: "https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/public/images/7ab333861bbc00e07cd2f5f056593b84",
     titleKey: "slider.slide2.title",
     subtitleKey: "slider.slide2.subtitle",
     descriptionKey: "slider.slide2.description",
@@ -33,7 +33,7 @@ const slidesData = [
   },
   {
     id: 3,
-    image: "../../../../../assets/swiper3.webp",
+    image: "https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/public/images/bcaa0b503122b27a955ee8e87cc7e6c2",
     titleKey: "slider.slide3.title",
     subtitleKey: "slider.slide3.subtitle",
     descriptionKey: "slider.slide3.description",
@@ -88,15 +88,14 @@ const Banner = () => {
                     <p className="text-white text-sm md:text-lg mb-28 md:mb-20">
                       {t(slide.descriptionKey)}
                     </p>
-                    <button className="flex bg-[#8DC63F] text-white py-2 md:py-3 px-6 md:px-8 rounded-md justify-center items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 mx-auto md:mx-0">
-                      <Link to={slide.link}>{t(slide.buttonTextKey)}</Link>
+                    <Link className="flex bg-[#8DC63F] w-56 sm:w-64 md:w-80 text-white py-2 md:py-3 px-6 md:px-8 rounded-md justify-center items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 mx-auto md:mx-0" to="/products">{t(slide.buttonTextKey)}
                       <Iconify
                         icon="ep:right"
                         width={20}
                         height={20}
                         className="ml-2 rtl:rotate-180 rtl:mr-2"
                       />
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>

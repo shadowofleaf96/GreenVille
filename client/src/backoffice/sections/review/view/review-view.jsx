@@ -165,8 +165,6 @@ export default function ReviewView() {
   };
 
   const handleSaveEditedReview = async (editedReview) => {
-    console.log('Edited Review before API call:', editedReview);
-
     setLoadingDelete(true);
     try {
       const response = await axiosInstance.put(

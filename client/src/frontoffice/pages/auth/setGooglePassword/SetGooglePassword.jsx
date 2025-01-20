@@ -4,10 +4,11 @@ import { TextField, Paper, Typography } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { useNavigate, useLocation } from "react-router-dom";
 import DOMPurify from "dompurify";
+import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import createAxiosInstance from "../../../../utils/axiosConfig";
-import Logo from "../../../components/logo";
+import Logo from "../../../../backoffice/components/logo";
 
 const SetGooglePassword = () => {
   const { t } = useTranslation();

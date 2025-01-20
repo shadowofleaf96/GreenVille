@@ -227,6 +227,7 @@ export default function ProductPage() {
 
       const index = data.findIndex((product) => product._id === editedProduct._id);
 
+
       if (index !== -1) {
         const updatedProducts = [...data];
         updatedProducts[index] = {
@@ -344,7 +345,7 @@ export default function ProductPage() {
         short_description: newProduct.short_description,
         long_description: newProduct.long_description,
         subcategory_id: newProduct.subcategory_id,
-        subcategory: newProduct.subcategory,
+        subcategory: productdata.subcategory,
         price: newProduct.price,
         discount_price: newProduct.discount_price,
         quantity: newProduct.quantity,

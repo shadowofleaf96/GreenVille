@@ -111,7 +111,7 @@ const createStripePayment = async (req, res) => {
       clientSecret: paymentIntent.client_secret,
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).send({ error: "Payment failed" });
   }
 };

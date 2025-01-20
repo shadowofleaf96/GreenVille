@@ -5,7 +5,7 @@ const reviewController = require("../controllers/reviewController");
 
 router.post("/", verifyToken, reviewController.createReview);
 
-router.get("/:id", verifyToken, reviewController.getProductReviews);
+router.get("/:id", reviewController.getProductReviews);
 
 router.get("/", verifyToken, reviewController.getAllReviews);
 

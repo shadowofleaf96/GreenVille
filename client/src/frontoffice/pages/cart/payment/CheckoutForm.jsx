@@ -26,18 +26,6 @@ const CheckoutForm = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const itemsPrice = cartItems.reduce((acc, item) => acc + item.discountPrice * item.quantity, 0);
-
-    let shippingPrice = 30;
-    const taxPrice = Number((0.20 * itemsPrice).toFixed(2));
-    let discountedTotal
-    if (coupon) {
-        discountedTotal = itemsPrice - (itemsPrice * coupon.discount) / 100;
-    } else {
-        discountedTotal = itemsPrice;
-    }
-    const totalPrice = (discountedTotal + shippingPrice + taxPrice).toFixed(2);
-
     useEffect(() => {
         if (!stripe) {
             return;
@@ -64,6 +52,7 @@ const CheckoutForm = () => {
                 street: shippingInfo.address,
                 city: shippingInfo.city,
                 postal_code: shippingInfo.postalCode,
+                phone_no: shippingInfo.phoneNo,
                 country: shippingInfo.country,
                 state: shippingInfo.state || "",
             };
@@ -74,15 +63,17 @@ const CheckoutForm = () => {
                     quantity: item.quantity,
                     price: item.discountPrice
                 })),
-                cart_total_price: totalPrice,
+                tax: shippingInfo.taxPrice,
                 order_date: new Date(),
                 shipping_address,
-                shipping_method: "standard",
+                coupon_discount: Number(shippingInfo?.discountedPrice) || 0,
+                shipping_price: shippingInfo.shippingPrice,
+                cart_total_price: shippingInfo.totalPrice,
+                shipping_method: shippingInfo.shippingMethod,
                 shipping_status: "not_shipped",
-                order_notes: "testing for now",
+                order_notes: "Your order is being processed with care. We will notify you once it's ready for shipment.",
                 status: "processing",
             };
-
             const orderResponse = await axiosInstance.post("/orders", orderData);
 
             return orderResponse.data.order._id;
@@ -111,13 +102,13 @@ const CheckoutForm = () => {
 
 
             if (error && (error.type === "card_error" || error.type === "validation_error")) {
-                console.log(error.message);
+                console.error(error.message);
             }
 
             if (paymentIntent.status === "succeeded") {
                 const paymentData = {
                     order_id: orderId,
-                    amount: totalPrice,
+                    amount: shippingInfo?.totalPrice,
                     paymentMethod: "credit_card",
                     paymentStatus: "completed",
                     currency: "mad"

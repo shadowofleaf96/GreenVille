@@ -8,6 +8,7 @@ import Iconify from "../../../../backoffice/components/iconify";
 import MetaData from "../../../components/MetaData";
 import { useTranslation } from "react-i18next";
 import Review from "../../review/Review";
+import optimizeImage from "../../../components/optimizeImage";
 
 const backend = import.meta.env.VITE_BACKEND_URL;
 
@@ -122,7 +123,7 @@ const MyOrders = () => {
                                                                         >
                                                                             <img
                                                                                 className="w-12 h-12 object-contain"
-                                                                                src={typeof item?.product.product_images === "string" ? `${item?.product.product_images}` : `${item?.product.product_images[0]}`}
+                                                                                src={typeof item?.product.product_images === "string" ? `${optimizeImage(item?.product.product_images, 60)}` : `${optimizeImage(item?.product.product_images[0], 60)}`}
                                                                                 alt={item.product.product_name[currentLanguage]}
                                                                             />
                                                                             <p className="text-gray-700 font-medium text-xs md:text-sm text-right">{item.product.product_name[currentLanguage]}</p>
@@ -130,8 +131,8 @@ const MyOrders = () => {
                                                                             <p className="font-semibold text-gray-700 text-justify text-xs lg:text-sm">{item.price} DH</p>
 
                                                                             <button
-                                                                                className={`px-2 py-2 md:px-4 md:py-2 mt-2 flex items-center justify-center text-white text-xs md:text-sm rounded-md ${!order.is_review_allowed ? "bg-gray-400 cursor-not-allowed" : "bg-[#8DC63F] shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"}`}
-                                                                                disabled={!order.is_review_allowed}
+                                                                                className={`px-2 py-2 md:px-4 md:py-2 mt-2 flex items-center justify-center text-white text-xs md:text-sm rounded-md ${!order.is_review_allowed || item.reviewed ? "bg-gray-400 cursor-not-allowed" : "bg-[#8DC63F] shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"}`}
+                                                                                disabled={!order.is_review_allowed || item.reviewed}
                                                                                 onClick={() =>
                                                                                     handleLeaveReview(item.product._id, order.order_date, order.customer._id)
                                                                                 }
@@ -145,7 +146,7 @@ const MyOrders = () => {
 
                                                                                 </Iconify>
                                                                                 <span className="hidden md:block">
-                                                                                    {!order.is_review_allowed ? t("reviewClosed") : t("leaveReview")}
+                                                                                    {!order.is_review_allowed || item.reviewed ? t("reviewClosed") : t("leaveReview")}
                                                                                 </span>
                                                                             </button>
                                                                         </div>
