@@ -9,17 +9,19 @@ import { useTranslation } from 'react-i18next';
 // ----------------------------------------------------------------------
 
 export default function App() {
-  const { i18n } = useTranslation(); 
+  const { i18n } = useTranslation();
 
   useScrollToTop();
 
   useEffect(() => {
     document.documentElement.setAttribute('dir', i18n.language === 'ar' ? 'rtl' : 'ltr');
   }, [i18n.language]);
-  
+
   return (
-    <ThemeProvider>
-      <Router />
-    </ThemeProvider>
+    <div style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <ThemeProvider>
+        <Router />
+      </ThemeProvider>
+    </div>
   );
 }
