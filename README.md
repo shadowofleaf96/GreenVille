@@ -22,60 +22,48 @@ GreenVille is a bio-organic eCommerce store that offers eco-friendly products, c
 
 * **Responsive Design:** 
     * Fully responsive user interface optimized for desktop and mobile.
-
 * **Global Image Optimization:**
     * All images (products, banners, logos, etc.) are served from **Cloudinary** for optimized performance. 
     * Cloudinary automatically handles image resizing, format conversion, and compression to ensure fast load times across all pages.
     * Optimized images are applied across the **Product Listings**, **Product Details**, **About Page**, **Contact Page**, etc.
-
 * **Global SEO Optimization using Helmet:**
     * **react-helmet** is used across all pages (Product Listings, Product Details, Contact, About, etc.) to set dynamic metadata such as titles, descriptions for SEO purposes.
     * **SEO Title Tags and Meta Descriptions** are automatically updated based on the page content (e.g., Product Name, Categories).
-
 * **Product Listings:**
     * Browse products by categories and subcategory.
     * Advanced filtering options (price, option).
     * Sorting Products by name and price (a to z and z to a, low to high and high to low)
-
 * **Product Details Page:**
     * Detailed product descriptions (short description and product description), Translated title, Rating.
     * Add to cart or buy immediately.
     * Product Commentary with account name and comment.
     * Real-time stock availability.
-
 * **Shopping Cart:**
     * Add/remove items.
     * Dynamic cart updates with price calculation.
     * **Redux Integration:** Cart information is saved and managed using Redux, ensuring that cart state persists across page reloads and provides a seamless user experience.
-
 * **Checkout System:**
     * Secure order placement.
     * Option to save shipping address to be used later.
     * Add option to choose shipping method
     * **Coupon Support:** Apply discount coupons during checkout.
     * Integration with payment gateways (Cash on Delivery, PayPal, Stripe).
-
 * **User Authentication:**
     * Register, log in, and manage profiles (edit customer info, edit shipping address).
     * Password reset functionality.
     * Google Login integration for quick authentication.
     * **reCAPTCHA v3 Integration:** Added to login and register forms to prevent bot attacks.
-
 * **Order Tracking:**
     * View order history, detailed information, and status updates.
     * **Review and Rating:** Submit reviews and rate products for completed orders.
-
 * **Search Functionality:**
     * Search for products by name directly from the navigation bar.
-
 * **Contact Page:**
     * Contact form for inquiries with validation.
     * Embedded Google Maps showing store location(s).
     * Company information (address, phone, email, etc.).
-
 * **About Page:**
     * Dedicated page to describe the company’s mission, vision, and history.
-
 * **Multi-Language Support:**
     * Languages supported: English (EN), French (FR), and Arabic (AR).
     * Implemented using **i18n** for seamless language switching.

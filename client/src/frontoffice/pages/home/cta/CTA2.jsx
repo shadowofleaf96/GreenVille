@@ -26,7 +26,7 @@ const CTA2 = () => {
                             </p>
                             <div className="mt-6 text-base">
                                 <Link
-                                    to="/products"
+                                    to="/products/655c721c82ea0f3d8fc1db2d"
                                     className="font-semibold text-[#8DC63F]"
                                 >
                                     {t("cta2_link")}<span aria-hidden="true"> &rarr;</span>
