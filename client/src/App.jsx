@@ -4,8 +4,6 @@ import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import Router from '../src/routes/sections';
 import ThemeProvider from '../src/theme';
 import { useTranslation } from 'react-i18next';
-
-
 // ----------------------------------------------------------------------
 
 export default function App() {
@@ -18,10 +16,8 @@ export default function App() {
   }, [i18n.language]);
 
   return (
-    <div style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-      <ThemeProvider>
-        <Router />
-      </ThemeProvider>
-    </div>
+    <ThemeProvider>
+      <Router />
+    </ThemeProvider>
   );
 }

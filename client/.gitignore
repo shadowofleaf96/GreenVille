@@ -9,10 +9,6 @@ lerna-debug.log*
 .env
 
 node_modules
-ios
-android
-client/ios
-client/android
 dist
 dist-ssr
 *.local
@@ -27,3 +23,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+resources/ios/**/*
+resources/android/**/*
