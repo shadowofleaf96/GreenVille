@@ -205,13 +205,13 @@ const Navbar = () => {
       {toggle && (
         <>
           <div
-            className="fixed inset-0 bg-black opacity-60 z-40"
+            className="fixed inset-0 bg-black opacity-60 z-100"
             onClick={() => setToggle(false)}
           />
 
           <motion.div
-            className="fixed top-0 right-0 bottom-0 w-1/3 bg-white shadow-md z-50 p-6"
-            whileInView={{ x: [140, 0] }}
+            className="fixed top-0 right-0 bottom-0 w-1/3 bg-white shadow-md z-100 p-6"
+            whileInView={{ x: [100, 0] }}
             transition={{ duration: 0.85, ease: "easeOut" }}
           >
             <div className="flex justify-end">
