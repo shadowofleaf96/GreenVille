@@ -118,7 +118,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 			exit_app(context);
 		} else {
 			if (tab) {
-				if (SmartWebView.ASWP_TAB) {
+				if (SmartWebView.TAB) {
 					CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
 					intentBuilder.setStartAnimations(context.getApplicationContext(), android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 					intentBuilder.setExitAnimations(context.getApplicationContext(), android.R.anim.slide_in_left, android.R.anim.slide_out_right);
@@ -138,7 +138,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 			} else {
 				// Check to see whether the url already has query parameters and handle appropriately
 				url = url + (url.contains("?") ? "&" : "?") + "rid=" + random_id();
-				SmartWebView.asw_view.loadUrl(url);
+				SmartWebView.view.loadUrl(url);
 			}
 		}
 	}
@@ -150,14 +150,14 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 	}
 
 	// Get data from webview DOM field
-	public Object swv_get(String fieldName) throws NoSuchFieldException, IllegalAccessException {
+	public Object get(String fieldName) throws NoSuchFieldException, IllegalAccessException {
 		Field field = getClass().getDeclaredField(fieldName);
 		field.setAccessible(true);
 		return field.get(this);
 	}
 
 	// Set data to webview DOM field
-	public boolean swv_set(String fieldName, Object value) {
+	public boolean set(String fieldName, Object value) {
 		try {
 			Field field = getClass().getDeclaredField(fieldName);
 			field.setAccessible(true);
@@ -175,14 +175,14 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 		Context context = activity.getApplicationContext();
 
 		// Show toast error if not connected to the network
-		if (!SmartWebView.ASWP_OFFLINE && !isInternetAvailable(context)) {
+		if (!SmartWebView.OFFLINE && !isInternetAvailable(context)) {
 			Toast.makeText(context, context.getString(R.string.check_connection), Toast.LENGTH_SHORT).show();
 
 		// Redirect back to default URL :: refresh:android
 		} else if (url.startsWith("refresh:")) {
 			String ref_sch = (Uri.parse(url).toString()).replace("refresh:", "");
 			if (ref_sch.matches("URL")) {
-				SmartWebView.CURR_URL = SmartWebView.ASWV_URL;
+				SmartWebView.CURR_URL = SmartWebView.URL;
 			}
 			pull_fresh(context);
 
@@ -215,9 +215,9 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 		// Getting location for offline files
 		} else if (url.startsWith("getloc:")) {
 			String[] loc = get_location(context).split(",");
-			push_js(SmartWebView.asw_view, "fetch-loc", "<br><b>Latitude: "+loc[0]+"<br>Longitude: "+loc[1]+"</b>");
+			push_js(SmartWebView.view, "fetch-loc", "<br><b>Latitude: "+loc[0]+"<br>Longitude: "+loc[1]+"</b>");
 
-			if(SmartWebView.SWV_DEBUGMODE) {
+			if(SmartWebView.DEBUGMODE) {
 				Log.d("SLOG_OFFLINE_LOC_REQ", loc[0]+","+loc[1]);
 			}
 
@@ -254,20 +254,20 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 				body = "This is a test notification from Smart WebView.";
 			}
 			if (nuri == null || nuri.isEmpty()) {
-				nuri = SmartWebView.ASWV_URL;
+				nuri = SmartWebView.URL;
 			}
 
 			if(check_permission(4, context)) {
 				// Send the notification
 				Firebase firebase = new Firebase();
-				firebase.sendMyNotification(title, body, "OPEN_URI", nuri, null, String.valueOf(SmartWebView.ASWV_FCM_ID), context);
+				firebase.sendMyNotification(title, body, "OPEN_URI", nuri, null, String.valueOf(SmartWebView.FCM_ID), context);
 			}else{
 				get_permissions(4, activity);
 			}
 
 		// Opening external URLs in android default web browser
-		} else if (SmartWebView.ASWP_EXTURL && !aswm_host(url).equals(SmartWebView.ASWV_HOST) && !SmartWebView.ASWV_EXC_LIST.contains(aswm_host(url))) {
-			aswm_view(url, true, SmartWebView.asw_error_counter, context);
+		} else if (SmartWebView.EXTURL && !aswm_host(url).equals(SmartWebView.HOST) && !SmartWebView.EXC_LIST.contains(aswm_host(url))) {
+			aswm_view(url, true, SmartWebView.error_counter, context);
 
 		// Setting device orientation on request
 		} else if (url.startsWith("orient:")) {
@@ -301,7 +301,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 
 	// Reloading current page
 	public void pull_fresh(Context context) {
-		aswm_view((!SmartWebView.CURR_URL.isEmpty() ? SmartWebView.CURR_URL : SmartWebView.ASWV_URL), false, SmartWebView.asw_error_counter, context);
+		aswm_view((!SmartWebView.CURR_URL.isEmpty() ? SmartWebView.CURR_URL : SmartWebView.URL), false, SmartWebView.error_counter, context);
 	}
 
 	// Changing port view
@@ -313,7 +313,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 			} else if (orientation == 2) {
 				activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 			} else if (orientation == 5) { //experimental switch
-				SmartWebView.ASWV_ORIENTATION = (SmartWebView.ASWV_ORIENTATION == 1 ? 2 : 1);
+				SmartWebView.ORIENTATION = (SmartWebView.ORIENTATION == 1 ? 2 : 1);
 			} else {
 				activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 			}
@@ -329,9 +329,9 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 			// Cookie manager initialisation
 			SmartWebView.cookie_manager = CookieManager.getInstance();
 			SmartWebView.cookie_manager.setAcceptCookie(true);
-			SmartWebView.cookie_manager.setCookie(SmartWebView.ASWV_URL, data);
-			if(SmartWebView.SWV_DEBUGMODE) {
-				Log.d("SLOG_COOKIES", SmartWebView.cookie_manager.getCookie(SmartWebView.ASWV_URL));
+			SmartWebView.cookie_manager.setCookie(SmartWebView.URL, data);
+			if(SmartWebView.DEBUGMODE) {
+				Log.d("SLOG_COOKIES", SmartWebView.cookie_manager.getCookie(SmartWebView.URL));
 			}
 		}
 	}
@@ -355,7 +355,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 		String new_loc = "0,0";
 
 		// Check for the user's preference
-		if (!SmartWebView.ASWP_LOCATION) {
+		if (!SmartWebView.LOCATION) {
 			Log.d("SmartWebView", "Location access is disabled by the user.");
 			return new_loc; // Or return a message indicating location is disabled
 		}
@@ -374,11 +374,11 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 						set_cookie("LATLANG=" + latitude + "x" + longitude);
 					}
 					new_loc = latitude + "," + longitude;
-					if (SmartWebView.SWV_DEBUGMODE) {
+					if (SmartWebView.DEBUGMODE) {
 						Log.d("SLOG_NEW_LOCATION", new_loc);
 					}
 				} else {
-					if (SmartWebView.SWV_DEBUGMODE) {
+					if (SmartWebView.DEBUGMODE) {
 						Log.d("SLOG_UPDATED_LOCATION", "NULL");
 					}
 				}
@@ -401,7 +401,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 		String value = "";
 		if(SmartWebView.true_online) {
 			SmartWebView.cookie_manager = CookieManager.getInstance();
-			String cookies = SmartWebView.cookie_manager.getCookie(SmartWebView.ASWV_URL);
+			String cookies = SmartWebView.cookie_manager.getCookie(SmartWebView.URL);
 			if (cookies !=null && !cookies.isEmpty()) {
 				String[] temp = cookies.split(";");
 				for (String ar1 : temp) {
@@ -413,7 +413,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 				}
 			}else{
 				value = "";
-				if(SmartWebView.SWV_DEBUGMODE) {
+				if(SmartWebView.DEBUGMODE) {
 					Log.d("SLOG_COOKIES", "Cookies either NULL or Empty");
 				}
 			}
@@ -449,7 +449,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 			public boolean onQueryTextSubmit(String query) {
 				searchView.clearFocus();
-				aswm_view(SmartWebView.ASWV_SEARCH + query, false, SmartWebView.asw_error_counter, context.getApplicationContext());
+				aswm_view(SmartWebView.SEARCH + query, false, SmartWebView.error_counter, context.getApplicationContext());
 				searchView.setQuery(query, false);
 				return false;
 			}
@@ -458,7 +458,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 				return false;
 			}
 		});
-		//searchView.setQuery(SmartWebView.asw_view.getUrl(),false);
+		//searchView.setQuery(SmartWebView.view.getUrl(),false);
 		return true;
 	}
 
@@ -476,19 +476,19 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 	public boolean onNavigationItemSelected(MenuItem item, Context context) {
 		int id = item.getItemId();
 		if (id == R.id.nav_home) {
-			aswm_view("file:///android_asset/offline.html", false, SmartWebView.asw_error_counter, context);
+			aswm_view("file:///android_asset/offline.html", false, SmartWebView.error_counter, context);
 		} else if (id == R.id.nav_doc) {
-			aswm_view("https://github.com/mgks/Android-SmartWebView/tree/master/documentation", false, SmartWebView.asw_error_counter, context);
+			aswm_view("https://github.com/mgks/Android-SmartWebView/tree/master/documentation", false, SmartWebView.error_counter, context);
 		} else if (id == R.id.nav_fcm) {
-			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/fcm.md", false, SmartWebView.asw_error_counter, context);
+			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/fcm.md", false, SmartWebView.error_counter, context);
 		} else if (id == R.id.nav_admob) {
-			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/admob.md", false, SmartWebView.asw_error_counter, context);
+			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/admob.md", false, SmartWebView.error_counter, context);
 		} else if (id == R.id.nav_gps) {
-			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/gps.md", false, SmartWebView.asw_error_counter, context);
+			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/gps.md", false, SmartWebView.error_counter, context);
 		} else if (id == R.id.nav_share) {
-			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/share.md", false, SmartWebView.asw_error_counter, context);
+			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/share.md", false, SmartWebView.error_counter, context);
 		} else if (id == R.id.nav_lay) {
-			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/layout.md", false, SmartWebView.asw_error_counter, context);
+			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/layout.md", false, SmartWebView.error_counter, context);
 		} else if (id == R.id.nav_support) {
 			Intent intent = new Intent(Intent.ACTION_SENDTO);
 			intent.setData(Uri.parse("mailto:hello@mgks.dev"));
@@ -510,15 +510,15 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 	public void fcm_token(final TokenCallback callback) {
 		FirebaseMessaging.getInstance().getToken()
 			.addOnSuccessListener(token -> {
-				if (!SmartWebView.ASWP_OFFLINE) {
+				if (!SmartWebView.OFFLINE) {
 					set_cookie("FCM_TOKEN=" + token);
-					if (SmartWebView.SWV_DEBUGMODE) {
+					if (SmartWebView.DEBUGMODE) {
 						Log.d("SLOG_FCM_BAKED", "YES");
-						Log.d("SLOG_COOKIES", get_cookies(SmartWebView.ASWV_URL));
+						Log.d("SLOG_COOKIES", get_cookies(SmartWebView.URL));
 					}
 				}
 				SmartWebView.fcm_token = token;
-				if (SmartWebView.SWV_DEBUGMODE) {
+				if (SmartWebView.DEBUGMODE) {
 					Log.d("SLOG_REQ_FCM_TOKEN", token);
 				}
 				callback.onTokenReceived(token); // Pass token to callback
@@ -579,9 +579,9 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 	public Runnable get_rating(Context context) {
 		if (isInternetAvailable(context)) {
 			AppRate.with(context)
-				.setInstallDays(SmartWebView.ASWR_DAYS)
-				.setLaunchTimes(SmartWebView.ASWR_TIMES)
-				.setRemindInterval(SmartWebView.ASWR_INTERVAL)
+				.setInstallDays(SmartWebView.DAYS)
+				.setLaunchTimes(SmartWebView.TIMES)
+				.setRemindInterval(SmartWebView.INTERVAL)
 				.setTitle(R.string.rate_dialog_title)
 				.setMessage(R.string.rate_dialog_message)
 				.setTextLater(R.string.rate_dialog_cancel)
@@ -598,7 +598,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 		long when = System.currentTimeMillis();
 		String cont_title = "", cont_text = "", cont_desc = "";
 
-		SmartWebView.asw_notification = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		SmartWebView.notification = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		Intent i = new Intent();
 		if (type == 1) {
 			i.setClass(context, MainActivity.class);
@@ -644,8 +644,8 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 		builder.setAutoCancel(true);
 		builder.setWhen(when);
 		builder.setContentIntent(pendingIntent);
-		SmartWebView.asw_notification_new = builder.build();
-		SmartWebView.asw_notification.notify(id, SmartWebView.asw_notification_new);
+		SmartWebView.notification_new = builder.build();
+		SmartWebView.notification.notify(id, SmartWebView.notification_new);
 	}
 
 	// Exit app

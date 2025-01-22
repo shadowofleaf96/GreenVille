@@ -19,7 +19,7 @@
 		android:layout_height="match_parent" />
 
 	<RelativeLayout
-		android:id="@+id/msw_welcome"
+		android:id="@+id/welcome"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_alignParentLeft="true"
@@ -31,7 +31,7 @@
 		tools:ignore="RtlHardcoded">
 
 		<ImageView
-			android:id="@+id/msw_logo"
+			android:id="@+id/logo"
 			android:layout_width="275dip"
 			android:layout_height="100dip"
 			android:layout_centerHorizontal="true"
@@ -42,12 +42,12 @@
 			android:src="@raw/front_splash" />
 
 		<TextView
-			android:id="@+id/msw_loading_text"
+			android:id="@+id/loading_text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true"
 			android:layout_alignParentStart="true"
-			android:layout_below="@+id/msw_logo"
+			android:layout_below="@+id/logo"
 			android:layout_marginTop="26dp"
 			android:gravity="center_vertical|center_horizontal|center"
 			android:text="@string/connecting"
@@ -62,7 +62,7 @@
 			android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true"
 			android:layout_alignParentStart="true"
-			android:layout_below="@+id/msw_loading_text"
+			android:layout_below="@+id/loading_text"
 			android:layout_marginTop="110dp"
 			android:gravity="center_vertical|center_horizontal|center"
 			android:text="@string/loading2"

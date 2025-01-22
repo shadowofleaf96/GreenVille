@@ -15,11 +15,11 @@ public class SplashScreen extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-		int SPLASH_TIME_OUT = 2500; // timer helps showcasing your logo or banner while main activity loads
+		int SPLASH_TIME_OUT = 2500;
 		new Handler().postDelayed(() -> {
 			Intent i = new Intent(SplashScreen.this, MainActivity.class);
 			startActivity(i);
-			finish(); // closing splash screen
+			finish();
 		}, SPLASH_TIME_OUT);
     }
 }

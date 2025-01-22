@@ -47,10 +47,10 @@ public class FileProcessing {
 				Uri[] results = null;
 				if (result.getResultCode() == Activity.RESULT_CANCELED) {
 					// If the file request was cancelled (i.e. user exited camera), we must still send a null value in order to ensure that future attempts to pick files will still work.
-					SmartWebView.asw_file_path.onReceiveValue(null);
+					SmartWebView.file_path.onReceiveValue(null);
 					return;
 				} else if (result.getResultCode() == Activity.RESULT_OK) {
-					if (null == SmartWebView.asw_file_path) {
+					if (null == SmartWebView.file_path) {
 						return;
 					}
 					ClipData clipData;
@@ -64,8 +64,8 @@ public class FileProcessing {
 						stringData = null;
 					}
 
-					if (clipData == null && stringData == null && (SmartWebView.asw_pcam_message != null || SmartWebView.asw_vcam_message != null)) {
-						results = new Uri[]{Uri.parse(SmartWebView.asw_pcam_message != null ? SmartWebView.asw_pcam_message : SmartWebView.asw_vcam_message)};
+					if (clipData == null && stringData == null && (SmartWebView.pcam_message != null || SmartWebView.vcam_message != null)) {
+						results = new Uri[]{Uri.parse(SmartWebView.pcam_message != null ? SmartWebView.pcam_message : SmartWebView.vcam_message)};
 					} else {
 						// Checking if multiple files are selected
 						if (null != clipData) {
@@ -88,23 +88,23 @@ public class FileProcessing {
 						}
 					}
 				}
-				SmartWebView.asw_file_path.onReceiveValue(results);
-				SmartWebView.asw_file_path = null;
+				SmartWebView.file_path.onReceiveValue(results);
+				SmartWebView.file_path = null;
 			}
 		);
 	}
 
 	public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
-		if (!SmartWebView.ASWP_FUPLOAD) {
+		if (!SmartWebView.FUPLOAD) {
 			return false;
 		}
 
-		SmartWebView.asw_file_path = filePathCallback;
+		SmartWebView.file_path = filePathCallback;
 		Intent takePictureIntent = null;
 		Intent takeVideoIntent = null;
 
 		boolean needCamera = false;
-		if (SmartWebView.ASWP_CAMUPLOAD) {
+		if (SmartWebView.CAMUPLOAD) {
 			needCamera = true;
 		}
 
@@ -112,7 +112,7 @@ public class FileProcessing {
 			// Request camera permission if needed
 			if (!fns.check_permission(3, activity)) {
 				fns.get_permissions(3, activity);
-				SmartWebView.asw_file_path = null;
+				SmartWebView.file_path = null;
 				return false;
 			}
 			// Create camera intent for photos
@@ -121,13 +121,13 @@ public class FileProcessing {
 				File photoFile = null;
 				try {
 					photoFile = create_image(activity);
-					takePictureIntent.putExtra("PhotoPath", SmartWebView.asw_pcam_message);
+					takePictureIntent.putExtra("PhotoPath", SmartWebView.pcam_message);
 				} catch (IOException ex) {
 					Log.e("FileProcessing", "Image file creation failed", ex);
 					Toast.makeText(activity, "Error creating image file", Toast.LENGTH_SHORT).show();
 				}
 				if (photoFile != null) {
-					SmartWebView.asw_pcam_message = "file:" + photoFile.getAbsolutePath();
+					SmartWebView.pcam_message = "file:" + photoFile.getAbsolutePath();
 					Uri photoURI = FileProvider.getUriForFile(activity, activity.getPackageName() + ".provider", photoFile);
 					takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 				} else {
@@ -141,13 +141,13 @@ public class FileProcessing {
 				File videoFile = null;
 				try {
 					videoFile = create_video(activity);
-					takeVideoIntent.putExtra("VideoPath", SmartWebView.asw_vcam_message);
+					takeVideoIntent.putExtra("VideoPath", SmartWebView.vcam_message);
 				} catch (IOException ex) {
 					Log.e("FileProcessing", "Video file creation failed", ex);
 					Toast.makeText(activity, "Error creating video file", Toast.LENGTH_SHORT).show();
 				}
 				if (videoFile != null) {
-					SmartWebView.asw_vcam_message = "file:" + videoFile.getAbsolutePath();
+					SmartWebView.vcam_message = "file:" + videoFile.getAbsolutePath();
 					Uri videoURI = FileProvider.getUriForFile(activity, activity.getPackageName() + ".provider", videoFile);
 					takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, videoURI);
 				} else {
@@ -162,7 +162,7 @@ public class FileProcessing {
 		contentSelectionIntent.setType("*/*"); // Allow all file types initially
 
 		// Set multiple file selection if enabled
-		if (SmartWebView.ASWP_MULFILE) {
+		if (SmartWebView.MULFILE) {
 			contentSelectionIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 		}
 
@@ -195,8 +195,8 @@ public class FileProcessing {
 			resultLauncher.launch(chooserIntent);
 		} else {
 			Log.e("FileProcessing", "ResultLauncher is null. Cannot launch intent.");
-			SmartWebView.asw_file_path.onReceiveValue(null);
-			SmartWebView.asw_file_path = null;
+			SmartWebView.file_path.onReceiveValue(null);
+			SmartWebView.file_path = null;
 			return false;
 		}
 

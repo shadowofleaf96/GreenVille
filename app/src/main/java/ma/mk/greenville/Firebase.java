@@ -17,7 +17,7 @@ import com.google.firebase.messaging.RemoteMessage;
 
 public class Firebase extends FirebaseMessagingService {
 
-	private final String fcm_channel = SmartWebView.asw_fcm_channel;
+	private final String fcm_channel = SmartWebView.fcm_channel;
 
 	@Override
 	public void onNewToken(String s) {
@@ -42,7 +42,7 @@ public class Firebase extends FirebaseMessagingService {
 
 			// Use default values if null
 			if (uri == null) {
-				uri = SmartWebView.ASWV_URL;
+				uri = SmartWebView.URL;
 			}
 			if (click_action == null) {
 				click_action = "OPEN_URI";
@@ -70,7 +70,7 @@ public class Firebase extends FirebaseMessagingService {
 		pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
 		// Use a unique ID for each notification or a more robust default
-		int notification_id = nid != null ? Integer.parseInt(nid) : SmartWebView.ASWV_FCM_ID;
+		int notification_id = nid != null ? Integer.parseInt(nid) : SmartWebView.FCM_ID;
 
 		// Build the notification
 		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, fcm_channel)

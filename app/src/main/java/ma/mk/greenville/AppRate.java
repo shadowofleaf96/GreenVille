@@ -1,7 +1,5 @@
 package ma.mk.greenville;
 
-// Modified source code from @hotchemi (https://github.com/hotchemi/Android-Rate)
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;

@@ -48,9 +48,9 @@
 		tools:ignore="UnusedAttribute">
 
 		<property
-			android:name="android.adservices.AD_SERVICES_CONFIG"
-			android:resource="@xml/gma_ad_services_config"
-			tools:replace="android:resource" />
+                android:name="android.adservices.AD_SERVICES_CONFIG"
+                android:resource="@xml/gma_ad_services_config"
+                tools:replace="android:resource" />
 
 		<!-- Main Activity -->
 		<activity
@@ -72,8 +72,8 @@
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
 				<data android:scheme="https"
-					android:host="apps.mgks.dev"
-					android:pathPrefix="/swv" />
+					android:host="ma.mk.greenville"
+					android:pathPrefix="/greenville" />
 			</intent-filter>
 			<intent-filter android:label="OpenURI">
 				<action android:name="OPEN_URI" />
@@ -123,10 +123,8 @@
 		<meta-data
 			android:name="com.google.android.gms.version"
 			android:value="@integer/google_play_services_version" />
-		<!-- AdMob -->
 		<meta-data
 			android:name="com.google.android.gms.ads.APPLICATION_ID"
 			android:value="@string/app_id"/>
-
 	</application>
 </manifest>

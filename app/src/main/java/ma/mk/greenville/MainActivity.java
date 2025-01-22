@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
 		SmartWebView.setAppContext(getApplicationContext());
 
 		fileProcessing = new FileProcessing(this);
-		pluginManager = new PluginManager(this, SmartWebView.asw_view);
+		pluginManager = new PluginManager(this, SmartWebView.view);
 
 		fns.fcm_token(new Functions.TokenCallback() {
 			@Override
@@ -118,14 +118,14 @@ public class MainActivity extends AppCompatActivity {
 			Uri[] results = null;
 			if (result.getResultCode() == Activity.RESULT_CANCELED) {
 				// If the file request was cancelled (i.e. user exited camera), we must still send a null value in order to ensure that future attempts to pick files will still work
-				if (SmartWebView.asw_file_path != null) {
-					SmartWebView.asw_file_path.onReceiveValue(null);
-					SmartWebView.asw_file_path = null;
+				if (SmartWebView.file_path != null) {
+					SmartWebView.file_path.onReceiveValue(null);
+					SmartWebView.file_path = null;
 				}
 				return;
 
 			} else if (result.getResultCode() == Activity.RESULT_OK) {
-				if (null == SmartWebView.asw_file_path) {
+				if (null == SmartWebView.file_path) {
 					return;
 				}
 				ClipData clipData;
@@ -139,8 +139,8 @@ public class MainActivity extends AppCompatActivity {
 					stringData = null;
 				}
 
-				if (clipData == null && stringData == null && (SmartWebView.asw_pcam_message != null || SmartWebView.asw_vcam_message != null)) {
-					results = new Uri[]{Uri.parse(SmartWebView.asw_pcam_message != null ? SmartWebView.asw_pcam_message : SmartWebView.asw_vcam_message)};
+				if (clipData == null && stringData == null && (SmartWebView.pcam_message != null || SmartWebView.vcam_message != null)) {
+					results = new Uri[]{Uri.parse(SmartWebView.pcam_message != null ? SmartWebView.pcam_message : SmartWebView.vcam_message)};
 				} else {
 					// Checking if multiple files are selected
 					if (clipData != null) {
@@ -155,9 +155,9 @@ public class MainActivity extends AppCompatActivity {
 				}
 			}
 			// Send the file paths to the callback and reset
-			if (SmartWebView.asw_file_path != null) {
-				SmartWebView.asw_file_path.onReceiveValue(results);
-				SmartWebView.asw_file_path = null;
+			if (SmartWebView.file_path != null) {
+				SmartWebView.file_path.onReceiveValue(results);
+				SmartWebView.file_path = null;
 			}
 		});
 
@@ -165,8 +165,8 @@ public class MainActivity extends AppCompatActivity {
 		fileProcessing.registerActivityResultLauncher();
 
 		// Setting port view
-		String cookie_orientation = !(boolean) SmartWebView.ASWP_OFFLINE ? fns.get_cookies("ORIENT") : "";
-		fns.set_orientation((!Objects.equals(cookie_orientation, "") ? Integer.parseInt(cookie_orientation) : SmartWebView.ASWV_ORIENTATION), false, this);
+		String cookie_orientation = !(boolean) SmartWebView.OFFLINE ? fns.get_cookies("ORIENT") : "";
+		fns.set_orientation((!Objects.equals(cookie_orientation, "") ? Integer.parseInt(cookie_orientation) : SmartWebView.ORIENTATION), false, this);
 
 		// Use service worker
 		if (Build.VERSION.SDK_INT >= 24) {
@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
 			return;
 		}
 
-		if (SmartWebView.ASWV_LAYOUT == 1) {
+		if (SmartWebView.LAYOUT == 1) {
 			setContentView(R.layout.drawer_main);
 			findViewById(R.id.app_bar).setVisibility(View.VISIBLE);
 
@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
 			setContentView(R.layout.activity_main);
 		}
 
-		SmartWebView.asw_view = findViewById(R.id.msw_view);
+		SmartWebView.view = findViewById(R.id.view);
 
 		// Add permission to print; allow only then to exec print_view
 		SmartWebView.print_view = findViewById(R.id.print_view); // view on which you want to take a printout
@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
 		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
 		if (Build.VERSION.SDK_INT >= 26) {
-			NotificationChannel notificationChannel = new NotificationChannel(SmartWebView.asw_fcm_channel, String.valueOf(R.string.notification_channel_name), NotificationManager.IMPORTANCE_HIGH);
+			NotificationChannel notificationChannel = new NotificationChannel(SmartWebView.fcm_channel, String.valueOf(R.string.notification_channel_name), NotificationManager.IMPORTANCE_HIGH);
 			notificationChannel.setDescription(String.valueOf(R.string.notification_channel_desc));
 			notificationChannel.setLightColor(Color.RED);
 			notificationChannel.enableVibration(true);
@@ -224,29 +224,29 @@ public class MainActivity extends AppCompatActivity {
 
 		// Swipe refresh
 		final SwipeRefreshLayout pull_refresh = findViewById(R.id.pullfresh);
-		if (SmartWebView.ASWP_PULLFRESH) {
+		if (SmartWebView.PULLFRESH) {
 			pull_refresh.setOnRefreshListener(() -> {
 				fns.pull_fresh(getApplicationContext());
 				pull_refresh.setRefreshing(false);
 			});
-			SmartWebView.asw_view.getViewTreeObserver().addOnScrollChangedListener(() -> pull_refresh.setEnabled(SmartWebView.asw_view.getScrollY() == 0));
+			SmartWebView.view.getViewTreeObserver().addOnScrollChangedListener(() -> pull_refresh.setEnabled(SmartWebView.view.getScrollY() == 0));
 		} else {
 			pull_refresh.setRefreshing(false);
 			pull_refresh.setEnabled(false);
 		}
 
 		// Progress bar permission loop
-		if (SmartWebView.ASWP_PBAR) {
-			SmartWebView.asw_progress = findViewById(R.id.msw_progress);
+		if (SmartWebView.PBAR) {
+			SmartWebView.progress = findViewById(R.id.progress);
 		} else {
-			findViewById(R.id.msw_progress).setVisibility(View.GONE);
+			findViewById(R.id.progress).setVisibility(View.GONE);
 		}
-		SmartWebView.asw_loading_text = findViewById(R.id.msw_loading_text);
+		SmartWebView.loading_text = findViewById(R.id.loading_text);
 
 		Handler handler = new Handler();
 
 		// Launching app rating request
-		if (SmartWebView.ASWP_RATINGS) {
+		if (SmartWebView.RATINGS) {
 			handler.postDelayed(fns.get_rating(getApplicationContext()), 1000 * 60); //running request after few moments
 		}
 
@@ -254,14 +254,14 @@ public class MainActivity extends AppCompatActivity {
 		fns.get_info();
 
 		// Fetching GPS location if given permission
-		if (SmartWebView.ASWP_LOCATION && !fns.check_permission(1, getApplicationContext())) {
+		if (SmartWebView.LOCATION && !fns.check_permission(1, getApplicationContext())) {
 			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, SmartWebView.loc_perm);
 		}else {
 			fns.get_location(getApplicationContext());
 		}
 
 		// Webview default customizations; customized for best performance
-		WebSettings webSettings = SmartWebView.asw_view.getSettings();
+		WebSettings webSettings = SmartWebView.view.getSettings();
 
 		// Setting custom user agent
 		if (SmartWebView.OVERRIDE_USER_AGENT || SmartWebView.POSTFIX_USER_AGENT) {
@@ -276,22 +276,22 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		webSettings.setJavaScriptEnabled(true);
-		webSettings.setSaveFormData(SmartWebView.ASWP_SFORM);
-		webSettings.setSupportZoom(SmartWebView.ASWP_ZOOM);
-		webSettings.setGeolocationEnabled(SmartWebView.ASWP_LOCATION);
+		webSettings.setSaveFormData(SmartWebView.SFORM);
+		webSettings.setSupportZoom(SmartWebView.ZOOM);
+		webSettings.setGeolocationEnabled(SmartWebView.LOCATION);
 		webSettings.setAllowFileAccess(true);
 		webSettings.setAllowFileAccessFromFileURLs(true);
 		webSettings.setAllowUniversalAccessFromFileURLs(true);
 		webSettings.setUseWideViewPort(true);
 		webSettings.setDomStorageEnabled(true);
 
-		if (!SmartWebView.ASWP_COPYPASTE) {
-			SmartWebView.asw_view.setOnLongClickListener(v -> true);
+		if (!SmartWebView.COPYPASTE) {
+			SmartWebView.view.setOnLongClickListener(v -> true);
 		}
-		SmartWebView.asw_view.setHapticFeedbackEnabled(false);
+		SmartWebView.view.setHapticFeedbackEnabled(false);
 
 		// Webview download listener
-		SmartWebView.asw_view.setDownloadListener((url, userAgent, contentDisposition, mimeType, contentLength) -> {
+		SmartWebView.view.setDownloadListener((url, userAgent, contentDisposition, mimeType, contentLength) -> {
 
 			if (!fns.check_permission(2, getApplicationContext()) && !fns.check_permission(3, getApplicationContext())) {
 				fns.get_permissions(3,MainActivity.this);
@@ -317,9 +317,9 @@ public class MainActivity extends AppCompatActivity {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 		getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
 		webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-		SmartWebView.asw_view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-		SmartWebView.asw_view.setVerticalScrollBarEnabled(false); //** set this as permission variable
-		SmartWebView.asw_view.setWebViewClient(new Callback());
+		SmartWebView.view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+		SmartWebView.view.setVerticalScrollBarEnabled(false); //** set this as permission variable
+		SmartWebView.view.setWebViewClient(new Callback());
 
 		// Reading incoming intents
 		Intent read_int = getIntent();
@@ -339,31 +339,31 @@ public class MainActivity extends AppCompatActivity {
 					urlStr = urlStr.substring(1, urlStr.length() - 1);
 				}
 			}
-			String red_url = SmartWebView.ASWV_SHARE_URL + "?text=" + share + "&link=" + urlStr + "&image_url=";
-			fns.aswm_view(red_url, false, SmartWebView.asw_error_counter, getApplicationContext());
+			String red_url = SmartWebView.SHARE_URL + "?text=" + share + "&link=" + urlStr + "&image_url=";
+			fns.aswm_view(red_url, false, SmartWebView.error_counter, getApplicationContext());
 
 		// Processing shared image
 		} else if (share_img != null) {
 			Log.d("SLOG_SHARE_INTENT", share_img);
 			Toast.makeText(this, share_img, Toast.LENGTH_LONG).show();
-			fns.aswm_view(SmartWebView.ASWV_URL, false, SmartWebView.asw_error_counter, getApplicationContext());
+			fns.aswm_view(SmartWebView.URL, false, SmartWebView.error_counter, getApplicationContext());
 
 		// Opening notification
 		} else if (uri != null) {
 			Log.d("SLOG_NOTIFICATION_INTENT", uri);
-			fns.aswm_view(uri, false, SmartWebView.asw_error_counter, getApplicationContext());
+			fns.aswm_view(uri, false, SmartWebView.error_counter, getApplicationContext());
 
 		// Rendering default URL
 		} else {
-			Log.d("SLOG_MAIN_INTENT", SmartWebView.ASWV_URL);
-			fns.aswm_view(SmartWebView.ASWV_URL, false, SmartWebView.asw_error_counter, getApplicationContext());
+			Log.d("SLOG_MAIN_INTENT", SmartWebView.URL);
+			fns.aswm_view(SmartWebView.URL, false, SmartWebView.error_counter, getApplicationContext());
 		}
 
-		SmartWebView.asw_view.setWebChromeClient(new WebChromeClient() {
+		SmartWebView.view.setWebChromeClient(new WebChromeClient() {
 			@Override
 			public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-				if(SmartWebView.SWV_DEBUGMODE) {
-					Log.d("SWV_JS", consoleMessage.message() + " -- From line " +
+				if(SmartWebView.DEBUGMODE) {
+					Log.d("JS", consoleMessage.message() + " -- From line " +
 						consoleMessage.lineNumber() + " of " + consoleMessage.sourceId());
 				}
 				return true;
@@ -377,10 +377,10 @@ public class MainActivity extends AppCompatActivity {
 			// Webview content rendering progress
 			@Override
 			public void onProgressChanged(WebView view, int p) {
-				if (SmartWebView.ASWP_PBAR) {
-					SmartWebView.asw_progress.setProgress(p);
+				if (SmartWebView.PBAR) {
+					SmartWebView.progress.setProgress(p);
 					if (p == 100) {
-						SmartWebView.asw_progress.setProgress(0);
+						SmartWebView.progress.setProgress(0);
 					}
 				}
 			}
@@ -398,32 +398,31 @@ public class MainActivity extends AppCompatActivity {
 
 		if (getIntent().getData() != null) {
 			String path = getIntent().getDataString();
-			fns.aswm_view(path, false, SmartWebView.asw_error_counter, getApplicationContext());
+			fns.aswm_view(path, false, SmartWebView.error_counter, getApplicationContext());
 		}
 
 		// Debug mode logging data
-		if(SmartWebView.SWV_DEBUGMODE){
-			Log.d("SWV_DEBUG", "URL: "+SmartWebView.CURR_URL+"DEVICE INFO: "+ Arrays.toString(fns.get_info()));
+		if(SmartWebView.DEBUGMODE){
+			Log.d("DEBUG", "URL: "+SmartWebView.CURR_URL+"DEVICE INFO: "+ Arrays.toString(fns.get_info()));
 		}
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		SmartWebView.asw_view.onPause();
+		SmartWebView.view.onPause();
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		SmartWebView.asw_view.onResume();
-		// coloring the "recent apps" tab header; doing it onResume, as an insurance
+		SmartWebView.view.onResume();
 		Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
 		ActivityManager.TaskDescription taskDesc;
 		taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, getColor(R.color.colorPrimary));
 		this.setTaskDescription(taskDesc);
 
-		if (SmartWebView.ASWP_LOCATION) {
+		if (SmartWebView.LOCATION) {
 			fns.get_location(getApplicationContext());
 		}
 	}
@@ -433,11 +432,11 @@ public class MainActivity extends AppCompatActivity {
 	public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
 		if (event.getAction() == KeyEvent.ACTION_DOWN) {
 			if (keyCode == KeyEvent.KEYCODE_BACK) {
-				if (SmartWebView.asw_view.canGoBack()) {
-					SmartWebView.asw_view.goBack();
+				if (SmartWebView.view.canGoBack()) {
+					SmartWebView.view.goBack();
 				} else {
-					if (SmartWebView.ASWP_EXITDIAL) {
-						fns.ask_exit(getApplicationContext()); // call ask_exit()
+					if (SmartWebView.EXITDIAL) {
+						fns.ask_exit(getApplicationContext());
 					} else {
 						finish();
 					}
@@ -466,13 +465,13 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-		SmartWebView.asw_view.saveState(outState);
+		SmartWebView.view.saveState(outState);
 	}
 
 	@Override
 	protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		SmartWebView.asw_view.restoreState(savedInstanceState);
+		SmartWebView.view.restoreState(savedInstanceState);
 	}
 
 	@Override
@@ -485,7 +484,7 @@ public class MainActivity extends AppCompatActivity {
 		if (requestCode == SmartWebView.loc_perm) {
 			if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 				// Location permission granted
-				if (SmartWebView.ASWP_LOCATION) {
+				if (SmartWebView.LOCATION) {
 					fns.get_location(getApplicationContext());
 				}
 			} else {
@@ -502,7 +501,7 @@ public class MainActivity extends AppCompatActivity {
 		} else if (requestCode == SmartWebView.file_perm || requestCode == SmartWebView.cam_perm) {
 			if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 				// File or Camera permission granted
-				if (SmartWebView.ASWP_FUPLOAD) {
+				if (SmartWebView.FUPLOAD) {
 					// You might want to add a method here to re-trigger the file chooser
 					// For example:
 					// retryOpenFileChooser();
@@ -522,7 +521,7 @@ public class MainActivity extends AppCompatActivity {
 			if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 				// Send a test notification
 				Firebase firebase = new Firebase();
-				firebase.sendMyNotification("Yay! Firebase is working", "This is a test notification in action.", "OPEN_URI", SmartWebView.ASWV_URL, null, String.valueOf(SmartWebView.ASWV_FCM_ID), getApplicationContext());
+				firebase.sendMyNotification("Yay! Firebase is working", "This is a test notification in action.", "OPEN_URI", SmartWebView.URL, null, String.valueOf(SmartWebView.FCM_ID), getApplicationContext());
 			}
 
 		}
@@ -535,11 +534,11 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		public void onPageFinished(WebView view, String url) {
-			findViewById(R.id.msw_welcome).setVisibility(View.GONE);
-			findViewById(R.id.msw_view).setVisibility(View.VISIBLE);
+			findViewById(R.id.welcome).setVisibility(View.GONE);
+			findViewById(R.id.view).setVisibility(View.VISIBLE);
 
 			// Injecting Google Tag Manager
-			fns.inject_gtag(view, SmartWebView.ASWV_GTAG);
+			fns.inject_gtag(view, SmartWebView.GTAG);
 		}
 
 		@Override
@@ -566,7 +565,7 @@ public class MainActivity extends AppCompatActivity {
 		@SuppressLint("WebViewClientOnReceivedSslError")
 		@Override
 		public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-			if (SmartWebView.ASWP_CERT_VERI) {
+			if (SmartWebView.CERT_VERI) {
 				// Default behavior: Don't proceed with untrusted certificates
 				super.onReceivedSslError(view, handler, error);
 			} else {
@@ -574,7 +573,7 @@ public class MainActivity extends AppCompatActivity {
 				handler.proceed();
 
 				// Show Toast message if debug mode is enabled
-				if (SmartWebView.SWV_DEBUGMODE) {
+				if (SmartWebView.DEBUGMODE) {
 					Toast.makeText(MainActivity.this, "SSL Error: " + error.getPrimaryError(), Toast.LENGTH_SHORT).show();
 				}
 			}
