@@ -319,7 +319,7 @@ export default function CategoryView() {
                     id: "category_name",
                     label: t("categoryPage.categoryName"),
                   },
-                  { id: "status", label: t("categoryPage.status") },
+                  { id: "status", label: t("Status") },
                   { id: " " },
                 ]}
               />
