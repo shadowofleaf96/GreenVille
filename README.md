@@ -186,7 +186,7 @@ GreenVille is a bio-organic eCommerce store that offers eco-friendly products, c
 - Implement advanced analytics for admin insights.
 - Integrate AI-powered product recommendations.
 - Use Bun instead of Node.js
-- Android app using capacitor
+- Android App
 
 ## Getting Started
 
