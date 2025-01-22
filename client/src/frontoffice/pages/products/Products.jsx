@@ -30,7 +30,7 @@ const Products = () => {
   const [isOptionOpen, setIsOptionOpen] = useState(false);
   const [priceRangeOpen, setPriceRangeOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isButtonHided, setIsButtonHided] = useState(true)
+  const [isButtonHided, setIsButtonHided] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   const dispatch = useDispatch();
@@ -191,26 +191,25 @@ const Products = () => {
     );
   };
 
-  const HandleCloseButton = () => {
-    setIsFilterOpen(!isFilterOpen);
-    setIsButtonHided(true)
-  }
+  const closeModal = () => {
+    setIsFilterOpen(false);
+    setIsButtonHided(false);
+  };
 
   const handleFilterToggle = () => {
-    setIsFilterOpen(!isFilterOpen);
-    if (isFilterOpen) {
-      setIsButtonHided(false)
-    } else {
-      setIsButtonHided(true)
-    }
+    setIsFilterOpen((prev) => {
+      const newState = !prev;
+      setIsButtonHided(!newState);
+      return newState;
+    });
   };
 
   const handleApplyFilters = () => {
     setFilteredProduct(filterProducts());
     setCurrentPage(1);
+
     if (isMobile) {
-      setIsFilterOpen(false);
-      setIsButtonHided(true)
+      closeModal();
     }
   };
 
@@ -418,7 +417,7 @@ const Products = () => {
                     </motion.div>
                   </div>
                 ) : (
-                  <Modal open={isFilterOpen} onClose={handleFilterToggle}>
+                  <Modal open={isFilterOpen} onClose={closeModal}>
                     <Box
                       sx={{
                         position: 'absolute',
@@ -438,8 +437,8 @@ const Products = () => {
                         <Typography variant="h6" fontWeight="bold">
                           {t("filters")}
                         </Typography>
-                        <IconButton onClick={HandleCloseButton}>
-                          <Iconify icon="bi:x" width={32} height={32} />
+                        <IconButton onClick={closeModal}>
+                          <Iconify icon="bi:x" width={36} height={36} />
                         </IconButton>
                       </Box>
 
@@ -645,7 +644,8 @@ const Products = () => {
                   )}
                 </AnimatePresence>
               </motion.div>
-              {isButtonHided && (
+
+              {!isButtonHided && (
                 <button
                   className="fixed bottom-14 right-10 bg-[#8DC63F] text-white p-3 rounded-full shadow-lg z-50 md:hidden"
                   onClick={handleFilterToggle}
