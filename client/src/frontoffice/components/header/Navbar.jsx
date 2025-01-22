@@ -211,7 +211,7 @@ const Navbar = () => {
 
           <motion.div
             className="fixed top-0 right-0 bottom-0 w-1/3 bg-white shadow-md z-100 p-6"
-            whileInView={{ x: [100, 0] }}
+            whileInView={{ x: [140, 0] }}
             transition={{ duration: 0.85, ease: "easeOut" }}
           >
             <div className="flex justify-end">
