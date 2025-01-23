@@ -170,17 +170,19 @@ const Navbar = () => {
         <div className="bg-gray-100 py-4 px-4 shadow-md">
           <div className="container mx-auto flex items-center justify-center">
             <div className="relative w-full">
-              <input
-                type="text"
-                placeholder={t("Search for products...")}
-                className="border-2 border-[#8DC63F]  rounded-md px-4 py-2 w-full bg-white focus:outline-none transition-all"
-                value={searchQuery}
-                onChange={(e) => handleSearchChange(e)}
-                onFocus={() => setSearchDropdown(true)}
-              />
-              <button className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                <Iconify icon="material-symbols-light:search" width={24} height={24} />
-              </button>
+              <div>
+                <button className="absolute left-2 top-1/2 transform -translate-y-1/2">
+                  <Iconify icon="material-symbols-light:search" width={24} height={24} />
+                </button>
+                <input
+                  type="text"
+                  placeholder={t("Search for Products...")}
+                  className="border-2 border-[#8DC63F] rounded-md px-4 py-2 w-full bg-white focus:outline-none transition-all pl-8"
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e)}
+                  onFocus={() => setSearchDropdown(true)}
+                />
+              </div>
               {searchDropdown && filteredProducts.length > 0 && (
                 <div className="absolute mt-2 w-full bg-white rounded-lg shadow-lg z-20 max-h-64 overflow-y-auto">
                   {filteredProducts.map((product) => (
@@ -211,7 +213,7 @@ const Navbar = () => {
 
           <motion.div
             className="fixed top-0 right-0 bottom-0 w-1/3 bg-white shadow-md z-100 p-6"
-            whileInView={{ x: [140, 0] }}
+            whileInView={{ x: [100, 0] }}
             transition={{ duration: 0.85, ease: "easeOut" }}
           >
             <div className="flex justify-end">

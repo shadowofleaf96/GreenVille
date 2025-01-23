@@ -18,7 +18,7 @@ import { useTranslation } from "react-i18next";
 const Home = () => {
   const dispatch = useDispatch();
   const { loading, error, products } = useSelector((state) => state.products);
-  const { t } = useTranslation()
+  const { i18n, t } = useTranslation()
 
   useEffect(() => {
     if (products.length === 0) {
@@ -31,10 +31,12 @@ const Home = () => {
     visible: { opacity: 1, transition: { duration: 1 } },
   };
 
-  const slideIn = {
-    hidden: { x: -100, opacity: 0 },
+
+  // this is a code with a fix for a bug using framer-motion with Arabic language
+  const slideIn = (isRTL) => ({
+    hidden: { x: isRTL ? 100 : -100, opacity: 0 },
     visible: { x: 0, opacity: 1, transition: { duration: 1 } },
-  };
+  });
 
   const [bannerRef, bannerInView] = useInView({ triggerOnce: true, threshold: 0.1 });
   const [categoryRef, categoryInView] = useInView({ triggerOnce: true, threshold: 0.1 });
@@ -138,7 +140,7 @@ const Home = () => {
         ref={testimonialsRef}
         initial="hidden"
         animate={testimonialsInView ? "visible" : "hidden"}
-        variants={slideIn}
+        variants={slideIn(i18n.language === "ar")}
       >
         <Testimonials />
 
