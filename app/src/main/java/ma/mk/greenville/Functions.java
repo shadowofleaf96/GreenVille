@@ -113,7 +113,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 	}
 
 	// Opening URLs inside webview with request
-	void aswm_view(String url, Boolean tab, int error_counter, Context context) {
+	void greenville_view(String url, Boolean tab, int error_counter, Context context) {
 		if (error_counter > 2) {
 			exit_app(context);
 		} else {
@@ -127,6 +127,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 						customTabsIntent.launchUrl(context.getApplicationContext(), Uri.parse(url));
 					} catch (ActivityNotFoundException e) {
 						Intent intent = new Intent(Intent.ACTION_VIEW);
+						intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 						intent.setData(Uri.parse(url));
 						context.startActivity(intent);
 					}
@@ -266,8 +267,8 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 			}
 
 		// Opening external URLs in android default web browser
-		} else if (SmartWebView.EXTURL && !aswm_host(url).equals(SmartWebView.HOST) && !SmartWebView.EXC_LIST.contains(aswm_host(url))) {
-			aswm_view(url, true, SmartWebView.error_counter, context);
+		} else if (SmartWebView.EXTURL && !greenville_host(url).equals(SmartWebView.HOST) && !SmartWebView.EXC_LIST.contains(greenville_host(url))) {
+			greenville_view(url, true, SmartWebView.error_counter, context);
 
 		// Setting device orientation on request
 		} else if (url.startsWith("orient:")) {
@@ -281,7 +282,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 	}
 
 	// Getting host name
-	public static String aswm_host(String url) {
+	public static String greenville_host(String url) {
 		if (url == null || url.isEmpty()) {
 			return "";
 		}
@@ -301,7 +302,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 
 	// Reloading current page
 	public void pull_fresh(Context context) {
-		aswm_view((!SmartWebView.CURR_URL.isEmpty() ? SmartWebView.CURR_URL : SmartWebView.URL), false, SmartWebView.error_counter, context);
+		greenville_view((!SmartWebView.CURR_URL.isEmpty() ? SmartWebView.CURR_URL : SmartWebView.URL), false, SmartWebView.error_counter, context);
 	}
 
 	// Changing port view
@@ -449,7 +450,7 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 			public boolean onQueryTextSubmit(String query) {
 				searchView.clearFocus();
-				aswm_view(SmartWebView.SEARCH + query, false, SmartWebView.error_counter, context.getApplicationContext());
+				greenville_view(SmartWebView.SEARCH + query, false, SmartWebView.error_counter, context.getApplicationContext());
 				searchView.setQuery(query, false);
 				return false;
 			}
@@ -459,45 +460,6 @@ public class Functions implements NavigationView.OnNavigationItemSelectedListene
 			}
 		});
 		//searchView.setQuery(SmartWebView.view.getUrl(),false);
-		return true;
-	}
-
-	// Options trigger for drawer theme
-	public boolean onOptionsItemSelected(MenuItem item, Context context) {
-		int id = item.getItemId();
-		if (id == R.id.action_exit) {
-			exit_app(context);
-			return true;
-		}
-		return onOptionsItemSelected(item, context);
-	}
-
-	// Options filter for drawer theme
-	public boolean onNavigationItemSelected(MenuItem item, Context context) {
-		int id = item.getItemId();
-		if (id == R.id.nav_home) {
-			aswm_view("file:///android_asset/offline.html", false, SmartWebView.error_counter, context);
-		} else if (id == R.id.nav_doc) {
-			aswm_view("https://github.com/mgks/Android-SmartWebView/tree/master/documentation", false, SmartWebView.error_counter, context);
-		} else if (id == R.id.nav_fcm) {
-			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/fcm.md", false, SmartWebView.error_counter, context);
-		} else if (id == R.id.nav_admob) {
-			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/admob.md", false, SmartWebView.error_counter, context);
-		} else if (id == R.id.nav_gps) {
-			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/gps.md", false, SmartWebView.error_counter, context);
-		} else if (id == R.id.nav_share) {
-			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/share.md", false, SmartWebView.error_counter, context);
-		} else if (id == R.id.nav_lay) {
-			aswm_view("https://github.com/mgks/Android-SmartWebView/blob/master/documentation/layout.md", false, SmartWebView.error_counter, context);
-		} else if (id == R.id.nav_support) {
-			Intent intent = new Intent(Intent.ACTION_SENDTO);
-			intent.setData(Uri.parse("mailto:hello@mgks.dev"));
-			intent.putExtra(Intent.EXTRA_SUBJECT, "SWV Help");
-			context.startActivity(Intent.createChooser(intent, "Send Email"));
-		}
-
-		DrawerLayout drawer = ((Activity) context).findViewById(R.id.drawer_layout);
-		drawer.closeDrawer(GravityCompat.START);
 		return true;
 	}
 

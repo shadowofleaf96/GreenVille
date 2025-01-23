@@ -6,4 +6,6 @@
 	<color name="colorAccent">#f56fac60</color>
 	<color name="white">#ffffff</color>
 	<color name="black">#000000</color>
+	<color name="transparent">@android:color/transparent</color>
+	<color name="semitransparent">#99CC99</color>
 </resources>

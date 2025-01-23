@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
 		act_result_launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
 
-			getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+			// getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 			Uri[] results = null;
 			if (result.getResultCode() == Activity.RESULT_CANCELED) {
 				// If the file request was cancelled (i.e. user exited camera), we must still send a null value in order to ensure that future attempts to pick files will still work
@@ -185,24 +185,7 @@ public class MainActivity extends AppCompatActivity {
 			return;
 		}
 
-		if (SmartWebView.LAYOUT == 1) {
-			setContentView(R.layout.drawer_main);
-			findViewById(R.id.app_bar).setVisibility(View.VISIBLE);
-
-			Toolbar toolbar = findViewById(R.id.toolbar);
-			setSupportActionBar(toolbar);
-			Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
-
-			DrawerLayout drawer = findViewById(R.id.drawer_layout);
-			ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.open, R.string.close);
-			drawer.addDrawerListener(toggle);
-			toggle.syncState();
-
-			NavigationView navigationView = findViewById(R.id.nav_view);
-			navigationView.setNavigationItemSelectedListener((NavigationView.OnNavigationItemSelectedListener) this);
-		} else {
-			setContentView(R.layout.activity_main);
-		}
+		setContentView(R.layout.activity_main);
 
 		SmartWebView.view = findViewById(R.id.view);
 
@@ -241,8 +224,6 @@ public class MainActivity extends AppCompatActivity {
 		} else {
 			findViewById(R.id.progress).setVisibility(View.GONE);
 		}
-		SmartWebView.loading_text = findViewById(R.id.loading_text);
-
 		Handler handler = new Handler();
 
 		// Launching app rating request
@@ -313,8 +294,7 @@ public class MainActivity extends AppCompatActivity {
 				Toast.makeText(this, getString(R.string.dl_downloading2), Toast.LENGTH_LONG).show();
 			}
 		});
-
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+		// getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 		getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
 		webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 		SmartWebView.view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
@@ -340,23 +320,23 @@ public class MainActivity extends AppCompatActivity {
 				}
 			}
 			String red_url = SmartWebView.SHARE_URL + "?text=" + share + "&link=" + urlStr + "&image_url=";
-			fns.aswm_view(red_url, false, SmartWebView.error_counter, getApplicationContext());
+			fns.greenville_view(red_url, false, SmartWebView.error_counter, getApplicationContext());
 
 		// Processing shared image
 		} else if (share_img != null) {
 			Log.d("SLOG_SHARE_INTENT", share_img);
 			Toast.makeText(this, share_img, Toast.LENGTH_LONG).show();
-			fns.aswm_view(SmartWebView.URL, false, SmartWebView.error_counter, getApplicationContext());
+			fns.greenville_view(SmartWebView.URL, false, SmartWebView.error_counter, getApplicationContext());
 
 		// Opening notification
 		} else if (uri != null) {
 			Log.d("SLOG_NOTIFICATION_INTENT", uri);
-			fns.aswm_view(uri, false, SmartWebView.error_counter, getApplicationContext());
+			fns.greenville_view(uri, false, SmartWebView.error_counter, getApplicationContext());
 
 		// Rendering default URL
 		} else {
 			Log.d("SLOG_MAIN_INTENT", SmartWebView.URL);
-			fns.aswm_view(SmartWebView.URL, false, SmartWebView.error_counter, getApplicationContext());
+			fns.greenville_view(SmartWebView.URL, false, SmartWebView.error_counter, getApplicationContext());
 		}
 
 		SmartWebView.view.setWebChromeClient(new WebChromeClient() {
@@ -398,7 +378,7 @@ public class MainActivity extends AppCompatActivity {
 
 		if (getIntent().getData() != null) {
 			String path = getIntent().getDataString();
-			fns.aswm_view(path, false, SmartWebView.error_counter, getApplicationContext());
+			fns.greenville_view(path, false, SmartWebView.error_counter, getApplicationContext());
 		}
 
 		// Debug mode logging data

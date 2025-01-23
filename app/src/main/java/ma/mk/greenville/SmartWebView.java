@@ -44,9 +44,9 @@ public class SmartWebView {
 	static boolean PBAR          = true;         // show progress bar in app
 	static boolean ZOOM          = false;        // zoom control for webpages view
 	static boolean SFORM         = false;        // save form cache and auto-fill information
-	static boolean EXTURL        = true;         // open external url with default browser instead of app webview
+	static boolean EXTURL        = false;         // open external url with default browser instead of app webview
 
-	static boolean TAB           = true;         // instead of default browser, open external URLs in chrome tab
+	static boolean TAB           = false;         // instead of default browser, open external URLs in chrome tab
 
 	static boolean EXITDIAL	  = true;         // confirm to exit app on back press
 
@@ -84,7 +84,7 @@ public class SmartWebView {
 
 	/* -- Following variables are used in MainActivity and Functions classes -- */
 	// Internal variable initialization
-	static String HOST = Functions.aswm_host(URL);
+	static String HOST = Functions.greenville_host(URL);
 	static String CURR_URL = URL;
 	static String fcm_token;
 	static String pcam_message;
