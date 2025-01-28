@@ -79,6 +79,20 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
 
+        webView.addJavascriptInterface(new Object() {
+            @android.webkit.JavascriptInterface
+            public void itemAdded() {
+                // Handle the item added event here, for example, update the cart UI or show a toast
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Do something on UI thread, like showing a toast or updating the UI
+                        Toast.makeText(MainActivity.this, "Item added to the cart", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }, "Android");
+
         webView.setWebViewClient(new WebViewClient() {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 loadingBar.setVisibility(View.VISIBLE);
