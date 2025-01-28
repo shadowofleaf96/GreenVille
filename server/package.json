@@ -1,5 +1,5 @@
 {
-        "name": "greenville-backend",
+    "name": "greenville-backend",
     "version": "1.0",
     "description": "GreenVille Backend",
     "main": "server.js",
