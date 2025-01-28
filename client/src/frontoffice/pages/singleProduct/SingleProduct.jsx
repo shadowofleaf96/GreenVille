@@ -225,9 +225,9 @@ const SingleProduct = () => {
                         {product.quantity > 0 ? t("in_stock") : t("out_of_stock")}
                       </span>
                     </p>
-                    <div className="flex space-x-4 mt-4 rtl:gap-4">
+                    <div className="flex space-x-4 mt-4 rtl:gap-4 sm:justify-center">
                       <button
-                        className="bg-[#8DC63F] flex gap-2 text-white py-3 px-6 font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
+                        className="w-42 md:w-60 bg-[#8DC63F] flex gap-2 text-white items-center justify-center py-3 px-4 font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
                         disabled={product.quantity === 0}
                         onClick={buyNow}
                       >
@@ -235,7 +235,7 @@ const SingleProduct = () => {
                         <Iconify icon="material-symbols:sell-outline" height={22} width={22} />
                       </button>
                       <button
-                        className="bg-white flex gap-2 text-grey-800 border-[#8DC63F] border-2 py-3 px-6 font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
+                        className="w-42 md:w-60 bg-white flex gap-2 items-center justify-center text-grey-800 border-[#8DC63F] border-2 py-3 px-4 font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400"
                         disabled={product.quantity === 0}
                         onClick={addToCart}
                       >

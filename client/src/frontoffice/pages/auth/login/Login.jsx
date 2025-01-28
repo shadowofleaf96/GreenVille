@@ -188,9 +188,9 @@ const Login = () => {
         </video>
         <Paper
           elevation={3}
-          className="form-container p-0.5 md:p-0 !rounded-2xl"
+          className="form-container p-0 !rounded-2xl"
         >
-          <div className="max-w-[400px] md:max-w-[450px] p-5 md:p-10"
+          <div className="max-w-[380px] md:max-w-[450px] p-5 md:p-10"
           >
             <div className="flex justify-center mb-4">
               <Logo />
