@@ -1,7 +1,7 @@
 {
-    "name": "secure-node-app",
+        "name": "greenville-backend",
     "version": "1.0",
-    "description": "Ecommerce Project",
+    "description": "GreenVille Backend",
     "main": "server.js",
     "scripts": {
         "start": "node server.js"
