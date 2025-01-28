@@ -4,7 +4,7 @@
     "description": "Ecommerce Project",
     "main": "server.js",
     "scripts": {
-        "start": "node app.js"
+        "start": "node server.js"
     },
     "dependencies": {
         "@fluidjs/multer-cloudinary": "^1.0.4",
