@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next"; // Import useTranslation
+import { useTranslation } from "react-i18next";
 import Iconify from "../../../backoffice/components/iconify";
 import { addItemToCart } from "../../../redux/frontoffice/cartSlice";
 import { toast } from "react-toastify";
