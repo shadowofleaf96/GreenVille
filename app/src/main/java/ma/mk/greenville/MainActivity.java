@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -46,9 +47,10 @@ public class MainActivity extends AppCompatActivity {
     private boolean isLoading = false;
     private Handler handler = new Handler();
     private int progress = 0;
+    long splashStartTime = System.currentTimeMillis();
     private SwipeRefreshLayout swipeRefreshLayout;
     private RelativeLayout splashScreen;
-    private View noInternetLayout;
+    private RelativeLayout noInternetLayout;
     private ProgressBar progressBar;
     private ProgressBar loadingBar;
     private Button retryButton;
@@ -79,20 +81,6 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
 
-        webView.addJavascriptInterface(new Object() {
-            @android.webkit.JavascriptInterface
-            public void itemAdded() {
-                // Handle the item added event here, for example, update the cart UI or show a toast
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Do something on UI thread, like showing a toast or updating the UI
-                        Toast.makeText(MainActivity.this, "Item added to the cart", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        }, "Android");
-
         webView.setWebViewClient(new WebViewClient() {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 loadingBar.setVisibility(View.VISIBLE);
@@ -106,13 +94,21 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                splashScreen.setVisibility(View.GONE);
-                isLoading = false;
-                progressBar.setProgress(100);
-                handler.removeCallbacksAndMessages(null);
-                loadingBar.setVisibility(View.GONE);
-                webView.setVisibility(View.VISIBLE);
-                navView.setVisibility(View.VISIBLE);
+                long minSplashTime = 2000;
+                long currentTime = System.currentTimeMillis();
+                long elapsedTime = currentTime - splashStartTime;
+
+                long remainingTime = Math.max(0, minSplashTime - elapsedTime);
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    splashScreen.setVisibility(View.GONE);
+                    isLoading = false;
+                    progressBar.setProgress(100);
+                    loadingBar.setVisibility(View.GONE);
+                    webView.setVisibility(View.VISIBLE);
+                    navView.setVisibility(View.VISIBLE);
+                }, remainingTime);
+
                 super.onPageFinished(view, url);
             }
             public boolean shouldOverrideUrlLoading(WebView view) {
@@ -122,7 +118,9 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-                Toast.makeText(MainActivity.this, "Error: " + description, Toast.LENGTH_SHORT).show();
+                noInternetLayout.setVisibility(View.VISIBLE);
+                webView.setVisibility(View.GONE);
+                Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -172,6 +170,17 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
+
+        retryButton.setOnClickListener(v -> {
+            if (isConnected()) {
+                noInternetLayout.setVisibility(View.GONE);
+                webView.setVisibility(View.VISIBLE);
+                webView.reload();
+            } else {
+                Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -179,8 +188,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         setupSwipeRefresh();
-        setupRetryButton();
-        checkInternetAndLoad();
     }
 
     private void startProgressBar() {
@@ -220,32 +227,15 @@ public class MainActivity extends AppCompatActivity {
     private void setupSwipeRefresh() {
         swipeRefreshLayout.setOnRefreshListener(() -> {
             if (isConnected()) {
+                noInternetLayout.setVisibility(View.GONE);
+                webView.setVisibility(View.VISIBLE);
                 webView.reload();
-                swipeRefreshLayout.setRefreshing(false);
             } else {
-                showNoInternetLayout();
-                swipeRefreshLayout.setRefreshing(false);
+                noInternetLayout.setVisibility(View.VISIBLE);
+                webView.setVisibility(View.GONE);
             }
+            swipeRefreshLayout.setRefreshing(false);
         });
-    }
-
-    private void setupRetryButton() {
-        retryButton.setOnClickListener(v -> checkInternetAndLoad());
-    }
-
-    private void checkInternetAndLoad() {
-        if (isConnected()) {
-            noInternetLayout.setVisibility(View.GONE);
-            webView.setVisibility(View.VISIBLE);
-            webView.loadUrl("https://greenville-frontend.vercel.app/");
-        } else {
-            showNoInternetLayout();
-        }
-    }
-
-    private void showNoInternetLayout() {
-        webView.setVisibility(View.GONE);
-        noInternetLayout.setVisibility(View.VISIBLE);
     }
 
     private boolean isConnected() {
