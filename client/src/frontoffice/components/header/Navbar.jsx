@@ -26,6 +26,7 @@ const Navbar = () => {
   const { products } = useSelector((state) => state.products);
   const { cartItems } = useSelector((state) => state.carts);
   const { t, i18n } = useTranslation();
+  const [isWebView, setIsWebView] = useState(false);
   const currentLanguage = i18n.language
 
   const location = useLocation();
@@ -37,6 +38,13 @@ const Navbar = () => {
       dispatch(fetchCustomerProfile());
     }
   }, [dispatch]);
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes('wv')) {
+      setIsWebView(true);
+    }
+  }, []);
 
   const totalQuantity = cartItems.reduce((accumulator, item) => {
     return accumulator + item.quantity;
@@ -123,38 +131,51 @@ const Navbar = () => {
             <button onClick={toggleSearchBar} className="cursor-pointer rtl:ml-3">
               <Iconify icon="material-symbols-light:search" width={32} height={32} />
             </button>
-            <Link to="/cart" className="relative">
-              <Iconify icon="mdi-light:cart" width={32} height={32} />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white font-light w-4 max-w-4 flex flex-grow justify-center rounded-full text-xs">
-                {totalQuantity}
-              </span>
-            </Link>
+            {!isWebView && (
+              <Link to="/cart" className="relative">
+                <Iconify icon="mdi-light:cart" width={32} height={32} />
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white font-light w-4 max-w-4 flex flex-grow justify-center rounded-full text-xs">
+                  {totalQuantity}
+                </span>
+              </Link>
+            )}
             {isLoading ? (
               <Loader className="mt-2" />
             ) : (
               <>
                 {customer ? (
-                  <div className="relative" ref={dropdownRef}>
-                    <button className="focus:outline-none" onClick={() => setDropdown(!dropdown)}>
-                      <Avatar className="h-12 w-12 rounded-full border-5 border-black" src={`${customer.customer_image}`} alt={`${customer.first_name} ${customer.last_name}`} />
-                    </button>
-                    {dropdown && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
-                        <Link to="/profile" className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400" onClick={() => setDropdown(false)}>
-                          <Iconify className="m-2" icon="material-symbols-light:supervised-user-circle-outline" width={30} height={30} />
-                          {t("Profile")}
-                        </Link>
-                        <button className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400 w-full text-left" onClick={logoutHandler}>
-                          <Iconify className="mx-2" icon="material-symbols-light:logout-rounded" width={30} height={30} />
-                          {t("Logout")}
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  !isWebView && (
+                    <div className="relative" ref={dropdownRef}>
+                      <button className="focus:outline-none" onClick={() => setDropdown(!dropdown)}>
+                        <Avatar className="h-12 w-12 rounded-full border-5 border-black" src={`${customer.customer_image}`} alt={`${customer.first_name} ${customer.last_name}`} />
+                      </button>
+                      {dropdown && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
+                          <Link
+                            to="/profile"
+                            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400"
+                            onClick={() => setDropdown(false)}
+                          >
+                            <Iconify className="m-2" icon="material-symbols-light:supervised-user-circle-outline" width={30} height={30} />
+                            {t("Profile")}
+                          </Link>
+                          <button
+                            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400 w-full text-left"
+                            onClick={logoutHandler}
+                          >
+                            <Iconify className="mx-2" icon="material-symbols-light:logout-rounded" width={30} height={30} />
+                            {t("Logout")}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )
                 ) : (
-                  <Link to="/login" className="text-sm flex items-center space-x-4">
-                    <Iconify icon="material-symbols-light:person-outline" width={42} height={42} />
-                  </Link>
+                  !isWebView && ( 
+                    <Link to="/login" className="text-sm flex items-center space-x-4">
+                      <Iconify icon="material-symbols-light:person-outline" width={42} height={42} />
+                    </Link>
+                  )
                 )}
               </>
             )}
