@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#8DC63F</color>
-    <color name="colorPrimaryDark">#3e862c</color>
-	<color name="colorPrimaryDarker">#3e8611</color>
-	<color name="colorAccent">#f56fac60</color>
-	<color name="white">#ffffff</color>
-	<color name="black">#000000</color>
-	<color name="transparent">@android:color/transparent</color>
-	<color name="semitransparent">#99CC99</color>
+    <color name="lime_green">#8DC63F</color>
+    <color name="yellow_400">#F5B042</color>
+    <color name="green_400">#40D987</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
 </resources>

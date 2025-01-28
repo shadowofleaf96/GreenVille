@@ -1,568 +1,242 @@
 package ma.mk.greenville;
 
-
-
-import android.Manifest;
-
 import android.annotation.SuppressLint;
-
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.DownloadManager;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
-
-import android.net.http.SslError;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-
-import android.util.Log;
-
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
+import androidx.activity.OnBackPressedCallback;
 import android.view.WindowManager;
-
-import android.webkit.ConsoleMessage;
-import android.webkit.GeolocationPermissions;
-import android.webkit.ServiceWorkerClient;
-import android.webkit.ServiceWorkerController;
-import android.webkit.SslErrorHandler;
-import android.webkit.URLUtil;
+import android.webkit.DownloadListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-
-import androidx.annotation.NonNull;
-
-import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.regex.Matcher;
+
+import ma.mk.greenville.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
-	ActivityResultLauncher<Intent> act_result_launcher;
-	static Functions fns = new Functions();
-	private FileProcessing fileProcessing;
-	private PluginManager pluginManager;
-
-	private static final int PERMISSION_REQUEST_CODE = 1001; // You can use any unique integer
-
-	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		super.onActivityResult(requestCode, resultCode, intent);
-
-		// Forward the result to the PluginManager
-		pluginManager.onActivityResult(requestCode, resultCode, intent);
-	}
-
-	@SuppressLint({"SetJavaScriptEnabled", "WrongViewCast", "JavascriptInterface"})
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		SmartWebView.setAppContext(getApplicationContext());
-
-		fileProcessing = new FileProcessing(this);
-		pluginManager = new PluginManager(this, SmartWebView.view);
-
-		fns.fcm_token(new Functions.TokenCallback() {
-			@Override
-			public void onTokenReceived(String token) {
-				Log.d("MainActivity_FCM_TOKEN", "Received token: " + token);
-				// You can now use the token (e.g., send it to your server)
-			}
-
-			@Override
-			public void onTokenFailed(Exception e) {
-				// Handle the failure here
-				Log.e("MainActivity_FCM_TOKEN", "Failed to retrieve token", e);
-			}
-		});
-
-		act_result_launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-
-			// getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-			Uri[] results = null;
-			if (result.getResultCode() == Activity.RESULT_CANCELED) {
-				// If the file request was cancelled (i.e. user exited camera), we must still send a null value in order to ensure that future attempts to pick files will still work
-				if (SmartWebView.file_path != null) {
-					SmartWebView.file_path.onReceiveValue(null);
-					SmartWebView.file_path = null;
-				}
-				return;
-
-			} else if (result.getResultCode() == Activity.RESULT_OK) {
-				if (null == SmartWebView.file_path) {
-					return;
-				}
-				ClipData clipData;
-				String stringData;
-				try {
-					assert result.getData() != null;
-					clipData = result.getData().getClipData();
-					stringData = result.getData().getDataString();
-				} catch (Exception e) {
-					clipData = null;
-					stringData = null;
-				}
-
-				if (clipData == null && stringData == null && (SmartWebView.pcam_message != null || SmartWebView.vcam_message != null)) {
-					results = new Uri[]{Uri.parse(SmartWebView.pcam_message != null ? SmartWebView.pcam_message : SmartWebView.vcam_message)};
-				} else {
-					// Checking if multiple files are selected
-					if (clipData != null) {
-						final int numSelectedFiles = clipData.getItemCount();
-						results = new Uri[numSelectedFiles];
-						for (int i = 0; i < numSelectedFiles; i++) {
-							results[i] = clipData.getItemAt(i).getUri();
-						}
-					} else if (stringData != null) {
-						results = new Uri[]{Uri.parse(stringData)};
-					}
-				}
-			}
-			// Send the file paths to the callback and reset
-			if (SmartWebView.file_path != null) {
-				SmartWebView.file_path.onReceiveValue(results);
-				SmartWebView.file_path = null;
-			}
-		});
-
-		// Pass the launcher to FileProcessing
-		fileProcessing.registerActivityResultLauncher();
-
-		// Setting port view
-		String cookie_orientation = !(boolean) SmartWebView.OFFLINE ? fns.get_cookies("ORIENT") : "";
-		fns.set_orientation((!Objects.equals(cookie_orientation, "") ? Integer.parseInt(cookie_orientation) : SmartWebView.ORIENTATION), false, this);
-
-		// Use service worker
-		if (Build.VERSION.SDK_INT >= 24) {
-			ServiceWorkerController swController = ServiceWorkerController.getInstance();
-			swController.setServiceWorkerClient(new ServiceWorkerClient() {
-				@Override
-				public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {
-					return null;
-				}
-			});
-		}
-
-		// Prevent app from being started again when it is still alive in the background
-		if (!isTaskRoot()) {
-			finish();
-			return;
-		}
-
-		setContentView(R.layout.activity_main);
-
-		SmartWebView.view = findViewById(R.id.view);
-
-		// Add permission to print; allow only then to exec print_view
-		SmartWebView.print_view = findViewById(R.id.print_view); // view on which you want to take a printout
-
-		// Initializing notification manager
-		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-		if (Build.VERSION.SDK_INT >= 26) {
-			NotificationChannel notificationChannel = new NotificationChannel(SmartWebView.fcm_channel, String.valueOf(R.string.notification_channel_name), NotificationManager.IMPORTANCE_HIGH);
-			notificationChannel.setDescription(String.valueOf(R.string.notification_channel_desc));
-			notificationChannel.setLightColor(Color.RED);
-			notificationChannel.enableVibration(true);
-			notificationChannel.setShowBadge(true);
-			assert notificationManager != null;
-			notificationManager.createNotificationChannel(notificationChannel);
-		}
-
-		// Swipe refresh
-		final SwipeRefreshLayout pull_refresh = findViewById(R.id.pullfresh);
-		if (SmartWebView.PULLFRESH) {
-			pull_refresh.setOnRefreshListener(() -> {
-				fns.pull_fresh(getApplicationContext());
-				pull_refresh.setRefreshing(false);
-			});
-			SmartWebView.view.getViewTreeObserver().addOnScrollChangedListener(() -> pull_refresh.setEnabled(SmartWebView.view.getScrollY() == 0));
-		} else {
-			pull_refresh.setRefreshing(false);
-			pull_refresh.setEnabled(false);
-		}
-
-		// Progress bar permission loop
-		if (SmartWebView.PBAR) {
-			SmartWebView.progress = findViewById(R.id.progress);
-		} else {
-			findViewById(R.id.progress).setVisibility(View.GONE);
-		}
-		Handler handler = new Handler();
-
-		// Launching app rating request
-		if (SmartWebView.RATINGS) {
-			handler.postDelayed(fns.get_rating(getApplicationContext()), 1000 * 60); //running request after few moments
-		}
-
-		// Logging basic device information
-		fns.get_info();
-
-		// Fetching GPS location if given permission
-		if (SmartWebView.LOCATION && !fns.check_permission(1, getApplicationContext())) {
-			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, SmartWebView.loc_perm);
-		}else {
-			fns.get_location(getApplicationContext());
-		}
-
-		// Webview default customizations; customized for best performance
-		WebSettings webSettings = SmartWebView.view.getSettings();
-
-		// Setting custom user agent
-		if (SmartWebView.OVERRIDE_USER_AGENT || SmartWebView.POSTFIX_USER_AGENT) {
-			String userAgent = webSettings.getUserAgentString();
-			if (SmartWebView.OVERRIDE_USER_AGENT) {
-				userAgent = SmartWebView.CUSTOM_USER_AGENT;
-			}
-			if (SmartWebView.POSTFIX_USER_AGENT) {
-				userAgent = userAgent + " " + SmartWebView.USER_AGENT_POSTFIX;
-			}
-			webSettings.setUserAgentString(userAgent);
-		}
-
-		webSettings.setJavaScriptEnabled(true);
-		webSettings.setSaveFormData(SmartWebView.SFORM);
-		webSettings.setSupportZoom(SmartWebView.ZOOM);
-		webSettings.setGeolocationEnabled(SmartWebView.LOCATION);
-		webSettings.setAllowFileAccess(true);
-		webSettings.setAllowFileAccessFromFileURLs(true);
-		webSettings.setAllowUniversalAccessFromFileURLs(true);
-		webSettings.setUseWideViewPort(true);
-		webSettings.setDomStorageEnabled(true);
-
-		if (!SmartWebView.COPYPASTE) {
-			SmartWebView.view.setOnLongClickListener(v -> true);
-		}
-		SmartWebView.view.setHapticFeedbackEnabled(false);
-
-		// Webview download listener
-		SmartWebView.view.setDownloadListener((url, userAgent, contentDisposition, mimeType, contentLength) -> {
-
-			if (!fns.check_permission(2, getApplicationContext()) && !fns.check_permission(3, getApplicationContext())) {
-				fns.get_permissions(3,MainActivity.this);
-
-			} else {
-				DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-
-				request.setMimeType(mimeType);
-				request.addRequestHeader("cookie", fns.get_cookies(""));
-				request.addRequestHeader("User-Agent", userAgent);
-				request.setDescription(getString(R.string.dl_downloading));
-				request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimeType));
-				request.allowScanningByMediaScanner();
-				request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-				request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(url, contentDisposition, mimeType));
-				DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-				assert dm != null;
-				dm.enqueue(request);
-				Toast.makeText(this, getString(R.string.dl_downloading2), Toast.LENGTH_LONG).show();
-			}
-		});
-		// getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-		getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
-		webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-		SmartWebView.view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-		SmartWebView.view.setVerticalScrollBarEnabled(false); //** set this as permission variable
-		SmartWebView.view.setWebViewClient(new Callback());
-
-		// Reading incoming intents
-		Intent read_int = getIntent();
-		Log.d("SLOG_INTENT", read_int.toUri(0));
-		String uri = read_int.getStringExtra("uri");
-		String share = read_int.getStringExtra("s_uri");
-		String share_img = read_int.getStringExtra("s_img");
-
-		if (share != null) {
-			// Processing shared content
-			Log.d("SLOG_SHARE_INTENT", share);
-			Matcher matcher = Functions.url_pattern().matcher(share);
-			String urlStr = "";
-			if (matcher.find()) {
-				urlStr = matcher.group();
-				if (urlStr.startsWith("(") && urlStr.endsWith(")")) {
-					urlStr = urlStr.substring(1, urlStr.length() - 1);
-				}
-			}
-			String red_url = SmartWebView.SHARE_URL + "?text=" + share + "&link=" + urlStr + "&image_url=";
-			fns.greenville_view(red_url, false, SmartWebView.error_counter, getApplicationContext());
-
-		// Processing shared image
-		} else if (share_img != null) {
-			Log.d("SLOG_SHARE_INTENT", share_img);
-			Toast.makeText(this, share_img, Toast.LENGTH_LONG).show();
-			fns.greenville_view(SmartWebView.URL, false, SmartWebView.error_counter, getApplicationContext());
-
-		// Opening notification
-		} else if (uri != null) {
-			Log.d("SLOG_NOTIFICATION_INTENT", uri);
-			fns.greenville_view(uri, false, SmartWebView.error_counter, getApplicationContext());
-
-		// Rendering default URL
-		} else {
-			Log.d("SLOG_MAIN_INTENT", SmartWebView.URL);
-			fns.greenville_view(SmartWebView.URL, false, SmartWebView.error_counter, getApplicationContext());
-		}
-
-		SmartWebView.view.setWebChromeClient(new WebChromeClient() {
-			@Override
-			public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-				if(SmartWebView.DEBUGMODE) {
-					Log.d("JS", consoleMessage.message() + " -- From line " +
-						consoleMessage.lineNumber() + " of " + consoleMessage.sourceId());
-				}
-				return true;
-			}
-
-			@Override
-			public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-				return fileProcessing.onShowFileChooser(webView, filePathCallback, fileChooserParams);
-			}
-
-			// Webview content rendering progress
-			@Override
-			public void onProgressChanged(WebView view, int p) {
-				if (SmartWebView.PBAR) {
-					SmartWebView.progress.setProgress(p);
-					if (p == 100) {
-						SmartWebView.progress.setProgress(0);
-					}
-				}
-			}
-
-			// Overload the geoLocations permissions prompt to always allow instantly as app permission was granted previously
-			public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
-				if (fns.check_permission(1, getApplicationContext())) {
-					callback.invoke(origin, true, false);
-				} else {
-					fns.get_permissions(1, MainActivity.this);
-
-				}
-			}
-		});
-
-		if (getIntent().getData() != null) {
-			String path = getIntent().getDataString();
-			fns.greenville_view(path, false, SmartWebView.error_counter, getApplicationContext());
-		}
-
-		// Debug mode logging data
-		if(SmartWebView.DEBUGMODE){
-			Log.d("DEBUG", "URL: "+SmartWebView.CURR_URL+"DEVICE INFO: "+ Arrays.toString(fns.get_info()));
-		}
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		SmartWebView.view.onPause();
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		SmartWebView.view.onResume();
-		Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-		ActivityManager.TaskDescription taskDesc;
-		taskDesc = new ActivityManager.TaskDescription(getString(R.string.app_name), bm, getColor(R.color.colorPrimary));
-		this.setTaskDescription(taskDesc);
-
-		if (SmartWebView.LOCATION) {
-			fns.get_location(getApplicationContext());
-		}
-	}
-
-	// Actions on key logging
-	@Override
-	public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
-		if (event.getAction() == KeyEvent.ACTION_DOWN) {
-			if (keyCode == KeyEvent.KEYCODE_BACK) {
-				if (SmartWebView.view.canGoBack()) {
-					SmartWebView.view.goBack();
-				} else {
-					if (SmartWebView.EXITDIAL) {
-						fns.ask_exit(getApplicationContext());
-					} else {
-						finish();
-					}
-				}
-				return true;
-			}
-		}
-		return super.onKeyDown(keyCode, event);
-	}
-
-	@Override
-	protected void onStart() {
-		super.onStart();
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-	}
-
-	@Override
-	public void onConfigurationChanged(@NonNull Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-	}
-
-	@Override
-	protected void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-		SmartWebView.view.saveState(outState);
-	}
-
-	@Override
-	protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-		super.onRestoreInstanceState(savedInstanceState);
-		SmartWebView.view.restoreState(savedInstanceState);
-	}
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-		// Forward the result to the PluginManager
-		pluginManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-		if (requestCode == SmartWebView.loc_perm) {
-			if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				// Location permission granted
-				if (SmartWebView.LOCATION) {
-					fns.get_location(getApplicationContext());
-				}
-			} else {
-				// Location permission denied
-				if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-					// User has denied permission with "Don't ask again"
-					// Guide the user to app settings to enable the permission manually
-					// You can display a dialog or a Snackbar here
-				} else {
-					// User has denied permission without "Don't ask again"
-					// You can show a rationale again or simply inform the user that the feature is disabled
-				}
-			}
-		} else if (requestCode == SmartWebView.file_perm || requestCode == SmartWebView.cam_perm) {
-			if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				// File or Camera permission granted
-				if (SmartWebView.FUPLOAD) {
-					// You might want to add a method here to re-trigger the file chooser
-					// For example:
-					// retryOpenFileChooser();
-				}
-			} else {
-				// Permission denied
-				if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
-					!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
-					// User has denied permission with "Don't ask again"
-					// Guide the user to app settings to enable the permission manually
-				} else {
-					// User has denied permission without "Don't ask again"
-					// Inform the user that the feature is disabled or show a rationale
-				}
-			}
-		}else if (requestCode == SmartWebView.noti_perm) {
-			if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				// Send a test notification
-				Firebase firebase = new Firebase();
-				firebase.sendMyNotification("Yay! Firebase is working", "This is a test notification in action.", "OPEN_URI", SmartWebView.URL, null, String.valueOf(SmartWebView.FCM_ID), getApplicationContext());
-			}
-
-		}
-	}
-
-	// Setting activity layout visibility
-	private class Callback extends WebViewClient {
-		public void onPageStarted(WebView view, String url, Bitmap favicon) {
-			fns.get_location(getApplicationContext());
-		}
-
-		public void onPageFinished(WebView view, String url) {
-			findViewById(R.id.welcome).setVisibility(View.GONE);
-			findViewById(R.id.view).setVisibility(View.VISIBLE);
-
-			// Injecting Google Tag Manager
-			fns.inject_gtag(view, SmartWebView.GTAG);
-		}
-
-		@Override
-		public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-			String url = request.getUrl().toString();
-
-			// Check if the PluginManager wants to override the URL
-			if (pluginManager.shouldOverrideUrlLoading(view, request)) {
-				return true; // URL was handled by a plugin
-			}
-
-			// Default handling for other URLs
-			if (url.startsWith("print:")) {
-				Functions.print_page(view, view.getTitle(), MainActivity.this);
-				return true;
-			} else {
-				if (url.matches("^(https?|file)://.*$")) {
-					SmartWebView.CURR_URL = url;
-				}
-				return fns.url_actions(view, url, MainActivity.this);
-			}
-		}
-
-		@SuppressLint("WebViewClientOnReceivedSslError")
-		@Override
-		public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-			if (SmartWebView.CERT_VERI) {
-				// Default behavior: Don't proceed with untrusted certificates
-				super.onReceivedSslError(view, handler, error);
-			} else {
-				// Bypass SSL error
-				handler.proceed();
-
-				// Show Toast message if debug mode is enabled
-				if (SmartWebView.DEBUGMODE) {
-					Toast.makeText(MainActivity.this, "SSL Error: " + error.getPrimaryError(), Toast.LENGTH_SHORT).show();
-				}
-			}
-		}
-
-		@Override
-		public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
-			super.onReceivedHttpError(view, request, errorResponse);
-			Log.e("HTTP_ERROR", "Error loading " + request.getUrl().toString() + ": " + errorResponse.getStatusCode());
-		}
-	}
+
+    private ActivityMainBinding binding;
+    private ValueCallback<Uri[]> filePathCallback;
+    private static final int FILE_CHOOSER_REQUEST_CODE = 100;
+    private WebView webView;
+    private boolean isLoading = false;
+    private Handler handler = new Handler();
+    private int progress = 0;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private RelativeLayout splashScreen;
+    private View noInternetLayout;
+    private ProgressBar progressBar;
+    private ProgressBar loadingBar;
+    private Button retryButton;
+
+    @SuppressLint({"SetJavaScriptEnabled", "NonConstantResourceId"})
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        webView = findViewById(R.id.webview);
+        splashScreen = findViewById(R.id.splash_screen);
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+        BottomNavigationView navView = findViewById(R.id.nav_view);
+        noInternetLayout = findViewById(R.id.no_internet_layout);
+        retryButton = findViewById(R.id.retry_button);
+        progressBar = findViewById(R.id.progress_bar);
+        loadingBar = findViewById(R.id.loading_bar);
+
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+        webSettings.setAllowFileAccess(true);
+        webSettings.setBuiltInZoomControls(true);
+        webSettings.setDisplayZoomControls(false);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setUseWideViewPort(true);
+
+        webView.setWebViewClient(new WebViewClient() {
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                loadingBar.setVisibility(View.VISIBLE);
+                isLoading = true;
+                progressBar.setVisibility(View.VISIBLE);
+                progressBar.setProgress(0);
+                progress = 0;
+                startProgressBar();
+                super.onPageStarted(view, url, favicon);
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                splashScreen.setVisibility(View.GONE);
+                isLoading = false;
+                progressBar.setProgress(100);
+                handler.removeCallbacksAndMessages(null);
+                loadingBar.setVisibility(View.GONE);
+                webView.setVisibility(View.VISIBLE);
+                navView.setVisibility(View.VISIBLE);
+                super.onPageFinished(view, url);
+            }
+            public boolean shouldOverrideUrlLoading(WebView view) {
+                view.loadUrl(Objects.requireNonNull(view.getUrl()));
+                return true;
+            }
+
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                Toast.makeText(MainActivity.this, "Error: " + description, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // File upload support
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                if (isLoading) {
+                    progressBar.setProgress(newProgress);
+                }
+            }
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
+                MainActivity.this.filePathCallback = filePathCallback;
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                startActivityForResult(Intent.createChooser(intent, "Choose File"), FILE_CHOOSER_REQUEST_CODE);
+                return true;
+            }
+        });
+
+        // Handle downloads
+        webView.setDownloadListener(new DownloadListener() {
+            @Override
+            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                startActivity(intent);
+            }
+        });
+
+        // Load your website
+        webView.loadUrl("https://greenville-frontend.vercel.app/");
+
+        navView.setOnItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    webView.loadUrl("https://greenville-frontend.vercel.app/");
+                    break;
+                case R.id.navigation_cart:
+                    webView.loadUrl("https://greenville-frontend.vercel.app/cart");
+                    break;
+                case R.id.navigation_profile:
+                    webView.loadUrl("https://greenville-frontend.vercel.app/profile");
+                    break;
+            }
+            return true;
+        });
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
+        setupSwipeRefresh();
+        setupRetryButton();
+        checkInternetAndLoad();
+    }
+
+    private void startProgressBar() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (isLoading && progress < 100) {
+                    progress += 1;
+                    progressBar.setProgress(progress);
+                    handler.postDelayed(this, 100);
+                }
+            }
+        }, 100);
+    }
+
+    // Handle file chooser results
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == FILE_CHOOSER_REQUEST_CODE && filePathCallback != null) {
+            Uri[] results = (data == null || resultCode != RESULT_OK) ? null : new Uri[]{data.getData()};
+            filePathCallback.onReceiveValue(results);
+            filePathCallback = null;
+        }
+    }
+
+    // Enable back navigation in WebView
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && webView.canGoBack()) {
+            webView.goBack();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void setupSwipeRefresh() {
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            if (isConnected()) {
+                webView.reload();
+                swipeRefreshLayout.setRefreshing(false);
+            } else {
+                showNoInternetLayout();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    private void setupRetryButton() {
+        retryButton.setOnClickListener(v -> checkInternetAndLoad());
+    }
+
+    private void checkInternetAndLoad() {
+        if (isConnected()) {
+            noInternetLayout.setVisibility(View.GONE);
+            webView.setVisibility(View.VISIBLE);
+            webView.loadUrl("https://greenville-frontend.vercel.app/");
+        } else {
+            showNoInternetLayout();
+        }
+    }
+
+    private void showNoInternetLayout() {
+        webView.setVisibility(View.GONE);
+        noInternetLayout.setVisibility(View.VISIBLE);
+    }
+
+    private boolean isConnected() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnected();
+    }
 }
