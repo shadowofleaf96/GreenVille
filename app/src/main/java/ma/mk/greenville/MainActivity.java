@@ -12,9 +12,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.Window;
-import androidx.activity.OnBackPressedCallback;
-import android.view.WindowManager;
 import android.webkit.DownloadListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -22,21 +19,17 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import java.util.Objects;
-
 import ma.mk.greenville.databinding.ActivityMainBinding;
+import ma.mk.greenville.dialogs.ExitDialog;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,12 +41,14 @@ public class MainActivity extends AppCompatActivity {
     private Handler handler = new Handler();
     private int progress = 0;
     long splashStartTime = System.currentTimeMillis();
-    private SwipeRefreshLayout swipeRefreshLayout;
     private RelativeLayout splashScreen;
     private RelativeLayout noInternetLayout;
+    private SwipeRefreshLayout swipeRefreshLayout;
+
     private ProgressBar progressBar;
     private ProgressBar loadingBar;
     private Button retryButton;
+    private BottomNavigationView navView;
 
     @SuppressLint({"SetJavaScriptEnabled", "NonConstantResourceId"})
     @Override
@@ -65,12 +60,13 @@ public class MainActivity extends AppCompatActivity {
         webView = findViewById(R.id.webview);
         splashScreen = findViewById(R.id.splash_screen);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh);
-        BottomNavigationView navView = findViewById(R.id.nav_view);
+        navView = findViewById(R.id.nav_view);
         noInternetLayout = findViewById(R.id.no_internet_layout);
         retryButton = findViewById(R.id.retry_button);
         progressBar = findViewById(R.id.progress_bar);
         loadingBar = findViewById(R.id.loading_bar);
 
+        // Set up WebView and its settings
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
@@ -81,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
 
+        // Set WebView client for handling page loading and errors
         webView.setWebViewClient(new WebViewClient() {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 loadingBar.setVisibility(View.VISIBLE);
@@ -94,10 +91,9 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                long minSplashTime = 2000;
+                long minSplashTime = 2000;  // Minimum time to show splash
                 long currentTime = System.currentTimeMillis();
                 long elapsedTime = currentTime - splashStartTime;
-
                 long remainingTime = Math.max(0, minSplashTime - elapsedTime);
 
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -105,26 +101,31 @@ public class MainActivity extends AppCompatActivity {
                     isLoading = false;
                     progressBar.setProgress(100);
                     loadingBar.setVisibility(View.GONE);
-                    webView.setVisibility(View.VISIBLE);
-                    navView.setVisibility(View.VISIBLE);
+
+                    // Check if connected to the internet before displaying the WebView or No Internet
+                    if (isConnected()) {
+                        webView.setVisibility(View.VISIBLE);
+                        navView.setVisibility(View.VISIBLE); // Show NavView if there's internet
+                        noInternetLayout.setVisibility(View.GONE); // Hide No Internet Layout
+                    } else {
+                        webView.setVisibility(View.GONE);
+                        navView.setVisibility(View.GONE); // Hide NavView if no internet
+                        noInternetLayout.setVisibility(View.VISIBLE); // Show No Internet Layout
+                    }
                 }, remainingTime);
 
                 super.onPageFinished(view, url);
-            }
-            public boolean shouldOverrideUrlLoading(WebView view) {
-                view.loadUrl(Objects.requireNonNull(view.getUrl()));
-                return true;
             }
 
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 noInternetLayout.setVisibility(View.VISIBLE);
                 webView.setVisibility(View.GONE);
+                navView.setVisibility(View.GONE); // Hide NavView in case of no internet
                 Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // File upload support
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
@@ -132,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
                     progressBar.setProgress(newProgress);
                 }
             }
+
             @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
                 MainActivity.this.filePathCallback = filePathCallback;
@@ -144,16 +146,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Handle downloads
-        webView.setDownloadListener(new DownloadListener() {
-            @Override
-            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(url));
-                startActivity(intent);
-            }
+        webView.setDownloadListener((url, userAgent, contentDisposition, mimeType, contentLength) -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(url));
+            startActivity(intent);
         });
 
-        // Load your website
         webView.loadUrl("https://greenville-frontend.vercel.app/");
 
         navView.setOnItemSelectedListener(item -> {
@@ -173,23 +171,65 @@ public class MainActivity extends AppCompatActivity {
 
         retryButton.setOnClickListener(v -> {
             if (isConnected()) {
+                webView.reload();
                 noInternetLayout.setVisibility(View.GONE);
                 webView.setVisibility(View.VISIBLE);
-                webView.reload();
             } else {
-                Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Oops! No internet connection. Please check your network or try again.", Toast.LENGTH_LONG).show();
+                navView.setVisibility(View.GONE);
+                webView.setVisibility(View.GONE);
             }
         });
 
+        // Add the Back Button handling in onCreate() method
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                finish();
+                if (webView != null && webView.canGoBack()) {
+                    // If WebView can go back, navigate back in WebView history
+                    webView.goBack();
+                } else {
+                    // If WebView cannot go back, show the exit dialog
+                    ExitDialog.showExitDialog(MainActivity.this, MainActivity.this::finish);
+                }
             }
         });
+
+        // Set up swipe-to-refresh
         setupSwipeRefresh();
+
+        // Ensure splash screen is visible for at least 2 seconds before checking internet
+        splashStartTime = System.currentTimeMillis();
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (isConnected()) {
+                webView.setVisibility(View.VISIBLE);
+                noInternetLayout.setVisibility(View.GONE);
+                navView.setVisibility(View.VISIBLE); // Show NavView if there's internet
+            } else {
+                webView.setVisibility(View.GONE);
+                noInternetLayout.setVisibility(View.VISIBLE);
+                navView.setVisibility(View.GONE); // Hide NavView if no internet
+            }
+        }, 2000);  // Minimum duration for splash screen
     }
 
+    private void setupSwipeRefresh() {
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            if (isConnected()) {
+                noInternetLayout.setVisibility(View.GONE);
+                navView.setVisibility(View.VISIBLE);
+                webView.setVisibility(View.VISIBLE);
+                webView.reload();
+            } else {
+                noInternetLayout.setVisibility(View.VISIBLE);
+                navView.setVisibility(View.GONE);
+                webView.setVisibility(View.GONE);
+            }
+            swipeRefreshLayout.setRefreshing(false);
+        });
+    }
+
+    // Start the progress bar for page loading
     private void startProgressBar() {
         handler.postDelayed(new Runnable() {
             @Override
@@ -203,41 +243,7 @@ public class MainActivity extends AppCompatActivity {
         }, 100);
     }
 
-    // Handle file chooser results
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == FILE_CHOOSER_REQUEST_CODE && filePathCallback != null) {
-            Uri[] results = (data == null || resultCode != RESULT_OK) ? null : new Uri[]{data.getData()};
-            filePathCallback.onReceiveValue(results);
-            filePathCallback = null;
-        }
-    }
-
-    // Enable back navigation in WebView
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && webView.canGoBack()) {
-            webView.goBack();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    private void setupSwipeRefresh() {
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            if (isConnected()) {
-                noInternetLayout.setVisibility(View.GONE);
-                webView.setVisibility(View.VISIBLE);
-                webView.reload();
-            } else {
-                noInternetLayout.setVisibility(View.VISIBLE);
-                webView.setVisibility(View.GONE);
-            }
-            swipeRefreshLayout.setRefreshing(false);
-        });
-    }
-
+    // Check for internet connection
     private boolean isConnected() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();

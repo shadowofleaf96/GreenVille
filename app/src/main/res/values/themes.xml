@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.GreenVille" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.GreenVille" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/lime_green</item>
         <item name="colorPrimaryVariant">@color/yellow_400</item>
@@ -8,6 +8,7 @@
         <item name="android:windowActionBar">false</item>
         <item name="bottomNavigationStyle">@style/Widget.MaterialComponents.BottomNavigationView.Colored</item>
         <item name="colorOnPrimary">@color/white</item>
+        <item name="android:navigationBarColor">?attr/colorPrimaryVariant</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/white</item>
         <item name="colorSecondaryVariant">@color/white</item>

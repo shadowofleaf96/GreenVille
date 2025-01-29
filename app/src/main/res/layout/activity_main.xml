@@ -51,58 +51,6 @@
 
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/no_internet_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/white"
-        android:visibility="gone"
-        android:gravity="center"
-        android:padding="24dp">
-
-        <!-- ImageView for displaying an icon/illustration -->
-        <ImageView
-            android:id="@+id/no_internet_image"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="16dp"
-            android:src="@drawable/ic_no_internet" <!-- Replace with your drawable resource -->
-        android:contentDescription="No internet connection illustration" />
-
-        <!-- TextView for displaying the message -->
-        <TextView
-            android:id="@+id/no_internet_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/no_internet_image"
-            android:layout_centerHorizontal="true"
-            android:text="No Internet Connection"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="24dp"
-            android:gravity="center"
-            android:textStyle="bold" />
-
-        <!-- Retry Button for user action -->
-        <Button
-            android:id="@+id/retry_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/no_internet_text"
-            android:layout_centerHorizontal="true"
-            android:text="Retry"
-            android:backgroundTint="@color/lime_green"
-            android:textColor="@android:color/white"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:elevation="4dp"
-            android:layout_marginTop="16dp" />
-    </RelativeLayout>
-
-
     <!-- SwipeRefreshLayout -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh"
@@ -133,5 +81,56 @@
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="selected"
         android:visibility="gone" />
+
+    <RelativeLayout
+        android:id="@+id/no_internet_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:visibility="gone"
+        android:gravity="center"
+        android:padding="24dp">
+
+        <!-- ImageView for displaying an icon/illustration -->
+        <ImageView
+            android:id="@+id/no_internet_image"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="20dp"
+            android:src="@drawable/illustration_404"
+            android:contentDescription="No internet connection illustration" />
+
+        <!-- TextView for displaying the message -->
+        <TextView
+            android:id="@+id/no_internet_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/no_internet_image"
+            android:layout_centerHorizontal="true"
+            android:text="You're offline. Please check your connection or try again later."
+            android:textSize="20sp"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:textStyle="bold" />
+
+        <!-- Retry Button for user action -->
+        <Button
+            android:id="@+id/retry_button"
+            android:layout_width="200dp"
+            android:background="@drawable/button_shape"
+            android:foreground="?attr/selectableItemBackground"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/no_internet_text"
+            android:layout_centerHorizontal="true"
+            android:text="Retry"
+            android:textSize="16sp"
+            android:backgroundTint="@color/lime_green"
+            android:textColor="@android:color/white"
+            android:padding="12dp"
+            android:elevation="6dp"
+            android:layout_marginTop="20dp" />
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
