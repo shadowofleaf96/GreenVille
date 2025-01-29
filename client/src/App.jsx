@@ -14,7 +14,7 @@ export default function App() {
   useScrollToTop();
 
   useEffect(() => {
-    document.documentElement.setAttribute('dir', i18n.language === 'ar' ? 'rtl' : 'ltr');
+    document.documentElement.setAttribute("dir", i18n.language === "ar" ? "rtl" : "ltr");
   }, [i18n.language]);
   
   return (
