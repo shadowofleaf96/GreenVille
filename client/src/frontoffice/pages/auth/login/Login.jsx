@@ -44,6 +44,7 @@ const Login = () => {
   const [enteredForgotEmail, setEnteredForgotEmail] = useState("");
   const [loadingSave, setLoadingSave] = useState(false);
   const axiosInstance = createAxiosInstance("customer");
+  const [isWebView, setIsWebView] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm();
 
@@ -74,6 +75,12 @@ const Login = () => {
     return captchaToken;
   }, [executeRecaptcha]);
 
+  useEffect(() => {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    if (userAgent.includes("GreenVille")) {
+      setIsWebView(true);
+    }
+  }, []);
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -135,7 +142,12 @@ const Login = () => {
 
       if (res.status === 200) {
         if (res.data.cleanUrl) {
-          window.location.href = res.data.cleanUrl;
+          let redirectUrl = res.data.cleanUrl;
+          if (isWebView) {
+            redirectUrl = redirectUrl.replace("https://greenville-frontend.vercel.app", "greenville://");
+          } else {
+            window.location.href = redirectUrl;
+          }
         } else {
           localStorage.setItem("customer_access_token", res.data.access_token);
 
