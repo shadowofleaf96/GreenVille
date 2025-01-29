@@ -40,8 +40,8 @@ const Navbar = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    const userAgent = navigator.userAgent.toLowerCase();
-    if (userAgent.includes('wv')) {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    if (userAgent.includes("GreenVille")) {
       setIsWebView(true);
     }
   }, []);
