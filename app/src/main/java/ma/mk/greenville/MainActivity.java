@@ -10,9 +10,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.KeyEvent;
+import android.util.Log;
 import android.view.View;
-import android.webkit.DownloadListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -23,11 +22,14 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import ma.mk.greenville.databinding.ActivityMainBinding;
 import ma.mk.greenville.dialogs.ExitDialog;
 
@@ -83,9 +85,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
                     if (url.contains("greenville-frontend.vercel.app")) {
-                        return false; // Load in WebView if it’s part of Greenville
+                        return false;
                     } else {
-                        // Open other external links in Chrome
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                         intent.setPackage("com.android.chrome");
                         try {
@@ -126,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
                 }, delay);
 
                 super.onPageFinished(view, url);
+                startCartCountCheck();
             }
 
             @Override
@@ -165,18 +167,18 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        webView.loadUrl("https://greenville-frontend.vercel.app/");
+        webView.loadUrl(getString(R.string.home_url));
 
         navView.setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    webView.loadUrl("https://greenville-frontend.vercel.app/");
+                    webView.loadUrl(getString(R.string.home_url));
                     break;
                 case R.id.navigation_cart:
-                    webView.loadUrl("https://greenville-frontend.vercel.app/cart");
+                    webView.loadUrl(getString(R.string.cart_url));
                     break;
                 case R.id.navigation_profile:
-                    webView.loadUrl("https://greenville-frontend.vercel.app/profile");
+                    webView.loadUrl(getString(R.string.profile_url));
                     break;
             }
             return true;
@@ -220,6 +222,44 @@ public class MainActivity extends AppCompatActivity {
                 navView.setVisibility(View.GONE);
             }
         }, 2000);
+    }
+
+    private void startCartCountCheck() {
+        final Handler handler = new Handler(Looper.getMainLooper());
+        final Runnable cartCountRunnable = new Runnable() {
+            @Override
+            public void run() {
+                webView.evaluateJavascript(
+                        "(function() { " +
+                                "  var cart = localStorage.getItem('persist:cart');" +
+                                "  if (cart) {" +
+                                "    try {" +
+                                "      var parsedCart = JSON.parse(cart);" +
+                                "      return parsedCart.cartCount || '0';" +
+                                "    } catch (e) { return '0'; }" +
+                                "  } else {" +
+                                "    return '0';" +
+                                "  }" +
+                                "})();",
+                        value -> {
+                            int cartCount = Integer.parseInt(value.replace("\"", ""));
+                            updateCartBadge(cartCount);
+                        }
+                );
+                handler.postDelayed(this, 500);
+            }
+        };
+
+        handler.post(cartCountRunnable);
+    }
+
+    private void updateCartBadge(int count) {
+        if (count > 0) {
+            navView.getOrCreateBadge(R.id.navigation_cart).setNumber(count);
+            navView.getOrCreateBadge(R.id.navigation_cart).setVisible(true);
+        } else {
+            navView.removeBadge(R.id.navigation_cart);
+        }
     }
 
     private void setupSwipeRefresh() {

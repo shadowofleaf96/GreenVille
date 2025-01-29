@@ -3,4 +3,7 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="home_url">https://greenville-frontend.vercel.app/</string>
+    <string name="cart_url">https://greenville-frontend.vercel.app/cart</string>
+    <string name="profile_url">https://greenville-frontend.vercel.app/profile</string>
 </resources>
