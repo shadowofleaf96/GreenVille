@@ -88,7 +88,7 @@ const Banner = () => {
                     <p className="text-white text-sm md:text-lg mb-28 md:mb-20">
                       {t(slide.descriptionKey)}
                     </p>
-                    <Link className="flex bg-[#8DC63F] w-56 sm:w-64 md:w-80 text-white py-2 md:py-3 px-6 md:px-8 rounded-md justify-center items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 mx-auto md:mx-0" to="/products">{t(slide.buttonTextKey)}
+                    <Link className="flex bg-[#8DC63F] w-64 sm:w-68 md:w-80 text-white py-2 md:py-3 px-6 md:px-8 rounded-md justify-center items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 mx-auto md:mx-0" to="/products">{t(slide.buttonTextKey)}
                       <Iconify
                         icon="ep:right"
                         width={20}
