@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int FILE_CHOOSER_REQUEST_CODE = 100;
     private WebView webView;
     private boolean isLoading = false;
-    private Handler handler = new Handler();
     private int progress = 0;
     long splashStartTime = System.currentTimeMillis();
     private RelativeLayout splashScreen;
@@ -50,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar loadingBar;
     private Button retryButton;
     private BottomNavigationView navView;
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     @SuppressLint({"SetJavaScriptEnabled", "NonConstantResourceId"})
     @Override
@@ -80,6 +80,22 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setUseWideViewPort(true);
 
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url.contains("greenville-frontend.vercel.app")) {
+                    return false;
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    intent.setPackage("com.android.chrome");
+                    try {
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        intent.setPackage(null);
+                        startActivity(intent);
+                    }
+                    return true;
+                }
+            }
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 loadingBar.setVisibility(View.VISIBLE);
                 isLoading = true;
@@ -92,28 +108,21 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                long minSplashTime = 2000;  // Minimum time to show splash
-                long currentTime = System.currentTimeMillis();
-                long elapsedTime = currentTime - splashStartTime;
-                long remainingTime = Math.max(0, minSplashTime - elapsedTime);
+                long minSplashTime = 2000;
+                long elapsedTime = System.currentTimeMillis() - splashStartTime;
+                long delay = Math.max(0, minSplashTime - elapsedTime);
 
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     splashScreen.setVisibility(View.GONE);
-                    isLoading = false;
-                    progressBar.setProgress(100);
                     loadingBar.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.GONE);
+                    isLoading = false;
 
-                    // Check if connected to the internet before displaying the WebView or No Internet
-                    if (isConnected()) {
-                        webView.setVisibility(View.VISIBLE);
-                        navView.setVisibility(View.VISIBLE); // Show NavView if there's internet
-                        noInternetLayout.setVisibility(View.GONE); // Hide No Internet Layout
-                    } else {
-                        webView.setVisibility(View.GONE);
-                        navView.setVisibility(View.GONE); // Hide NavView if no internet
-                        noInternetLayout.setVisibility(View.VISIBLE); // Show No Internet Layout
-                    }
-                }, remainingTime);
+                    boolean hasInternet = isConnected();
+                    webView.setVisibility(hasInternet ? View.VISIBLE : View.GONE);
+                    navView.setVisibility(hasInternet ? View.VISIBLE : View.GONE);
+                    noInternetLayout.setVisibility(hasInternet ? View.GONE : View.VISIBLE);
+                }, delay);
 
                 super.onPageFinished(view, url);
             }
@@ -122,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 noInternetLayout.setVisibility(View.VISIBLE);
                 webView.setVisibility(View.GONE);
-                navView.setVisibility(View.GONE); // Hide NavView in case of no internet
+                navView.setVisibility(View.GONE);
                 Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
             }
         });
@@ -130,9 +139,12 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
-                if (isLoading) {
-                    progressBar.setProgress(newProgress);
+                if (newProgress < 100) {
+                    progressBar.setVisibility(View.VISIBLE);
+                } else {
+                    progressBar.setVisibility(View.GONE);
                 }
+                progressBar.setProgress(newProgress);
             }
 
             @Override
@@ -146,7 +158,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Handle downloads
         webView.setDownloadListener((url, userAgent, contentDisposition, mimeType, contentLength) -> {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(url));
@@ -175,76 +186,64 @@ public class MainActivity extends AppCompatActivity {
                 webView.reload();
                 noInternetLayout.setVisibility(View.GONE);
                 webView.setVisibility(View.VISIBLE);
+                navView.setVisibility(View.VISIBLE);
             } else {
-                Toast.makeText(MainActivity.this, "Oops! No internet connection. Please check your network or try again.", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Oops! No internet connection.", Toast.LENGTH_LONG).show();
                 navView.setVisibility(View.GONE);
                 webView.setVisibility(View.GONE);
             }
         });
 
-        // Add the Back Button handling in onCreate() method
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 if (webView != null && webView.canGoBack()) {
-                    // If WebView can go back, navigate back in WebView history
                     webView.goBack();
                 } else {
-                    // If WebView cannot go back, show the exit dialog
                     ExitDialog.showExitDialog(MainActivity.this, MainActivity.this::finish);
                 }
             }
         });
 
-        // Set up swipe-to-refresh
         setupSwipeRefresh();
 
-        // Ensure splash screen is visible for at least 2 seconds before checking internet
         splashStartTime = System.currentTimeMillis();
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (isConnected()) {
                 webView.setVisibility(View.VISIBLE);
                 noInternetLayout.setVisibility(View.GONE);
-                navView.setVisibility(View.VISIBLE); // Show NavView if there's internet
+                navView.setVisibility(View.VISIBLE);
             } else {
                 webView.setVisibility(View.GONE);
                 noInternetLayout.setVisibility(View.VISIBLE);
-                navView.setVisibility(View.GONE); // Hide NavView if no internet
+                navView.setVisibility(View.GONE);
             }
-        }, 2000);  // Minimum duration for splash screen
+        }, 2000);
     }
 
     private void setupSwipeRefresh() {
         swipeRefreshLayout.setOnRefreshListener(() -> {
             if (isConnected()) {
-                noInternetLayout.setVisibility(View.GONE);
-                navView.setVisibility(View.VISIBLE);
-                webView.setVisibility(View.VISIBLE);
                 webView.reload();
             } else {
-                noInternetLayout.setVisibility(View.VISIBLE);
-                navView.setVisibility(View.GONE);
-                webView.setVisibility(View.GONE);
+                Toast.makeText(MainActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
             }
             swipeRefreshLayout.setRefreshing(false);
         });
     }
 
-    // Start the progress bar for page loading
     private void startProgressBar() {
-        handler.postDelayed(new Runnable() {
+        handler.post(new Runnable() {
             @Override
             public void run() {
                 if (isLoading && progress < 100) {
-                    progress += 1;
-                    progressBar.setProgress(progress);
+                    progressBar.setProgress(++progress);
                     handler.postDelayed(this, 100);
                 }
             }
-        }, 100);
+        });
     }
 
-    // Check for internet connection
     private boolean isConnected() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
