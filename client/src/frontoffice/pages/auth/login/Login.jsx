@@ -289,7 +289,7 @@ const Login = () => {
                   locale={i18n.language}
                   auto_select={false}
                   use_fedcm_for_prompt={true}
-                  ux_mode="popup"
+                  ux_mode="redirect"
                   context="signin"
                 />
               </div>
