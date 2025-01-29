@@ -82,17 +82,7 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    if (url.contains("accounts.google.com")) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        intent.setPackage("com.android.chrome"); // Open in Chrome Custom Tab
-                        try {
-                            startActivity(intent);
-                        } catch (Exception e) {
-                            intent.setPackage(null); // Open in any browser if Chrome is unavailable
-                            startActivity(intent);
-                        }
-                        return true; // Prevent WebView from loading the login page
-                    } else if (url.contains("greenville-frontend.vercel.app")) {
+                    if (url.contains("greenville-frontend.vercel.app")) {
                         return false; // Load in WebView if it’s part of Greenville
                     } else {
                         // Open other external links in Chrome
