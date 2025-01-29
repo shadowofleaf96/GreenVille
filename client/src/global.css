@@ -305,3 +305,16 @@ body {
   font-size: 0.8rem;
   color: grey;
 }
+.Toastify__toast {
+  display: flex;
+  align-items: center; /* Vertically center content */
+  justify-content: center; /* Horizontally center all content */
+  border-radius: 50px !important;
+  height: 50px !important;
+  min-height: 30px !important;
+  min-width: 220px; /* Set a smaller width for desktop */
+  padding: 0 20px;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  overflow: hidden;
+}
