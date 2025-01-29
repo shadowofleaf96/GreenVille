@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private ProgressBar progressBar;
+    private String userAgent;
     private ProgressBar loadingBar;
     private Button retryButton;
     private BottomNavigationView navView;
@@ -66,9 +67,10 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
         loadingBar = findViewById(R.id.loading_bar);
 
-        // Set up WebView and its settings
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
+        userAgent = System.getProperty("http.agent");
+        webSettings.setUserAgentString(userAgent + "GreenVille");
         webSettings.setDomStorageEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setAllowFileAccess(true);
@@ -77,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
 
-        // Set WebView client for handling page loading and errors
         webView.setWebViewClient(new WebViewClient() {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 loadingBar.setVisibility(View.VISIBLE);
