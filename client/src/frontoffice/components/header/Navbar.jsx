@@ -24,7 +24,7 @@ const Navbar = () => {
   const dropdownRef = useRef(null);
   const { customer, isLoading } = useSelector((state) => state.customers);
   const { products } = useSelector((state) => state.products);
-  const { cartItems } = useSelector((state) => state.carts);
+  const { cartCount } = useSelector((state) => state.carts);
   const { t, i18n } = useTranslation();
   const [isWebView, setIsWebView] = useState(false);
   const currentLanguage = i18n.language
@@ -45,10 +45,6 @@ const Navbar = () => {
       setIsWebView(true);
     }
   }, []);
-
-  const totalQuantity = cartItems.reduce((accumulator, item) => {
-    return accumulator + item.quantity;
-  }, 0);
 
   const logoutHandler = async () => {
     localStorage.removeItem("customer_access_token");
@@ -135,7 +131,7 @@ const Navbar = () => {
               <Link to="/cart" className="relative">
                 <Iconify icon="mdi-light:cart" width={32} height={32} />
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white font-light w-4 max-w-4 flex flex-grow justify-center rounded-full text-xs">
-                  {totalQuantity}
+                  {cartCount}
                 </span>
               </Link>
             )}

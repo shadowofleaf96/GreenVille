@@ -8,9 +8,7 @@ export const addItemToCart = createAsyncThunk(
   async ({ id, quantity }, { getState }) => {
     try {
       const state = getState();
-      let productData;
-
-      productData = state.products.products.find((item) => item._id === id);
+      let productData = state.products.products.find((item) => item._id === id);
 
       if (!productData) {
         const axiosInstance = createAxiosInstance("customer");
@@ -39,6 +37,7 @@ const cartSlice = createSlice({
   name: "cart",
   initialState: {
     cartItems: [],
+    cartCount: 0, 
     shippingInfo: {},
     coupon: null,
   },
@@ -47,16 +46,17 @@ const cartSlice = createSlice({
       state.cartItems = state.cartItems.filter(
         (item) => item.product !== action.payload
       );
+      state.cartCount = state.cartItems.reduce((acc, item) => acc + item.quantity, 0);
     },
     updateCartItemQuantity: (state, action) => {
       const { productId, quantity } = action.payload;
-      const existingItem = state.cartItems.find(
-        (item) => item.product === productId
-      );
+      const existingItem = state.cartItems.find((item) => item.product === productId);
 
       if (existingItem) {
         existingItem.quantity = quantity;
       }
+
+      state.cartCount = state.cartItems.reduce((acc, item) => acc + item.quantity, 0);
     },
     saveShippingInfo: (state, action) => {
       state.shippingInfo = action.payload;
@@ -85,6 +85,8 @@ const cartSlice = createSlice({
       } else {
         state.cartItems.push(action.payload);
       }
+
+      state.cartCount = state.cartItems.reduce((acc, item) => acc + item.quantity, 0);
     });
   },
 });

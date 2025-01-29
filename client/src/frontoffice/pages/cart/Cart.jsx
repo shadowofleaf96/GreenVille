@@ -80,7 +80,7 @@ const Cart = () => {
                         <img
                           src={typeof item?.image === "string" ? `${optimizeImage(item?.image, 120)}` : `${optimizeImage(item?.image[0], 120)}`}
                           alt={item.name[currentLanguage]}
-                          className="w-24 h-24 object-cover rounded-md"
+                          className="w-24 h-24 object-contain rounded-md"
                         />
                         <div className="flex-grow">
                           <Link to={`/product/${item.product}`} className="text-blue-500 hover:underline">
