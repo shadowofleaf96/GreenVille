@@ -82,22 +82,30 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setUseWideViewPort(true);
 
         webView.setWebViewClient(new WebViewClient() {
-                @Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    if (url.contains("greenville-frontend.vercel.app")) {
-                        return false;
-                    } else {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        intent.setPackage("com.android.chrome");
-                        try {
-                            startActivity(intent);
-                        } catch (Exception e) {
-                            intent.setPackage(null);
-                            startActivity(intent);
-                        }
-                        return true;
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url.contains("greenville-frontend.vercel.app")) {
+                    return false; // Load in WebView
+                } else if (url.startsWith("greenville://")) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    try {
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "No app found to open this link", Toast.LENGTH_SHORT).show();
                     }
+                    return true; // Prevent WebView from handling
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    intent.setPackage("com.android.chrome");
+                    try {
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        intent.setPackage(null);
+                        startActivity(intent);
+                    }
+                    return true;
                 }
+            }
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 loadingBar.setVisibility(View.VISIBLE);
                 isLoading = true;
