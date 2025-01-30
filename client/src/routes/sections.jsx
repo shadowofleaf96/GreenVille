@@ -68,7 +68,7 @@ export default function Router() {
 
   return (
     <div>
-      <ToastContainer autoClose={2000}
+      <ToastContainer autoClose={200000}
         hideProgressBar={true}
         position="bottom-left" transition={Slide}
       />

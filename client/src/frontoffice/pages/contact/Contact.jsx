@@ -122,12 +122,15 @@ const Contact = () => {
               </div>
 
               <LoadingButton
-                type="submit"
+                fullWidth
+                size="large"
                 variant="contained"
+                color="primary"
+                type="submit"
                 loading={loading}
-                className="!w-full !bg-[#8DC63F] !text-white !py-3 !mt-4 !font-medium !rounded-lg !shadow-none !transition-shadow !duration-300 !cursor-pointer hover:!shadow-lg hover:!shadow-yellow-400"
+                className="!py-3 !mt-4 !font-medium !rounded-lg !shadow-none !transition-shadow !duration-300 !cursor-pointer hover:!shadow-lg hover:!shadow-yellow-400"
               >
-                {loading ? t("Sending...") : t("Send Message")}
+                {t("Send Message")}
               </LoadingButton>
             </div>
           </form>

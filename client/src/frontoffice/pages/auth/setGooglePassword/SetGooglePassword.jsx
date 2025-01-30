@@ -19,6 +19,20 @@ const SetGooglePassword = () => {
   const email = queryParams.get("email");
   const name = queryParams.get("name");
   const picture = queryParams.get("picture");
+  const isLoggedin = localStorage.getItem("customer_access_token")
+
+
+  useEffect(() => {
+    if (!email || !name || !picture) {
+      navigate("/login");
+    }
+  }, [email, name, picture, navigate]);
+
+  useEffect(() => {
+    if (!isLoggedin) {
+      navigate("/");
+    }
+  }, [isLoggedin, navigate]);
 
   const axiosInstance = createAxiosInstance("customer");
   const [loadingSave, setLoadingSave] = useState(false);
@@ -45,7 +59,7 @@ const SetGooglePassword = () => {
   }, [completeSuccess, navigate]);
 
   const onSubmit = async (data) => {
-    setLoadingSave(true)
+    setLoadingSave(true);
     try {
       const cleanImageUrl = picture.replace(/=s96-c$/, "") + "=d";
       const customerImage = await fetch(cleanImageUrl, { redirect: "follow" });
@@ -70,14 +84,13 @@ const SetGooglePassword = () => {
       );
       setCompleteSuccess(true);
       toast.success(t(axiosResponse.data.message));
-      setLoadingSave(false)
+      setLoadingSave(false);
     } catch (error) {
       console.error("Error in submission:", error);
       toast.error(error.message || "An error occurred");
-      setLoadingSave(false)
+      setLoadingSave(false);
     }
   };
-
 
   return (
     <div className="backImage">
@@ -86,15 +99,21 @@ const SetGooglePassword = () => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <video autoPlay loop muted playsInline className="background-video" preload="auto"
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="background-video"
+          preload="auto"
         >
-          <source src="https://res.cloudinary.com/donffivrz/video/upload/f_auto:video,q_auto/v1/greenville/public/videos/qdbnvi7dzfw7mc4i1mt7" type="video/mp4" />
+          <source
+            src="https://res.cloudinary.com/donffivrz/video/upload/f_auto:video,q_auto/v1/greenville/public/videos/qdbnvi7dzfw7mc4i1mt7"
+            type="video/mp4"
+          />
           Your browser does not support the video tag.
         </video>
-        <Paper
-          elevation={3}
-          className="form-container p-0.5 md:p-0 !rounded-2xl"
-        >
+        <Paper elevation={3} className="form-container p-0.5 md:p-0 !rounded-2xl">
           <div className="max-w-[360px] md:max-w-[420px] p-5 md:p-10">
             <div className="flex justify-center mb-4">
               <Logo />
@@ -107,75 +126,66 @@ const SetGooglePassword = () => {
               {completeSuccess ? t("AccountSetupSuccess") : t("Set Your Password")}
             </Typography>
 
-            {!completeSuccess ? (
-              <>
-                <Typography variant="body1" style={{ marginBottom: "20px" }}>
-                  {t("As a new user, please set a password to complete your registration.")}
-                </Typography>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                  <Controller
-                    name="newPassword"
-                    control={control}
-                    rules={{
-                      required: t("PasswordRequired"),
-                      minLength: {
-                        value: 6,
-                        message: t("PasswordMinLength"),
-                      },
-                    }}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        label={t("New Password")}
-                        type="password"
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        error={!!errors.newPassword}
-                        helperText={errors.newPassword?.message}
-                      />
-                    )}
-                  />
-                  <Controller
-                    name="confirmPassword"
-                    control={control}
-                    rules={{
-                      validate: (value) =>
-                        value === newPassword || t("PasswordsDoNotMatch"),
-                    }}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        label={t("Confirm Password")}
-                        type="password"
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        error={!!errors.confirmPassword}
-                        helperText={errors.confirmPassword?.message}
-                      />
-                    )}
-                  />
-                  <LoadingButton
-                    type="submit"
-                    fullWidth
-                    loading={loadingSave}
-                    variant="contained"
-                    sx={{ fontWeight: 500, fontSize: 15 }}
-                    className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2 !mt-2"
-                  >
-                    {loadingSave ? t("Loading") : t("Set Password")}
-                  </LoadingButton>
-                </form>
-              </>
-            ) : (
-              <Typography
-                variant="body1"
-                style={{ textAlign: "center", color: "green", marginTop: "20px" }}
-              >
-                {t("AccountSetupComplete")}
+            <>
+              <Typography variant="body1" style={{ marginBottom: "20px" }}>
+                {t("As a new user, please set a password to complete your registration.")}
               </Typography>
-            )}
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <Controller
+                  name="newPassword"
+                  control={control}
+                  rules={{
+                    required: t("PasswordRequired"),
+                    minLength: {
+                      value: 6,
+                      message: t("PasswordMinLength"),
+                    },
+                  }}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label={t("New Password")}
+                      type="password"
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      error={!!errors.newPassword}
+                      helperText={errors.newPassword?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  name="confirmPassword"
+                  control={control}
+                  rules={{
+                    validate: (value) =>
+                      value === newPassword || t("PasswordsDoNotMatch"),
+                  }}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label={t("Confirm Password")}
+                      type="password"
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      error={!!errors.confirmPassword}
+                      helperText={errors.confirmPassword?.message}
+                    />
+                  )}
+                />
+                <LoadingButton
+                  type="submit"
+                  fullWidth
+                  loading={loadingSave}
+                  variant="contained"
+                  sx={{ fontWeight: 500, fontSize: 15 }}
+                  className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2 !mt-2"
+                >
+                  {loadingSave ? t("Loading") : t("Set Password")}
+                </LoadingButton>
+              </form>
+            </>
           </div>
         </Paper>
       </motion.div>
