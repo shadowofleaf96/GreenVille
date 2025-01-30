@@ -125,6 +125,11 @@ const Login = () => {
             isLoggedIn: true
           })
         );
+        if (window.AndroidInterface) {
+          window.AndroidInterface.onLoginSuccess(JSON.stringify({
+            customer: response.data.customer,
+          }));
+        }
       }
     } catch (error) {
       toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
