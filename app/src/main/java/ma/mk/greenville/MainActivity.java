@@ -3,6 +3,7 @@ package ma.mk.greenville;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -80,6 +81,13 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
         loadingBar = findViewById(R.id.loading_bar);
 
+        SharedPreferences preferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
+        String savedProfileImageUrl = preferences.getString("profile_image_url", null);
+
+        if (savedProfileImageUrl != null && !savedProfileImageUrl.isEmpty()) {
+            updateProfileButton(savedProfileImageUrl);
+        }
+
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         userAgent = System.getProperty("http.agent");
@@ -96,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (url.contains("greenville-frontend.vercel.app")) {
-                    return false; // Load in WebView
+                    return false;
                 } else if (url.startsWith("greenville://")) {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                     try {
@@ -104,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         Toast.makeText(MainActivity.this, "No app found to open this link", Toast.LENGTH_SHORT).show();
                     }
-                    return true; // Prevent WebView from handling
+                    return true;
                 } else {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                     intent.setPackage("com.android.chrome");
@@ -193,8 +201,6 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject json = new JSONObject(loginData);
                     JSONObject customer = json.getJSONObject("customer");
                     String customerImage = customer.getString("customer_image");
-                    Log.e("customer",customerImage);
-
                     updateProfileButton(customerImage);
 
                 } catch (JSONException e) {
@@ -265,24 +271,32 @@ public class MainActivity extends AppCompatActivity {
             Menu navViewMenu = navView.getMenu();
             MenuItem profileItem = navViewMenu.findItem(R.id.navigation_profile);
 
+            // Save the URL of the chosen icon to SharedPreferences
+            SharedPreferences preferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("profile_image_url", customerImageUrl);
+            editor.apply();
+
             Glide.with(this)
                     .asBitmap()
                     .load(customerImageUrl)
                     .circleCrop()
+                    .error(R.drawable.illustration_404)
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                             Drawable drawable = new BitmapDrawable(getResources(), resource);
                             profileItem.setIcon(drawable);
+                            navView.setItemIconTintList(null);
                         }
 
                         @Override
                         public void onLoadCleared(@Nullable Drawable placeholder) {
-                            // Handle cleanup if needed
                         }
                     });
         }
     }
+
 
 
     private void startCartCountCheck() {
