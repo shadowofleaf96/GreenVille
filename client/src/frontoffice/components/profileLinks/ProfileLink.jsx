@@ -23,6 +23,7 @@ const ProfileLink = () => {
       localStorage.removeItem("customer_access_token");
       localStorage.removeItem("isAuthenticated");
       dispatch(logout());
+      Android.onLogout();
       toast.success(t("You have been Logged out"));
       router("/");
     } catch (error) {
