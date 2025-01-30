@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -11,20 +13,29 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
@@ -175,6 +186,23 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        webView.addJavascriptInterface(new Object() {
+            @JavascriptInterface
+            public void onLoginSuccess(String loginData) {
+                try {
+                    JSONObject json = new JSONObject(loginData);
+                    JSONObject customer = json.getJSONObject("customer");
+                    String customerImage = customer.getString("customer_image");
+                    Log.e("customer",customerImage);
+
+                    updateProfileButton(customerImage);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, "AndroidInterface");
+
         webView.loadUrl(getString(R.string.home_url));
 
         navView.setOnItemSelectedListener(item -> {
@@ -231,6 +259,31 @@ public class MainActivity extends AppCompatActivity {
             }
         }, 2000);
     }
+
+    private void updateProfileButton(String customerImageUrl) {
+        if (customerImageUrl != null && !customerImageUrl.isEmpty()) {
+            Menu navViewMenu = navView.getMenu();
+            MenuItem profileItem = navViewMenu.findItem(R.id.navigation_profile);
+
+            Glide.with(this)
+                    .asBitmap()
+                    .load(customerImageUrl)
+                    .circleCrop()
+                    .into(new CustomTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            Drawable drawable = new BitmapDrawable(getResources(), resource);
+                            profileItem.setIcon(drawable);
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                            // Handle cleanup if needed
+                        }
+                    });
+        }
+    }
+
 
     private void startCartCountCheck() {
         final Handler handler = new Handler(Looper.getMainLooper());
