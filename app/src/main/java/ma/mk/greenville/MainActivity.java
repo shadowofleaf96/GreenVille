@@ -207,6 +207,9 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+            public void onLogout() {
+                clearProfileButton();
+            }
         }, "AndroidInterface");
 
         webView.loadUrl(getString(R.string.home_url));
@@ -264,6 +267,18 @@ public class MainActivity extends AppCompatActivity {
                 navView.setVisibility(View.GONE);
             }
         }, 2000);
+    }
+
+    private void clearProfileButton() {
+        SharedPreferences preferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove("profile_image_url");
+        editor.apply();
+
+
+        Menu navViewMenu = navView.getMenu();
+        MenuItem profileItem = navViewMenu.findItem(R.id.navigation_profile);
+        profileItem.setIcon(R.drawable.round_person_24);
     }
 
     private void updateProfileButton(String customerImageUrl) {
