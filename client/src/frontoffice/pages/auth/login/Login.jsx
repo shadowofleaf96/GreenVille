@@ -140,36 +140,43 @@ const Login = () => {
   };
 
   const responseMessage = async (response) => {
-    try {
-      const res = await axiosInstance.post(`/customers/google-login`, {
-        idToken: response.credential,
-      });
+  try {
+    const res = await axiosInstance.post(`/customers/google-login`, {
+      idToken: response.credential,
+    });
 
-      if (res.status === 200) {
-        if (res.data.cleanUrl) {
-          let redirectUrl = res.data.cleanUrl;
-          if (isWebView) {
-            redirectUrl = redirectUrl.replace("https://greenville-frontend.vercel.app", "greenville://");
-          } else {
-            window.location.href = redirectUrl;
+    if (res.status === 200) {
+      if (res.data.cleanUrl) {
+        let redirectUrl = res.data.cleanUrl;
+        
+        const customSchemeUrl = redirectUrl.replace("https://greenville-frontend.vercel.app", "greenville://");
+
+        const isAppOpened = window.location.href = customSchemeUrl;
+        
+        setTimeout(() => {
+          if (!isAppOpened) {
+            window.location.href = redirectUrl;  
           }
-          console.log('Redirecting to WebView URL: ', redirectUrl); // Debug the transformed URL
-        } else {
-          localStorage.setItem("customer_access_token", res.data.access_token);
+        }, 2000);  
 
-          dispatch(
-            loginSuccess({
-              customerToken: res.data.access_token,
-            })
-          );
-        }
-        const redirect = searchParams.get("redirect");
-        history(redirect || "/", { replace: true });
+        console.log('Redirecting to app or WebView URL: ', customSchemeUrl);
+      } else {
+        localStorage.setItem("customer_access_token", res.data.access_token);
+
+        dispatch(
+          loginSuccess({
+            customerToken: res.data.access_token,
+          })
+        );
       }
-    } catch (error) {
-      toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
+
+      const redirect = searchParams.get("redirect");
+      history(redirect || "/", { replace: true });
     }
-  };
+  } catch (error) {
+    toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
+  }
+};
 
   const errorMessage = (error) => {
     console.error(error);
