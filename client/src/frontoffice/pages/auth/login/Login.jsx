@@ -153,6 +153,7 @@ const Login = () => {
           } else {
             window.location.href = redirectUrl;
           }
+          console.log('Redirecting to WebView URL: ', redirectUrl); // Debug the transformed URL
         } else {
           localStorage.setItem("customer_access_token", res.data.access_token);
 
