@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                Log.d("WebViewClient", "Loading URL: " + url);
                 if (url.contains("greenville-frontend.vercel.app")) {
                     return false;
                 } else if (url.startsWith("greenville://")) {
@@ -195,22 +196,25 @@ public class MainActivity extends AppCompatActivity {
         });
 
         webView.addJavascriptInterface(new Object() {
-            @JavascriptInterface
-            public void onLoginSuccess(String loginData) {
-                try {
-                    JSONObject json = new JSONObject(loginData);
-                    JSONObject customer = json.getJSONObject("customer");
-                    String customerImage = customer.getString("customer_image");
-                    updateProfileButton(customerImage);
+                @JavascriptInterface
+                public void onLoginSuccess(String loginData) {
+                    try {
+                        JSONObject json = new JSONObject(loginData);
+                        JSONObject customer = json.getJSONObject("customer");
+                        String customerImage = customer.getString("customer_image");
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                        runOnUiThread(() -> updateProfileButton(customerImage));
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-            public void onLogout() {
-                clearProfileButton();
-            }
-        }, "AndroidInterface");
+
+                @JavascriptInterface
+                public void onLogout() {
+                    runOnUiThread(() -> clearProfileButton());
+                }
+            }, "AndroidInterface");
 
         webView.loadUrl(getString(R.string.home_url));
 
