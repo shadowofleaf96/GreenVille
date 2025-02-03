@@ -139,7 +139,7 @@ const Login = () => {
     }
   };
 
-  const responseMessage = async (response) => {
+ const responseMessage = async (response) => {
   try {
     const res = await axiosInstance.post(`/customers/google-login`, {
       idToken: response.credential,
@@ -148,18 +148,25 @@ const Login = () => {
     if (res.status === 200) {
       if (res.data.cleanUrl) {
         let redirectUrl = res.data.cleanUrl;
-        
-        const customSchemeUrl = redirectUrl.replace("https://greenville-frontend.vercel.app", "greenville://");
+        let customSchemeUrl = redirectUrl.replace("https://greenville-frontend.vercel.app", "greenville://");
 
-        const isAppOpened = window.location.href = customSchemeUrl;
-        
-        setTimeout(() => {
-          if (!isAppOpened) {
-            window.location.href = redirectUrl;  
-          }
-        }, 2000);  
+        // Detect mobile browser (excluding WebView)
+        const isMobileBrowser = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && !window.navigator.userAgent.includes("wv");
 
-        console.log('Redirecting to app or WebView URL: ', customSchemeUrl);
+        if (isMobileBrowser) {
+          // Attempt to open the app via custom scheme
+          window.location.href = customSchemeUrl;
+
+          // Fallback to web URL if the app is not installed
+          setTimeout(() => {
+            window.location.href = redirectUrl;
+          }, 2000); // Wait for 2 seconds before falling back
+        } else {
+          // Default behavior for desktop or non-mobile browsers
+          window.location.href = redirectUrl;
+        }
+
+        console.log("Redirecting to app or web:", customSchemeUrl);
       } else {
         localStorage.setItem("customer_access_token", res.data.access_token);
 
@@ -174,7 +181,7 @@ const Login = () => {
       history(redirect || "/", { replace: true });
     }
   } catch (error) {
-    toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
+    toast.error("Error: " + (error.response?.data?.message || t("login.loginFailed")));
   }
 };
 
