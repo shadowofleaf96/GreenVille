@@ -75,12 +75,13 @@ const Login = () => {
     return captchaToken;
   }, [executeRecaptcha]);
 
-  useEffect(() => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    if (userAgent.includes("GreenVille")) {
+ useEffect(() => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    if (userAgent.includes("greenville")) {
       setIsWebView(true);
     }
   }, []);
+
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -139,7 +140,7 @@ const Login = () => {
     }
   };
 
-  const responseMessage = async (response) => {
+const responseMessage = async (response) => {
     try {
       const res = await axiosInstance.post("/customers/google-login", {
         idToken: response.credential,
@@ -147,7 +148,13 @@ const Login = () => {
 
       if (res.status === 200) {
         if (res.data.cleanUrl) {
-          window.location.href = res.data.cleanUrl;
+          let redirectUrl = res.data.cleanUrl;
+          if (isWebView) {
+            redirectUrl = redirectUrl.replace("https://greenville-frontend.vercel.app", "greenville://");
+          } else {
+            window.location.href = redirectUrl;
+          }
+          console.log('Redirecting to WebView URL: ', redirectUrl);
         } else {
           localStorage.setItem("customer_access_token", res.data.access_token);
 
@@ -163,8 +170,8 @@ const Login = () => {
     } catch (error) {
       toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
     }
-  };
-
+  }
+  
   const errorMessage = (error) => {
     console.error(error);
   };
