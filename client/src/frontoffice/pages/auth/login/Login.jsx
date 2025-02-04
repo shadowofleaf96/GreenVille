@@ -148,19 +148,16 @@ const responseMessage = async (response) => {
     if (res.status === 200) {
       if (res.data.cleanUrl) {
         let redirectUrl = res.data.cleanUrl;
-        let customSchemeUrl = redirectUrl.replace("https://greenville-frontend.vercel.app", "greenville://");
+        console.log(redirectUrl); // Debug: Check if the URL is as expected
 
-        if (isWebView) {
-          window.location.href = customSchemeUrl;
+      if (isWebView) {
+      redirectUrl = redirectUrl.replace("https://greenville-frontend.vercel.app", "greenville://");
+      console.log('Redirecting to WebView URL: ', redirectUrl); // Debug the transformed URL
+    } else {
+      window.location.href = redirectUrl;
+    }
+  }
 
-          setTimeout(() => {
-            window.location.href = redirectUrl;
-          }, 2000);
-        } else {
-          window.location.href = redirectUrl;
-        }
-
-        console.log("Redirecting to:", customSchemeUrl);
       } else {
         localStorage.setItem("customer_access_token", res.data.access_token);
 
