@@ -157,6 +157,7 @@ const responseMessage = async (response) => {
       window.location.href = redirectUrl;
     }
   }
+}
 
       } else {
         localStorage.setItem("customer_access_token", res.data.access_token);
