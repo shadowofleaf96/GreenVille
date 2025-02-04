@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         userAgent = System.getProperty("http.agent");
-        webSettings.setUserAgentString(userAgent + "GreenVille");
+        webSettings.setUserAgentString(userAgent + "greenville");
         webSettings.setDomStorageEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setAllowFileAccess(true);
