@@ -6,6 +6,7 @@ import Logo from "../../../../backoffice/components/logo";
 import { Link } from "react-router-dom";
 import { useRouter } from "../../../../routes/hooks";
 import { motion } from "framer-motion";
+import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
 import createAxiosInstance from "../../../../utils/axiosConfig";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -21,6 +22,7 @@ const RegistrationForm = () => {
   const { register, handleSubmit, formState: { errors }, watch, reset } = useForm();
   const router = useRouter();
   const [loadingSave, setLoadingSave] = useState(false);
+  const [searchParams] = useSearchParams();
   const [refreshReCaptcha, setRefreshReCaptcha] = useState(false);
   const axiosInstance = createAxiosInstance("customer");
 
