@@ -139,7 +139,7 @@ const Login = () => {
     }
   };
 
- const responseMessage = async (response) => {
+const responseMessage = async (response) => {
   try {
     const res = await axiosInstance.post(`/customers/google-login`, {
       idToken: response.credential,
@@ -150,24 +150,25 @@ const Login = () => {
         let redirectUrl = res.data.cleanUrl;
         let customSchemeUrl = redirectUrl.replace("https://greenville-frontend.vercel.app", "greenville://");
 
-        // Detect mobile browser (excluding WebView)
-        const isMobileBrowser = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && !window.navigator.userAgent.includes("wv");
+        // Detect if it's a mobile browser (excluding WebView)
+        const isMobileBrowser = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && !navigator.userAgent.includes("wv");
 
         if (isMobileBrowser) {
-          // Attempt to open the app via custom scheme
+          // Open in app if installed
           window.location.href = customSchemeUrl;
 
-          // Fallback to web URL if the app is not installed
+          // Fallback to the web version if the app is not installed
           setTimeout(() => {
             window.location.href = redirectUrl;
-          }, 2000); // Wait for 2 seconds before falling back
+          }, 2000);
         } else {
-          // Default behavior for desktop or non-mobile browsers
+          // Open in Chrome for desktop or non-mobile browsers
           window.location.href = redirectUrl;
         }
 
-        console.log("Redirecting to app or web:", customSchemeUrl);
+        console.log("Redirecting to:", customSchemeUrl);
       } else {
+        // Handle login normally
         localStorage.setItem("customer_access_token", res.data.access_token);
 
         dispatch(
