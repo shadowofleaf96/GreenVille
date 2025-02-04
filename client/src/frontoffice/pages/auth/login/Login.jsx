@@ -75,9 +75,9 @@ const Login = () => {
     return captchaToken;
   }, [executeRecaptcha]);
 
- useEffect(() => {
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    if (userAgent.includes("greenville")) {
+  useEffect(() => {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    if (userAgent.includes("GreenVille")) {
       setIsWebView(true);
     }
   }, []);
