@@ -151,7 +151,7 @@ const responseMessage = async (response) => {
         let customSchemeUrl = redirectUrl.replace("https://greenville-frontend.vercel.app", "greenville://");
 
         // Detect if it's a mobile browser (excluding WebView)
-        const isMobileBrowser = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && !navigator.userAgent.includes("wv");
+        const isMobileBrowser = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && !navigator.userAgent.includes("GreenVille");
 
         if (isMobileBrowser) {
           // Open in app if installed
