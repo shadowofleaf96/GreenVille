@@ -141,7 +141,7 @@ const Login = () => {
 
   const responseMessage = async (response) => {
     try {
-      const res = await axiosInstance.post(`/customers/google-login`, {
+      const res = await axiosInstance.post("/customers/google-login", {
         idToken: response.credential,
       });
 
