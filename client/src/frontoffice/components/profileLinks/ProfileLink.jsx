@@ -97,7 +97,7 @@ const ProfileLink = () => {
                   }`}
               >
                 <Iconify
-                  icon="material-symbols-light:edit-rounded"
+                  icon="material-symbols-light:person-edit-outline-rounded"
                   width={28}
                   height={28}
                   className="mr-3"
@@ -112,7 +112,7 @@ const ProfileLink = () => {
                   }`}
               >
                 <Iconify
-                  icon="material-symbols-light:edit-rounded"
+                  icon="material-symbols-light:box-edit-outline-rounded"
                   width={28}
                   height={28}
                   className="mr-3"
