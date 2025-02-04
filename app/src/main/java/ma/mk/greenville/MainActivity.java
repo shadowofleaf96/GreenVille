@@ -27,11 +27,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
@@ -80,12 +82,16 @@ public class MainActivity extends AppCompatActivity {
         retryButton = findViewById(R.id.retry_button);
         progressBar = findViewById(R.id.progress_bar);
         loadingBar = findViewById(R.id.loading_bar);
+        swipeRefreshLayout.setEnabled(false);
+
 
         SharedPreferences preferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
         String savedProfileImageUrl = preferences.getString("profile_image_url", null);
+        String savedFirstName = preferences.getString("first_name", "Profile");
+        String savedLastName = preferences.getString("last_name", "");
 
         if (savedProfileImageUrl != null && !savedProfileImageUrl.isEmpty()) {
-            updateProfileButton(savedProfileImageUrl);
+            updateProfileButton(savedProfileImageUrl, savedFirstName, savedLastName);
         }
 
         WebSettings webSettings = webView.getSettings();
@@ -126,7 +132,8 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
             }
-            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 loadingBar.setVisibility(View.VISIBLE);
                 isLoading = true;
                 progressBar.setVisibility(View.VISIBLE);
@@ -152,6 +159,9 @@ public class MainActivity extends AppCompatActivity {
                     webView.setVisibility(hasInternet ? View.VISIBLE : View.GONE);
                     navView.setVisibility(hasInternet ? View.VISIBLE : View.GONE);
                     noInternetLayout.setVisibility(hasInternet ? View.GONE : View.VISIBLE);
+
+                    swipeRefreshLayout.setVisibility(View.VISIBLE);
+                    swipeRefreshLayout.setEnabled(true);
                 }, delay);
 
                 super.onPageFinished(view, url);
@@ -202,8 +212,11 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject json = new JSONObject(loginData);
                         JSONObject customer = json.getJSONObject("customer");
                         String customerImage = customer.getString("customer_image");
+                        String customerFirstName = customer.getString("first_name");
+                        String customerLastName = customer.getString("last_name");
 
-                        runOnUiThread(() -> updateProfileButton(customerImage));
+
+                        runOnUiThread(() -> updateProfileButton(customerImage, customerFirstName, customerLastName));
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -276,24 +289,29 @@ public class MainActivity extends AppCompatActivity {
     private void clearProfileButton() {
         SharedPreferences preferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.remove("profile_image_url");
-        editor.apply();
 
+        editor.remove("profile_image_url");
+        editor.remove("first_name");
+        editor.remove("last_name");
+        editor.apply();
 
         Menu navViewMenu = navView.getMenu();
         MenuItem profileItem = navViewMenu.findItem(R.id.navigation_profile);
         profileItem.setIcon(R.drawable.round_person_24);
+        MenuItem profileTextItem = navViewMenu.findItem(R.id.navigation_profile);
+        profileTextItem.setTitle("Profile");
     }
 
-    private void updateProfileButton(String customerImageUrl) {
+    private void updateProfileButton(String customerImageUrl, String firstName, String lastName) {
+        Menu navViewMenu = navView.getMenu();
+        MenuItem profileItem = navViewMenu.findItem(R.id.navigation_profile);
         if (customerImageUrl != null && !customerImageUrl.isEmpty()) {
-            Menu navViewMenu = navView.getMenu();
-            MenuItem profileItem = navViewMenu.findItem(R.id.navigation_profile);
 
-            // Save the URL of the chosen icon to SharedPreferences
             SharedPreferences preferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("profile_image_url", customerImageUrl);
+            editor.putString("first_name", firstName);
+            editor.putString("last_name", lastName);
             editor.apply();
 
             Glide.with(this)
@@ -314,9 +332,28 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
         }
+
+        String fullName = firstName + " " + lastName;
+        MenuItem profileTextItem = navViewMenu.findItem(R.id.navigation_profile);
+        profileTextItem.setTitle(fullName);
     }
 
-
+    private void openUrlInChromeCustomTab(String url) {
+        try {
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+            CustomTabsIntent customTabsIntent = builder.build();
+            customTabsIntent.launchUrl(MainActivity.this, Uri.parse(url));
+        } catch (Exception e) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            intent.setPackage("com.android.chrome");
+            try {
+                startActivity(intent);
+            } catch (Exception ex) {
+                intent.setPackage(null);
+                startActivity(intent);
+            }
+        }
+    }
 
     private void startCartCountCheck() {
         final Handler handler = new Handler(Looper.getMainLooper());

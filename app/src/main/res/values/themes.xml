@@ -30,4 +30,9 @@
     <style name="progressBarStyle" parent="@style/Theme.AppCompat">
         <item name="colorAccent">@color/lime_green</item>
     </style>
+
+    <style name="CustomDialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/dialog_rounded_background</item>
+        <item name="android:windowMinWidthMajor">80%</item>
+    </style>
 </resources>
