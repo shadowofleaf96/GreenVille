@@ -28,12 +28,6 @@ const SetGooglePassword = () => {
     }
   }, [email, name, picture, navigate]);
 
-  useEffect(() => {
-    if (!isLoggedin) {
-      navigate("/");
-    }
-  }, [isLoggedin, navigate]);
-
   const axiosInstance = createAxiosInstance("customer");
   const [loadingSave, setLoadingSave] = useState(false);
   const [completeSuccess, setCompleteSuccess] = useState(false);

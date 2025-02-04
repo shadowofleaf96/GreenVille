@@ -147,16 +147,7 @@ const Login = () => {
 
       if (res.status === 200) {
         if (res.data.cleanUrl) {
-          let redirectUrl = res.data.cleanUrl;
-          console.log(redirectUrl);
-
-          if (isWebView) {
-            redirectUrl = redirectUrl.replace("https://greenville-frontend.vercel.app", "greenville://");
-            console.log('Redirecting to WebView URL: ', redirectUrl);
-          } else {
-            window.location.href = redirectUrl;
-
-          }
+          window.location.href = res.data.cleanUrl;
         } else {
           localStorage.setItem("customer_access_token", res.data.access_token);
 
@@ -166,12 +157,11 @@ const Login = () => {
             })
           );
         }
-
         const redirect = searchParams.get("redirect");
         history(redirect || "/", { replace: true });
       }
     } catch (error) {
-      toast.error("Error: " + (error.response?.data?.message || t("login.loginFailed")));
+      toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
     }
   };
 
