@@ -150,25 +150,18 @@ const responseMessage = async (response) => {
         let redirectUrl = res.data.cleanUrl;
         let customSchemeUrl = redirectUrl.replace("https://greenville-frontend.vercel.app", "greenville://");
 
-        // Detect if it's a mobile browser (excluding WebView)
-        const isMobileBrowser = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && !navigator.userAgent.includes("GreenVille");
-
-        if (isMobileBrowser) {
-          // Open in app if installed
+        if (isWebView) {
           window.location.href = customSchemeUrl;
 
-          // Fallback to the web version if the app is not installed
           setTimeout(() => {
             window.location.href = redirectUrl;
           }, 2000);
         } else {
-          // Open in Chrome for desktop or non-mobile browsers
           window.location.href = redirectUrl;
         }
 
         console.log("Redirecting to:", customSchemeUrl);
       } else {
-        // Handle login normally
         localStorage.setItem("customer_access_token", res.data.access_token);
 
         dispatch(
