@@ -140,7 +140,7 @@ const Login = () => {
     }
   };
 
-const responseMessage = async (response) => {
+  const responseMessage = async (response) => {
     try {
       const res = await axiosInstance.post("/customers/google-login", {
         idToken: response.credential,
@@ -149,11 +149,7 @@ const responseMessage = async (response) => {
       if (res.status === 200) {
         if (res.data.cleanUrl) {
           let redirectUrl = res.data.cleanUrl;
-          if (isWebView) {
-            redirectUrl = redirectUrl.replace("https://greenville-frontend.vercel.app", "greenville://");
-          } else {
-            window.location.href = redirectUrl;
-          }
+          window.location.href = redirectUrl;
           console.log('Redirecting to WebView URL: ', redirectUrl);
         } else {
           localStorage.setItem("customer_access_token", res.data.access_token);
@@ -171,7 +167,7 @@ const responseMessage = async (response) => {
       toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
     }
   }
-  
+
   const errorMessage = (error) => {
     console.error(error);
   };
