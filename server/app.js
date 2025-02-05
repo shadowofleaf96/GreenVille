@@ -12,7 +12,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:4173",
   "http://localhost:5173",
-  process.env.FRONTEND_URL, 
+  process.env.FRONTEND_URL,
 ];
 
 const corsOptions = {
@@ -38,7 +38,13 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+
+  const origin = req.headers.origin;
+
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Origin");
   res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -46,7 +52,7 @@ app.use((req, res, next) => {
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
-  
+
   next();
 });
 
@@ -98,7 +104,7 @@ const softLimiter = rateLimit({
 });
 
 const strictLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, 
+  windowMs: 1 * 60 * 1000,
   limit: 10,
   message: "You have exceeded the request limit. Please try again later.",
   standardHeaders: true,
