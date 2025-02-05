@@ -28,10 +28,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="https"
-                    android:host="greenville-frontend.vercel.app"
-                    android:pathPrefix="/set-password" />
+                <data android:scheme="https" android:host="greenville-frontend.vercel.app" />
             </intent-filter>
 
         </activity>
