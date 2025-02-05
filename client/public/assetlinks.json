@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "ma.mk.greenville",
+      "sha256_cert_fingerprints": [
+        "B6:B9:74:8A:D8:56:F8:8A:74:D2:D6:86:A1:D2:43:1D:85:3D:30:1B:F4:33:07:19:F1:DB:81:B5:9D:4B:7F:8D"
+      ]
+    }
+  }
+]
