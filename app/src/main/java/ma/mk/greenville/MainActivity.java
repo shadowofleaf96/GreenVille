@@ -110,8 +110,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (url != null && (url.startsWith("http://") || url.startsWith("https://"))) {
-                    view.getContext().startActivity(
-                            new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                    CustomTabsIntent customTabsIntent = builder.build();
+                    customTabsIntent.launchUrl(view.getContext(), Uri.parse(url));
                     return true;
                 } else {
                     return false;

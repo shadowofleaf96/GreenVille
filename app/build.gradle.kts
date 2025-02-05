@@ -47,7 +47,6 @@ dependencies {
     implementation(libs.browser)
     implementation("com.github.bumptech.glide:glide:5.0.0-rc01")
     annotationProcessor("com.github.bumptech.glide:glide:5.0.0-rc01")
-    implementation("androidx.browser:browser:1.4.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
