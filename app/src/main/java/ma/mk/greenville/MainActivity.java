@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         userAgent = System.getProperty("http.agent");
-        webSettings.setUserAgentString(userAgent + "greenville");
+        webSettings.setUserAgentString(userAgent + "GreenVille");
         webSettings.setDomStorageEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setAllowFileAccess(true);
@@ -109,27 +109,12 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                Log.d("WebViewClient", "Loading URL: " + url);
-                if (url.contains("greenville-frontend.vercel.app")) {
-                    return false;
-                } else if (url.startsWith("greenville://")) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    try {
-                        startActivity(intent);
-                    } catch (Exception e) {
-                        Toast.makeText(MainActivity.this, "No app found to open this link", Toast.LENGTH_SHORT).show();
-                    }
+                if (url != null && (url.startsWith("http://") || url.startsWith("https://"))) {
+                    view.getContext().startActivity(
+                            new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                     return true;
                 } else {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    intent.setPackage("com.android.chrome");
-                    try {
-                        startActivity(intent);
-                    } catch (Exception e) {
-                        intent.setPackage(null);
-                        startActivity(intent);
-                    }
-                    return true;
+                    return false;
                 }
             }
 
