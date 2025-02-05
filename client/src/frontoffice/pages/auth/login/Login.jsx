@@ -150,7 +150,6 @@ const Login = () => {
         if (res.data.cleanUrl) {
           let redirectUrl = res.data.cleanUrl;
           window.location.href = redirectUrl;
-          console.log('Redirecting to WebView URL: ', redirectUrl);
         } else {
           localStorage.setItem("customer_access_token", res.data.access_token);
 
@@ -293,7 +292,7 @@ const Login = () => {
                 {loadingSave ? t("login.loggingIn") : t("login.login")}
               </LoadingButton>
 
-              <div className="mt-2 flex justify-center">
+              {!isWebView ? <div className="mt-2 flex justify-center">
                 <GoogleLogin
                   onSuccess={responseMessage}
                   onError={errorMessage}
@@ -307,7 +306,7 @@ const Login = () => {
                   ux_mode="popup"
                   context="signin"
                 />
-              </div>
+              </div> : null}
 
               <Typography
                 variant="body2"
