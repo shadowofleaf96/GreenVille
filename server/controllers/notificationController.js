@@ -1,6 +1,7 @@
 const Notification = require("../models/Notification");
 const { Customer } = require("../models/Customer");
 const transporter = require("../middleware/mailMiddleware");
+const admin = require("../config/firebase");
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 
@@ -44,12 +45,12 @@ const sendNotification = async (req, res) => {
     }
 
     if (sendType === "android" || sendType === "both") {
-      // Construct the FCM message
       const fcmMessage = {
         notification: {
-          title: subject, 
-          body: subject, 
-          image: "https://greenville-frontend.vercel.app/images/logo.png",
+          title: subject,
+          body: subject,
+          image:
+            "https://greenville-frontend.vercel.app/assets/logo-android.png",
         },
         topic: "allAndroidDevices",
       };
