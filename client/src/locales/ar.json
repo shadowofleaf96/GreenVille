@@ -723,5 +723,23 @@
   },
   "cta2_heading": "خضروات طازجة. \n توصيل مجاني!",
   "cta2_paragraph": "احصل على خضروات طازجة وعضوية تُسلم إلى باب منزلك مع توصيل مجاني لجميع الطلبات التي تزيد عن <1>{{amount}}</1>. اطلب الآن وتمتع بتناول طعام صحي بكل سهولة!",
-  "cta2_link": "اطلب الآن"
+  "cta2_link": "اطلب الآن",
+  "notificationPage": {
+    "title": "الإشعارات"
+  },
+  "deleteConfirmationMessage": "هل أنت متأكد أنك تريد حذف هذا العنصر؟",
+  "errorMessage": "خطأ",
+  "noDataFound": "لم يتم العثور على بيانات",
+  "deleteError": "حدث خطأ أثناء حذف الإشعار: {{error}}",
+  "createError": "حدث خطأ أثناء إنشاء الإشعار: {{error}}",
+  "SendNotification": "إرسال إشعار",
+  "Subject": "الموضوع",
+  "BodyHTMLAllowed": "المحتوى (يسمح بـ HTML)",
+  "SendType": "نوع الإرسال",
+  "Android": "أندرويد",
+  "BothEmailAndroid": "كلاهما (البريد الإلكتروني + أندرويد)",
+  "Send": "إرسال",
+  "Notification Details": "تفاصيل الإشعار",
+  "Notification Type": "نوع الإشعار",
+  "Date Sent": "تاريخ الإرسال"
 }

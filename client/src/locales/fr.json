@@ -725,5 +725,23 @@
   },
   "cta2_heading": "Légumes frais. \n Livraison gratuite!",
   "cta2_paragraph": "Recevez des légumes frais et biologiques livrés directement chez vous avec la livraison gratuite pour toutes les commandes supérieures à <1>{{amount}}</1>. Commandez maintenant et profitez d'une alimentation saine facilitée!",
-  "cta2_link": "Commander maintenant"
+  "cta2_link": "Commander maintenant",
+  "notificationPage": {
+    "title": "Notifications"
+  },
+  "deleteConfirmationMessage": "Êtes-vous sûr de vouloir supprimer cet élément ?",
+  "errorMessage": "Erreur",
+  "noDataFound": "Aucune donnée trouvée",
+  "deleteError": "Erreur lors de la suppression de la notification : {{error}}",
+  "createError": "Erreur lors de la création de la notification : {{error}}",
+  "SendNotification": "Envoyer une notification",
+  "Subject": "Sujet",
+  "BodyHTMLAllowed": "Contenu (HTML autorisé)",
+  "SendType": "Type d'envoi",
+  "Android": "Android",
+  "BothEmailAndroid": "Les deux (Email + Android)",
+  "Send": "Envoyer",
+  "Notification Details": "Détails de la notification",
+  "Notification Type": "Type de notification",
+  "Date Sent": "Date d'envoi"
 }

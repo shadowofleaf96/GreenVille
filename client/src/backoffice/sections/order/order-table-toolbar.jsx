@@ -48,7 +48,7 @@ export default function OrderTableToolbar({
       const deletedOrderIds = [];
       for (const orderId of selected) {
         const axiosInstance = createAxiosInstance("admin")
-        response = await axiosInstance.delete(`/subcategories/${orderId}`);
+        response = await axiosInstance.delete(`/orders/${orderId}`);
         deletedOrderIds.push(orderId);
       }
 

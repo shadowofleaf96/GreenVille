@@ -13,7 +13,7 @@ const customerJoiSchema = Joi.object({
     city: Joi.string().required(),
     postal_code: Joi.string().required(),
     phone_no: Joi.string().required(),
-    country: Joi.string().optional(), // since is a moroccan store, no need for country input //
+    country: Joi.string().optional(),
   }).optional(),
   creation_date: Joi.number(),
   last_login: Joi.number(),

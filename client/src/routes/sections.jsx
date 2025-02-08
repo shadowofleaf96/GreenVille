@@ -42,6 +42,7 @@ export const CategoryPage = lazy(() => import("../backoffice/pages/category"));
 export const SubCategoryPage = lazy(() => import("../backoffice/pages/subcategory"));
 export const CouponPage = lazy(() => import("../backoffice/pages/coupon"));
 export const ProfilePage = lazy(() => import("../backoffice/pages/profile"));
+export const NotificationPage = lazy(() => import("../backoffice/pages/notification"));
 export const ContactPage = lazy(() => import("../backoffice/pages/contact"));
 export const PaymentListPage = lazy(() => import("../backoffice/pages/payment"));
 export const CustomerPage = lazy(() => import("../backoffice/pages/customer"));
@@ -127,6 +128,7 @@ export default function Router() {
           <Route path="user" element={<UserPage />} />
           <Route path="category" element={<CategoryPage />} />
           <Route path="subcategory" element={<SubCategoryPage />} />
+          <Route path="notification" element={<NotificationPage />} />
           <Route path="coupon" element={<CouponPage />} />
           <Route path="order" element={<OrderPage />} />
           <Route path="product" element={<ProductPage />} />

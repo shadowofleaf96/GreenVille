@@ -184,7 +184,7 @@ function NavItem({ item }) {
         {item.icon}
       </Box>
 
-      <Box className="rtl:mr-3" component="span">{item.title} </Box>
+      <Box className="rtl:mr-3" component="span">{item.title}</Box>
     </ListItemButton>
   );
 }

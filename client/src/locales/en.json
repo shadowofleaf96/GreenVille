@@ -714,5 +714,23 @@
   },
   "cta2_heading": "Fresh Vegetables. \n Free Shipping!",
   "cta2_paragraph": "Get fresh and organic vegetables delivered straight to your door with free shipping on all orders over <1>{{amount}}</1>. Shop now and enjoy healthy eating made easy!",
-  "cta2_link": "Order Now"
+  "cta2_link": "Order Now",
+  "notificationPage": {
+    "title": "Notifications"
+  },
+  "deleteConfirmationMessage": "Are you sure you want to delete this element?",
+  "errorMessage": "Error",
+  "noDataFound": "No Data found",
+  "deleteError": "Error deleting notification: {{error}}",
+  "createError": "Error creating notification: {{error}}",
+  "SendNotification": "Send Notification",
+  "Subject": "Subject",
+  "BodyHTMLAllowed": "Body (HTML Allowed)",
+  "SendType": "Send Type",
+  "Android": "Android",
+  "BothEmailAndroid": "Both (Email + Android)",
+  "Send": "Send",
+  "Notification Details": "Notification Details",
+  "Notification Type": "Notification Type",
+  "Date Sent": "Date Sent"
 }

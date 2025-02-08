@@ -1,42 +1,36 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
 import Tooltip from "@mui/material/Tooltip";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteProduct } from "../../../redux/backoffice/productSlice";
+import { deleteUser } from "../../../redux/backoffice/userSlice";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Alert from "@mui/material/Alert";
 import InputAdornment from "@mui/material/InputAdornment";
 import Snackbar from "@mui/material/Snackbar";
 import Popover from "@mui/material/Popover";
 import Button from "@mui/material/Button";
-import createAxiosInstance from "../../../utils/axiosConfig";
 import axios from "axios";
 import Iconify from "../../components/iconify";
-import { useTranslation } from "react-i18next";
-export default function ProductTableToolbar({
+import createAxiosInstance from "../../../utils/axiosConfig";
+import { toast } from "react-toastify";
+
+export default function NotificationTableToolbar({
   numSelected,
   selected,
   setSelected,
   filterName,
   onFilterName,
-  skuFilter,
-  onSkuFilter,
-  priceFilter,
-  onPriceFilter,
-  quantityFilter,
-  onQuantityFilter,
-  showFilters,
-  setShowFilters,
 }) {
-  const { t } = useTranslation();
   const [popoverAnchor, setPopoverAnchor] = useState(null);
   const [snackbarMessage, setSnackbarMessage] = useState(null);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const { t } = useTranslation();
 
   const dispatch = useDispatch();
 
@@ -45,26 +39,26 @@ export default function ProductTableToolbar({
       setLoadingDelete(true);
 
       let response;
-      const deletedProductIds = [];
-      for (const productId of selected) {
+      const deletedUserIds = [];
+      for (const userId of selected) {
         const axiosInstance = createAxiosInstance("admin")
-        response = await axiosInstance.delete(`/products/${productId}`);
-        deletedProductIds.push(productId);
+        response = await axiosInstance.delete(`/notifications/${userId}`);
+        deletedUserIds.push(userId);
       }
 
-      dispatch(deleteProduct(deletedProductIds));
+      dispatch(deleteUser(deletedUserIds));
 
       setPopoverAnchor(null);
       setSelected([]);
       const snackbarMessage =
         selected.length === 1
           ? response.data.message
-          : t(`Selected ${selected.length} products are deleted`);
+          : t(`Selected ${selected.length} notifications are deleted`);
 
       toast.success(snackbarMessage);
     } catch (error) {
       setPopoverAnchor(null);
-      toast.error(t("Error deleting products:", error));
+      toast.error(t("Error deleting notifications:") + " " + error);
     } finally {
       setLoadingDelete(false);
     }
@@ -97,49 +91,20 @@ export default function ProductTableToolbar({
             {numSelected} {t("selected")}
           </Typography>
         ) : (
-          <>
-            {showFilters ? (
-              <>
-                <OutlinedInput
-                  value={filterName}
-                  onChange={onFilterName}
-                  placeholder={t("Filter by Name")}
+          <OutlinedInput
+            value={filterName}
+            onChange={onFilterName}
+            placeholder={t("Search for Notification...")}
+            startAdornment={
+              <InputAdornment position="start">
+                <Iconify
+                  icon="material-symbols-light:search-rounded"
+                  width={30}
+                  height={30}
                 />
-                <OutlinedInput
-                  value={skuFilter}
-                  onChange={onSkuFilter}
-                  placeholder={t("Filter by SKU")}
-                />
-                <OutlinedInput
-                  value={priceFilter}
-                  onChange={onPriceFilter}
-                  placeholder={t("Filter by Price")}
-                />
-                <OutlinedInput
-                  value={quantityFilter}
-                  onChange={onQuantityFilter}
-                  placeholder={t("Filter by Quantity")}
-                />
-              </>
-            ) : (
-              <>
-                <OutlinedInput
-                  value={filterName}
-                  onChange={onFilterName}
-                  placeholder={t("Search for Product...")}
-                  startAdornment={
-                    <InputAdornment position="start">
-                      <Iconify
-                        icon="material-symbols-light:search-rounded"
-                        width={30}
-                        height={30}
-                      />
-                    </InputAdornment>
-                  }
-                />
-              </>
-            )}
-          </>
+              </InputAdornment>
+            }
+          />
         )}
 
         {numSelected > 0 ? (
@@ -172,9 +137,7 @@ export default function ProductTableToolbar({
               }}
             >
               <Typography sx={{ mb: 1 }} component="div" variant="subtitle1">
-                {`${t("Are you sure you want to delete")} ${numSelected} ${t(
-                  "selected elements"
-                )} ?`}
+                {t("Are you sure you want to delete")} {numSelected} {t("selected elements ?")}
               </Typography>
 
               <LoadingButton
@@ -182,7 +145,7 @@ export default function ProductTableToolbar({
                 onClick={handleDelete}
                 loading={loadingDelete}
               >
-                {t("Yes")}
+                {t("Yes")} 
               </LoadingButton>
               <Button color="secondary" onClick={handleClosePopover}>
                 {t("No")}
@@ -190,22 +153,14 @@ export default function ProductTableToolbar({
             </Popover>
           </>
         ) : (
-          <>
-            <IconButton onClick={() => setShowFilters(!showFilters)}>
-              <Iconify
-                icon="material-symbols-light:filter-list-rounded"
-                width={30}
-                height={30}
-              />{" "}
-            </IconButton>
-          </>
+          <></>
         )}
       </Toolbar>
     </>
   );
 }
 
-ProductTableToolbar.propTypes = {
+NotificationTableToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,

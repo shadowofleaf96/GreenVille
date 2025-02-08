@@ -42,7 +42,7 @@ export default function ContactTableToolbar({
       const deletedContactIds = [];
       for (const contactId of selected) {
         const axiosInstance = createAxiosInstance("admin")
-        response = await axiosInstance.delete(`/subcategories/${contactId}`);
+        response = await axiosInstance.delete(`/contact/${contactId}`);
         deletedContactIds.push(contactId);
       }
 
@@ -53,12 +53,12 @@ export default function ContactTableToolbar({
       const snackbarMessage =
         selected.length === 1
           ? response.data.message
-          : t(`Selected ${selected.length} subcategories are deleted`);
+          : t(`Selected ${selected.length} Contact items are deleted`);
 
       toast.success(snackbarMessage);
     } catch (error) {
       setPopoverAnchor(null);
-      toast.error(t("Error deleting subcategories:"), error);
+      toast.error(t("Error deleting Contact items:"), error);
     } finally {
       setLoadingDelete(false);
     }

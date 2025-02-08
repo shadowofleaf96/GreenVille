@@ -113,6 +113,17 @@ const TranslatedNavConfig = () => {
       ),
     },
     {
+      title: "notifications",
+      path: "/admin/notification",
+      icon: (
+        <Iconify
+          icon="material-symbols-light:notifications-outline-rounded"
+          width={30}
+          height={30}
+        />
+      ),
+    },
+    {
       title: "payment list",
       path: "/admin/paymentlist",
       icon: (

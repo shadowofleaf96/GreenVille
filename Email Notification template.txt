@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Discover Organic Goodness at GreenVille!</title>
+  <style>
+    /* General resets for email compatibility */
+    body, html { margin: 0; padding: 0; width: 100%; }
+    body { font-family: Arial, sans-serif; background-color: #f7f7f7; line-height: 1.6; }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      color: #8DC63F;
+    }
+    .header h1 {
+      margin-bottom: 10px;
+    }
+    .banner img {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .section {
+      margin-top: 20px;
+    }
+    .section h2 {
+      color: #8DC63F;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    .section img {
+      width: 100%;
+      max-width: 600px;
+      border-radius: 10px;
+    }
+    .cta {
+      display: block;
+      text-align: center;
+      margin: 30px 0;
+      background-color: #8DC63F;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 15px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #888888;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header / Banner -->
+    <div class="header">
+      <h1>Welcome to GreenVille!</h1>
+      <p>Your Bio Organic Marketplace</p>
+    </div>
+    <div class="banner">
+      <img src="https://unsplash.com/photos/rSUyVryVIck/download?ixid=M3wxMjA3fDB8MXxzZWFyY2h8Mnx8RnJlc2glMjBPcmdhbmljJTIwUHJvZHVjZXxlbnwwfHx8fDE3Mzg4NTc2NTR8Mg&force=true&w=640" alt="GreenVille Banner">
+    </div>
+
+    <!-- Introduction -->
+    <div class="section">
+      <p>Dear Valued Customer,</p>
+      <p>We are excited to introduce our latest collection of organic products, carefully curated to support your healthy lifestyle. At GreenVille, you’ll find the freshest produce, eco-friendly beauty items, and sustainable home goods all in one place.</p>
+    </div>
+
+    <!-- Featured Products Section -->
+    <div class="section">
+      <h2>Fresh Organic Produce</h2>
+      <img src="https://unsplash.com/photos/E6QNwtp5Gbk/download?ixid=M3wxMjA3fDB8MXxzZWFyY2h8NXx8RnJlc2glMjBPcmdhbmljJTIwUHJvZHVjZXxlbnwwfHx8fDE3Mzg4NTc2NTR8Mg&force=true&w=640" alt="Organic Produce">
+      <p>Explore our range of fresh, organic fruits and vegetables sourced from local farms.</p>
+    </div>
+
+    <div class="section">
+      <h2>Eco-Friendly Beauty Products</h2>
+      <img src="https://unsplash.com/photos/x8ZStukS2PM/download?ixid=M3wxMjA3fDB8MXxzZWFyY2h8Mnx8ZWNvJTIwZnJpZW5kbHl8ZW58MHx8fHwxNzM4ODU1MTAzfDA&force=true&w=640" alt="Eco-Friendly Beauty Products">
+      <p>Discover our selection of sustainable beauty products that are kind to your skin and the environment.</p>
+    </div>
+
+    <div class="section">
+      <h2>Sustainable Home Goods</h2>
+      <img src="https://unsplash.com/photos/DUPFowqI6oI/download?ixid=M3wxMjA3fDB8MXxzZWFyY2h8OHx8T3JnYW5pY3xlbnwwfHx8fDE3Mzg4NTc1MzZ8MA&force=true&w=640" alt="Sustainable Home Goods">
+      <p>Upgrade your home with our eco-friendly and sustainable household items.</p>
+    </div>
+
+    <!-- Call to Action -->
+    <a class="cta" href="https://greenville-frontend.vercel.app/products" target="_blank">Shop Now</a>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>Thank you for choosing GreenVille for your organic needs.</p>
+      <p>Best regards,<br>The GreenVille Team</p>
+      <p><img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/dev/client/public/assets/logo-email.png" alt="GreenVille Logo" style="max-width: 150px;"></p>
+      <p>Visit us: <a href="https://greenville-frontend.vercel.app" target="_blank">greenville-frontend.vercel.app</a></p>
+    </div>
+  </div>
+</body>
+</html>

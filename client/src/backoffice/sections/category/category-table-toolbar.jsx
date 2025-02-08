@@ -42,7 +42,7 @@ export default function CategoryTableToolbar({
       const deletedUserIds = [];
       for (const userId of selected) {
         const axiosInstance = createAxiosInstance("admin")
-        response = await axiosInstance.delete(`/users/${userId}`);
+        response = await axiosInstance.delete(`/categories/${userId}`);
         deletedUserIds.push(userId);
       }
 
@@ -53,12 +53,12 @@ export default function CategoryTableToolbar({
       const snackbarMessage =
         selected.length === 1
           ? response.data.message
-          : t(`Selected ${selected.length} users are deleted`);
+          : t(`Selected ${selected.length} categories are deleted`);
 
       toast.success(snackbarMessage);
     } catch (error) {
       setPopoverAnchor(null);
-      toast.error(t("Error deleting users:") + " " + error);
+      toast.error(t("Error deleting categories:") + " " + error);
     } finally {
       setLoadingDelete(false);
     }

@@ -2,15 +2,12 @@ const Joi = require("joi");
 const mongoose = require("mongoose");
 const { Schema, model, Types } = mongoose;
 
-const subcategoryJoiSchema = Joi.object({
-  _id: Joi.any().strip(),
-  subcategory_name: Joi.object({
-    en: Joi.string().trim().max(25).required(),
-    fr: Joi.string().trim().max(25).required(),
-    ar: Joi.string().trim().max(25).required(),
-  }).required(),
-  category_id: Joi.any().required(),
-  status: Joi.boolean().default(false),
+const notificationSchema = new mongoose.Schema({
+  subject: String,
+  body: String,
+  sendType: { type: String, enum: ['email', 'android'] },
+  recipients: [String],
+  dateSent: { type: Date, default: Date.now }
 });
 
 const subcategorieSchema = new Schema(
@@ -37,7 +34,7 @@ const subcategorieSchema = new Schema(
 
 subcategorieSchema.pre("save", async function (next) {
   try {
-    await subcategoryJoiSchema.validateAsync(this.toObject());
+    await notificationSchema.validateAsync(this.toObject());
     next();
   } catch (error) {
     next(error);
