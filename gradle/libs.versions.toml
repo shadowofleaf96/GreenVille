@@ -1,6 +1,7 @@
 [versions]
 agp = "8.7.3"
 browser = "1.8.0"
+githubGlide = "5.0.0-rc01"
 glide = "4.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -13,9 +14,15 @@ lifecycleViewmodelKtx = "2.8.7"
 navigationFragment = "2.8.5"
 navigationUi = "2.8.5"
 swiperefreshlayout = "1.1.0"
+firebaseMessaging = "24.1.0"
+firebaseAnalytics = "22.2.0"
+firebaseBom = "33.9.0"
 
 [libraries]
 browser = { module = "androidx.browser:browser", version.ref = "browser" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-bom = { module = "com.google.firebase:firebase-bom" }
+github-glide-v500rc01 = { module = "com.github.bumptech.glide:glide", version.ref = "githubGlide" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -28,6 +35,9 @@ lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-view
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
 swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
+google-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebaseAnalytics" }
+google-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

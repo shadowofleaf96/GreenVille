@@ -31,6 +31,14 @@
                 <data android:scheme="https" android:host="greenville-frontend.vercel.app" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".notifications.GreenVilleFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>
