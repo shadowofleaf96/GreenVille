@@ -205,8 +205,6 @@ export default function NotificationView() {
   const handleSaveandSendNewNotification = async (newNotification) => {
     setLoadingDelete(true);
 
-    console.log(newNotification.body);
-
     try {
       const response = await axiosInstance.post("/notifications/send-notification", newNotification);
       const notificationdata = response.data.data;
