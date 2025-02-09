@@ -7,7 +7,7 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteUser } from "../../../redux/backoffice/userSlice";
+import { deleteNotification } from "../../../redux/backoffice/notificationSlice";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Alert from "@mui/material/Alert";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -39,14 +39,14 @@ export default function NotificationTableToolbar({
       setLoadingDelete(true);
 
       let response;
-      const deletedUserIds = [];
-      for (const userId of selected) {
+      const deletedNotificationIds = [];
+      for (const notificationId of selected) {
         const axiosInstance = createAxiosInstance("admin")
-        response = await axiosInstance.delete(`/notifications/${userId}`);
-        deletedUserIds.push(userId);
+        response = await axiosInstance.delete(`/notifications/${notificationId}`);
+        deletedNotificationIds.push(notificationId);
       }
 
-      dispatch(deleteUser(deletedUserIds));
+      dispatch(deleteNotification(deletedNotificationIds));
 
       setPopoverAnchor(null);
       setSelected([]);

@@ -9,6 +9,6 @@ const router = express.Router();
 
 router.post("/send-notification", sendNotification);
 router.get("/get-notifications", getAllNotifications);
-router.delete("/delete-notification/:id", deleteNotification);
+router.delete("/:id", deleteNotification);
 
 module.exports = router;

@@ -170,7 +170,7 @@ export default function NotificationView() {
   const handleDeleteNotification = async (notificationId) => {
     setLoadingDelete(true);
     try {
-      const response = await axiosInstance.delete(`/notifications/delete-notification/${notificationId}`);
+      const response = await axiosInstance.delete(`/notifications/${notificationId}`);
       const updatedNotifications = data.filter(
         (notification) => notification._id !== notificationId
       );

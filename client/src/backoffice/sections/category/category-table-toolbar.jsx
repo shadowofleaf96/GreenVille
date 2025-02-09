@@ -7,7 +7,7 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteUser } from "../../../redux/backoffice/userSlice";
+import { deleteCategory } from "../../../redux/backoffice/categorySlice";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Alert from "@mui/material/Alert";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -39,14 +39,14 @@ export default function CategoryTableToolbar({
       setLoadingDelete(true);
 
       let response;
-      const deletedUserIds = [];
-      for (const userId of selected) {
+      const deletedCategoriesIds = [];
+      for (const categoryId of selected) {
         const axiosInstance = createAxiosInstance("admin")
-        response = await axiosInstance.delete(`/categories/${userId}`);
-        deletedUserIds.push(userId);
+        response = await axiosInstance.delete(`/categories/${categoryId}`);
+        deletedCategoriesIds.push(categoryId);
       }
 
-      dispatch(deleteUser(deletedUserIds));
+      dispatch(deleteCategory(deletedCategoriesIds));
 
       setPopoverAnchor(null);
       setSelected([]);
