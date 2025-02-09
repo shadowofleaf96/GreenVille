@@ -55,8 +55,12 @@ const sendNotification = async (req, res) => {
         topic: "allAndroidDevices",
       };
 
-      await admin.messaging().send(fcmMessage);
-      console.log("Android notifications sent!");
+      try {
+        const response = await admin.messaging().send(fcmMessage);
+        console.log("FCM response:", response);
+      } catch (fcmError) {
+        console.error("Error sending FCM message:", fcmError);
+      }
     }
 
     const newNotification = new Notification({
