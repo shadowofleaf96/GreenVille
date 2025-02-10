@@ -1,14 +1,17 @@
 package ma.mk.greenville.notifications;
 
+import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -49,6 +52,7 @@ public class GreenVilleFirebaseMessagingService extends FirebaseMessagingService
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_greenville_logo)
                 .setContentTitle(title)
+                .setContentText("Check out our newest offers")
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
 
@@ -64,7 +68,9 @@ public class GreenVilleFirebaseMessagingService extends FirebaseMessagingService
         }
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(0, notificationBuilder.build());
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            notificationManager.notify(0, notificationBuilder.build());
+        }
     }
 
     private void createNotificationChannel() {
