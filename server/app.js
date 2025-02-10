@@ -102,7 +102,7 @@ const softLimiter = rateLimit({
   handler: (req, res, next) => {
     strictLimiter(req, res, next);
   },
-  standardHeaders: true,
+	standardHeaders: 'draft-8',
   legacyHeaders: false,
 });
 
@@ -110,7 +110,7 @@ const strictLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
   limit: 10,
   message: "You have exceeded the request limit. Please try again later.",
-  standardHeaders: true,
+	standardHeaders: 'draft-8',
   legacyHeaders: false,
 });
 
