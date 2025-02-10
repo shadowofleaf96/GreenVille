@@ -16,6 +16,11 @@
         android:theme="@style/Theme.GreenVille"
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="tiramisu">
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_greenville_logo" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

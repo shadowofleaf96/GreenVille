@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import com.google.firebase.messaging.FirebaseMessaging;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
@@ -84,6 +85,14 @@ public class MainActivity extends AppCompatActivity {
         loadingBar = findViewById(R.id.loading_bar);
         swipeRefreshLayout.setEnabled(false);
 
+        FirebaseMessaging.getInstance().subscribeToTopic("allAndroidDevices")
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d("FCM", "Subscribed to allAndroidDevices topic");
+                    } else {
+                        Log.e("FCM", "Subscription failed", task.getException());
+                    }
+                });
 
         SharedPreferences preferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
         String savedProfileImageUrl = preferences.getString("profile_image_url", null);
@@ -101,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setDomStorageEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setAllowFileAccess(true);
+        webSettings.setAppCacheEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         webSettings.setBuiltInZoomControls(true);
         webSettings.setDisplayZoomControls(false);
         webSettings.setLoadWithOverviewMode(true);
@@ -248,9 +259,13 @@ public class MainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (webView != null && webView.canGoBack()) {
+                if (splashScreen.getVisibility() == View.VISIBLE) {
+                    finish();
+                }
+                else if (webView != null && webView.canGoBack()) {
                     webView.goBack();
-                } else {
+                }
+                else {
                     ExitDialog.showExitDialog(MainActivity.this, MainActivity.this::finish);
                 }
             }
