@@ -56,7 +56,7 @@ const sendNotification = async (req, res) => {
       };
 
       try {
-        const response = await admin.messaging().send(fcmMessage);
+        await admin.messaging().send(fcmMessage);
       } catch (fcmError) {
         console.error("Error sending FCM message:", fcmError);
       }
