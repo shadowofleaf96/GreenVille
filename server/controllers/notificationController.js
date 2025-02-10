@@ -48,7 +48,7 @@ const sendNotification = async (req, res) => {
       const fcmMessage = {
         notification: {
           title: subject,
-          body: subject,
+          body: "Check out our newest offers",
           image:
             "https://greenville-frontend.vercel.app/assets/logo-android.png",
         },
