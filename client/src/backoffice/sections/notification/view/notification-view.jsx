@@ -220,6 +220,7 @@ export default function NotificationView() {
 
       dispatch(setData([...data, AddedNotification]));
       toast.success(response.data.message);
+      
     } catch (error) {
       console.error("Error creating new notification:", error);
       toast.error("Error: " + error.response.data.message);

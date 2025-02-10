@@ -21,6 +21,8 @@ const NotificationDetailsPopup = ({ notification, open, onClose }) => {
   const sanitizedBody = DOMPurify.sanitize(decodedBody);
   const cleanedBody = sanitizedBody.replace(/<\/?(html|body)[^>]*>/g, "");
 
+  let notificationSentType = notification?.sendType;
+
   return (
     <Modal open={open} onClose={onClose}>
       <Box
@@ -71,18 +73,24 @@ const NotificationDetailsPopup = ({ notification, open, onClose }) => {
           </Box>
 
           <Box sx={{ p: 2, borderRadius: 2, bgcolor: "#f5f5f5" }}>
-            <Typography variant="body1" sx={{ m: 1 }}>
+            <Typography variant="body1" sx={{ marginTop: 1, marginBottom: 1 }}>
               <strong>{t("Notification Type")}: </strong>
-              <span style={{ color: "#d32f2f", fontWeight: "bold" }}>
+              <span className="!capitalize" style={{ color: "#d32f2f", fontWeight: "bold" }}>
                 {notification?.sendType}
               </span>
             </Typography>
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, maxWidth: "100%", m: 1 }}>
-              {notification?.recipients.map((recipient, index) => (
-                <Chip key={index} label={recipient} sx={{ maxWidth: "100%" }} />
-              ))}
-            </Box>
-            <Typography variant="body1">
+
+            {notificationSentType === "email" ? (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, maxWidth: "100%" }}>
+                {notification?.recipients.map((recipient, index) => (
+                  <Chip key={index} label={recipient} sx={{ maxWidth: "100%" }} />
+                ))}
+              </Box>) 
+              :
+              <Chip label="All Android Users" />
+            }
+
+            <Typography variant="body1" sx={{ marginTop: 1, marginBottom: 1 }}>
               <strong>{t("Date Sent")}: </strong> {notification?.dateSent}
             </Typography>
           </Box>

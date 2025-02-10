@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MenuItem, Select, InputLabel, FormControl, Box } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -15,14 +15,24 @@ import 'react-quill-new/dist/quill.snow.css';
 function SendNotificationForm({ onSave, onCancel, open, onClose }) {
   const { t } = useTranslation();
   const [loadingSave, setLoadingSave] = useState(false);
+  const [sendType, setSendType] = useState("email");
 
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit, reset, setValue } = useForm({
     defaultValues: {
       subject: "",
       body: "",
       sendType: "email",
     },
   });
+
+  const handleSendTypeChange = (value) => {
+    setSendType(value);
+    if (value === "android") {
+      setValue("body", "Android");
+    } else {
+      setValue("body", "");
+    }
+  };
 
   const handleSave = async (data) => {
     setLoadingSave(true);
@@ -34,6 +44,7 @@ function SendNotificationForm({ onSave, onCancel, open, onClose }) {
       };
 
       await onSave(sanitizedData);
+      reset();
       onClose();
     } catch (error) {
       console.error("Error sending notification:", error);
@@ -82,26 +93,28 @@ function SendNotificationForm({ onSave, onCancel, open, onClose }) {
               )}
             />
 
-            <Stack>
-              <Controller
-                name="body"
-                control={control}
-                render={({ field }) => (
-                  <div>
-                    <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                      {t("BodyHTMLAllowed")}
-                    </Typography>
-                    <ReactQuill
-                      {...field}
-                      value={field.value}
-                      onChange={field.onChange}
-                      theme="snow"
-                      style={{ height: "200px", marginBottom: "48px" }}
-                    />
-                  </div>
-                )}
-              />
-            </Stack>
+            {sendType !== "android" && (
+              <Stack>
+                <Controller
+                  name="body"
+                  control={control}
+                  render={({ field }) => (
+                    <div>
+                      <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                        {t("BodyHTMLAllowed")}
+                      </Typography>
+                      <ReactQuill
+                        {...field}
+                        value={field.value}
+                        onChange={field.onChange}
+                        theme="snow"
+                        style={{ height: "200px", marginBottom: "48px" }}
+                      />
+                    </div>
+                  )}
+                />
+              </Stack>
+            )}
 
             <Stack>
               <FormControl fullWidth sx={{ marginBottom: 2 }}>
@@ -111,7 +124,17 @@ function SendNotificationForm({ onSave, onCancel, open, onClose }) {
                   control={control}
                   defaultValue="email"
                   render={({ field }) => (
-                    <Select {...field} fullWidth>
+                    <Select
+                      label={t('SendType')}
+                      id="sendType"
+                      name="sendType"
+                      {...field}
+                      fullWidth
+                      onChange={(e) => {
+                        field.onChange(e);
+                        handleSendTypeChange(e.target.value);
+                      }}
+                    >
                       <MenuItem value="email">{t("Email")}</MenuItem>
                       <MenuItem value="android">{t("Android")}</MenuItem>
                       <MenuItem value="both">{t("BothEmailAndroid")}</MenuItem>
@@ -121,7 +144,6 @@ function SendNotificationForm({ onSave, onCancel, open, onClose }) {
               </FormControl>
             </Stack>
 
-            {/* Buttons */}
             <Stack direction="row" spacing={2}>
               <LoadingButton loading={loadingSave} type="submit" variant="contained" sx={{ flex: 1 }}>
                 {t("Send")}

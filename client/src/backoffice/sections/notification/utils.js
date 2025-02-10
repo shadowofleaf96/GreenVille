@@ -35,7 +35,7 @@ export function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-export function applyFilter({ inputData, comparator, filterName, currentLanguage }) {
+export function applyFilter({ inputData, comparator, filterName }) {
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -49,7 +49,7 @@ export function applyFilter({ inputData, comparator, filterName, currentLanguage
   if (filterName) {
     inputData = inputData.filter((notification) => {
       const notificationNameMatch =
-        notification.notification_name[currentLanguage]
+        notification.subject
           .toLowerCase()
           .indexOf(filterName.toLowerCase()) !== -1;
       return notificationNameMatch;

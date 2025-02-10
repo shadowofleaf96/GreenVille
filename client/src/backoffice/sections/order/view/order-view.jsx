@@ -235,7 +235,6 @@ export default function OrderView() {
         };
 
         dispatch(setData(updatedOrders)); 
-
         toast.success(response.data.message); 
         setEditingOrder(null); 
         setOpenModal(false); 

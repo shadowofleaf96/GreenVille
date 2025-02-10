@@ -35,7 +35,7 @@ export default function NotificationTableRow({
         <Typography variant="subtitle2">{t(subject)}</Typography>
       </TableCell>
 
-      <TableCell>{t(sendType)}</TableCell>
+      <TableCell className="!capitalize">{t(sendType)}</TableCell>
 
       <TableCell>
         <Typography variant="body2">{recipients.join(", ")}</Typography>
