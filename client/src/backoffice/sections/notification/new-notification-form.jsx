@@ -63,6 +63,7 @@ function SendNotificationForm({ onSave, onCancel, open, onClose }) {
     } finally {
       setLoadingSave(false);
       setValue("body", "");
+      setSendType("email")
     }
   };
 
