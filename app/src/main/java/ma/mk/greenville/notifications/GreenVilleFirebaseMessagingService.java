@@ -25,13 +25,10 @@ public class GreenVilleFirebaseMessagingService extends FirebaseMessagingService
 
         if (remoteMessage.getNotification() != null) {
             String title = remoteMessage.getNotification().getTitle();
-//            String body = remoteMessage.getNotification().getBody();
             Uri imageUri = remoteMessage.getNotification().getImageUrl();
             sendNotification(title, imageUri);
         } else if (!remoteMessage.getData().isEmpty()) {
-            // If using data messages, handle them here.
             String title = remoteMessage.getData().get("title");
-//            String body = remoteMessage.getData().get("body");
             sendNotification(title, null);
         }
     }
@@ -52,7 +49,6 @@ public class GreenVilleFirebaseMessagingService extends FirebaseMessagingService
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_greenville_logo)
                 .setContentTitle(title)
-                .setContentText("Check out GreenVille, the Best Bio Organic Store in Morocco")
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
 
