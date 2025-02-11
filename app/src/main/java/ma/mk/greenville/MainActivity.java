@@ -4,12 +4,15 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
+import android.Manifest;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,6 +20,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -24,17 +30,21 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import com.google.firebase.messaging.FirebaseMessaging;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
@@ -47,6 +57,7 @@ import org.json.JSONObject;
 
 import ma.mk.greenville.databinding.ActivityMainBinding;
 import ma.mk.greenville.dialogs.ExitDialog;
+import ma.mk.greenville.utils.StatusBarUtils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -68,12 +79,17 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView navView;
     private final Handler handler = new Handler(Looper.getMainLooper());
 
-    @SuppressLint({"SetJavaScriptEnabled", "NonConstantResourceId"})
+    @SuppressLint({"SetJavaScriptEnabled", "NonConstantResourceId", "ObsoleteSdkInt"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        Window window = getWindow();
+        int statusBarColor = ContextCompat.getColor(this, R.color.yellow_400);
+        StatusBarUtils.setStatusBarColor(window, statusBarColor);
 
         webView = findViewById(R.id.webview);
         splashScreen = findViewById(R.id.splash_screen);
@@ -116,6 +132,12 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
+
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -145,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                 long elapsedTime = System.currentTimeMillis() - splashStartTime;
                 long delay = Math.max(0, minSplashTime - elapsedTime);
 
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                handler.postDelayed(() -> {
                     splashScreen.setVisibility(View.GONE);
                     loadingBar.setVisibility(View.GONE);
                     progressBar.setVisibility(View.GONE);
@@ -284,6 +306,18 @@ public class MainActivity extends AppCompatActivity {
                 navView.setVisibility(View.GONE);
             }
         }, 2000);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 101) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d("FCM", "Notification permission granted");
+            } else {
+                Log.d("FCM", "Notification permission denied");
+            }
+        }
     }
 
     private void clearProfileButton() {

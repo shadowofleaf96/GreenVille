@@ -9,8 +9,10 @@
         <item name="bottomNavigationStyle">@style/Widget.MaterialComponents.BottomNavigationView.Colored</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="android:fontFamily">@font/raleway</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:navigationBarColor">?attr/colorPrimaryVariant</item>
         <!-- Secondary brand color. -->
+        <item name="android:windowTranslucentStatus">true</item>
         <item name="colorSecondary">@color/white</item>
         <item name="colorSecondaryVariant">@color/white</item>
         <item name="colorOnSecondary">@color/black</item>

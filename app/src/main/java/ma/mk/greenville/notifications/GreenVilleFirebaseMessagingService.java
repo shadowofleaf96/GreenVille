@@ -28,11 +28,13 @@ public class GreenVilleFirebaseMessagingService extends FirebaseMessagingService
 
         if (remoteMessage.getNotification() != null) {
             String title = remoteMessage.getNotification().getTitle();
+            String body = remoteMessage.getNotification().getBody();
             Uri imageUri = remoteMessage.getNotification().getImageUrl();
-            sendNotification(title, imageUri);
+            sendNotification(title, body, imageUri);
         } else if (!remoteMessage.getData().isEmpty()) {
             String title = remoteMessage.getData().get("title");
-            sendNotification(title, null);
+            String body = remoteMessage.getData().get("body");
+            sendNotification(title, body, null);
         }
     }
 
@@ -42,7 +44,7 @@ public class GreenVilleFirebaseMessagingService extends FirebaseMessagingService
         Log.d("FCM", "Refreshed token: " + token);
     }
 
-    private void sendNotification(String title, Uri imageUri) {
+    private void sendNotification(String title, String messageBody, Uri imageUri) {
         createNotificationChannel();
 
         Intent intent = new Intent(this, MainActivity.class);
@@ -52,7 +54,7 @@ public class GreenVilleFirebaseMessagingService extends FirebaseMessagingService
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_greenville_logo)
                 .setContentTitle(title)
-                .setContentText("Check out our newest offers")
+                .setContentText(messageBody)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
 
