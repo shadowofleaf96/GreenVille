@@ -3,7 +3,20 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
-    <string name="home_url">https://greenville-frontend.vercel.app/</string>
-    <string name="cart_url">https://greenville-frontend.vercel.app/cart</string>
-    <string name="profile_url">https://greenville-frontend.vercel.app/profile</string>
+    <string name="home_url" translatable="false">https://greenville-frontend.vercel.app/</string>
+    <string name="cart_url" translatable="false">https://greenville-frontend.vercel.app/cart</string>
+    <string name="profile_url" translatable="false">https://greenville-frontend.vercel.app/profile</string>
+    <string name="logoimage">Logo Image</string>
+    <string name="no_internet_connection_illustration">No internet connection illustration</string>
+    <string name="you_re_offline_please_check_your_connection_or_try_again_later">You\'re offline. Please check your connection or try again later.</string>
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="exit">Exit</string>
+    <string name="cart">Cart</string>
+    <string name="profile">Profile</string>
+    <string name="no_internet_connection">No Internet Connection</string>
+    <string name="choose_file">Choose File</string>
+    <string name="oops_no_internet_connection">Oops! No internet connection.</string>
+    <string name="exit_app_message">"Are you sure you want to exit the app? "</string>
+    <string name="exit_app_message2">Don\'t miss out on exploring our organic products for a healthier lifestyle.</string>
 </resources>

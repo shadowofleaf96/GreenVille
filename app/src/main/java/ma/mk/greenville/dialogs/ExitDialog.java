@@ -26,8 +26,7 @@ public class ExitDialog {
         dialogImage.setImageResource(R.drawable.baseline_exit_to_app_24);
 
         TextView messageTextView = customView.findViewById(R.id.dialogMessage);
-        messageTextView.setText("Are you sure you want to exit the app? " +
-                "Don't miss out on exploring our organic products for a healthier lifestyle.");
+        messageTextView.setText(context.getString(R.string.exit_app_message) + context.getString(R.string.exit_app_message2));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.CustomDialogTheme)
                 .setView(customView)
@@ -47,7 +46,7 @@ public class ExitDialog {
         Button positiveButton = customView.findViewById(R.id.positiveButton);
         Button negativeButton = customView.findViewById(R.id.negativeButton);
 
-        positiveButton.setText("Exit");
+        positiveButton.setText(context.getString(R.string.exit));
         positiveButton.setTextColor(ContextCompat.getColor(context, R.color.white));
         positiveButton.setBackground(ContextCompat.getDrawable(context, R.drawable.button_exit));
         positiveButton.setOnClickListener(v -> {
@@ -55,7 +54,7 @@ public class ExitDialog {
             dialog.dismiss();
         });
 
-        negativeButton.setText("Cancel");
+        negativeButton.setText(context.getString(R.string.cancel));
         negativeButton.setTextColor(ContextCompat.getColor(context, R.color.lime_green));
         negativeButton.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent));
         negativeButton.setOnClickListener(v -> dialog.dismiss());

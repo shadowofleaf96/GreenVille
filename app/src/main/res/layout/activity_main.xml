@@ -35,7 +35,7 @@
             android:id="@+id/logoImage"
             android:layout_width="250dp"
             android:layout_height="200dp"
-            android:contentDescription="logoImage"
+            android:contentDescription="@string/logoimage"
             android:src="@drawable/logo_email" />
 
         <ProgressBar
@@ -94,7 +94,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="20dp"
             android:src="@drawable/illustration_404"
-            android:contentDescription="No internet connection illustration" />
+            android:contentDescription="@string/no_internet_connection_illustration" />
 
         <TextView
             android:id="@+id/no_internet_text"
@@ -102,7 +102,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/no_internet_image"
             android:layout_centerHorizontal="true"
-            android:text="You're offline. Please check your connection or try again later."
+            android:text="@string/you_re_offline_please_check_your_connection_or_try_again_later"
             android:textSize="20sp"
             android:textColor="@android:color/black"
             android:layout_marginBottom="32dp"
@@ -117,7 +117,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/no_internet_text"
             android:layout_centerHorizontal="true"
-            android:text="Retry"
+            android:text="@string/retry"
             android:textSize="16sp"
             android:backgroundTint="@color/lime_green"
             android:textColor="@android:color/white"

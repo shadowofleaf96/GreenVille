@@ -56,7 +56,7 @@
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:layout_margin="10dp"
-            android:text="Cancel"
+            android:text="@string/cancel"
             android:textColor="@color/lime_green"
             android:background="@android:color/transparent"/>
 
@@ -66,7 +66,7 @@
             android:layout_margin="10dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
-            android:text="Exit"
+            android:text="@string/exit"
             android:textColor="@color/white"
             android:background="@drawable/button_exit"/>
     </LinearLayout>

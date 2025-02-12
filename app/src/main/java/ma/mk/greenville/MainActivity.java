@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                 noInternetLayout.setVisibility(View.VISIBLE);
                 webView.setVisibility(View.GONE);
                 navView.setVisibility(View.GONE);
-                Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("*/*");
-                startActivityForResult(Intent.createChooser(intent, "Choose File"), FILE_CHOOSER_REQUEST_CODE);
+                startActivityForResult(Intent.createChooser(intent, getString(R.string.choose_file)), FILE_CHOOSER_REQUEST_CODE);
                 return true;
             }
         });
@@ -271,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
                 webView.setVisibility(View.VISIBLE);
                 navView.setVisibility(View.VISIBLE);
             } else {
-                Toast.makeText(MainActivity.this, "Oops! No internet connection.", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, getString(R.string.oops_no_internet_connection), Toast.LENGTH_LONG).show();
                 navView.setVisibility(View.GONE);
                 webView.setVisibility(View.GONE);
             }
@@ -372,23 +372,6 @@ public class MainActivity extends AppCompatActivity {
         profileTextItem.setTitle(fullName);
     }
 
-    private void openUrlInChromeCustomTab(String url) {
-        try {
-            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-            CustomTabsIntent customTabsIntent = builder.build();
-            customTabsIntent.launchUrl(MainActivity.this, Uri.parse(url));
-        } catch (Exception e) {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            intent.setPackage("com.android.chrome");
-            try {
-                startActivity(intent);
-            } catch (Exception ex) {
-                intent.setPackage(null);
-                startActivity(intent);
-            }
-        }
-    }
-
     private void startCartCountCheck() {
         final Handler handler = new Handler(Looper.getMainLooper());
         final Runnable cartCountRunnable = new Runnable() {
@@ -432,7 +415,7 @@ public class MainActivity extends AppCompatActivity {
             if (isConnected()) {
                 webView.reload();
             } else {
-                Toast.makeText(MainActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
             }
             swipeRefreshLayout.setRefreshing(false);
         });

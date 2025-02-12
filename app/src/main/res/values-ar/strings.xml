@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GreenVille</string>
+    <string name="title_home">الصفحة الرئيسية</string>
+    <string name="profile">حساب</string>
+    <string name="title_dashboard">لوحة القيادة</string>
+    <string name="title_notifications">إشعارات</string>
+    <string name="logoimage">صورة الشعار</string>
+    <string name="no_internet_connection_illustration">توضيح عدم وجود اتصال بالإنترنت</string>
+    <string name="you_re_offline_please_check_your_connection_or_try_again_later">أنت غير متصل بالإنترنت. يرجى التحقق من اتصالك أو المحاولة مرة أخرى لاحقًا.</string>
+    <string name="retry">إعادة المحاولة</string>
+    <string name="cancel">إلغاء</string>
+    <string name="exit">خروج</string>
+    <string name="cart">عربة</string>
+    <string name="no_internet_connection">No Internet Connection</string>
+    <string name="choose_file">Choose File</string>
+    <string name="oops_no_internet_connection">Oops! No internet connection.</string>
+    <string name="exit_app_message">"Are you sure you want to exit the app? "</string>
+</resources>
