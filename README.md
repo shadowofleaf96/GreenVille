@@ -12,13 +12,13 @@ Welcome to the GreenVille Android Application! This app is designed to provide u
 
 - **Splash Screen**: A splash screen is displayed upon launching the app, enhancing the user experience during the initial loading phase.
 
-- **Swipe-to-Refresh**: Users can refresh the web content by swiping down, providing an intuitive way to reload pages.
+- **Swipe-to-Refresh**: Users can refresh the web content by swiping down, providing an intuitive way to reload pages.(Disabled, it cause conflict with webview scrolling)
 
 - **Bottom Navigation**: The app features a bottom navigation bar, allowing users to easily switch between Home, Cart, and Profile sections.
 
 - **Offline Handling**: The app detects internet connectivity and displays an appropriate message or layout when there's no connection, ensuring users are informed about their network status.
 
-- **File Upload and Download Support**: Users can upload and download files through the WebView, enhancing the app's interactivity.
+- **File Upload and Download Support**: Users can upload and download files through the WebView, enhancing the app's interactivity.(will be used soon)
 
 - **Push Notifications**: Integrated with Firebase Cloud Messaging, the app can receive and handle push notifications to keep users informed about updates and promotions.
 
@@ -28,7 +28,7 @@ Welcome to the GreenVille Android Application! This app is designed to provide u
 
 - **Progress Indicators**: The app displays progress bars during page loading to inform users about the loading status.
 
-- **Geolocation Support**: The app supports geolocation features, allowing web content to access the device's location, enhancing functionalities like location-based services.
+- **Geolocation Support**: The app supports geolocation features, allowing web content to access the device's location, enhancing functionalities like location-based services.(will be used soon for shipping address)
 
 ## Permissions
 
