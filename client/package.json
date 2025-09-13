@@ -21,7 +21,7 @@
     "@reduxjs/toolkit": "^1.9.7",
     "@stripe/react-stripe-js": "^2.8.0",
     "@stripe/stripe-js": "^2.4.0",
-    "axios": "^1.8.4",
+    "axios": "^1.12.1",
     "axios-cookiejar-support": "^4.0.7",
     "concurrently": "^8.2.2",
     "countries-list": "^3.0.6",
