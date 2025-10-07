@@ -24,7 +24,7 @@
         "jsonwebtoken": "^9.0.2",
         "mongoose": "^8.9.5",
         "multer": "^2.0.2",
-        "nodemailer": "^6.9.7",
+        "nodemailer": "^7.0.7",
         "stripe": "^14.25.0",
         "uuid": "^11.0.3",
         "xss": "^1.0.14"
