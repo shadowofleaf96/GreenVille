@@ -5,7 +5,6 @@ export const clearUserSession = (userType) => {
   if (userType === "admin" || !userType) {
     localStorage.removeItem("user_access_token");
   }
-  // Clear any other session-related data here
 };
 
 export const handleUnauthorized = (userType) => {

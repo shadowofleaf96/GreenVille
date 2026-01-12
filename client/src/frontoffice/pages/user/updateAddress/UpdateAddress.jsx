@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import { Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import MetaData from "../../../components/MetaData";
 import ProfileLink from "../../../components/profileLinks/ProfileLink";
@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import Iconify from "../../../../backoffice/components/iconify";
 import MapPicker from "../../../../components/map/MapPicker";
+import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

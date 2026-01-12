@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Iconify from "../../../../backoffice/components/iconify";
@@ -30,14 +29,14 @@ const defaultCTA = {
     fr: "En savoir plus",
     ar: "معرفة المزيد",
   },
-  primary_button_link: "/products",
-  secondary_button_link: "/about",
+  primary_button_link: "products",
+  secondary_button_link: "about",
 };
 
 export default function CTA() {
   const { i18n } = useTranslation();
   const { data: settings, loading } = useSelector(
-    (state) => state.adminSettings,
+    (state) => state.adminSettings
   );
 
   const ctaData = settings?.cta
