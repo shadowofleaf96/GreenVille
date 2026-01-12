@@ -47,6 +47,43 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+const optionalVerifyToken = (req, res, next) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    if (!authHeader || !authHeader.startsWith("Bearer")) {
+      return next(); // No token, proceed as unauthenticated
+    }
+    const token = authHeader.split(" ")[1];
+
+    jwt.verify(token, process.env.SECRETKEY, async (err, decoded) => {
+      if (err) {
+        // Token exists but invalid/expired.
+        // Strategy: Treat as unauthenticated or error?
+        // For optional, usually we just ignore and proceed as guest.
+        return next();
+      }
+
+      const { id, role } = decoded;
+      let user;
+
+      if (!role) {
+        user = await Customer.findById(id);
+      } else if (role) {
+        user = await User.findById(id);
+      }
+
+      if (user) {
+        const { password, ...data } = user._doc;
+        req.user = data;
+      }
+      next();
+    });
+  } catch (err) {
+    // On error, just proceed without user
+    next();
+  }
+};
+
 const requireAdmin = (req, res, next) => {
   try {
     const authHeader = req.headers["authorization"];
@@ -97,7 +134,13 @@ const requireAdminOrManager = (req, res, next) => {
       }
 
       const { role } = decoded;
-      if (role && (role.includes("admin") || role.includes("manager"))) {
+      if (
+        role &&
+        (role.includes("admin") ||
+          role.includes("manager") ||
+          role.includes("vendor") ||
+          role.includes("delivery_boy"))
+      ) {
         next();
       } else {
         return res
@@ -117,6 +160,7 @@ const requireAdminOrManager = (req, res, next) => {
 
 module.exports = {
   verifyToken,
+  optionalVerifyToken,
   requireAdmin,
   requireAdminOrManager,
 };

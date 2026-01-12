@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios"
 import createAxiosInstance from "../../utils/axiosConfig";
 
 const initialState = {
@@ -49,7 +48,7 @@ export const getSubcategories = (category_Id) => async (dispatch) => {
     if (category_Id) {
       link = `/${category_Id}`;
     }
-    const axiosInstance = createAxiosInstance("customer")
+    const axiosInstance = createAxiosInstance("customer");
     const { data } = await axiosInstance.get(link);
 
     dispatch(subcategoriesSuccess(data));

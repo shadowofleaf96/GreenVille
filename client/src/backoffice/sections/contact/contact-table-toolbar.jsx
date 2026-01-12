@@ -1,23 +1,29 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import Tooltip from "@mui/material/Tooltip";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import { useDispatch, useSelector } from "react-redux";
-import { deleteContact } from "../../../redux/backoffice/contactSlice";
-import LoadingButton from "@mui/lab/LoadingButton";
-import Alert from "@mui/material/Alert";
-import InputAdornment from "@mui/material/InputAdornment";
-import Snackbar from "@mui/material/Snackbar";
-import Popover from "@mui/material/Popover";
-import Button from "@mui/material/Button";
-import axios from "axios";
-import Iconify from "../../components/iconify";
+import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
-import createAxiosInstance from "../../../utils/axiosConfig";
 import { toast } from "react-toastify";
+
+import { deleteContact } from "../../../redux/backoffice/contactSlice";
+import createAxiosInstance from "../../../utils/axiosConfig";
+import Iconify from "../../../components/iconify";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export default function ContactTableToolbar({
   numSelected,
@@ -27,141 +33,137 @@ export default function ContactTableToolbar({
   onFilterName,
 }) {
   const { t } = useTranslation();
-  const [popoverAnchor, setPopoverAnchor] = useState(null);
-  const [snackbarMessage, setSnackbarMessage] = useState(null);
-  const [loadingDelete, setLoadingDelete] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-
   const dispatch = useDispatch();
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleDelete = async () => {
     try {
       setLoadingDelete(true);
-
-      let response;
+      const axiosInstance = createAxiosInstance("admin");
       const deletedContactIds = [];
+
       for (const contactId of selected) {
-        const axiosInstance = createAxiosInstance("admin")
-        response = await axiosInstance.delete(`/contact/${contactId}`);
+        await axiosInstance.delete(`/contact/${contactId}`);
         deletedContactIds.push(contactId);
       }
 
       dispatch(deleteContact(deletedContactIds));
-
-      setPopoverAnchor(null);
       setSelected([]);
+      setIsDeleteDialogOpen(false);
+
       const snackbarMessage =
         selected.length === 1
-          ? response.data.message
-          : t(`Selected ${selected.length} Contact items are deleted`);
+          ? t("Contact item deleted successfully")
+          : t("Selected Contact items are deleted", { count: selected.length });
 
       toast.success(snackbarMessage);
     } catch (error) {
-      setPopoverAnchor(null);
-      toast.error(t("Error deleting Contact items:"), error);
+      console.error("Error deleting Contact items:", error);
+      toast.error(t("Error deleting Contact items"));
     } finally {
       setLoadingDelete(false);
     }
   };
 
-  const handleOpenPopover = (event) => {
-    setPopoverAnchor(event.currentTarget);
-  };
-
-  const handleClosePopover = () => {
-    setPopoverAnchor(null);
-  };
-
   return (
-    <>
-      <Toolbar
-        sx={{
-          height: 96,
-          display: "flex",
-          justifyContent: "space-between",
-          p: (theme) => theme.spacing(0, 1, 0, 3),
-          ...(numSelected > 0 && {
-            color: "primary.main",
-            bgcolor: "primary.lighter",
-          }),
-        }}
-      >
+    <div className="flex items-center justify-between h-24 px-4 bg-white">
+      <div className="flex items-center gap-4 flex-1">
         {numSelected > 0 ? (
-          <Typography component="div" variant="subtitle1" color="secondary">
+          <h6 className="text-sm font-bold text-primary px-2">
             {numSelected} {t("selected")}
-          </Typography>
+          </h6>
         ) : (
-          <OutlinedInput
-            value={filterName}
-            onChange={onFilterName}
-            placeholder={t("Search for Contact...")}
-            startAdornment={
-              <InputAdornment position="start">
-                <Iconify
-                  icon="material-symbols-light:search-rounded"
-                  width={30}
-                  height={30}
-                />
-              </InputAdornment>
-            }
-          />
+          <div className="relative w-full max-w-sm">
+            <Iconify
+              icon="material-symbols-light:search-rounded"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              width={24}
+            />
+            <Input
+              value={filterName}
+              onChange={onFilterName}
+              placeholder={t("Search for Contact...")}
+              className="pl-12 h-12 rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all font-medium"
+            />
+          </div>
         )}
+      </div>
 
-        {numSelected > 0 ? (
-          <>
-            <Tooltip title={t("Delete")}>
-              <IconButton onClick={handleOpenPopover}>
-                <Iconify
-                  icon="material-symbols-light:delete-sweep-outline-rounded"
-                  width={40}
-                  height={40}
-                />
-              </IconButton>
+      <div className="flex items-center gap-2">
+        {numSelected > 0 && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                  className="w-12 h-12 rounded-xl text-red-500 hover:text-red-600 hover:bg-red-50 transition-all"
+                >
+                  <Iconify
+                    icon="material-symbols-light:delete-sweep-outline-rounded"
+                    width={28}
+                  />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t("Delete")}</TooltipContent>
             </Tooltip>
-
-            <Popover
-              open={Boolean(popoverAnchor)}
-              anchorEl={popoverAnchor}
-              onClose={handleClosePopover}
-              anchorOrigin={{ vertical: "top", horizontal: "left" }}
-              transformOrigin={{ vertical: "top", horizontal: "right" }}
-              PaperProps={{
-                sx: {
-                  width: 250,
-                  p: 2,
-                  mt: 2,
-                  mb: 2,
-                  ml: 2,
-                  mr: 2,
-                },
-              }}
-            >
-              <Typography sx={{ mb: 1 }} component="div" variant="subtitle1">
-              {t("Are you sure you want to delete")} {numSelected} {t("selected elements ?")}
-              </Typography>
-
-              <LoadingButton
-                color="primary"
-                onClick={handleDelete}
-                loading={loadingDelete}
-              >
-                {t("Yes")}
-              </LoadingButton>
-              <Button color="secondary" onClick={handleClosePopover}>
-                {t("No")}
-              </Button>
-            </Popover>
-          </>
-        ) : (
-          <></>
+          </TooltipProvider>
         )}
-      </Toolbar>
-    </>
+      </div>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-md rounded-3xl p-8 shadow-2xl border-none">
+          <DialogHeader className="space-y-4">
+            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center">
+              <Iconify
+                icon="material-symbols:warning-outline-rounded"
+                width={32}
+              />
+            </div>
+            <DialogTitle className="text-2xl font-bold text-gray-900">
+              {t("Delete Confirmation")}
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 text-base leading-relaxed">
+              {t("Are you sure you want to delete")} {numSelected}{" "}
+              {t("selected elements ? This action cannot be undone.")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col sm:flex-col gap-3 mt-8">
+            <Button
+              variant="destructive"
+              disabled={loadingDelete}
+              onClick={handleDelete}
+              className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl shadow-lg shadow-red-200 hover:bg-red-600 transition-all active:scale-95"
+            >
+              {loadingDelete ? (
+                <div className="flex items-center gap-2">
+                  <Iconify icon="svg-spinners:180-ring-with-bg" width={20} />
+                  {t("Deleting...")}
+                </div>
+              ) : (
+                t("Yes, Delete")
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              className="w-full h-12 bg-gray-50 text-gray-600 font-bold border-none rounded-2xl hover:bg-gray-100 transition-all active:scale-95"
+            >
+              {t("Cancel")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
 
 ContactTableToolbar.propTypes = {
   numSelected: PropTypes.number,
+  selected: PropTypes.array,
+  setSelected: PropTypes.func,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
 };

@@ -1,37 +1,61 @@
-import React, { useEffect, useState, useRef } from "react";
-import Iconify from "../../../backoffice/components/iconify";
-import { motion } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
+import { useProducts } from "../../../api/queries";
+
+import Iconify from "../../../backoffice/components/iconify";
 import Announcement from "../announcement/Announcement";
 import Loader from "../loader/Loader";
-import { Avatar } from "@mui/material";
-import optimizeImage from "../../components/optimizeImage"
-import { logout, fetchCustomerProfile } from "../../../redux/frontoffice/customerSlice";
+import LazyImage from "../../../components/lazyimage/LazyImage";
+import optimizeImage from "../../components/optimizeImage";
 import LanguagePopover from "../../../backoffice/layouts/dashboard/common/language-popover";
-import { useTranslation } from "react-i18next";
 
-const backend = import.meta.env.VITE_BACKEND_URL;
+import {
+  logout,
+  fetchCustomerProfile,
+} from "../../../redux/frontoffice/customerSlice";
+
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
-  const [toggle, setToggle] = useState(false);
-  const [dropdown, setDropdown] = useState(false);
-  const [searchDropdown, setSearchDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
-  const dropdownRef = useRef(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const { customer, isLoading } = useSelector((state) => state.customers);
-  const { products } = useSelector((state) => state.products);
   const { cartCount } = useSelector((state) => state.carts);
   const { t, i18n } = useTranslation();
   const [isWebView, setIsWebView] = useState(false);
-  const currentLanguage = i18n.language
+  const currentLanguage = i18n.language;
+
+  // Fetch all products for search functionality
+  const { data: productsData } = useProducts({ limit: 1000, status: true });
+  const products = productsData?.data || [];
 
   const location = useLocation();
   const dispatch = useDispatch();
-  const router = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!customer) {
@@ -51,33 +75,14 @@ const Navbar = () => {
     localStorage.removeItem("isAuthenticated");
     dispatch(logout());
     toast.success(t("You have been Logged out"));
-    router("/");
-  };
-
-  const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setDropdown(false);
-    }
+    navigate("/");
   };
 
   const handleSearchProductClick = () => {
-    setSearchDropdown(false);
-    setIsSearchVisible(false)
+    setIsSearchVisible(false);
     setSearchQuery("");
     setFilteredProducts([]);
   };
-
-  useEffect(() => {
-    if (dropdown) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [dropdown]);
 
   const isActive = (path) => {
     if (path === "/") {
@@ -86,186 +91,353 @@ const Navbar = () => {
     return location.pathname.startsWith(path);
   };
 
-
   const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value)
-    const results = products.filter((product) =>
-      product.product_name[currentLanguage].toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredProducts(results);
-  }
-
-  const toggleSearchBar = () => {
-    setIsSearchVisible(!isSearchVisible);
+    const query = e.target.value;
+    setSearchQuery(query);
+    if (query.trim()) {
+      const results = products.filter((product) =>
+        product.product_name[currentLanguage]
+          ?.toLowerCase()
+          .includes(query.toLowerCase())
+      );
+      setFilteredProducts(results);
+    } else {
+      setFilteredProducts([]);
+    }
   };
+
+  const { data: settings } = useSelector((state) => state.adminSettings);
+  const logoUrl =
+    settings?.logo_url ||
+    "https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/8fbac764fe0d88e3ff18944c621294d5";
+
+  const navLinks = [
+    { name: t("Home"), path: "/" },
+    { name: t("Products"), path: "/products" },
+    { name: t("Contact"), path: "/contact" },
+    { name: t("About"), path: "/about" },
+  ];
 
   return (
     <div className="fixed w-full z-50">
       <Announcement />
-      <nav className="bg-white shadow-lg py-4">
-        <div className="container mx-auto flex items-center justify-between px-4">
-          <Link to="/">
-            <img className="w-24 h-auto bg-cover" src="https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/v1/greenville/8fbac764fe0d88e3ff18944c621294d5" alt="logo" />
+
+      <nav className="bg-white/95 border-b border-gray-100 shadow-sm transition-all duration-300">
+        <div className="container mx-auto px-4 h-20 sm:h-24 md:h-28 flex items-center justify-between">
+          {/* Logo Section */}
+          <Link
+            to="/"
+            className="shrink-0 transition-transform hover:scale-105 duration-300"
+          >
+            <LazyImage
+              className="w-24 sm:w-28 md:w-36 h-auto"
+              src={logoUrl}
+              alt="logo"
+            />
           </Link>
-          <div className="flex-grow">
-            <div className="font-medium text-lg justify-center gap-8 hidden sm:hidden md:flex">
-              <Link to="/" className={`hover:text-green-400 hover:underline ${isActive("/") ? "text-green-400" : "text-black"}`}>
-                {t("Home")}
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center justify-center flex-1 mx-8 space-x-12 px-10">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`relative py-2 text-sm font-black tracking-widest uppercase transition-colors group ${
+                  isActive(link.path)
+                    ? "text-primary"
+                    : "text-gray-500 hover:text-primary"
+                }`}
+              >
+                {link.name}
+                <span
+                  className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary transform origin-left transition-transform duration-300 ${
+                    isActive(link.path)
+                      ? "scale-x-100"
+                      : "scale-x-0 group-hover:scale-x-100"
+                  }`}
+                />
               </Link>
-              <Link to="/products" className={`hover:text-green-400 hover:underline ${isActive("/products") ? "text-green-400" : "text-black"}`}>
-                {t("Products")}
-              </Link>
-              <Link to="/contact" className={`hover:text-green-400 hover:underline ${isActive("/contact") ? "text-green-400" : "text-black"}`}>
-                {t("Contact")}
-              </Link>
-              <Link to="/about" className={`hover:text-green-400 hover:underline ${isActive("/about") ? "text-green-400" : "text-black"}`}>
-                {t("About")}
-              </Link>
-            </div>
+            ))}
           </div>
-          <div className="flex items-center space-x-4">
-            <button onClick={toggleSearchBar} className="cursor-pointer rtl:ml-3">
-              <Iconify icon="material-symbols-light:search" width={32} height={32} />
-            </button>
+
+          {/* Action Icons */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            {/* Search Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsSearchVisible(!isSearchVisible)}
+              className={`rounded-full hover:bg-primary/10 hover:text-primary transition-all duration-300 w-10 h-10 sm:w-12 sm:h-12 ${
+                isSearchVisible ? "bg-primary/10 text-primary" : "text-gray-600"
+              }`}
+            >
+              <Iconify
+                icon={
+                  isSearchVisible
+                    ? "solar:close-circle-bold-duotone"
+                    : "solar:magnifer-linear"
+                }
+                width={20}
+                className="sm:w-6 sm:h-6"
+              />
+            </Button>
+
+            {/* Cart Icon */}
             {!isWebView && (
-              <Link to="/cart" className="relative">
-                <Iconify icon="mdi-light:cart" width={32} height={32} />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white font-light w-4 max-w-4 flex flex-grow justify-center rounded-full text-xs">
-                  {cartCount}
-                </span>
+              <Link to="/cart">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full hover:bg-primary/10 hover:text-primary transition-all duration-300 text-gray-600"
+                >
+                  <Iconify
+                    icon="solar:cart-large-2-linear"
+                    width={20}
+                    className="sm:w-6 sm:h-6"
+                  />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] sm:text-xs font-black w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full border-2 border-white shadow-lg pulse-animation">
+                      {cartCount}
+                    </span>
+                  )}
+                </Button>
               </Link>
             )}
-            {isLoading ? (
-              <Loader className="mt-2" />
-            ) : (
+
+            {/* Profile Dropdown */}
+            {!isWebView && (
               <>
-                {customer ? (
-                  !isWebView && (
-                    <div className="relative" ref={dropdownRef}>
-                      <button className="focus:outline-none" onClick={() => setDropdown(!dropdown)}>
-                        <Avatar className="h-12 w-12 rounded-full border-5 border-black" src={`${customer.customer_image}`} alt={`${customer.first_name} ${customer.last_name}`} />
-                      </button>
-                      {dropdown && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
-                          <Link
-                            to="/profile"
-                            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400"
-                            onClick={() => setDropdown(false)}
-                          >
-                            <Iconify className="m-2" icon="material-symbols-light:supervised-user-circle-outline" width={30} height={30} />
-                            {t("Profile")}
-                          </Link>
-                          <button
-                            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-green-400 w-full text-left"
-                            onClick={logoutHandler}
-                          >
-                            <Iconify className="mx-2" icon="material-symbols-light:logout-rounded" width={30} height={30} />
-                            {t("Logout")}
-                          </button>
+                {isLoading ? (
+                  <div className="w-10 h-10 rounded-full bg-gray-100 animate-pulse" />
+                ) : customer ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="relative h-12 w-12 rounded-full p-0 overflow-hidden border-2 border-transparent hover:border-primary/20 transition-all duration-300 group"
+                      >
+                        <Avatar className="h-full w-full group-hover:scale-110 transition-transform duration-500">
+                          <AvatarImage
+                            src={customer.customer_image}
+                            alt={customer.first_name}
+                          />
+                          <AvatarFallback className="bg-primary/10 text-primary font-bold text-2xl">
+                            {customer.first_name?.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-56 mt-2 p-2 rounded-2xl border-none shadow-2xl bg-white"
+                    >
+                      <DropdownMenuLabel className="p-4">
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-sm font-black text-gray-900 leading-none">
+                            {customer.first_name} {customer.last_name}
+                          </p>
+                          <p className="text-xs font-medium text-gray-500 truncate">
+                            {customer.email}
+                          </p>
                         </div>
-                      )}
-                    </div>
-                  )
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator className="bg-gray-100 mx-2" />
+                      <DropdownMenuItem
+                        asChild
+                        className="p-3 cursor-pointer rounded-xl group focus:bg-primary/10 focus:text-primary transition-colors"
+                      >
+                        <Link to="/profile" className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
+                            <Iconify
+                              icon="solar:user-bold-duotone"
+                              width={20}
+                            />
+                          </div>
+                          <span className="font-bold text-sm tracking-wide">
+                            {t("My Profile")}
+                          </span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={logoutHandler}
+                        className="p-3 cursor-pointer rounded-xl group focus:bg-red-50 focus:text-red-500 transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-red-50 group-hover:bg-red-100 flex items-center justify-center transition-colors text-red-500">
+                            <Iconify
+                              icon="solar:logout-3-bold-duotone"
+                              width={20}
+                            />
+                          </div>
+                          <span className="font-bold text-sm tracking-wide">
+                            {t("Logout")}
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 ) : (
-                  !isWebView && ( 
-                    <Link to="/login" className="text-sm flex items-center space-x-4">
-                      <Iconify icon="material-symbols-light:person-outline" width={42} height={42} />
-                    </Link>
-                  )
+                  <Link to="/login">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full hover:bg-primary/10 hover:text-primary transition-all duration-300 text-gray-600 w-12 h-16"
+                    >
+                      <Iconify icon="solar:user-circle-linear" width={24} />
+                    </Button>
+                  </Link>
                 )}
               </>
             )}
+            {/* Language Selection */}
             <LanguagePopover />
-          </div>
-          <div className="md:hidden flex items-center ml-4">
-            <Iconify icon="material-symbols-light:menu-rounded" width={28} height={28} onClick={() => setToggle(true)} />
+
+            {/* Mobile Menu Toggle */}
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden rounded-full hover:bg-gray-100"
+                >
+                  <Iconify icon="solar:hamburger-menu-linear" width={28} />
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="right"
+                className="w-[300px] sm:w-[400px] border-none shadow-2xl p-0"
+              >
+                <SheetHeader className="p-10 pb-0 flex flex-row items-center justify-between">
+                  <SheetTitle className="text-2xl font-black text-primary tracking-tight uppercase">
+                    {t("Menu")}
+                  </SheetTitle>
+                </SheetHeader>
+
+                <div className="flex flex-col gap-2 p-8 pt-10">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.path}
+                      to={link.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`flex items-center justify-between p-5 rounded-2xl transition-all group ${
+                        isActive(link.path)
+                          ? "bg-primary/10 text-primary font-black"
+                          : "text-gray-500 hover:bg-gray-50 font-bold hover:text-gray-900"
+                      }`}
+                    >
+                      <span className="uppercase tracking-widest text-sm">
+                        {link.name}
+                      </span>
+                      <Iconify
+                        icon="solar:arrow-right-linear"
+                        width={20}
+                        className={`transition-transform duration-300 ${
+                          isActive(link.path)
+                            ? "translate-x-1"
+                            : "group-hover:translate-x-1"
+                        }`}
+                      />
+                    </Link>
+                  ))}
+                </div>
+
+                <div className="absolute bottom-10 left-0 w-full px-8 space-y-6">
+                  <div className="p-6 rounded-3xl bg-gray-50/50 border border-gray-100 flex items-center justify-between">
+                    <span className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                      {t("Follow Us")}
+                    </span>
+                    <div className="flex gap-2">
+                      <Iconify
+                        icon="solar:share-circle-bold-duotone"
+                        className="text-primary cursor-pointer hover:scale-110 transition-transform"
+                        width={24}
+                      />
+                      <Iconify
+                        icon="solar:heart-bold-duotone"
+                        className="text-primary cursor-pointer hover:scale-110 transition-transform"
+                        width={24}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </nav>
 
-      {isSearchVisible && (
-        <div className="bg-gray-100 py-4 px-4 shadow-md">
-          <div className="container mx-auto flex items-center justify-center">
-            <div className="relative w-full">
-              <div>
-                <button className="absolute left-2 top-1/2 transform -translate-y-1/2">
-                  <Iconify icon="material-symbols-light:search" width={24} height={24} />
-                </button>
-                <input
-                  type="text"
-                  placeholder={t("Search for Products...")}
-                  className="border-2 border-[#8DC63F] rounded-md px-4 py-2 w-full bg-white focus:outline-none transition-all pl-8"
+      {/* Modern Search Overlay */}
+      <AnimatePresence>
+        {isSearchVisible && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-full left-0 w-full bg-white shadow-2xl border-b border-gray-100 overflow-hidden z-49 animate-in slide-in-from-top-4 duration-300"
+          >
+            <div className="container mx-auto px-4 py-8 max-w-4xl">
+              <div className="relative group">
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-primary">
+                  <Iconify icon="solar:magnifer-bold-duotone" width={28} />
+                </div>
+                <Input
+                  autoFocus
+                  placeholder={t("Search for premium products...")}
                   value={searchQuery}
-                  onChange={(e) => handleSearchChange(e)}
-                  onFocus={() => setSearchDropdown(true)}
+                  onChange={handleSearchChange}
+                  className="h-14 w-full pl-16 pr-8 text-xl font-bold bg-gray-50/50 border-none rounded-3xl focus-visible:ring-primary/20 transition-all shadow-inner"
                 />
               </div>
-              {searchDropdown && filteredProducts.length > 0 && (
-                <div className="absolute mt-2 w-full bg-white rounded-lg shadow-lg z-20 max-h-64 overflow-y-auto">
-                  {filteredProducts.map((product) => (
-                    <Link
-                      to={`/product/${product._id}`}
-                      key={product.id}
-                      className="flex items-center px-6 py-4 rounded text-black hover:bg-green-200"
-                      onClick={handleSearchProductClick}
-                    >
-                      <img className="h-10 w-10" src={typeof product?.product_images === "string" ? `${optimizeImage(product?.product_images, 60)}` : `${optimizeImage(product?.product_images[0], 60)}`}
-                      />
-                      {product.product_name[currentLanguage]}
-                    </Link>
-                  ))}
+
+              {/* Search Results */}
+              {searchQuery && (
+                <div className="mt-8 space-y-4">
+                  <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest ml-2 px-4 italic">
+                    {filteredProducts.length > 0
+                      ? t("Found Results")
+                      : t("No results found")}
+                  </h4>
+                  <div className="grid gap-2 max-h-[60vh] overflow-y-auto px-2 pb-4 scrollbar-thin scrollbar-thumb-gray-200">
+                    {filteredProducts.map((product) => (
+                      <Link
+                        key={product._id}
+                        to={`/product/${product._id}`}
+                        onClick={handleSearchProductClick}
+                        className="flex items-center p-4 rounded-2xl bg-white border border-transparent hover:border-primary/20 hover:bg-primary/5 hover:shadow-lg transition-all duration-300 group"
+                      >
+                        <div className="h-12 w-12 rounded-xl overflow-hidden border border-gray-100 shrink-0 bg-white group-hover:scale-105 transition-transform duration-500">
+                          <LazyImage
+                            src={
+                              typeof product?.product_images === "string"
+                                ? optimizeImage(product.product_images, 80)
+                                : optimizeImage(product.product_images[0], 80)
+                            }
+                            className="w-full h-full object-cover"
+                            alt={product.product_name[currentLanguage]}
+                          />
+                        </div>
+                        <div className="ml-6 flex-1">
+                          <p className="font-black text-gray-900 group-hover:text-primary transition-colors line-clamp-1">
+                            {product.product_name[currentLanguage]}
+                          </p>
+                          <p className="text-xs font-bold text-primary/80 uppercase tracking-widest mt-1">
+                            {product.price} {t("DH")}
+                          </p>
+                        </div>
+                        <Iconify
+                          icon="solar:arrow-right-up-bold-duotone"
+                          className="text-gray-300 group-hover:text-primary transition-colors"
+                          width={24}
+                        />
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
-
-      {toggle && (
-        <>
-          <div
-            className="fixed inset-0 bg-black opacity-60 z-100"
-            onClick={() => setToggle(false)}
-          />
-
-          <motion.div
-            className="fixed top-0 right-0 bottom-0 w-1/3 bg-white shadow-md z-100 p-6"
-            whileInView={{ x: [100, 0] }}
-            transition={{ duration: 0.85, ease: "easeOut" }}
-          >
-            <div className="flex justify-end">
-              <Iconify
-                icon="material-symbols-light:cancel-outline-rounded"
-                width={28}
-                height={28}
-                onClick={() => setToggle(false)}
-              />
-            </div>
-            <ul className="list-none flex flex-col space-y-4 mt-6">
-              <li>
-                <Link to="/" onClick={() => setToggle(false)} className={`hover:text-green-400 hover:underline ${isActive("/") ? "text-green-400" : "text-black"}`}>
-                  {t("Home")}
-                </Link>
-              </li>
-              <li>
-                <Link to="/products" onClick={() => setToggle(false)} className={`hover:text-green-400 hover:underline ${isActive("/products") ? "text-green-400" : "text-black"}`}>
-                  {t("Products")}
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" onClick={() => setToggle(false)} className={`hover:text-green-400 hover:underline ${isActive("/contact") ? "text-green-400" : "text-black"}`}>
-                  {t("Contact")}
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" onClick={() => setToggle(false)} className={`hover:text-green-400 hover:underline ${isActive("/about") ? "text-green-400" : "text-black"}`}>
-                  {t("About")}
-                </Link>
-              </li>
-            </ul>
           </motion.div>
-        </>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };

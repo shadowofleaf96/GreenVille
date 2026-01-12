@@ -6,6 +6,7 @@ const { upload } = require("../middleware/multerMiddleware");
 
 const {
   verifyToken,
+  optionalVerifyToken,
   requireAdminOrManager,
 } = require("../middleware/authMiddleware");
 const {
@@ -17,6 +18,7 @@ const {
   UpdateProductById,
   DeleteProductById,
   updateReview,
+  getVendorProducts,
 } = require("../controllers/productController");
 router.post(
   "/",
@@ -25,10 +27,11 @@ router.post(
   upload.array("product_images", 5),
   createData
 );
-router.get("/", RetrievingItems);
+router.get("/", optionalVerifyToken, RetrievingItems);
+router.get("/vendor", verifyToken, requireAdminOrManager, getVendorProducts);
 router.get("/replace", categorySub);
 router.get("/search", searchingItems);
-router.get("/:id", RetrieveById);
+router.get("/:id", optionalVerifyToken, RetrieveById);
 router.put(
   "/:id",
   verifyToken,

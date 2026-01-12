@@ -70,7 +70,7 @@ export function applyFilter({
       const orderItemsMatch = order.order_items.some((item) =>
         item.product.product_name
           .toLowerCase()
-          .includes(itemsFilter.toLowerCase())
+          .includes(itemsFilter.toLowerCase()),
       );
       return orderItemsMatch;
     });

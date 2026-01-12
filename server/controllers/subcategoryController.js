@@ -4,9 +4,21 @@ const { Category } = require("../models/Category");
 
 const subcategoriesController = {
   async createSubcategory(req, res) {
-    const { subcategory_name, category_id, status } = req.body;
+    let { subcategory_name, category_id, status } = req.body;
 
     try {
+      if (typeof subcategory_name === "string") {
+        try {
+          subcategory_name = JSON.parse(subcategory_name);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      if (typeof status === "string") {
+        status = status === "true";
+      }
+
       if (
         !subcategory_name ||
         !subcategory_name.en ||
@@ -33,16 +45,27 @@ const subcategoriesController = {
       }
 
       const newSubcategory = new SubCategory({
-        subcategory_name,
+        subcategory_name: subcategory_name,
         category_id,
         status: status !== undefined ? status : false,
+        subcategory_image: req.file ? req.file.path.replace(/\\/g, "/") : "",
       });
 
       await newSubcategory.save();
 
+      // Populate category before sending response
+      const populatedSubcategory = await SubCategory.findById(
+        newSubcategory._id
+      )
+        .populate("category_id")
+        .lean();
+
       res.status(201).json({
         message: "Subcategory created successfully",
-        data: newSubcategory,
+        data: {
+          ...populatedSubcategory,
+          category: populatedSubcategory.category_id,
+        },
       });
     } catch (error) {
       console.error(error);
@@ -68,23 +91,20 @@ const subcategoriesController = {
         queryBuilder = queryBuilder.skip((page - 1) * perPage).limit(perPage);
       }
 
-      const subcategoriesData = await queryBuilder.lean();
+      const subcategoriesData = await queryBuilder
+        .populate("category_id")
+        .lean();
 
-      if (subcategoriesData.length === 0) {
-        return res.status(200).json([]);
-      }
-
-      const categoryPromises = subcategoriesData.map((subcategory) =>
-        Category.findById(subcategory.category_id).lean()
-      );
-      const categories = await Promise.all(categoryPromises);
-
-      const enrichedSubcategories = subcategoriesData.map(
-        (subcategory, index) => ({
-          ...subcategory,
-          category: categories[index],
-        })
-      );
+      const enrichedSubcategories = subcategoriesData.map((subcategory) => ({
+        ...subcategory,
+        category: subcategory.category_id || {
+          category_name: {
+            en: "Deleted Category",
+            fr: "Catégorie supprimée",
+            ar: "الفئة المحذوفة",
+          },
+        },
+      }));
 
       res.status(200).json({
         data: enrichedSubcategories,
@@ -99,7 +119,9 @@ const subcategoriesController = {
     const SubcategoryId = req.params.id;
 
     try {
-      const subcategory = await SubCategory.findById(SubcategoryId).lean();
+      const subcategory = await SubCategory.findById(SubcategoryId)
+        .populate("category_id")
+        .lean();
 
       if (!subcategory) {
         return res.status(404).json({ error: "Subcategory not found" });
@@ -114,7 +136,19 @@ const subcategoriesController = {
   },
   async updateSubcategoryById(req, res) {
     const subcategoryId = req.params.id;
-    const { subcategory_name, category_id, status } = req.body;
+    let { subcategory_name, category_id, status } = req.body;
+
+    if (typeof subcategory_name === "string") {
+      try {
+        subcategory_name = JSON.parse(subcategory_name);
+      } catch (e) {
+        // invalid json
+      }
+    }
+
+    if (typeof status === "string") {
+      status = status === "true";
+    }
 
     try {
       const subcategory = await SubCategory.findById(subcategoryId);
@@ -145,11 +179,23 @@ const subcategoriesController = {
         subcategory.status = status;
       }
 
+      if (req.file) {
+        subcategory.subcategory_image = req.file.path.replace(/\\/g, "/");
+      }
+
       await subcategory.save();
+
+      // Populate category before sending response
+      const populatedSubcategory = await SubCategory.findById(subcategory._id)
+        .populate("category_id")
+        .lean();
 
       res.status(200).json({
         message: "Subcategory information updated successfully",
-        data: subcategory,
+        data: {
+          ...populatedSubcategory,
+          category: populatedSubcategory.category_id,
+        },
       });
     } catch (error) {
       console.error("Update error:", error);

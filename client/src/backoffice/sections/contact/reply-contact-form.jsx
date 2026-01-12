@@ -1,119 +1,156 @@
 import React, { useState } from "react";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import LoadingButton from "@mui/lab/LoadingButton";
-import { toast } from "react-toastify";
 import { useForm, Controller } from "react-hook-form";
-import { Modal, Stack, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 
-export default function ReplyContactForm({ contact, onSave, onCancel, open, onClose }) {
-    const [loading, setLoading] = useState(false);
-    const { t } = useTranslation();
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import Iconify from "../../../components/iconify";
 
-    const {
-        control,
-        handleSubmit,
-        formState: { errors },
-    } = useForm({
-        defaultValues: {
-            name: contact?.name || "",
-            email: contact?.email || "",
-            subject: "",
-            message: "",
-        },
-    });
+export default function ReplyContactForm({
+  contact,
+  onSave,
+  onCancel,
+  open,
+  onClose,
+}) {
+  const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
-    const onSubmit = async (data) => {
-        setLoading(true);
-        try {
-            const sanitizedData = {
-                ...data,
-                _id: contact?._id,
-            };
-            await onSave(sanitizedData);
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: contact?.name || "",
+      email: contact?.email || "",
+      subject: "",
+      message: "",
+    },
+  });
 
-            toast.success("response has sent successfully!");
-            onClose();
-        } catch (error) {
-            console.error("Error saving contact:", error);
-            toast.error("Failed to send response. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
+  const onSubmit = async (data) => {
+    setLoading(true);
+    try {
+      const sanitizedData = {
+        ...data,
+        _id: contact?._id,
+      };
+      await onSave(sanitizedData);
+      toast.success(t("Response has been sent successfully!"));
+      onClose();
+    } catch (error) {
+      console.error("Error saving contact:", error);
+      toast.error(t("Failed to send response. Please try again."));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <Modal open={open} onClose={onClose}>
-            <Stack
-                style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    backgroundColor: "#fff",
-                    boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-                    width: 500,
-                    color: "#333",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    borderRadius: "16px",
-                    padding: "20px",
-                }}
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(val) => {
+        if (!val) onClose();
+      }}
+    >
+      <DialogContent className="max-w-md p-0 overflow-hidden rounded-3xl border-none shadow-2xl">
+        <DialogHeader className="p-8 pb-4 bg-gray-50/50 text-center border-b border-gray-100">
+          <DialogTitle className="text-2xl font-extrabold text-primary tracking-tight">
+            {t("Replying to")}{" "}
+            <span className="text-gray-900">{contact?.name}</span>
+          </DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <ScrollArea className="max-h-[70vh] p-8 pt-6">
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-bold text-gray-700 ml-1">
+                  {t("Subject")}
+                </Label>
+                <Controller
+                  name="subject"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder={t("Enter subject")}
+                      className="h-12 rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all font-bold"
+                    />
+                  )}
+                />
+                {errors.subject && (
+                  <p className="text-xs font-bold text-red-500 ml-1">
+                    {t("Subject is required")}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-bold text-gray-700 ml-1">
+                  {t("Message")}
+                </Label>
+                <Controller
+                  name="message"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <Textarea
+                      {...field}
+                      placeholder={t("Enter message")}
+                      rows={6}
+                      className="rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all text-sm outline-none resize-none"
+                    />
+                  )}
+                />
+                {errors.message && (
+                  <p className="text-xs font-bold text-red-500 ml-1">
+                    {t("Message is required")}
+                  </p>
+                )}
+              </div>
+            </div>
+          </ScrollArea>
+
+          <DialogFooter className="p-8 bg-gray-50 border-t flex flex-row sm:justify-between items-center gap-4">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onCancel}
+              className="flex-1 h-12 rounded-2xl font-bold text-gray-500 hover:bg-gray-100 transition-all border-none"
             >
-                <Typography variant="h4" gutterBottom sx={{ color: "#3f51b5", marginBottom: 2 }}>
-                    {t("Replying to " + contact.name)}
-                </Typography>
-                <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ width: "100%" }}>
-                    <Stack direction="column" spacing={2} sx={{ width: "100%" }}>
-                        <Controller
-                            name="subject"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    label={t("Subject")}
-                                    fullWidth
-                                    error={!!errors.subject}
-                                    helperText={errors.subject && t("Subject")}
-                                />
-                            )}
-                            rules={{ required: true }}
-                        />
-
-                        <Controller
-                            name="message"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    label={t("Message")}
-                                    fullWidth
-                                    multiline
-                                    rows={4}
-                                    error={!!errors.message}
-                                    helperText={errors.message && t("Message is required")}
-                                />
-                            )}
-                            rules={{ required: true }}
-                        />
-                        <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
-                            <LoadingButton
-                                loading={loading}
-                                type="submit"
-                                variant="contained"
-                                sx={{ flex: 1 }}
-                            >
-                                {t("Reply")}
-                            </LoadingButton>
-                            <Button onClick={onCancel} variant="outlined" sx={{ flex: 1 }}>
-                                {t("Cancel")}
-                            </Button>
-                        </Stack>
-                    </Stack>
-                </form>
-            </Stack>
-        </Modal>
-    );
+              {t("Cancel")}
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="flex-1 h-12 rounded-2xl bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <Iconify icon="svg-spinners:180-ring-with-bg" width={20} />
+                  {t("Replying...")}
+                </div>
+              ) : (
+                t("Reply")
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 }

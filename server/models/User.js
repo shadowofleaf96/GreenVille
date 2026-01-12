@@ -1,7 +1,7 @@
 // Shadow Of Leaf was here
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
-require('dotenv').config({ path: '../.env' });
+require("dotenv").config({ path: "../.env" });
 const mongoose = require("mongoose");
 
 const userJoiSchema = Joi.object({
@@ -17,8 +17,8 @@ const userJoiSchema = Joi.object({
   last_login: Joi.number(),
   last_update: Joi.number(),
   status: Joi.boolean(),
-  resetPasswordToken:Joi.string(),
-  resetPasswordExpires:Joi.date()
+  resetPasswordToken: Joi.string(),
+  resetPasswordExpires: Joi.date(),
 });
 
 const userSchema = new mongoose.Schema(
@@ -84,9 +84,12 @@ const userSchema = new mongoose.Schema(
 userSchema.pre("save", async function (next) {
   try {
     if (this.isModified("password")) {
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(this.password, saltRounds);
-      this.password = hashedPassword;
+      // Check if password is already hashed (starts with $2b$)
+      if (!this.password.startsWith("$2b$")) {
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(this.password, saltRounds);
+        this.password = hashedPassword;
+      }
     }
 
     const validatedData = await userJoiSchema.validateAsync(this.toObject());
@@ -103,7 +106,7 @@ userSchema.pre("save", async function (next) {
     this.status = validatedData.status;
     this.resetPasswordToken = validatedData.resetPasswordToken;
     this.resetPasswordExpires = validatedData.resetPasswordExpires;
-  
+
     next();
   } catch (error) {
     next(error);

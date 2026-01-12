@@ -1,28 +1,37 @@
-import { useEffect, useMemo } from "react";
+import { useMemo, createContext, useContext } from "react";
 import PropTypes from "prop-types";
-
-import {
-  createTheme,
-  ThemeProvider as MUIThemeProvider,
-} from "@mui/material/styles";
-
-import CssBaseline from "@mui/material/CssBaseline";
+import { useTranslation } from "react-i18next";
 
 import { palette } from "./palette";
-import { overrides } from './overrides';
 import { shadows } from "./shadows";
 import { typography } from "./typography";
 import { customShadows } from "./custom-shadows";
-import { useTranslation } from "react-i18next";
 
 // ----------------------------------------------------------------------
+
+export const ThemeContext = createContext({});
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    // Fallback or handle cases where useTheme is used outside provider
+    return {
+      palette: palette(),
+      typography,
+      shadows: shadows(),
+      customShadows: customShadows(),
+      shape: { borderRadius: 8 },
+    };
+  }
+  return context;
+};
 
 export default function ThemeProvider({ children }) {
   const { i18n } = useTranslation();
 
-  const isRtl = i18n.language === 'ar';
-  
-  const memoizedValue = useMemo(() => {
+  const isRtl = i18n.language === "ar";
+
+  const theme = useMemo(() => {
     return {
       palette: palette(),
       typography,
@@ -30,26 +39,11 @@ export default function ThemeProvider({ children }) {
       customShadows: customShadows(),
       direction: isRtl ? "rtl" : "ltr",
       shape: { borderRadius: 8 },
-      components: {
-        MuiPagination: {
-          defaultProps: {
-            dir: isRtl ? "rtl" : "ltr",
-          },
-        },
-      },
     };
   }, [isRtl]);
 
-
-  const theme = createTheme(memoizedValue);
-
-  theme.components = overrides(theme);
-
   return (
-    <MUIThemeProvider theme={theme}>
-      <CssBaseline />
-      {children}
-    </MUIThemeProvider>
+    <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
   );
 }
 

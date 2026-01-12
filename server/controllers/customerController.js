@@ -11,6 +11,11 @@ const { OAuth2Client } = require("google-auth-library");
 require("dotenv").config();
 const { log } = require("console");
 const transporter = require("../middleware/mailMiddleware");
+const { SiteSettings } = require("../models/SiteSettings");
+const { sendSecurityAlertEmail } = require("../utils/emailUtility");
+const {
+  createDashboardNotification,
+} = require("../utils/dashboardNotificationUtility");
 const secretKey = process.env.SECRETKEY;
 const secretRefreshKey = process.env.REFRESHSECRETLEY;
 const captchaSecretKey = process.env.CAPTCHA_SECRET_KEY;
@@ -137,19 +142,28 @@ const googleLogin = async (req, res) => {
   }
 };
 
-function completeRegistrationEmailTemplate(name) {
+function completeRegistrationEmailTemplate(
+  name,
+  siteLogo,
+  siteTitle,
+  primaryColor
+) {
   return `
     <html>
-      <body>
-        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
+      <body style="background-color: #f4f4f4; padding: 20px;">
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center; background-color: #ffffff; max-width: 600px; margin: 0 auto; padding: 40px; border-radius: 10px; border: 1px solid #eee;">
           <div style="margin-bottom: 20px;">
-            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/dev/client/public/assets/logo-email.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
+            ${
+              siteLogo
+                ? `<img src="${siteLogo}" alt="${siteTitle}" style="max-width: 150px; display: block; margin: 0 auto;" />`
+                : `<h1 style="color: ${primaryColor}; margin: 0;">${siteTitle}</h1>`
+            }
           </div>
-          <h2 style="color: #4CAF50;">Welcome, ${name}!</h2>
+          <h2 style="color: ${primaryColor};">Welcome, ${name}!</h2>
           <p>We’re excited to let you know that your registration is now complete.</p>
           <p>You can log in using your credentials to start exploring our services.</p>
           <p style="color: #555;">If you have any questions or need assistance, feel free to reach out to our support team.</p>
-          <p>Best regards,<br/>GreenVille</p>
+          <p>Best regards,<br/>${siteTitle}</p>
         </div>
       </body>
     </html>
@@ -183,27 +197,37 @@ const completeRegistration = async (req, res) => {
 
     await newCustomer.save();
 
+    const settings = await SiteSettings.findOne();
+    const siteLogo = settings?.logo_url;
+    const siteTitle = settings?.website_title?.en || "GreenVille";
+    const primaryColor = settings?.theme?.primary_color || "#4CAF50";
+
     const emailTemplate = completeRegistrationEmailTemplate(
-      newCustomer.first_name
+      newCustomer.first_name,
+      siteLogo,
+      siteTitle,
+      primaryColor
     );
 
     const mailOptions = {
       to: newCustomer.email,
-      subject: "Welcome to GreenVille",
+      from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
+      subject: `Welcome to ${siteTitle}`,
       html: emailTemplate,
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Email sending error:", error);
-      } else {
-        console.log("Welcome email sent:", info.response);
-      }
-    });
+    transporter.sendMail(mailOptions);
+
+    // Generate Token
+    const payload = { id: newCustomer._id, role: newCustomer.role };
+    const accessToken = jwt.sign(payload, secretKey, { expiresIn: "3d" });
 
     res.status(200).json({
-      message: "Customer registered successfully, now you can login",
-      data: newCustomer,
+      message: "Customer registered successfully, identifying...",
+      access_token: accessToken,
+      token_type: "Bearer",
+      expires_in: "3d",
+      customer: newCustomer,
     });
   } catch (error) {
     console.error(error);
@@ -211,19 +235,29 @@ const completeRegistration = async (req, res) => {
   }
 };
 
-function validationEmailTemplate(name, validationLink) {
+function validationEmailTemplate(
+  name,
+  validationLink,
+  siteLogo,
+  siteTitle,
+  primaryColor
+) {
   return `
     <html>
-      <body>
-        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
+      <body style="background-color: #f4f4f4; padding: 20px;">
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center; background-color: #ffffff; max-width: 600px; margin: 0 auto; padding: 40px; border-radius: 10px; border: 1px solid #eee;">
           <div style="margin-bottom: 20px;">
-            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/dev/client/public/assets/logo-email.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
+            ${
+              siteLogo
+                ? `<img src="${siteLogo}" alt="${siteTitle}" style="max-width: 150px; display: block; margin: 0 auto;" />`
+                : `<h1 style="color: ${primaryColor}; margin: 0;">${siteTitle}</h1>`
+            }
           </div>
-          <h2 style="color: #4CAF50;">Hello ${name},</h2>
+          <h2 style="color: ${primaryColor};">Hello ${name},</h2>
           <p>Thank you for creating an account with us! To complete your registration, please confirm your email address by clicking the link below:</p>
-          <p><a href="${validationLink}" style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #4CAF50; text-decoration: none; border-radius: 4px;">Validate Your Account</a></p>
+          <p><a href="${validationLink}" style="display: inline-block; padding: 10px 20px; color: #fff; background-color: ${primaryColor}; text-decoration: none; border-radius: 4px;">Validate Your Account</a></p>
           <p style="color: #555;">This validation link is valid for 24 hours. If you did not request this, please disregard this email.</p>
-          <p>Best regards,<br/>GreenVille</p>
+          <p>Best regards,<br/>${siteTitle}</p>
         </div>
       </body>
     </html>
@@ -267,36 +301,63 @@ const createCustomer = async (req, res) => {
       email,
       password: hashedPassword,
       creation_date: Date.now(),
-      status: false,
+      status: true,
       validation_token: validationToken,
     });
 
     await newCustomer.save();
 
+    // Dashboard Notification for Admin
+    try {
+      await createDashboardNotification({
+        type: "CUSTOMER_REGISTERED",
+        title: "New Customer Joined",
+        message: `${first_name} ${last_name} has just registered.`,
+        metadata: { customer_id: newCustomer._id },
+        recipient_role: "admin",
+      });
+    } catch (notifError) {
+      console.error("Failed to create dashboard notification:", notifError);
+    }
+
+    const settings = await SiteSettings.findOne();
+    const siteLogo = settings?.logo_url;
+    const siteTitle = settings?.website_title?.en || "GreenVille";
+    const primaryColor = settings?.theme?.primary_color || "#4CAF50";
+
     const validationLink = `${process.env.BACKEND_URL}v1/customers/validate/${newCustomer._id}/${validationToken}`;
     const emailTemplate = validationEmailTemplate(
       newCustomer.first_name,
-      validationLink
+      validationLink,
+      siteLogo,
+      siteTitle,
+      primaryColor
     );
 
     const mailOptions = {
       to: newCustomer.email,
-      subject: "GreenVille - Activate your account",
+      from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
+      subject: `${siteTitle} - Activate your account`,
       html: emailTemplate,
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Email sending error:", error);
-      } else {
-        console.log("Validation email sent:", info.response);
-      }
-    });
+    transporter.sendMail(mailOptions);
+
+    // Auto-Login: Generate token immediately
+    const payload = { id: newCustomer._id, role: newCustomer.role };
+    const accessToken = jwt.sign(payload, secretKey, { expiresIn: "3d" });
+
+    // Note: status is still false, so they might be limited, but they are logged in.
+    // If strict email verification is required, we should not return token here.
+    // Assuming user wants immediate access regardless of verification status for UX.
 
     res.status(200).json({
-      message:
-        "Customer created successfully. Please check your email to validate your account.",
-      redirectUrl: `${process.env.FRONTEND_URL}/check-email`,
+      message: "Account created successfully.",
+      access_token: accessToken,
+      token_type: "Bearer",
+      expires_in: "3d",
+      customer: newCustomer,
+      // redirectUrl: `${process.env.FRONTEND_URL}/check-email`, // No longer redirecting to check-email
     });
   } catch (error) {
     console.error(error);
@@ -314,6 +375,10 @@ const getAllCustomers = async (req, res) => {
 
   if (page) {
     try {
+      if (req.user && req.user.role === "vendor") {
+        return res.status(200).json({ data: [] });
+      }
+
       let queryBuilder = Customer.find();
 
       if (query) {
@@ -347,6 +412,10 @@ const getAllCustomers = async (req, res) => {
     }
   } else {
     try {
+      if (req.user && req.user.role === "vendor") {
+        return res.status(200).json({ data: [] });
+      }
+
       let queryBuilder = Customer.find();
 
       if (query) {
@@ -359,7 +428,7 @@ const getAllCustomers = async (req, res) => {
         queryBuilder = queryBuilder.sort({ first_name: 1 });
       }
 
-      const customerList = await queryBuilder.exec();
+      const customerList = await queryBuilder.lean().exec();
 
       res.status(200).json({
         data: customerList,
@@ -374,7 +443,7 @@ const getAllCustomers = async (req, res) => {
 const getCustomerProfile = async (req, res) => {
   const { _id } = req.user;
   try {
-    const customer = await Customer.findById(_id).select("-password");
+    const customer = await Customer.findById(_id).select("-password").lean();
     if (!customer) {
       return res.status(404).json({ message: "Customer not found" });
     }
@@ -390,7 +459,7 @@ const getCustomerProfile = async (req, res) => {
 const getCustomerById = async (req, res) => {
   const customerId = req.params.id;
   try {
-    const matchingCustomer = await Customer.findById(customerId);
+    const matchingCustomer = await Customer.findById(customerId).lean();
 
     if (!matchingCustomer) {
       return res.status(404).json({ error: "Customer not found" });
@@ -402,18 +471,27 @@ const getCustomerById = async (req, res) => {
   }
 };
 
-function successValidationEmailTemplate(name) {
+function successValidationEmailTemplate(
+  name,
+  siteLogo,
+  siteTitle,
+  primaryColor
+) {
   return `
     <html>
-      <body>
-        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
+      <body style="background-color: #f4f4f4; padding: 20px;">
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center; background-color: #ffffff; max-width: 600px; margin: 0 auto; padding: 40px; border-radius: 10px; border: 1px solid #eee;">
           <div style="margin-bottom: 20px;">
-            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/dev/client/public/assets/logo-email.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
+            ${
+              siteLogo
+                ? `<img src="${siteLogo}" alt="${siteTitle}" style="max-width: 150px; display: block; margin: 0 auto;" />`
+                : `<h1 style="color: ${primaryColor}; margin: 0;">${siteTitle}</h1>`
+            }
           </div>
-          <h2 style="color: #4CAF50;">Hello ${name},</h2>
+          <h2 style="color: ${primaryColor};">Hello ${name},</h2>
           <p>Congratulations! Your account has been successfully validated.</p>
           <p style="color: #555;">You can now log in and start exploring our services.</p>
-          <p>Best regards,<br/>GreenVille</p>
+          <p>Best regards,<br/>${siteTitle}</p>
         </div>
       </body>
     </html>
@@ -446,27 +524,28 @@ const validateCustomer = async (req, res) => {
     matchingCustomer.validation_token = null;
     await matchingCustomer.save();
 
+    const settings = await SiteSettings.findOne();
+    const siteLogo = settings?.logo_url;
+    const siteTitle = settings?.website_title?.en || "GreenVille";
+    const primaryColor = settings?.theme?.primary_color || "#4CAF50";
+
     const emailTemplate = successValidationEmailTemplate(
-      matchingCustomer.first_name
+      matchingCustomer.first_name,
+      siteLogo,
+      siteTitle,
+      primaryColor
     );
 
     const mailOptions = {
       to: matchingCustomer.email,
-      subject: "GreenVille - Account Validation",
+      from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
+      subject: `${siteTitle} - Account Validation`,
       html: emailTemplate,
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Email sending error:", error);
-      } else {
-        console.log("Email sent:", info.response);
-      }
-    });
+    transporter.sendMail(mailOptions);
 
-    res.redirect(
-      `${process.env.FRONTEND_URL}/login?validationSuccess=true`
-    );
+    res.redirect(`${process.env.FRONTEND_URL}/login?validationSuccess=true`);
   } catch (error) {
     console.error("Validation error:", error);
     res
@@ -487,6 +566,9 @@ const updateCustomer = async (req, res) => {
     if (!customer) {
       return res.status(404).json({ message: "Invalid customer id" });
     }
+
+    let passwordChanged = false;
+    let emailChanged = false;
 
     if (customer_image) {
       customer.customer_image =
@@ -509,11 +591,13 @@ const updateCustomer = async (req, res) => {
         return res.status(400).json({ message: "Email is already in use" });
       }
       customer.email = email;
+      emailChanged = true;
     }
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       customer.password = hashedPassword;
+      passwordChanged = true;
     }
 
     if (shipping_address) {
@@ -526,6 +610,14 @@ const updateCustomer = async (req, res) => {
 
     await customer.validate();
     await customer.save();
+
+    // Send security alert if critical info changed
+    if (passwordChanged) {
+      sendSecurityAlertEmail(customer, "password_changed");
+    }
+    if (emailChanged) {
+      sendSecurityAlertEmail(customer, "email_updated");
+    }
 
     res.status(200).json({
       message: "Account updated successfully",
@@ -541,13 +633,15 @@ const updateCustomer = async (req, res) => {
 
 const deleteCustomer = async (req, res) => {
   const customerId = req.params.id;
-
   try {
     const customer = await Customer.findOneAndDelete({ _id: customerId });
 
     if (!customer) {
       return res.status(404).json({ message: "Customer not found" });
     }
+
+    // Send deletion confirmation email
+    sendSecurityAlertEmail(customer, "account_deleted");
 
     return res.status(200).json({ message: "Account deleted successfully" });
   } catch (error) {
@@ -556,22 +650,34 @@ const deleteCustomer = async (req, res) => {
   }
 };
 
-function passwordResetEmailTemplate(name, resetToken) {
+function passwordResetEmailTemplate(
+  name,
+  resetToken,
+  siteLogo,
+  siteTitle,
+  primaryColor
+) {
   return `
     <html>
-      <body>
-        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center;">
+      <body style="background-color: #f4f4f4; padding: 20px;">
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; text-align: center; background-color: #ffffff; max-width: 600px; margin: 0 auto; padding: 40px; border-radius: 10px; border: 1px solid #eee;">
           <div style="margin-bottom: 20px;">
-            <img src="https://raw.githubusercontent.com/shadowofleaf96/GreenVille/refs/heads/dev/client/public/assets/logo-email.png" alt="GreenVille Logo" style="max-width: 150px; display: block; margin: 0 auto;" />
+            ${
+              siteLogo
+                ? `<img src="${siteLogo}" alt="${siteTitle}" style="max-width: 150px; display: block; margin: 0 auto;" />`
+                : `<h1 style="color: ${primaryColor}; margin: 0;">${siteTitle}</h1>`
+            }
           </div>
-          <h2 style="color: #4CAF50;">Hello ${name},</h2>
+          <h2 style="color: ${primaryColor};">Hello ${name},</h2>
           <p>You requested a password reset for your account.</p>
           <p style="color: #555;">Please click on the link below to reset your password:</p>
           <p>
-            <a href="${process.env.FRONTEND_URL}/reset-password/${resetToken}" style="text-decoration: none; color: #fff; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px;">Reset Password</a>
+            <a href="${
+              process.env.FRONTEND_URL
+            }/reset-password/${resetToken}" style="text-decoration: none; color: #fff; background-color: ${primaryColor}; padding: 10px 20px; border-radius: 5px;">Reset Password</a>
           </p>
           <p style="color: #555;">If you did not request this, please ignore this email and your password will remain unchanged.</p>
-          <p>Best regards,<br/>GreenVille</p>
+          <p>Best regards,<br/>${siteTitle}</p>
         </div>
       </body>
     </html>
@@ -595,19 +701,25 @@ const forgotPassword = async (req, res) => {
 
     await customer.save();
 
+    const settings = await SiteSettings.findOne();
+    const siteLogo = settings?.logo_url;
+    const siteTitle = settings?.website_title?.en || "GreenVille";
+    const primaryColor = settings?.theme?.primary_color || "#4CAF50";
+
     const mailOptions = {
       to: customer.email,
-      subject: "GreenVille - Password Reset",
-      html: passwordResetEmailTemplate(customer.first_name, resetToken),
+      from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
+      subject: `${siteTitle} - Password Reset`,
+      html: passwordResetEmailTemplate(
+        customer.first_name,
+        resetToken,
+        siteLogo,
+        siteTitle,
+        primaryColor
+      ),
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("Email sent: " + info.response);
-      }
-    });
+    transporter.sendMail(mailOptions);
 
     res.json({ message: "Password reset email sent" });
   } catch (error) {
@@ -637,6 +749,9 @@ const resetPassword = async (req, res) => {
     customer.resetPasswordExpires = undefined;
 
     await customer.save();
+
+    // Send security alert
+    sendSecurityAlertEmail(customer, "password_reset_success");
 
     res.json({ message: "Password reset successfully" });
   } catch (error) {

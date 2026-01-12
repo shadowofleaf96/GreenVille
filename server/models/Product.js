@@ -11,6 +11,7 @@ const productJoiSchema = Joi.object({
     ar: Joi.string().required(),
   }).required(),
   subcategory_id: Joi.any().optional(),
+  vendor: Joi.any().optional(),
   short_description: Joi.object({
     en: Joi.string().required(),
     fr: Joi.string().optional(),
@@ -27,6 +28,18 @@ const productJoiSchema = Joi.object({
   total_reviews: Joi.number().optional(),
   quantity: Joi.number().integer().required(),
   option: Joi.array().items(Joi.string()).optional(),
+  variants: Joi.array()
+    .items(
+      Joi.object({
+        _id: Joi.any().strip(),
+        variant_name: Joi.string().required(),
+        price: Joi.number().positive().required(),
+        quantity: Joi.number().integer().required(),
+        sku: Joi.string().required(),
+      })
+    )
+    .optional(),
+  on_sale: Joi.boolean().default(false),
   status: Joi.boolean().default(false),
   creation_date: Joi.number().optional(),
   last_update: Joi.number().optional(),
@@ -51,6 +64,10 @@ const productSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubCategories",
     },
+    vendor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vendors",
+    },
     short_description: {
       en: { type: String },
       fr: { type: String },
@@ -73,6 +90,10 @@ const productSchema = mongoose.Schema(
       required: true,
     },
     option: Array,
+    on_sale: {
+      type: Boolean,
+      default: false,
+    },
     status: {
       type: Boolean,
       default: false,
@@ -93,10 +114,44 @@ const productSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    variants: {
+      type: [
+        {
+          variant_name: { type: String, required: true },
+          price: { type: Number, required: true },
+          quantity: { type: Number, required: true },
+          sku: { type: String, required: true },
+        },
+      ],
+      default: [],
+    },
   },
   {
     collection: "Products",
     versionKey: false,
+  }
+);
+
+productSchema.index({ subcategory_id: 1 });
+productSchema.index({ status: 1, subcategory_id: 1 });
+productSchema.index({ status: 1, on_sale: 1 });
+productSchema.index({ status: 1, creation_date: -1 });
+productSchema.index({ status: 1, price: 1 });
+productSchema.index({ vendor: 1, status: 1 });
+
+productSchema.index(
+  {
+    "product_name.en": "text",
+    "product_name.fr": "text",
+    "product_name.ar": "text",
+  },
+  {
+    weights: {
+      "product_name.en": 10,
+      "product_name.fr": 5,
+      "product_name.ar": 5,
+    },
+    name: "ProductSearchIndex",
   }
 );
 

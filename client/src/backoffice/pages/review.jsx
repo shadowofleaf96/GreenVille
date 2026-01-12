@@ -1,6 +1,6 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "react-helmet-async";
 
-import { ReviewView } from '../sections/review/view';
+import { ReviewView } from "../sections/review/view";
 
 // ----------------------------------------------------------------------
 

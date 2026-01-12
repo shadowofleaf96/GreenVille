@@ -1,29 +1,42 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { loginSuccess } from "../../../../redux/frontoffice/customerSlice";
 import { useForm } from "react-hook-form";
-import { TextField, Typography, Paper, Box } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-import Logo from "../../../../backoffice/components/logo";
-import { Link } from "react-router-dom";
-import { useRouter } from "../../../../routes/hooks";
-import { motion } from "framer-motion";
-import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
-import createAxiosInstance from "../../../../utils/axiosConfig";
-import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
 import {
-  GoogleReCaptchaProvider,
-  useGoogleReCaptcha
-} from 'react-google-recaptcha-v3';
+  Link as RouterLink,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
+import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 import DOMPurify from "dompurify";
+import { useTranslation } from "react-i18next";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
+import Logo from "../../../../backoffice/components/logo";
+import createAxiosInstance from "../../../../utils/axiosConfig";
+import Iconify from "../../../../backoffice/components/iconify";
+
+import { Input } from "@/components/ui/input";
+import AuthBackground from "../../../components/auth/AuthBackground";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 
 const RegistrationForm = () => {
   const { t } = useTranslation();
-  const { register, handleSubmit, formState: { errors }, watch, reset } = useForm();
-  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    reset,
+  } = useForm();
+  const navigate = useNavigate();
   const [loadingSave, setLoadingSave] = useState(false);
   const [searchParams] = useSearchParams();
-  const [refreshReCaptcha, setRefreshReCaptcha] = useState(false);
+  const [setRefreshReCaptcha] = useState(false);
+  const [, setRegisterSuccess] = useState(false);
   const axiosInstance = createAxiosInstance("customer");
 
   const { executeRecaptcha } = useGoogleReCaptcha();
@@ -32,28 +45,39 @@ const RegistrationForm = () => {
     if (!executeRecaptcha) {
       return;
     }
-    const captchaToken = await executeRecaptcha('RegisterAction');
+    const captchaToken = await executeRecaptcha("RegisterAction");
     return captchaToken;
   }, [executeRecaptcha]);
 
-  const isLoggedin = localStorage.getItem("customer_access_token")
+  const { data: settings } = useSelector((state) => state.adminSettings);
 
+  const isLoggedin = localStorage.getItem("customer_access_token");
+  const dispatch = useDispatch();
   useEffect(() => {
     if (isLoggedin) {
       const redirect = searchParams.get("redirect");
-      history(redirect || "/", { replace: true });
+      navigate(redirect || "/", { replace: true });
     }
-  }, [isLoggedin, searchParams, history]);
+  }, [isLoggedin, searchParams, navigate]);
 
   const onSubmit = async (data) => {
     setLoadingSave(true);
+    setRegisterSuccess(false);
     try {
-      const recaptchaToken = await handleReCaptchaVerify();
-      if (!recaptchaToken) {
-        toast.error("reCAPTCHA verification failed.");
+      if (!executeRecaptcha) {
+        toast.error(t("RecaptchaError"));
         setLoadingSave(false);
         return;
       }
+
+      const recaptchaToken = await executeRecaptcha("RegisterAction");
+
+      if (!recaptchaToken) {
+        toast.error(t("RecaptchaVerificationFailed"));
+        setLoadingSave(false);
+        return;
+      }
+
       const sanitizedData = {
         first_name: DOMPurify.sanitize(data.firstName),
         last_name: DOMPurify.sanitize(data.lastName),
@@ -63,124 +87,272 @@ const RegistrationForm = () => {
       };
 
       const response = await axiosInstance.post("/customers", sanitizedData);
+
+      // Success handling
       toast.success(response?.data?.message);
-      setLoadingSave(false);
+      setRegisterSuccess(true);
       reset();
-      router.push("/login");
+
+      if (response.data.access_token) {
+        // Auto-login logic
+        localStorage.setItem(
+          "customer_access_token",
+          response.data.access_token
+        );
+        dispatch(
+          loginSuccess({
+            customer: response.data.customer,
+            token: response.data.access_token,
+          })
+        );
+        // Delay navigation slightly to allow toast to be seen
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
+      } else {
+        // Fallback for strict verification (shouldn't happen with current controller)
+        navigate("/login");
+      }
     } catch (error) {
-      toast.error(t("RegistrationError"));
-      console.error("Error:", error.response?.data?.error);
-      setLoadingSave(false);
+      console.error("Registration Error:", error);
+      toast.error(
+        error.response?.data?.error ||
+          t("RegistrationError") ||
+          "An error occurred"
+      );
     } finally {
-      setRefreshReCaptcha(!refreshReCaptcha);
+      // Ensure loading is always disabled
       setLoadingSave(false);
+      setRefreshReCaptcha((prev) => !prev);
     }
   };
 
   return (
-    <div className="backImage">
-      <motion.div initial={{ scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
-        <video autoPlay loop muted playsInline className="background-video" preload="auto"
-        >
-          <source src="https://res.cloudinary.com/donffivrz/video/upload/f_auto:video,q_auto/v1/greenville/public/videos/qdbnvi7dzfw7mc4i1mt7" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-        <Paper
-          elevation={3}
-          className="form-container p-0.5 md:p-0 !rounded-2xl"
-        >
-          <div className="max-w-[400px] md:max-w-[450px] p-5 md:p-10">
-            <div className="flex justify-center mb-4">
-              <Logo />
-            </div>
-            <Typography variant="h5" gutterBottom style={{ color: "black" }}>
-              {t("CreateAccount")}
-            </Typography>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Box sx={{ display: "flex", gap: "1em", marginBottom: "1em" }}>
-                <TextField
-                  label={t("FirstName")}
-                  variant="outlined"
-                  fullWidth
-                  {...register("firstName", { required: t("FirstNameRequired") })}
-                  error={!!errors.firstName}
-                  helperText={errors.firstName?.message}
-                />
-                <TextField
-                  label={t("LastName")}
-                  variant="outlined"
-                  fullWidth
-                  {...register("lastName", { required: t("LastNameRequired") })}
-                  error={!!errors.lastName}
-                  helperText={errors.lastName?.message}
-                />
-              </Box>
-              <Box sx={{ display: "flex", gap: "1em", marginBottom: "1em" }}>
-                <TextField
-                  label={t("Email")}
-                  variant="outlined"
-                  fullWidth
-                  {...register("email", {
-                    required: t("EmailRequired"),
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: t("EmailInvalid"),
-                    },
-                  })}
-                  error={!!errors.email}
-                  helperText={errors.email?.message}
-                />
-              </Box>
-              <Box sx={{ display: "flex", gap: "1em", marginBottom: "1em" }}>
-                <TextField
-                  label={t("Password")}
-                  variant="outlined"
-                  type="password"
-                  fullWidth
-                  {...register("password", {
-                    required: t("PasswordRequired"),
-                    minLength: {
-                      value: 6,
-                      message: t("PasswordMinLength"),
-                    },
-                  })}
-                  error={!!errors.password}
-                  helperText={errors.password?.message}
-                />
-                <TextField
-                  label={t("ConfirmPassword")}
-                  variant="outlined"
-                  type="password"
-                  fullWidth
-                  {...register("confirmPassword", {
-                    required: t("ConfirmPasswordRequired"),
-                    validate: (value) => value === watch("password") || t("PasswordsDoNotMatch"),
-                  })}
-                  error={!!errors.confirmPassword}
-                  helperText={errors.confirmPassword?.message}
-                />
-              </Box>
-              <LoadingButton
-                type="submit"
-                fullWidth
-                loading={loadingSave}
-                variant="contained"
-                sx={{ fontWeight: 500, fontSize: 15, marginTop: "1em" }}
-                className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2"
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-6 overflow-hidden bg-black">
+      {/* Background Video with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <AuthBackground
+          url={settings?.auth_settings?.auth_video_url}
+          className="w-full h-full object-cover opacity-60 filter brightness-50"
+        />
+        <div className="absolute inset-0 bg-linear-to-b from-black/80 via-transparent to-black/80" />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative z-10 w-full sm:max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg"
+      >
+        <Card className="rounded-4xl sm:rounded-[2.5rem] border-none shadow-2xl bg-white overflow-hidden ring-1 ring-black/5">
+          <CardContent className="p-6 sm:p-10 md:p-12">
+            <div className="flex flex-col items-center">
+              <RouterLink
+                to="/"
+                className="mb-8 hover:scale-105 transition-transform duration-300"
               >
-                {loadingSave ? t("Registering") : t("Register")}
-              </LoadingButton>
-              <Typography variant="body2" style={{ textAlign: "center", marginTop: "1em", marginRight: "1em" }}>
-                {t("AlreadyHaveAccount")}{" "}
-                <Link to="/login" style={{ color: "#8dc63f" }}>
-                  {t("Login")}
-                </Link>
-              </Typography>
-            </form>
-          </div>
-        </Paper>
+                <Logo />
+              </RouterLink>
+
+              <div className="text-center space-y-2 mb-10">
+                <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+                  {t("CreateAccount")}
+                </h1>
+                <p className="text-gray-500 font-medium">
+                  {t("register.joinTheCommunity") ||
+                    "Join our community of plant lovers"}
+                </p>
+              </div>
+
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="w-full space-y-6"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">
+                      {t("FirstName")}
+                    </Label>
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
+                        <Iconify icon="solar:user-bold-duotone" width={20} />
+                      </div>
+                      <Input
+                        {...register("firstName", {
+                          required: t("FirstNameRequired"),
+                        })}
+                        placeholder="John"
+                        className={`h-14 pl-12 rounded-2xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all font-bold ${
+                          errors.firstName ? "border-red-500 bg-red-50/50" : ""
+                        }`}
+                      />
+                    </div>
+                    {errors.firstName && (
+                      <p className="text-[10px] font-black text-red-500 uppercase tracking-widest ml-1 animate-in fade-in slide-in-from-left-2">
+                        {errors.firstName.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">
+                      {t("LastName")}
+                    </Label>
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
+                        <Iconify icon="solar:user-bold-duotone" width={20} />
+                      </div>
+                      <Input
+                        {...register("lastName", {
+                          required: t("LastNameRequired"),
+                        })}
+                        placeholder="Doe"
+                        className={`h-14 pl-12 rounded-2xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all font-bold ${
+                          errors.lastName ? "border-red-500 bg-red-50/50" : ""
+                        }`}
+                      />
+                    </div>
+                    {errors.lastName && (
+                      <p className="text-[10px] font-black text-red-500 uppercase tracking-widest ml-1 animate-in fade-in slide-in-from-left-2">
+                        {errors.lastName.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">
+                    {t("Email")}
+                  </Label>
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
+                      <Iconify icon="solar:letter-bold-duotone" width={20} />
+                    </div>
+                    <Input
+                      {...register("email", {
+                        required: t("EmailRequired"),
+                        pattern: {
+                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                          message: t("EmailInvalid"),
+                        },
+                      })}
+                      placeholder="john@example.com"
+                      className={`h-14 pl-12 rounded-2xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all font-bold ${
+                        errors.email ? "border-red-500 bg-red-50/50" : ""
+                      }`}
+                    />
+                  </div>
+                  {errors.email && (
+                    <p className="text-[10px] font-black text-red-500 uppercase tracking-widest ml-1 animate-in fade-in slide-in-from-left-2">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">
+                      {t("Password")}
+                    </Label>
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
+                        <Iconify
+                          icon="solar:lock-password-bold-duotone"
+                          width={20}
+                        />
+                      </div>
+                      <Input
+                        type="password"
+                        {...register("password", {
+                          required: t("PasswordRequired"),
+                          minLength: {
+                            value: 6,
+                            message: t("PasswordMinLength"),
+                          },
+                        })}
+                        placeholder="••••••••"
+                        className={`h-14 pl-12 rounded-2xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all font-bold ${
+                          errors.password ? "border-red-500 bg-red-50/50" : ""
+                        }`}
+                      />
+                    </div>
+                    {errors.password && (
+                      <p className="text-[10px] font-black text-red-500 uppercase tracking-widest ml-1 animate-in fade-in slide-in-from-left-2">
+                        {errors.password.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">
+                      {t("ConfirmPassword")}
+                    </Label>
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
+                        <Iconify
+                          icon="solar:shield-check-bold-duotone"
+                          width={20}
+                        />
+                      </div>
+                      <Input
+                        type="password"
+                        {...register("confirmPassword", {
+                          required: t("ConfirmPasswordRequired"),
+                          validate: (value) =>
+                            value === watch("password") ||
+                            t("PasswordsDoNotMatch"),
+                        })}
+                        placeholder="••••••••"
+                        className={`h-14 pl-12 rounded-2xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all font-bold ${
+                          errors.confirmPassword
+                            ? "border-red-500 bg-red-50/50"
+                            : ""
+                        }`}
+                      />
+                    </div>
+                    {errors.confirmPassword && (
+                      <p className="text-[10px] font-black text-red-500 uppercase tracking-widest ml-1 animate-in fade-in slide-in-from-left-2">
+                        {errors.confirmPassword.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={loadingSave}
+                  className="w-full h-14 rounded-2xl bg-primary text-white font-black text-base shadow-xl shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 mt-4"
+                >
+                  {loadingSave ? (
+                    <div className="flex items-center gap-2">
+                      <Iconify
+                        icon="svg-spinners:180-ring-with-bg"
+                        width={24}
+                      />
+                      {t("Registering")}
+                    </div>
+                  ) : (
+                    t("Register")
+                  )}
+                </Button>
+              </form>
+
+              <div className="mt-10 text-center">
+                <p className="text-gray-500 font-bold text-sm">
+                  {t("AlreadyHaveAccount")}{" "}
+                  <RouterLink
+                    to="/login"
+                    className="text-primary hover:underline ml-1 font-black underline-offset-4"
+                  >
+                    {t("Login")}
+                  </RouterLink>
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
-    </div >
+    </div>
   );
 };
 

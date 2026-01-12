@@ -15,21 +15,11 @@ const {
   requireAdminOrManager,
 } = require("../middleware/authMiddleware");
 
-router.post("/create-stripe-payment", createStripePayment);
-router.post("/save-payment-info", savePaymentInfo);
-router.put("/:id", updatePayment);
-router.delete("/:id", removePayment);
-router.get(
-  "/",
-  verifyToken,
-  requireAdminOrManager,
-  retrievePayments
-);
-router.get(
-  "/:id",
-  verifyToken,
-  requireAdminOrManager,
-  searchPayment
-);
+router.post("/create-stripe-payment", verifyToken, createStripePayment);
+router.post("/save-payment-info", verifyToken, savePaymentInfo);
+router.put("/:id", verifyToken, requireAdminOrManager, updatePayment);
+router.delete("/:id", verifyToken, requireAdminOrManager, removePayment);
+router.get("/", verifyToken, requireAdminOrManager, retrievePayments);
+router.get("/:id", verifyToken, requireAdminOrManager, searchPayment);
 
 module.exports = router;

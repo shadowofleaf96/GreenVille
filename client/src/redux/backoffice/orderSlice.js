@@ -23,18 +23,13 @@ const orderSlice = createSlice({
     },
     deleteOrder: (state, action) => {
       state.data = state.data.filter(
-        (order) => !action.payload.includes(order._id)
+        (order) => !action.payload.includes(order._id),
       );
     },
   },
 });
 
-export const {
-  setData,
-  setLoading,
-  setError,
-  setFilterName,
-  deleteOrder,
-} = orderSlice.actions;
+export const { setData, setLoading, setError, setFilterName, deleteOrder } =
+  orderSlice.actions;
 
 export default orderSlice.reducer;

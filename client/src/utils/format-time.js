@@ -28,7 +28,7 @@ export function fDate(date, newFormat) {
   return date ? format(new Date(date), fm) : "";
 }
 
-export function fDateTime(date, newFormat) {
+export function fDateTime(date) {
   return date ? formatDate(new Date(date)) : "";
 }
 

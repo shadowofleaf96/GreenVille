@@ -1,59 +1,46 @@
 import PropTypes from "prop-types";
-
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
-import { useTheme } from "@mui/material/styles"; // Import useTheme
 import { fShortenNumber } from "../../../utils/format-number";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AppWidgetSummary({
   title,
   total,
   icon,
   currency,
-  color = "primary",
-  sx,
+  color = "#8DC63F",
+  className,
   ...other
 }) {
   return (
     <Card
-      component={Stack}
-      spacing={3}
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        width: { xs: "70px", sm: "100px", md: "150px", lg: "200px", xl:"300px" }, // Adjust width for different screen sizes
-        height: { xs: "auto", md: "150px" }, // Adjust height for different screen sizes
-        borderRadius: 2,
-        backgroundColor: "white",
-        ...sx,
-        "&:hover": {
-          transform: "scale(1.1)",
-          transition: "transform ease-in-out 0.2s",
-        },
-      }}
+      className={`
+        overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 
+        border border-gray-100 bg-white shadow-sm
+        w-full group rounded-3xl
+        ${className}
+      `}
+      {...other}
     >
-      <Stack
-        direction="column"
-        alignItems="center"
-        spacing={1}
-        sx={{
-          backgroundColor: "transparent",
-        }}
-      >
-        <Box sx={{ width: 72, height: 72 }}>{icon}</Box>
+      <CardContent className="pt-8 pb-6 flex flex-col items-center justify-center text-center space-y-4">
+        <div
+          className="p-4 rounded-2xl transition-transform duration-500 group-hover:rotate-12"
+          style={{
+            backgroundColor: `${color}10`, // 10% opacity hex
+            color: color,
+          }}
+        >
+          <div className="w-8 h-8 flex items-center justify-center">{icon}</div>
+        </div>
 
-        <Stack sx={{ textAlign: "center" }}>
-          <Typography variant="h5">
+        <div className="space-y-1">
+          <h3 className="text-3xl font-extrabold tracking-tight text-gray-900">
             {fShortenNumber(total)} {currency && ` ${currency}`}
-          </Typography>
-          <Typography variant="subtitle2" sx={{ color: "text.disabled" }}>
+          </h3>
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500 opacity-80">
             {title}
-          </Typography>
-        </Stack>
-      </Stack>
+          </p>
+        </div>
+      </CardContent>
     </Card>
   );
 }
@@ -61,7 +48,7 @@ export default function AppWidgetSummary({
 AppWidgetSummary.propTypes = {
   color: PropTypes.string,
   icon: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
-  sx: PropTypes.object,
+  className: PropTypes.string,
   title: PropTypes.string,
   total: PropTypes.number,
   currency: PropTypes.string,

@@ -52,12 +52,11 @@ export function applyFilter({
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
+    const lang = currentLanguage?.split("-")[0] || "en";
     inputData = inputData.filter((subcategory) => {
-      const subcategoryNameMatch =
-        subcategory.subcategory_name[currentLanguage]
-          .toLowerCase()
-          .indexOf(filterName.toLowerCase()) !== -1;
-      return subcategoryNameMatch;
+      const nameObj = subcategory.subcategory_name || {};
+      const name = nameObj[lang] || nameObj["en"] || "";
+      return name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1;
     });
   }
 

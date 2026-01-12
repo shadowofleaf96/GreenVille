@@ -49,9 +49,8 @@ export function applyFilter({ inputData, comparator, filterName }) {
   if (filterName) {
     inputData = inputData.filter((notification) => {
       const notificationNameMatch =
-        notification.subject
-          .toLowerCase()
-          .indexOf(filterName.toLowerCase()) !== -1;
+        notification.subject.toLowerCase().indexOf(filterName.toLowerCase()) !==
+        -1;
       return notificationNameMatch;
     });
   }

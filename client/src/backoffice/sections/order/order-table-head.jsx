@@ -1,17 +1,12 @@
-// Shadow Of Leaf was Here
-import PropTypes from 'prop-types';
-import Box from '@mui/material/Box';
-import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
-import TableHead from '@mui/material/TableHead';
-import TableCell from '@mui/material/TableCell';
-import TableSortLabel from '@mui/material/TableSortLabel';
-
-import { visuallyHidden } from './utils';
-
-import { useTranslation } from 'react-i18next';
-
-// ----------------------------------------------------------------------
+import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
+import Iconify from "../../../components/iconify";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  TableHead as ShadcnTableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function OrderTableHead({
   order,
@@ -22,54 +17,72 @@ export default function OrderTableHead({
   onRequestSort,
   onSelectAllClick,
 }) {
-  const { t } = useTranslation(); 
+  const { t } = useTranslation();
 
   const onSort = (property) => (event) => {
     onRequestSort(event, property);
   };
 
   return (
-    <TableHead>
-      <TableRow>
-        <TableCell padding="checkbox">
+    <TableHeader className="bg-gray-50/50 text-gray-500">
+      <TableRow className="hover:bg-transparent border-none">
+        <ShadcnTableHead className="w-[50px] pl-6 py-4">
           <Checkbox
-            indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
+            onCheckedChange={(checked) =>
+              onSelectAllClick({ target: { checked } })
+            }
+            aria-label="Select all"
+            className="rounded-md border-gray-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
           />
-        </TableCell>
+        </ShadcnTableHead>
 
         {headLabel.map((headCell) => (
-          <TableCell
+          <ShadcnTableHead
             key={headCell.id}
-            align={headCell.align || 'left'}
-            sortDirection={orderBy === headCell.id ? order : false}
-            sx={{ width: headCell.width, minWidth: headCell.minWidth }}
+            className={`py-4 font-bold text-gray-600 text-[13px] uppercase tracking-wider ${
+              headCell.align === "center" ? "text-center" : "text-left"
+            }`}
+            style={{ width: headCell.width, minWidth: headCell.minWidth }}
           >
-            <TableSortLabel
-              hideSortIcon
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : 'asc'}
-              onClick={onSort(headCell.id)}
-            >
-              {t(headCell.label)} {/* Translating the label */}
-              {orderBy === headCell.id ? (
-                <Box sx={{ ...visuallyHidden }}>
-                  {order === 'desc'
-                    ? t('sorted descending')
-                    : t('sorted ascending')}
-                </Box>
-              ) : null}
-            </TableSortLabel>
-          </TableCell>
+            {headCell.id ? (
+              <button
+                onClick={onSort(headCell.id)}
+                className={`inline-flex items-center gap-1.5 hover:text-primary transition-colors group ${
+                  headCell.align === "center" ? "justify-center" : ""
+                }`}
+              >
+                {t(headCell.label)}
+                {orderBy === headCell.id ? (
+                  <Iconify
+                    icon={
+                      order === "desc"
+                        ? "material-symbols:arrow-downward-rounded"
+                        : "material-symbols:arrow-upward-rounded"
+                    }
+                    className="text-primary"
+                    width={16}
+                  />
+                ) : (
+                  <Iconify
+                    icon="material-symbols:unfold-more-rounded"
+                    className="text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                    width={16}
+                  />
+                )}
+              </button>
+            ) : (
+              t(headCell.label)
+            )}
+          </ShadcnTableHead>
         ))}
       </TableRow>
-    </TableHead>
+    </TableHeader>
   );
 }
 
 OrderTableHead.propTypes = {
-  order: PropTypes.oneOf(['asc', 'desc']),
+  order: PropTypes.oneOf(["asc", "desc"]),
   orderBy: PropTypes.string,
   rowCount: PropTypes.number,
   headLabel: PropTypes.array,

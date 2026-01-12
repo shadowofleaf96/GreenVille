@@ -23,18 +23,13 @@ const contactSlice = createSlice({
     },
     deleteContact: (state, action) => {
       state.data = state.data.filter(
-        (contacts) => !action.payload.includes(contacts._id)
+        (contacts) => !action.payload.includes(contacts._id),
       );
     },
   },
 });
 
-export const {
-  setData,
-  setLoading,
-  setError,
-  setFilterName,
-  deleteContact,
-} = contactSlice.actions;
+export const { setData, setLoading, setError, setFilterName, deleteContact } =
+  contactSlice.actions;
 
 export default contactSlice.reducer;

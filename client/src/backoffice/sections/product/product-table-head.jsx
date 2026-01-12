@@ -1,12 +1,8 @@
-import PropTypes from 'prop-types';
-import Box from '@mui/material/Box';
-import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
-import TableHead from '@mui/material/TableHead';
-import TableCell from '@mui/material/TableCell';
-import TableSortLabel from '@mui/material/TableSortLabel';
-import { visuallyHidden } from './utils';
-import { useTranslation } from 'react-i18next'; // Added translation hook
+import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
+import { TableHeader, TableRow, TableHead } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import Iconify from "../../../components/iconify";
 
 export default function ProductTableHead({
   order,
@@ -17,52 +13,76 @@ export default function ProductTableHead({
   onRequestSort,
   onSelectAllClick,
 }) {
-  const { t } = useTranslation('login-view'); // Using translation hook for 'login-view'
+  const { t } = useTranslation("login-view");
 
-  const onSort = (property) => (event) => {
+  const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
 
+  const renderSortIcon = (headCell) => {
+    if (orderBy !== headCell.id) return null;
+    return order === "desc" ? (
+      <ArrowUpDown className="ml-1 h-4 w-4" />
+    ) : (
+      <ArrowUpDown className="ml-1 h-4 w-4 transform rotate-180" />
+    );
+  };
+
   return (
-    <TableHead>
-      <TableRow>
-        <TableCell padding="checkbox">
+    <TableHeader>
+      <TableRow className="border-b border-gray-200">
+        <TableHead className="w-12">
           <Checkbox
-            indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
+            onCheckedChange={(checked) => {
+              onSelectAllClick({
+                target: { checked },
+              });
+            }}
+            indeterminate={numSelected > 0 && numSelected < rowCount}
           />
-        </TableCell>
+        </TableHead>
 
         {headLabel.map((headCell) => (
-          <TableCell
+          <TableHead
             key={headCell.id}
-            align={headCell.align || 'left'}
-            sortDirection={orderBy === headCell.id ? order : false}
-            sx={{ width: headCell.width, minWidth: headCell.minWidth }}
+            className="cursor-pointer select-none group"
+            onClick={createSortHandler(headCell.id)}
+            style={{
+              width: headCell.width,
+              minWidth: headCell.minWidth,
+            }}
           >
-            <TableSortLabel
-              hideSortIcon
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : 'asc'}
-              onClick={onSort(headCell.id)}
+            <div
+              className={`flex items-center gap-2 ${
+                headCell.align === "center" ? "justify-center" : ""
+              } ${headCell.align === "right" ? "justify-end" : ""}`}
             >
-              {t(headCell.label)} {/* Translating the label */}
-              {orderBy === headCell.id ? (
-                <Box sx={{ ...visuallyHidden }}>
-                  {order === 'desc' ? t('sortedDescending') : t('sortedAscending')}
-                </Box>
-              ) : null}
-            </TableSortLabel>
-          </TableCell>
+              <span className="font-bold text-gray-700">
+                {t(headCell.label)}
+              </span>
+              {orderBy === headCell.id && (
+                <Iconify
+                  icon={
+                    order === "asc"
+                      ? "material-symbols:arrow-upward-rounded"
+                      : "material-symbols:arrow-downward-rounded"
+                  }
+                  width={16}
+                  height={16}
+                  className="text-primary"
+                />
+              )}
+            </div>
+          </TableHead>
         ))}
       </TableRow>
-    </TableHead>
+    </TableHeader>
   );
 }
 
 ProductTableHead.propTypes = {
-  order: PropTypes.oneOf(['asc', 'desc']),
+  order: PropTypes.oneOf(["asc", "desc"]),
   orderBy: PropTypes.string,
   rowCount: PropTypes.number,
   headLabel: PropTypes.array,

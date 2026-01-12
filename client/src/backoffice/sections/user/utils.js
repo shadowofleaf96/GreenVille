@@ -35,7 +35,12 @@ export function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-export function applyFilter({ inputData, comparator, filterName, emailFilter }) {
+export function applyFilter({
+  inputData,
+  comparator,
+  filterName,
+  emailFilter,
+}) {
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -60,7 +65,7 @@ export function applyFilter({ inputData, comparator, filterName, emailFilter }) 
   if (emailFilter) {
     inputData = inputData.filter((user) => {
       const emailMatch =
-      user.email.toLowerCase().indexOf(emailFilter.toLowerCase()) !== -1;
+        user.email.toLowerCase().indexOf(emailFilter.toLowerCase()) !== -1;
 
       return emailMatch;
     });

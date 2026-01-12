@@ -1,47 +1,96 @@
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import { useState, useEffect, useCallback } from "react";
+
+const breakpoints = {
+  xs: 0,
+  sm: 600,
+  md: 900,
+  lg: 1200,
+  xl: 1536,
+};
 
 // ----------------------------------------------------------------------
 
 export function useResponsive(query, start, end) {
-  const theme = useTheme();
+  const getQuery = useCallback(() => {
+    switch (query) {
+      case "up":
+        return `(min-width: ${breakpoints[start]}px)`;
+      case "down":
+        return `(max-width: ${breakpoints[start]}px)`;
+      case "between":
+        return `(min-width: ${breakpoints[start]}px) and (max-width: ${breakpoints[end]}px)`;
+      case "only":
+        // For 'only', we use the range from current to next breakpoint
+        const keys = Object.keys(breakpoints);
+        const startIdx = keys.indexOf(start);
+        const endVal = breakpoints[keys[startIdx + 1]] || 9999;
+        return `(min-width: ${breakpoints[start]}px) and (max-width: ${
+          endVal - 0.05
+        }px)`;
+      default:
+        return "";
+    }
+  }, [query, start, end]);
 
-  const mediaUp = useMediaQuery(theme.breakpoints.up(start));
+  const [matches, setMatches] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.matchMedia(getQuery()).matches;
+    }
+    return false;
+  });
 
-  const mediaDown = useMediaQuery(theme.breakpoints.down(start));
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(getQuery());
 
-  const mediaBetween = useMediaQuery(theme.breakpoints.between(start, end));
+    const listener = (event) => setMatches(event.matches);
 
-  const mediaOnly = useMediaQuery(theme.breakpoints.only(start));
+    // Support older browsers
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", listener);
+    } else {
+      mediaQuery.addListener(listener);
+    }
 
-  if (query === 'up') {
-    return mediaUp;
-  }
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener("change", listener);
+      } else {
+        mediaQuery.removeListener(listener);
+      }
+    };
+  }, [getQuery]);
 
-  if (query === 'down') {
-    return mediaDown;
-  }
-
-  if (query === 'between') {
-    return mediaBetween;
-  }
-
-  return mediaOnly;
+  return matches;
 }
 
 // ----------------------------------------------------------------------
 
 export function useWidth() {
-  const theme = useTheme();
+  const [width, setWidth] = useState(() => {
+    if (typeof window !== "undefined") {
+      const w = window.innerWidth;
+      if (w < breakpoints.sm) return "xs";
+      if (w < breakpoints.md) return "sm";
+      if (w < breakpoints.lg) return "md";
+      if (w < breakpoints.xl) return "lg";
+      return "xl";
+    }
+    return "xs";
+  });
 
-  const keys = [...theme.breakpoints.keys].reverse();
+  useEffect(() => {
+    const handleResize = () => {
+      const w = window.innerWidth;
+      if (w < breakpoints.sm) setWidth("xs");
+      else if (w < breakpoints.md) setWidth("sm");
+      else if (w < breakpoints.lg) setWidth("md");
+      else if (w < breakpoints.xl) setWidth("lg");
+      else setWidth("xl");
+    };
 
-  return (
-    keys.reduce((output, key) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const matches = useMediaQuery(theme.breakpoints.up(key));
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-      return !output && matches ? key : output;
-    }, null) || 'xs'
-  );
+  return width;
 }

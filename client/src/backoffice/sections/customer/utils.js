@@ -35,7 +35,12 @@ export function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-export function applyFilter({ inputData, comparator, filterName, emailFilter }) {
+export function applyFilter({
+  inputData,
+  comparator,
+  filterName,
+  emailFilter,
+}) {
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -49,9 +54,11 @@ export function applyFilter({ inputData, comparator, filterName, emailFilter }) 
   if (filterName) {
     inputData = inputData.filter((customer) => {
       const firstNameMatch =
-      customer.first_name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1;
+        customer.first_name.toLowerCase().indexOf(filterName.toLowerCase()) !==
+        -1;
       const lastNameMatch =
-      customer.last_name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1;
+        customer.last_name.toLowerCase().indexOf(filterName.toLowerCase()) !==
+        -1;
 
       return firstNameMatch || lastNameMatch;
     });
@@ -60,7 +67,7 @@ export function applyFilter({ inputData, comparator, filterName, emailFilter }) 
   if (emailFilter) {
     inputData = inputData.filter((customer) => {
       const emailMatch =
-      customer.email.toLowerCase().indexOf(emailFilter.toLowerCase()) !== -1;
+        customer.email.toLowerCase().indexOf(emailFilter.toLowerCase()) !== -1;
 
       return emailMatch;
     });

@@ -1,1 +1,1 @@
-export { default as CouponView } from './coupon-view';
+export { default as CouponView } from "./coupon-view";

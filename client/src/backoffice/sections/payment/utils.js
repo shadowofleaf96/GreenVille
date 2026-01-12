@@ -68,8 +68,7 @@ export function applyFilter({
 
   if (paymentMethodFilter) {
     inputData = inputData.filter((payment) => {
-      const MethodMatch = payment.paymentMethod
-        .includes(paymentMethodFilter);
+      const MethodMatch = payment.paymentMethod.includes(paymentMethodFilter);
       return MethodMatch;
     });
   }

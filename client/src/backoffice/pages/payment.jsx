@@ -1,6 +1,6 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "react-helmet-async";
 
-import { PaymentView } from '../sections/payment/view';
+import { PaymentView } from "../sections/payment/view";
 
 // ----------------------------------------------------------------------
 
@@ -11,8 +11,7 @@ export default function PaymentPage() {
         <title> Payments | GreenVille </title>
       </Helmet>
 
-      <PaymentView
-       />
+      <PaymentView />
     </>
   );
 }

@@ -23,7 +23,7 @@ const productSlice = createSlice({
     },
     deleteNotification: (state, action) => {
       state.data = state.data.filter(
-        (product) => !action.payload.includes(product._id)
+        (product) => !action.payload.includes(product._id),
       );
     },
   },

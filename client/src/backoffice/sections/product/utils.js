@@ -43,9 +43,8 @@ export function applyFilter({
   skuFilter,
   priceFilter,
   quantityFilter,
-  currentLanguage
+  currentLanguage,
 }) {
-
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {

@@ -1,60 +1,121 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useTranslation, Trans } from "react-i18next";
+import Iconify from "../../../../backoffice/components/iconify";
+import { useTranslation } from "react-i18next";
+import { motion, useAnimation, useMotionValue } from "framer-motion";
+import { useSelector } from "react-redux";
+import LazyImage from "../../../../components/lazyimage/LazyImage";
+import { Button } from "@/components/ui/button";
+
+const defaultCTA2 = {
+  heading: {
+    en: "Fresh Vegetables. \n Free Shipping!",
+    fr: "Légumes frais. \n Livraison gratuite !",
+    ar: "خضروات طازجة. \n شحن مجاني!",
+  },
+  paragraph: {
+    en: "Get fresh and organic vegetables delivered straight to your door with free shipping on all orders over 1500dh. Shop now and enjoy healthy eating made easy!",
+    fr: "Obtenez des légumes frais et biologiques livrés directement à votre porte avec livraison gratuite sur toutes les commandes de plus de 1500dh. Achetez maintenant et profitez d'une alimentation saine facilitée!",
+    ar: "احصل على خضروات طازجة وعضوية يتم توصيلها مباشرة إلى باب منزلك مع شحن مجاني على جميع الطلبات التي تزيد عن 1500 درهم. تسوق الآن واستمتع بتناول طعام صحي بسهولة!",
+  },
+  link_text: { en: "Order Now", fr: "Commander maintenant", ar: "اطلب الآن" },
+  link_url: "/products/655c721c82ea0f3d8fc1db2d",
+  images: [
+    "https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/0bca71897aa053232e6c77888dbd8b95",
+    "https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/b642bedbad44c86730a61fe43340f1c2",
+  ],
+};
 
 const CTA2 = () => {
-    const { t } = useTranslation();
+  const { i18n } = useTranslation();
+  const { data: settings, loading } = useSelector(
+    (state) => state.adminSettings,
+  );
 
+  const cta2Data = settings?.cta2
+    ? {
+        heading: settings.cta2.heading || defaultCTA2.heading,
+        paragraph: settings.cta2.paragraph || defaultCTA2.paragraph,
+        link_text: settings.cta2.link_text || defaultCTA2.link_text,
+        link_url: settings.cta2.link_url || defaultCTA2.link_url,
+        images:
+          settings.cta2.images && settings.cta2.images.length > 0
+            ? settings.cta2.images
+            : defaultCTA2.images,
+      }
+    : defaultCTA2;
+
+  const currentLang = i18n.language;
+
+  if (loading) {
     return (
-        <section aria-labelledby="cta2-heading">
-            <div className="overflow-hidden mt-2 lg:mt-8 mb-4 lg:mb-12 pt-4 mx-4 md:pt-8">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 bg-gray-200 rounded-xl">
-                    <div className="relative flex items-center gap-6 py-6 px-6 md:pb-8 md:pt-8">
-                        <div className="flex-1">
-                            <h2
-                                id="cta2-heading"
-                                className="text-4xl font-semibold tracking-tight text-[#8DC63F] md:text-5xl"
-                            >
-                                {t("cta2_heading")}
-                            </h2>
-                            <p className="mt-6 text-md md:text-lg text-gray-600">
-                                <Trans
-                                    i18nKey="cta2_paragraph"
-                                    values={{ amount: '1500dh' }}
-                                    components={{ 1: <span className="font-bold"></span> }}
-                                />
-                            </p>
-                            <div className="mt-6 text-base">
-                                <Link
-                                    to="/products/655c721c82ea0f3d8fc1db2d"
-                                    className="font-semibold text-[#8DC63F]"
-                                >
-                                    {t("cta2_link")}<span aria-hidden="true"> &rarr;</span>
-                                </Link>
-                            </div>
-                        </div>
-
-                        <div className="flex-1 flex flex-col md:flex-row justify-center items-center gap-6">
-                            <div className="flex-shrink-0">
-                                <img
-                                    className="h-64 w-64 rounded-lg object-contain md:h-72 md:w-72"
-                                    src="https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/0bca71897aa053232e6c77888dbd8b95"
-                                    alt="Fresh Vegetables"
-                                />
-                            </div>
-                            <div className="flex-shrink-0">
-                                <img
-                                    className="h-64 w-64 rounded-lg object-contain md:h-72 md:w-72"
-                                    src="https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/b642bedbad44c86730a61fe43340f1c2"
-                                    alt="Fresh Vegetables"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+      <section
+        aria-labelledby="cta2-heading"
+        className="py-12 flex justify-center"
+      >
+        <p className="text-gray-500">Loading...</p>
+      </section>
     );
+  }
+
+  return (
+    <section aria-labelledby="cta2-heading">
+      <div className="overflow-hidden mt-2 lg:mt-8 mb-4 lg:mb-12 pt-4 mx-2 md:pt-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 bg-gray-200 rounded-xl">
+          <div className="relative flex flex-col lg:flex-row items-center gap-8 py-10 px-6 md:py-16">
+            <div className="flex-1 text-center lg:text-left rtl:lg:text-right">
+              <h2
+                id="cta2-heading"
+                className="text-3xl sm:text-4xl font-black tracking-tight text-primary md:text-5xl lg:text-6xl uppercase leading-tight"
+              >
+                {cta2Data.heading?.[currentLang] || cta2Data.heading?.en || ""}
+              </h2>
+              <p className="mt-6 text-base md:text-lg text-gray-600 font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                {cta2Data.paragraph?.[currentLang] ||
+                  cta2Data.paragraph?.en ||
+                  ""}
+              </p>
+              <div className="mt-10">
+                <Button
+                  variant="premium"
+                  className="h-14 px-8 text-base"
+                  asChild
+                >
+                  <Link to={cta2Data.link_url || "#"}>
+                    {cta2Data.link_text?.[currentLang] ||
+                      cta2Data.link_text?.en ||
+                      ""}
+                    <Iconify
+                      icon="solar:arrow-right-bold-duotone"
+                      width={20}
+                      className="ml-2 rtl:mr-2 rtl:rotate-180"
+                    />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex-1 flex justify-center items-center w-full">
+              {cta2Data.images.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  className="relative w-full max-w-md aspect-square"
+                >
+                  <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+                  <LazyImage
+                    className="relative z-10 w-full h-full object-contain drop-shadow-2xl"
+                    src={cta2Data.images[0]}
+                    alt="Fresh Vegetables"
+                  />
+                </motion.div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 };
 
 export default CTA2;

@@ -1,60 +1,63 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+import LazyImage from "../../../../components/lazyimage/LazyImage";
+import { motion, useAnimation, useMotionValue } from "framer-motion";
 
 const Category = () => {
   const { t } = useTranslation();
 
-  const categories = [
-    {
-      image: "https://res.cloudinary.com/donffivrz/image/upload/c_scale,w_400,q_auto,f_auto/v1/greenville/03929db4ade075a1f1108d6d234cefec",
-      title: t("Vegetables"),
-      _id: "655c721c82ea0f3d8fc1db2d",
-    },
-    {
-      image: "https://res.cloudinary.com/donffivrz/image/upload/c_scale,w_400,q_auto,f_auto/v1/greenville/b4c743a7cb116e8ef87629ca7e8f41e7",
-      title: t("MakeupAccessories"),
-      _id: "655c6d0682ea0f3d8fc1db03",
-    },
-    {
-      image: "https://res.cloudinary.com/donffivrz/image/upload/c_scale,w_400,q_auto,f_auto/v1/greenville/a112987bf27a8fecac3ed125243a064b",
-      title: t("EggsMilk"),
-      _id: "6570cd56e4122425be4b73e9",
-    },
-    {
-      image: "https://res.cloudinary.com/donffivrz/image/upload/c_scale,w_400,q_auto,f_auto/v1/greenville/e0760715d1923ecb31222fad2661a6f3",
-      title: t("Honeys"),
-      _id: "655c6e8d82ea0f3d8fc1db0f",
-    },
-  ];
+  const { data: settings } = useSelector((state) => state.adminSettings);
+  const { i18n } = useTranslation();
+  const currentLanguage = i18n.language;
+
+  const categories =
+    settings?.home_categories?.length > 0
+      ? settings?.home_categories?.map((cat) => ({
+          image: cat.category_image,
+          title: cat.category_name
+            ? cat?.category_name?.[currentLanguage]
+            : "Category",
+          _id: cat._id,
+        }))
+      : null;
 
   return (
     <div className="mt-8">
       <div className="mx-auto mb-12 mt-12">
         <div className="container mx-auto">
-          <h4 className="font-semibold text-3xl flex justify-center mx-auto mb-8 text-center md:text-start text-gray-900 select-none">
+          <h4 className="flex justify-center mx-auto mb-8 text-center md:text-start text-gray-900 select-none font-black sm:text-md md:text-lg lg:text-2xl xl:text-4xl h-12 uppercase tracking-[0.2em] backdrop-blur-sm px-4 py-1 rounded-full border border-white/10">
             {t("TopSubCategories")}
           </h4>
         </div>
-        <div className="flex flex-wrap gap-6 justify-center">
-          {categories.map((item, index) => (
-            <div key={index} className="w-auto flex flex-row flex-wrap text-center transition-all duration-300 hover:scale-105 select-none">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 px-4">
+          {categories?.map((item, index) => (
+            <motion.div
+              key={index}
+              whileHover={{ y: -8 }}
+              className="group relative aspect-3/4 rounded-[3rem] overflow-hidden shadow-2xl shadow-gray-200/50"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
               <Link
                 to={`/products/${item._id}`}
-                className="relative flex items-center justify-center h-96 w-80 rounded-xl transition duration-500 ease-in-out hover:shadow-lg overflow-hidden"
+                className="block w-full h-full"
               >
-                <img
+                <LazyImage
                   src={item.image}
                   alt={item.title}
-                  className="h-full w-full object-cover rounded-lg"
+                  className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-                <div className="absolute bottom-0 bg-white/15 backdrop-blur-md border border-white/15 w-full p-4">
-                  <h4 className="font-semibold text-xl text-center text-yellow-400">
+                <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-8 text-center sm:text-left rtl:sm:text-right">
+                  <h4 className="font-black text-2xl text-white uppercase tracking-tight mb-2">
                     {item.title}
                   </h4>
+                  <div className="h-1.5 w-12 bg-primary rounded-full" />
                 </div>
               </Link>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

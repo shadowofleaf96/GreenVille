@@ -1,33 +1,28 @@
-import { useState, useEffect } from "react";
-import Avatar from "@mui/material/Avatar";
-import Divider from "@mui/material/Divider";
-import Popover from "@mui/material/Popover";
-import { alpha } from "@mui/material/styles";
-import MenuItem from "@mui/material/MenuItem";
-import { Link as RouterLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "../../../../routes/hooks";
-import { logout } from "../../../../redux/backoffice/authSlice";
-import axios from "axios";
+import { Link as RouterLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
+
+import { logout } from "../../../../redux/backoffice/authSlice";
+import { useRouter } from "../../../../routes/hooks";
 import Iconify from "../../../components/iconify";
-import IconButton from "@mui/material/IconButton";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export default function AccountPopover() {
-  const [open, setOpen] = useState(null);
   const { admin } = useSelector((state) => state.adminAuth);
-
   const dispatch = useDispatch();
   const router = useRouter();
   const { t } = useTranslation();
-
-  const handleOpen = (event) => {
-    setOpen(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setOpen(null);
-  };
 
   const logOut = async () => {
     try {
@@ -35,86 +30,79 @@ export default function AccountPopover() {
       dispatch(logout({}));
       router.push("/admin/login");
     } catch (error) {
-      toast.error(t("Logout Error") + ": " + error.response.data.message);
+      toast.error(
+        t("Logout Error") +
+          ": " +
+          (error.response?.data?.message || error.message),
+      );
     }
   };
 
   return (
-    <>
-      <IconButton
-        onClick={handleOpen}
-        sx={{
-          width: 52,
-          height: 52,
-          background: (theme) => alpha(theme.palette.grey[500], 0.08),
-          ...(open && {
-            background: (theme) =>
-              `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
-          }),
-        }}
-      >
-        <Avatar
-          src={admin ? `${admin.user_image}` : ""}
-          alt={admin ? admin.user_name : "Admin"}
-          sx={{
-            width: 48,
-            height: 48,
-            border: (theme) => `solid 2px ${theme.palette.background.default}`,
-          }}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          className="relative h-12 w-12 rounded-full p-0 hover:bg-primary/5 focus-visible:ring-primary/20"
         >
-          {admin ? admin?.user_name.charAt(0).toUpperCase() : "A"}
-        </Avatar>
-      </IconButton>
+          <Avatar className="h-11 w-11 border-2 border-white shadow-sm">
+            <AvatarImage
+              src={admin?.user_image}
+              alt={admin?.user_name}
+              className="object-cover"
+            />
+            <AvatarFallback className="bg-primary/5 text-primary font-bold">
+              {admin?.user_name?.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
 
-      <Popover
-        open={!!open}
-        anchorEl={open}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-        PaperProps={{
-          sx: {
-            p: 0,
-            mt: 1,
-            ml: 0.75,
-            width: 200,
-          },
-        }}
-      >
-        <MenuItem
-          key={"profile"}
-          component={RouterLink}
-          to="/admin/profile"
-          onClick={handleClose}
-          sx={{ py: 1.5, color: "text.secondary" }}
-        >
-          <Iconify
-            icon="material-symbols-light:contacts-product-outline"
-            width={28}
-            height={28}
-            style={{ marginRight: "8px" }}
-          />
-          {t("profile")}
-        </MenuItem>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-bold leading-none text-gray-900">
+              {admin?.user_name}
+            </p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {admin?.email}
+            </p>
+            {admin?.role === "vendor" && (
+              <p className="text-[10px] font-black text-primary uppercase pt-1">
+                {t("Vendor Account")}
+              </p>
+            )}
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
 
-        <Divider sx={{ my: 1 }}></Divider>
+        <RouterLink to="/admin/profile">
+          <DropdownMenuItem className="cursor-pointer py-2.5 focus:bg-primary/5 focus:text-primary group">
+            <Iconify
+              icon="material-symbols-light:contacts-product-outline"
+              width={24}
+              height={24}
+              className="mr-3 text-gray-400 group-focus:text-primary"
+            />
+            <span className="font-medium">{t("profile")}</span>
+          </DropdownMenuItem>
+        </RouterLink>
 
-        <MenuItem
-          disableRipple
-          component="nav"
-          disableTouchRipple
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem
           onClick={logOut}
-          sx={{ typography: "body2", color: "error.main", py: 1.5 }}
+          className="cursor-pointer py-2.5 text-red-600 focus:bg-red-50 focus:text-red-700 font-bold"
         >
           <Iconify
             icon="material-symbols-light:exit-to-app-rounded"
-            width={28}
-            height={28}
-            sx={{ color: "error.main", mx: 1 }}
+            width={24}
+            height={24}
+            className="mr-3"
           />
-          <strong>{t('logout')}</strong>
-        </MenuItem>
-      </Popover>
-    </>
+          {t("logout")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

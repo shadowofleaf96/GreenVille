@@ -23,18 +23,13 @@ const PaymentSlice = createSlice({
     },
     deletePayment: (state, action) => {
       state.data = state.data.filter(
-        (payment) => !action.payload.includes(payment._id)
+        (payment) => !action.payload.includes(payment._id),
       );
     },
   },
 });
 
-export const {
-  setData,
-  setLoading,
-  setError,
-  setFilterName,
-  deletePayment,
-} = PaymentSlice.actions;
+export const { setData, setLoading, setError, setFilterName, deletePayment } =
+  PaymentSlice.actions;
 
 export default PaymentSlice.reducer;

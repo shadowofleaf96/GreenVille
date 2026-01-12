@@ -1,22 +1,19 @@
-import PropTypes from 'prop-types';
-import { forwardRef } from 'react';
-
-import Box from '@mui/material/Box';
+import PropTypes from "prop-types";
+import { forwardRef } from "react";
 
 // ----------------------------------------------------------------------
 
-const SvgColor = forwardRef(({ src, sx, ...other }, ref) => (
-  <Box
-    component="span"
-    className="svg-color"
+const SvgColor = forwardRef(({ src, sx, style, className, ...other }, ref) => (
+  <span
     ref={ref}
-    sx={{
+    className={`svg-color inline-block ${className || ""}`}
+    style={{
       width: 24,
       height: 24,
-      display: 'inline-block',
-      bgcolor: 'currentColor',
+      backgroundColor: "currentColor",
       mask: `url(${src}) no-repeat center / contain`,
       WebkitMask: `url(${src}) no-repeat center / contain`,
+      ...style,
       ...sx,
     }}
     {...other}
@@ -26,6 +23,8 @@ const SvgColor = forwardRef(({ src, sx, ...other }, ref) => (
 SvgColor.propTypes = {
   src: PropTypes.string,
   sx: PropTypes.object,
+  style: PropTypes.object,
+  className: PropTypes.string,
 };
 
 export default SvgColor;

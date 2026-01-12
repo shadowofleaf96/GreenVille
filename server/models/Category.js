@@ -11,18 +11,23 @@ const CategoryJoiSchema = Joi.object({
     ar: Joi.string().required(),
   }).required(),
   status: Joi.boolean(),
+  category_image: Joi.string().allow(""),
 });
 
 const CategorySchema = new mongoose.Schema(
   {
     category_name: {
-      en: { type: String, required: true },
-      fr: { type: String, required: true },
-      ar: { type: String, required: true },
+      en: { type: String, trim: true, maxlength: 35, required: true },
+      fr: { type: String, trim: true, maxlength: 35, required: true },
+      ar: { type: String, trim: true, maxlength: 35, required: true },
     },
     status: {
       type: Boolean,
       default: false,
+    },
+    category_image: {
+      type: String,
+      default: "",
     },
   },
   {
@@ -33,7 +38,9 @@ const CategorySchema = new mongoose.Schema(
 
 CategorySchema.pre("save", async function (next) {
   try {
-    const validatedData = await CategoryJoiSchema.validateAsync(this.toObject());
+    const validatedData = await CategoryJoiSchema.validateAsync(
+      this.toObject()
+    );
 
     this.category_name = validatedData.category_name;
     this.status = validatedData.status;

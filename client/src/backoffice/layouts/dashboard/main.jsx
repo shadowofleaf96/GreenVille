@@ -1,38 +1,33 @@
-import PropTypes from 'prop-types';
-
-import Box from '@mui/material/Box';
-
-import { useResponsive } from '../../hooks/use-responsive';
-
-import { NAV, HEADER } from '../dashboard/config-layout';
-
-// ----------------------------------------------------------------------
+import PropTypes from "prop-types";
+import { useResponsive } from "../../hooks/use-responsive";
+import { NAV, HEADER } from "../dashboard/config-layout";
 
 const SPACING = 8;
 
 export default function Main({ children, sx, ...other }) {
-  const lgUp = useResponsive('up', 'lg');
+  const lgUp = useResponsive("up", "lg");
 
   return (
-    <Box
-      component="main"
-      sx={{
-        flexGrow: 1,
-        minHeight: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        py: `${HEADER.H_MOBILE + SPACING}px`,
-        ...(lgUp && {
-          px: 2,
-          py: `${HEADER.H_DESKTOP + SPACING}px`,
-          width: `calc(100% - ${NAV.WIDTH}px)`,
-        }),
+    <main
+      className={`
+        grow min-h-screen flex flex-col
+        transition-all duration-200
+      `}
+      style={{
+        paddingTop: lgUp
+          ? HEADER.H_DESKTOP + SPACING
+          : HEADER.H_MOBILE + SPACING,
+        paddingBottom: SPACING,
+        paddingLeft: lgUp ? 16 : 0,
+        paddingRight: lgUp ? 16 : 0,
+        marginLeft: lgUp ? NAV.WIDTH : 0,
+        width: "auto",
         ...sx,
       }}
       {...other}
     >
       {children}
-    </Box>
+    </main>
   );
 }
 

@@ -23,7 +23,7 @@ const subCategorySlice = createSlice({
     },
     deleteSubCategory: (state, action) => {
       state.data = state.data.filter(
-        (subcategories) => !action.payload.includes(subcategories._id)
+        (subcategories) => !action.payload.includes(subcategories._id),
       );
     },
   },

@@ -4,13 +4,14 @@ const mongoose = require("mongoose");
 const orderJoiSchema = Joi.object({
   _id: Joi.any().optional(),
   customer_id: Joi.any().required(),
+  delivery_boy_id: Joi.any().optional().allow(null),
   order_items: Joi.array()
     .items(
       Joi.object({
         _id: Joi.any().optional(),
         product_id: Joi.any().required(),
         quantity: Joi.number().min(1).required(),
-        price: Joi.number().positive().required(),
+        price: Joi.number().min(0).required(),
       })
     )
     .required(),
@@ -20,13 +21,17 @@ const orderJoiSchema = Joi.object({
   shipping_price: Joi.number().min(0).default(0),
   coupon_discount: Joi.number().default(0),
   tax: Joi.number().default(0),
-  status: Joi.string().valid("open", "processing", "canceled").default("open"),
+  status: Joi.string()
+    .valid("open", "processing", "canceled", "completed")
+    .default("open"),
   shipping_address: Joi.object({
     street: Joi.string().required(),
     city: Joi.string().required(),
     postal_code: Joi.string().required(),
     country: Joi.string().required(),
     phone_no: Joi.string().required(),
+    latitude: Joi.number().optional().allow(null),
+    longitude: Joi.number().optional().allow(null),
   }).required(),
   shipping_method: Joi.string()
     .valid("standard", "express", "overnight")
@@ -46,6 +51,11 @@ const ordersSchema = mongoose.Schema(
       ref: "Customers",
       required: true,
       index: true,
+    },
+    delivery_boy_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
+      required: false,
     },
     order_items: [
       {
@@ -102,6 +112,8 @@ const ordersSchema = mongoose.Schema(
       postal_code: String,
       country: String,
       phone_no: String,
+      latitude: Number,
+      longitude: Number,
     },
     shipping_method: {
       type: String,
@@ -141,9 +153,11 @@ const calculateReviewAllowed = (orderDate) => {
 
 ordersSchema.pre("save", async function (next) {
   try {
-    const validatedData = await orderJoiSchema.validateAsync(this.toObject());
+    const rawData = this.toObject();
+    const validatedData = await orderJoiSchema.validateAsync(rawData);
 
     this.customer_id = validatedData.customer_id;
+    this.delivery_boy_id = validatedData.delivery_boy_id;
     this.order_items = validatedData.order_items;
     this.order_date = validatedData.order_date || this.order_date;
     this.cart_total_price = validatedData.cart_total_price;

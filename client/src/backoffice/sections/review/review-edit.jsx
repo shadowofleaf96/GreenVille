@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Modal from '@mui/material/Modal';
-import Stack from '@mui/material/Stack';
-import LoadingButton from '@mui/lab/LoadingButton';
-import Typography from '@mui/material/Typography';
-import { useTranslation } from 'react-i18next';
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
+import React, { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import Iconify from "../../../components/iconify";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 function EditReviewForm({ review, onSave, onCancel, open, onClose }) {
   const { t } = useTranslation();
@@ -38,134 +45,180 @@ function EditReviewForm({ review, onSave, onCancel, open, onClose }) {
       });
       onClose();
     } catch (error) {
-      console.error('Error saving review:', error);
+      console.error("Error saving review:", error);
     } finally {
       setLoadingSave(false);
     }
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
-      <Stack
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          backgroundColor: '#fff',
-          boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
-          width: 500,
-          color: '#333',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          borderRadius: '16px',
-          padding: '20px',
-        }}
-      >
-        <Typography
-          variant="h4"
-          gutterBottom
-          sx={{ color: '#3f51b5', marginBottom: 2 }}
-        >
-          {t('Edit Review')}
-        </Typography>
+    <Dialog
+      open={open}
+      onOpenChange={(val) => {
+        if (!val) onClose();
+      }}
+    >
+      <DialogContent className="max-w-xl p-0 overflow-hidden rounded-3xl border-none shadow-2xl">
+        <DialogHeader className="p-8 pb-4 bg-gray-50/50 text-center">
+          <DialogTitle className="text-2xl font-extrabold text-primary tracking-tight">
+            {t("Edit Review")}
+          </DialogTitle>
+        </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Controller
-            name="rating"
-            control={control}
-            rules={{ required: t('Rating is required') }}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label={t('Rating')}
-                error={!!errors.rating}
-                helperText={errors.rating?.message || ''}
-                fullWidth
-                sx={{ marginBottom: 2 }}
-              />
-            )}
-          />
-
-          <Controller
-            name="review_date"
-            control={control}
-            rules={{ required: t('Review date is required') }}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label={t('Review Date')}
-                type="date"
-                error={!!errors.review_date}
-                helperText={errors.review_date?.message || ''}
-                fullWidth
-                sx={{ marginBottom: 2 }}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-            )}
-          />
-
-          <Controller
-            name="comment"
-            control={control}
-            rules={{ required: t('Comment is required') }}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label={t('Comment')}
-                multiline
-                rows={4}
-                error={!!errors.comment}
-                helperText={errors.comment?.message || ''}
-                fullWidth
-                sx={{ marginBottom: 2 }}
-              />
-            )}
-          />
-          <Stack direction="row" spacing={2} alignItems="center" justifyContent="center">
-            <Controller
-              name="status"
-              control={control}
-              render={({ field }) => (
-                <FormControlLabel
-                  label={
-                    <Typography variant="body2">
-                      {field.value === "active" ? t("Active") : t("Inactive")}
-                    </Typography>
-                  }
-                  control={
-                    <Switch
-                      checked={field.value === "active"}
-                      onChange={(e) =>
-                        field.onChange(e.target.checked ? "active" : "inactive")
-                      }
+          <ScrollArea className="max-h-[70vh] p-8 pt-4">
+            <div className="space-y-6">
+              {/* Rating */}
+              <div className="space-y-2">
+                <Label className="text-sm font-bold text-gray-700 ml-1">
+                  {t("Rating")}
+                </Label>
+                <Controller
+                  name="rating"
+                  control={control}
+                  rules={{ required: t("Rating is required"), min: 1, max: 5 }}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      type="number"
+                      placeholder="1-5"
+                      className={`h-12 rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all ${
+                        errors.rating
+                          ? "border-red-500 focus:ring-red-500/10"
+                          : ""
+                      }`}
                     />
-                  }
+                  )}
                 />
-              )}
-            />
-          </Stack>
+                {errors.rating && (
+                  <p className="text-xs font-bold text-red-500 ml-1">
+                    {errors.rating.message}
+                  </p>
+                )}
+              </div>
 
+              {/* Review Date */}
+              <div className="space-y-2">
+                <Label className="text-sm font-bold text-gray-700 ml-1">
+                  {t("Review Date")}
+                </Label>
+                <Controller
+                  name="review_date"
+                  control={control}
+                  rules={{ required: t("Review date is required") }}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      type="date"
+                      className={`h-12 rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all ${
+                        errors.review_date
+                          ? "border-red-500 focus:ring-red-500/10"
+                          : ""
+                      }`}
+                    />
+                  )}
+                />
+                {errors.review_date && (
+                  <p className="text-xs font-bold text-red-500 ml-1">
+                    {errors.review_date.message}
+                  </p>
+                )}
+              </div>
 
-          <Stack direction="row" spacing={2} sx={{ width: '100%' }}>
-            <LoadingButton
-              loading={loadingSave}
-              type="submit"
-              variant="contained"
-              sx={{ flex: 1 }}
+              {/* Comment */}
+              <div className="space-y-2">
+                <Label className="text-sm font-bold text-gray-700 ml-1">
+                  {t("Comment")}
+                </Label>
+                <Controller
+                  name="comment"
+                  control={control}
+                  rules={{ required: t("Comment is required") }}
+                  render={({ field }) => (
+                    <Textarea
+                      {...field}
+                      rows={4}
+                      className={`min-h-[120px] rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 resize-none p-4 transition-all ${
+                        errors.comment
+                          ? "border-red-500 focus:ring-red-500/10"
+                          : ""
+                      }`}
+                      placeholder={t("Write the review comment here...")}
+                    />
+                  )}
+                />
+                {errors.comment && (
+                  <p className="text-xs font-bold text-red-500 ml-1">
+                    {errors.comment.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Status */}
+              <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100 transition-all hover:bg-gray-100/50">
+                <div className="space-y-0.5">
+                  <Label className="text-sm font-bold text-gray-900">
+                    {t("Status")}
+                  </Label>
+                  <p className="text-xs text-gray-500 font-medium">
+                    {t("Toggle the visibility of this review.")}
+                  </p>
+                </div>
+                <Controller
+                  name="status"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`text-xs font-black uppercase tracking-widest ${
+                          field.value === "active"
+                            ? "text-primary"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        {field.value === "active" ? t("Active") : t("Inactive")}
+                      </span>
+                      <Switch
+                        checked={field.value === "active"}
+                        onCheckedChange={(checked) =>
+                          field.onChange(checked ? "active" : "inactive")
+                        }
+                        className="data-[state=checked]:bg-primary"
+                      />
+                    </div>
+                  )}
+                />
+              </div>
+            </div>
+          </ScrollArea>
+
+          <DialogFooter className="p-8 bg-gray-50 border-t flex flex-row sm:justify-between items-center sm:gap-4">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onCancel}
+              className="flex-1 h-12 rounded-2xl font-bold text-gray-500 hover:bg-gray-100 transition-all"
             >
-              {t('Save')}
-            </LoadingButton>
-            <Button onClick={onCancel} variant="outlined" sx={{ flex: 1 }}>
-              {t('Cancel')}
+              {t("Cancel")}
             </Button>
-          </Stack>
+            <Button
+              type="submit"
+              disabled={loadingSave}
+              className="flex-1 h-12 rounded-2xl bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+            >
+              {loadingSave ? (
+                <div className="flex items-center gap-2">
+                  <Iconify icon="svg-spinners:180-ring-with-bg" width={20} />
+                  {t("Saving...")}
+                </div>
+              ) : (
+                t("Save Changes")
+              )}
+            </Button>
+          </DialogFooter>
         </form>
-      </Stack>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 }
 

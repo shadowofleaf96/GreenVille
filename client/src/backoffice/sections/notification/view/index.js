@@ -1,1 +1,1 @@
-export { default as NotificationView } from './notification-view';
+export { default as NotificationView } from "./notification-view";

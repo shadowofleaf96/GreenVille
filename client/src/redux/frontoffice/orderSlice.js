@@ -15,7 +15,7 @@ export const ordersList = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response.data.message);
     }
-  }
+  },
 );
 
 export const getOrderDetails = createAsyncThunk(
@@ -31,7 +31,7 @@ export const getOrderDetails = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response.data.message);
     }
-  }
+  },
 );
 
 const orderSlice = createSlice({

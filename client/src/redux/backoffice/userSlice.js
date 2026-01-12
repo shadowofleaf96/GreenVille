@@ -23,18 +23,13 @@ const userSlice = createSlice({
     },
     deleteUser: (state, action) => {
       state.data = state.data.filter(
-        (adminUser) => !action.payload.includes(adminUser._id)
+        (adminUser) => !action.payload.includes(adminUser._id),
       );
     },
   },
 });
 
-export const {
-  setData,
-  setLoading,
-  setError,
-  setFilterName,
-  deleteUser,
-} = userSlice.actions;
+export const { setData, setLoading, setError, setFilterName, deleteUser } =
+  userSlice.actions;
 
 export default userSlice.reducer;

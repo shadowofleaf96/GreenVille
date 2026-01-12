@@ -1,19 +1,28 @@
 import React, { useState } from "react";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Modal from "@mui/material/Modal";
-import Stack from "@mui/material/Stack";
-import LoadingButton from "@mui/lab/LoadingButton";
-import Typography from "@mui/material/Typography";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
 import DOMPurify from "dompurify";
-import Switch from "@mui/material/Switch";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import UploadButton from "../../components/button/UploadButton";
 import { useTranslation } from "react-i18next";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import UploadButton from "../../components/button/UploadButton";
+import LazyImage from "../../../components/lazyimage/LazyImage";
+import Iconify from "../../../components/iconify";
 
 function AddUserForm({ onSave, onCancel, open, onClose }) {
   const { t } = useTranslation();
@@ -50,23 +59,24 @@ function AddUserForm({ onSave, onCancel, open, onClose }) {
       setPasswordsMatch(sanitizedValue === newUser.confirmPassword);
     } else {
       setNewUser({ ...newUser, [name]: sanitizedValue });
-      setPasswordsMatch(newUser.password === newUser.confirmPassword);
+      if (name === "confirmPassword") {
+        setPasswordsMatch(newUser.password === sanitizedValue);
+      }
     }
   };
 
-  const handleSwitchChange = (event) => {
+  const handleSwitchChange = (checked) => {
     setNewUser({
       ...newUser,
-      [event.target.name]: event.target.checked,
+      status: checked,
     });
   };
 
-  const handleSelectChange = (event) => {
+  const handleSelectChange = (value) => {
     setNewUser({
       ...newUser,
-      [event.target.name]: event.target.value,
+      role: value,
     });
-    setPasswordsMatch(newUser.password === newUser.confirmPassword);
   };
 
   const handleImageChange = (e) => {
@@ -81,7 +91,7 @@ function AddUserForm({ onSave, onCancel, open, onClose }) {
   };
 
   const handleSave = async () => {
-    if (newUser.password.length < 8 || !passwordsMatch) {
+    if (newUser.password.length < 8 || !passwordsMatch || !emailValid) {
       return;
     }
 
@@ -109,183 +119,255 @@ function AddUserForm({ onSave, onCancel, open, onClose }) {
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
-      <Stack
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          backgroundColor: "#fff",
-          boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-          p: 4,
-          width: 500,
-          color: "#333",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          borderRadius: "16px",
-          margin: "0 16px",
-          padding: "20px",
-        }}
-      >
-        <Typography
-          variant="h4"
-          gutterBottom
-          sx={{ color: "#3f51b5", marginBottom: 2 }}
-        >
-          {t("Add User")}
-        </Typography>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-3xl border-none shadow-2xl">
+        <DialogHeader className="p-8 pb-4 bg-gray-50/50">
+          <DialogTitle className="text-3xl font-extrabold text-primary tracking-tight">
+            {t("Add User")}
+          </DialogTitle>
+        </DialogHeader>
 
-        <TextField
-          label={t("First Name")}
-          name="first_name"
-          placeholder={t("First Name")}
-          value={newUser.first_name}
-          onChange={handleFieldChange}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-        />
+        <ScrollArea className="max-h-[70vh] p-8 pt-4">
+          <div className="space-y-8">
+            {/* Image Upload Section - Simplified for New User (No existing image to show generally, unless preview implemented, but sticking to design) */}
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative">
+                {/* Only show placeholder or preview if implemented. currently just upload button logic from user-edit minus the generic avatar fallback logic for *existing* user.
+                     But for consistent UX, let's show a placeholder.
+                 */}
+                <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center border-4 border-white shadow-inner">
+                  <Iconify
+                    icon="material-symbols:person-outline"
+                    className="text-gray-300"
+                    width={64}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <UploadButton onChange={handleImageChange} />
+                {selectedImage && (
+                  <span className="text-xs font-medium text-primary animate-in fade-in slide-in-from-top-1">
+                    {selectedImage.name}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
 
-        <TextField
-          label={t("Last Name")}
-          name="last_name"
-          placeholder={t("Last Name")}
-          value={newUser.last_name}
-          onChange={handleFieldChange}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-        />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="text-sm font-bold text-gray-700 ml-1">
+                {t("First Name")}
+              </Label>
+              <Input
+                id="first_name"
+                name="first_name"
+                placeholder={t("First Name")}
+                value={newUser.first_name}
+                onChange={handleFieldChange}
+                className="h-12 rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20"
+              />
+            </div>
 
-        <TextField
-          label={t("Email")}
-          name="email"
-          type="email"
-          placeholder={t("Email")}
-          value={newUser.email}
-          onChange={handleFieldChange}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-          error={!emailValid}
-          helperText={!emailValid ? t("Invalid email format") : ""}
-        />
+            <div className="space-y-2">
+              <Label className="text-sm font-bold text-gray-700 ml-1">
+                {t("Last Name")}
+              </Label>
+              <Input
+                id="last_name"
+                name="last_name"
+                placeholder={t("Last Name")}
+                value={newUser.last_name}
+                onChange={handleFieldChange}
+                className="h-12 rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20"
+              />
+            </div>
 
-        <TextField
-          label={t("User Name")}
-          name="user_name"
-          placeholder={t("User Name")}
-          value={newUser.user_name}
-          onChange={handleFieldChange}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-        />
-        <TextField
-          label={t("Password")}
-          name="password"
-          placeholder={t("Password")}
-          value={newUser.password !== undefined ? newUser.password : ""}
-          onChange={handleFieldChange}
-          onBlur={() => { }}
-          type="password"
-          fullWidth
-          sx={{ marginBottom: 2 }}
-          error={newUser.password.length < 8}
-          helperText={
-            newUser.password.length > 0 && newUser.password.length < 8
-              ? t("Password must be at least 8 characters long")
-              : ""
-          }
-        />
+            <div className="space-y-2">
+              <Label className="text-sm font-bold text-gray-700 ml-1">
+                {t("User Name")}
+              </Label>
+              <Input
+                id="user_name"
+                name="user_name"
+                placeholder={t("User Name")}
+                value={newUser.user_name}
+                onChange={handleFieldChange}
+                className="h-12 rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20"
+              />
+            </div>
 
-        <TextField
-          label={t("Confirm Password")}
-          name="confirmPassword"
-          placeholder={t("Confirm Password")}
-          value={newUser.confirmPassword}
-          onChange={handleConfirmPasswordChange}
-          type="password"
-          fullWidth
-          sx={{ marginBottom: 2 }}
-          error={!passwordsMatch}
-          helperText={!passwordsMatch ? t("Password and Confirm Password do not match") : ""}
-        />
+            <div className="space-y-2">
+              <Label className="text-sm font-bold text-gray-700 ml-1">
+                {t("Role")}
+              </Label>
+              <Select value={newUser.role} onValueChange={handleSelectChange}>
+                <SelectTrigger className="h-12 rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20">
+                  <SelectValue placeholder={t("Select role")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">{t("Admin")}</SelectItem>
+                  <SelectItem value="manager">{t("Manager")}</SelectItem>
+                  <SelectItem value="vendor">{t("Vendor")}</SelectItem>
+                  <SelectItem value="delivery_boy">
+                    {t("Delivery Boy")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <FormControl fullWidth sx={{ marginBottom: 2 }}>
-          <InputLabel htmlFor="role">{t("Role")}</InputLabel>
-          <Select
-            label={t("Role")}
-            name="role"
-            value={newUser.role}
-            onChange={handleSelectChange}
-            fullWidth
-          >
-            <MenuItem value="admin">{t("Admin")}</MenuItem>
-            <MenuItem value="manager">{t("Manager")}</MenuItem>
-          </Select>
-        </FormControl>
+            <div className="md:col-span-2 space-y-2">
+              <Label className="text-sm font-bold text-gray-700 ml-1">
+                {t("Email")}
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder={t("Email")}
+                value={newUser.email}
+                onChange={handleFieldChange}
+                className={`h-12 rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 ${
+                  !emailValid
+                    ? "border-red-300 ring-red-100 focus:ring-red-100"
+                    : ""
+                }`}
+              />
+              {!emailValid && (
+                <p className="text-xs font-bold text-red-500 ml-1 mt-1 italic">
+                  {t("Invalid email format")}
+                </p>
+              )}
+            </div>
 
-        <Stack direction="column" alignItems="center" sx={{ marginBottom: 2 }}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <FormControlLabel
-              labelPlacement="start"
-              label={
-                <Typography variant="body2">
-                  {newUser.status ? t("Active") : t("Inactive")}
-                </Typography>
-              }
-              control={
-                <Switch
-                  name="status"
-                  checked={newUser.status}
-                  onChange={handleSwitchChange}
-                />
-              }
-            />
-            <input
-              type="file"
-              id="fileInput"
-              accept="image/*"
-              onChange={handleImageChange}
-              onClick={(event) => {
-                event.target.value = null
-              }}
-              sx={{ display: "none" }}
-              style={{ display: "none" }}
-            />
-            <label htmlFor="fileInput">
-              <UploadButton onChange={handleImageChange} />
-            </label>
-          </Stack>
-          {selectedImage && (
-            <Typography variant="caption">{selectedImage.name}</Typography>
-          )}
-        </Stack>
+            {/* Security */}
+            <div className="md:col-span-2 pt-4">
+              <div className="h-px bg-gray-100 w-full mb-8" />
+              <h3 className="text-lg font-bold text-gray-900 mb-6">
+                {t("Security")}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-bold text-gray-700 ml-1">
+                    {t("Password")}
+                  </Label>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder={t("Password")}
+                    value={
+                      newUser.password !== undefined ? newUser.password : ""
+                    }
+                    onChange={handleFieldChange}
+                    className={`h-12 rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 ${
+                      newUser.password.length < 8 && newUser.password.length > 0
+                        ? "border-red-500"
+                        : ""
+                    }`}
+                  />
+                  {newUser.password.length > 0 &&
+                    newUser.password.length < 8 && (
+                      <p className="text-xs font-bold text-red-500 ml-1 mt-1 italic">
+                        {t("Password must be at least 8 characters long")}
+                      </p>
+                    )}
+                </div>
 
-        <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
-          <LoadingButton
-            loading={loadingSave}
-            onClick={handleSave}
-            variant="contained"
-            sx={{ flex: 1 }}
-            disabled={
-              !emailValid || newUser.password.length < 8 || !passwordsMatch
-            }
-          >
-            {t("Save")}
-          </LoadingButton>
+                <div className="space-y-2">
+                  <Label className="text-sm font-bold text-gray-700 ml-1">
+                    {t("Confirm Password")}
+                  </Label>
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    placeholder={t("Confirm Password")}
+                    value={newUser.confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    className={`h-12 rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 ${
+                      !passwordsMatch
+                        ? "border-red-300 ring-red-100 focus:ring-red-100"
+                        : ""
+                    }`}
+                  />
+                  {!passwordsMatch && (
+                    <p className="text-xs font-bold text-red-500 ml-1 mt-1 italic">
+                      {t("Password and Confirm Password do not match")}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Status */}
+            <div className="md:col-span-2 pt-4">
+              <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
+                <div className="space-y-0.5">
+                  <Label className="text-base font-bold text-gray-900">
+                    {t("Account Status")}
+                  </Label>
+                  <p className="text-sm text-gray-500">
+                    {newUser.status
+                      ? t("User can access the system")
+                      : t("User is currently blocked")}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`text-sm font-bold uppercase tracking-wider ${
+                      newUser.status ? "text-green-600" : "text-gray-400"
+                    }`}
+                  >
+                    {newUser.status ? t("Active") : t("Inactive")}
+                  </span>
+                  <Switch
+                    checked={newUser.status}
+                    onCheckedChange={handleSwitchChange}
+                    className="data-[state=checked]:bg-green-500"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </ScrollArea>
+
+        <DialogFooter className="p-8 bg-gray-50 border-t flex flex-row sm:justify-between items-center sm:gap-4">
           <Button
+            type="button"
+            variant="ghost"
             onClick={onCancel}
-            variant="outlined"
-            sx={{
-              flex: 1,
-            }}
-            className="mr-2 rtl:mr-0 rtl:ml-2"
+            className="flex-1 h-12 rounded-2xl font-bold text-gray-500 hover:bg-gray-100 transition-all"
           >
             {t("Cancel")}
           </Button>
-        </Stack>
-      </Stack>
-    </Modal>
+          <Button
+            onClick={handleSave}
+            disabled={
+              !emailValid ||
+              newUser.password.length < 8 ||
+              !passwordsMatch ||
+              loadingSave
+            }
+            className="flex-1 h-12 rounded-2xl bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+          >
+            {loadingSave ? (
+              <div className="flex items-center gap-2">
+                <Iconify
+                  icon="svg-spinners:180-ring-with-bg"
+                  className="mr-2"
+                  width={16}
+                  height={16}
+                />
+                {t("Saving...")}
+              </div>
+            ) : (
+              t("Save")
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

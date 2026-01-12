@@ -1,44 +1,145 @@
-import PropTypes from 'prop-types';
-import { forwardRef } from 'react';
-
-import Box from '@mui/material/Box';
-import { useTheme } from '@mui/material/styles';
-
-import { StyledLabel } from './styles';
+import PropTypes from "prop-types";
+import { forwardRef } from "react";
 
 // ----------------------------------------------------------------------
 
 const Label = forwardRef(
-  ({ children, color = 'default', variant = 'soft', startIcon, endIcon, sx, ...other }, ref) => {
-    const theme = useTheme();
+  (
+    {
+      children,
+      color = "default",
+      variant = "soft",
+      startIcon,
+      endIcon,
+      sx,
+      className,
+      style,
+      ...other
+    },
+    ref,
+  ) => {
+    // Core color mapping based on the project's brand palette
+    const colors = {
+      default: {
+        main: "#919EAB",
+        dark: "#454F5B",
+        light: "#F4F6F8",
+        contrastText: "#FFFFFF",
+      },
+      primary: {
+        main: "#8DC63F",
+        dark: "#7DAD35",
+        light: "#9BD355",
+        contrastText: "#FFFFFF",
+      },
+      secondary: {
+        main: "#709340",
+        dark: "#5D7A35",
+        light: "#8CB650",
+        contrastText: "#FFFFFF",
+      },
+      info: {
+        main: "#00B8D9",
+        dark: "#006C9C",
+        light: "#61F3F3",
+        contrastText: "#FFFFFF",
+      },
+      success: {
+        main: "#00A76F",
+        dark: "#007867",
+        light: "#5BE49B",
+        contrastText: "#FFFFFF",
+      },
+      warning: {
+        main: "#FFAB00",
+        dark: "#B76E00",
+        light: "#FFD666",
+        contrastText: "#212B36",
+      },
+      error: {
+        main: "#FF5630",
+        dark: "#B71D18",
+        light: "#FFAC82",
+        contrastText: "#FFFFFF",
+      },
+    };
+
+    const colorConfig = colors[color] || colors.default;
+
+    const getStyles = () => {
+      const base = {
+        height: 24,
+        minWidth: 24,
+        borderRadius: 6,
+        cursor: "default",
+        alignItems: "center",
+        whiteSpace: "nowrap",
+        display: "inline-flex",
+        justifyContent: "center",
+        textTransform: "capitalize",
+        padding: "0 6px",
+        fontSize: "0.75rem",
+        fontWeight: 700,
+        transition: "all 200ms cubic-bezier(0.4, 0, 0.2, 1)",
+        ...style,
+        ...sx,
+      };
+
+      if (variant === "filled") {
+        return {
+          ...base,
+          color: colorConfig.contrastText,
+          backgroundColor: color === "default" ? "#212B36" : colorConfig.main,
+        };
+      }
+
+      if (variant === "outlined") {
+        return {
+          ...base,
+          backgroundColor: "transparent",
+          color: color === "default" ? "#212B36" : colorConfig.main,
+          border: `2px solid ${
+            color === "default" ? "#212B36" : colorConfig.main
+          }`,
+        };
+      }
+
+      // Soft (Default)
+      return {
+        ...base,
+        color: color === "default" ? "#637381" : colorConfig.dark,
+        backgroundColor: `${colorConfig.main}29`, // Approx 0.16 alpha
+      };
+    };
 
     const iconStyles = {
       width: 16,
       height: 16,
-      '& svg, img': { width: 1, height: 1, objectFit: 'cover' },
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      "& svg, img": { width: "100%", height: "100%", objectFit: "cover" },
     };
 
     return (
-      <StyledLabel
+      <span
         ref={ref}
-        component="span"
-        ownerState={{ color, variant }}
-        sx={{
-          ...(startIcon && { pl: 0.75 }),
-          ...(endIcon && { pr: 0.75 }),
-          ...sx,
-        }}
-        theme={theme}
+        style={getStyles()}
+        className={`component-label ${className || ""}`}
         {...other}
       >
-        {startIcon && <Box sx={{ mr: 0.75, ...iconStyles }}> {startIcon} </Box>}
+        {startIcon && (
+          <span style={{ ...iconStyles, marginRight: 6 }}>{startIcon}</span>
+        )}
 
         {children}
 
-        {endIcon && <Box sx={{ ml: 0.75, ...iconStyles }}> {endIcon} </Box>}
-      </StyledLabel>
+        {endIcon && (
+          <span style={{ ...iconStyles, marginLeft: 6 }}>{endIcon}</span>
+        )}
+      </span>
     );
-  }
+  },
 );
 
 Label.propTypes = {
@@ -46,15 +147,17 @@ Label.propTypes = {
   endIcon: PropTypes.object,
   startIcon: PropTypes.object,
   sx: PropTypes.object,
-  variant: PropTypes.oneOf(['filled', 'outlined', 'ghost', 'soft']),
+  className: PropTypes.string,
+  style: PropTypes.object,
+  variant: PropTypes.oneOf(["filled", "outlined", "ghost", "soft"]),
   color: PropTypes.oneOf([
-    'default',
-    'primary',
-    'secondary',
-    'info',
-    'success',
-    'warning',
-    'error',
+    "default",
+    "primary",
+    "secondary",
+    "info",
+    "success",
+    "warning",
+    "error",
   ]),
 };
 

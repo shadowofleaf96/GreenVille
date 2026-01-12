@@ -23,18 +23,13 @@ const productSlice = createSlice({
     },
     deleteCustomer: (state, action) => {
       state.data = state.data.filter(
-        (product) => !action.payload.includes(product._id)
+        (product) => !action.payload.includes(product._id),
       );
     },
   },
 });
 
-export const {
-  setData,
-  setLoading,
-  setError,
-  setFilterName,
-  deleteCustomer,
-} = productSlice.actions;
+export const { setData, setLoading, setError, setFilterName, deleteCustomer } =
+  productSlice.actions;
 
 export default productSlice.reducer;

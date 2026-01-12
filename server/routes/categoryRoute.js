@@ -5,6 +5,7 @@ const {
   verifyToken,
   requireAdminOrManager,
 } = require("../middleware/authMiddleware");
+const { upload } = require("../middleware/multerMiddleware");
 
 const {
   createCategory,
@@ -12,38 +13,26 @@ const {
   searchCategory,
   getCategoryDetails,
   updateCategory,
-  deleteCategory
+  deleteCategory,
 } = require("../controllers/categoryController");
 
 router.post(
   "/",
   verifyToken,
   requireAdminOrManager,
-  createCategory,
+  upload.single("category_image"),
+  createCategory
 );
 router.put(
   "/:id",
   verifyToken,
   requireAdminOrManager,
+  upload.single("category_image"),
   updateCategory
 );
-router.delete(
-  "/:id",
-  verifyToken,
-  requireAdminOrManager,
-  deleteCategory
-);
-router.get(
-  "/",
-  getAllCategories
-);
-router.get(
-  "/search",
-  searchCategory
-);
-router.get(
-  "/:id",
-  getCategoryDetails
-);
+router.delete("/:id", verifyToken, requireAdminOrManager, deleteCategory);
+router.get("/", getAllCategories);
+router.get("/search", searchCategory);
+router.get("/:id", getCategoryDetails);
 
 module.exports = router;

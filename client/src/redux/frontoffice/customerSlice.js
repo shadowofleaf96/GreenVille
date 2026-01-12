@@ -10,8 +10,10 @@ export const fetchCustomerProfile = () => async (dispatch) => {
     dispatch(setCustomer(response.data));
   } catch (error) {
     dispatch(loginFailure(error.response.data.message));
-    if(error.response.data.message === "This session has expired. Please login") {
-      localStorage.removeItem("customer_access_token")
+    if (
+      error.response.data.message === "This session has expired. Please login"
+    ) {
+      localStorage.removeItem("customer_access_token");
     }
   }
 };

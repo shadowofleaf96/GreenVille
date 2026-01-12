@@ -84,7 +84,7 @@ const sendNotification = async (req, res) => {
 
 const getAllNotifications = async (req, res) => {
   try {
-    const notifications = await Notification.find();
+    const notifications = await Notification.find().lean();
     res.status(200).json({ data: notifications });
   } catch (error) {
     res

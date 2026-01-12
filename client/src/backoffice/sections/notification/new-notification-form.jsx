@@ -1,22 +1,29 @@
 import React, { useState } from "react";
-import {
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
-  Box,
-  TextField,
-  Button,
-  Modal,
-  Stack,
-  Typography,
-} from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import LoadingButton from "@mui/lab/LoadingButton";
 import DOMPurify from "dompurify";
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
+import Iconify from "../../../components/iconify";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 function SendNotificationForm({ onSave, onCancel, open, onClose }) {
   const { t } = useTranslation();
@@ -63,132 +70,154 @@ function SendNotificationForm({ onSave, onCancel, open, onClose }) {
     } finally {
       setLoadingSave(false);
       setValue("body", "");
-      setSendType("email")
+      setSendType("email");
     }
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
-      <Box
-        sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          backgroundColor: "#fff",
-          boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-          p: 4,
-          width: 500,
-          color: "#333",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          borderRadius: "16px",
-          margin: "0 16px",
-          padding: "20px",
-        }}
-      >
-        <Typography variant="h4" gutterBottom sx={{ color: "#3f51b5" }}>
-          {t("SendNotification")}
-        </Typography>
+    <Dialog
+      open={open}
+      onOpenChange={(val) => {
+        if (!val) onClose();
+      }}
+    >
+      <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-3xl border-none shadow-2xl">
+        <DialogHeader className="p-8 pb-4 bg-gray-50/50 text-center">
+          <DialogTitle className="text-2xl font-extrabold text-primary tracking-tight">
+            {t("Send Notification")}
+          </DialogTitle>
+        </DialogHeader>
 
-        <form
-          onSubmit={handleSubmit(handleSave)}
-          noValidate
-          style={{ width: "100%" }}
-        >
-          <Stack spacing={2} sx={{ width: "100%" }}>
-            <Controller
-              name="subject"
-              control={control}
-              rules={{ required: t("Subject is required") }}
-              render={({ field }) => (
-                <TextField
-                  label={t("Subject")}
-                  {...field}
-                  fullWidth
-                  sx={{ marginBottom: 2 }}
-                  error={!!errors.subject}
-                  helperText={errors.subject ? errors.subject.message : ""}
-                />
-              )}
-            />
-
-            {sendType !== "android" && (
-              <Stack>
+        <form onSubmit={handleSubmit(handleSave)}>
+          <ScrollArea className="max-h-[75vh] p-8 pt-4">
+            <div className="space-y-6">
+              {/* Subject */}
+              <div className="space-y-2">
+                <Label className="text-sm font-bold text-gray-700 ml-1">
+                  {t("Subject")}
+                </Label>
                 <Controller
-                  name="body"
+                  name="subject"
                   control={control}
-                  rules={{ required: t("Body is required") }}
+                  rules={{ required: t("Subject is required") }}
                   render={({ field }) => (
-                    <div>
-                      <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                        {t("BodyHTMLAllowed")}
-                      </Typography>
-                      <ReactQuill
-                        {...field}
-                        value={field.value}
-                        onChange={field.onChange}
-                        theme="snow"
-                        style={{ height: "200px", marginBottom: "48px" }}
-                      />
-                      {errors.body && (
-                        <Typography color="error" variant="body2">
-                          {errors.body.message}
-                        </Typography>
-                      )}
-                    </div>
+                    <Input
+                      {...field}
+                      placeholder={t("Enter notification subject")}
+                      className={`h-12 rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all ${
+                        errors.subject
+                          ? "border-red-500 focus:ring-red-500/10"
+                          : ""
+                      }`}
+                    />
                   )}
                 />
-              </Stack>
-            )}
+                {errors.subject && (
+                  <p className="text-xs font-bold text-red-500 ml-1">
+                    {errors.subject.message}
+                  </p>
+                )}
+              </div>
 
-            <Stack>
-              <FormControl fullWidth sx={{ marginBottom: 2 }}>
-                <InputLabel htmlFor="sendType">{t("SendType")}</InputLabel>
+              {/* Send Type */}
+              <div className="space-y-2">
+                <Label className="text-sm font-bold text-gray-700 ml-1">
+                  {t("Send Type")}
+                </Label>
                 <Controller
                   name="sendType"
                   control={control}
-                  defaultValue="email"
                   render={({ field }) => (
                     <Select
-                      label={t("SendType")}
-                      id="sendType"
-                      {...field}
-                      fullWidth
-                      onChange={(e) => {
-                        field.onChange(e);
-                        handleSendTypeChange(e.target.value);
+                      onValueChange={(val) => {
+                        field.onChange(val);
+                        handleSendTypeChange(val);
                       }}
+                      value={field.value}
                     >
-                      <MenuItem value="email">{t("Email")}</MenuItem>
-                      <MenuItem value="android">{t("Android")}</MenuItem>
-                      <MenuItem value="both">
-                        {t("BothEmailAndroid")}
-                      </MenuItem>
+                      <SelectTrigger className="h-12 rounded-xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all">
+                        <SelectValue placeholder={t("Select Type")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="email">{t("Email")}</SelectItem>
+                        <SelectItem value="android">{t("Android")}</SelectItem>
+                        <SelectItem value="both">
+                          {t("Both Email & Android")}
+                        </SelectItem>
+                      </SelectContent>
                     </Select>
                   )}
                 />
-              </FormControl>
-            </Stack>
+              </div>
 
-            <Stack direction="row" spacing={2}>
-              <LoadingButton
-                loading={loadingSave}
-                type="submit"
-                variant="contained"
-                sx={{ flex: 1 }}
-              >
-                {t("Send")}
-              </LoadingButton>
-              <Button onClick={onCancel} variant="outlined" sx={{ flex: 1 }}>
-                {t("Cancel")}
-              </Button>
-            </Stack>
-          </Stack>
+              {/* Body (Quill) */}
+              {sendType !== "android" && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between ml-1">
+                    <Label className="text-sm font-bold text-gray-700">
+                      {t("Body")}
+                    </Label>
+                    <span className="text-[10px] uppercase font-black tracking-widest text-gray-400">
+                      {t("HTML Allowed")}
+                    </span>
+                  </div>
+                  <Controller
+                    name="body"
+                    control={control}
+                    rules={{ required: t("Body is required") }}
+                    render={({ field }) => (
+                      <div className="bg-white rounded-xl overflow-hidden border border-gray-100">
+                        <ReactQuill
+                          {...field}
+                          theme="snow"
+                          className="quill-premium h-[250px] mb-[42px]"
+                        />
+                      </div>
+                    )}
+                  />
+                  {errors.body && (
+                    <p className="text-xs font-bold text-red-500 ml-1">
+                      {errors.body.message}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+
+          <DialogFooter className="p-8 bg-gray-50 border-t flex flex-row sm:justify-between items-center sm:gap-4 mt-4">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onCancel}
+              className="flex-1 h-12 rounded-2xl font-bold text-gray-500 hover:bg-gray-100 transition-all"
+            >
+              {t("Cancel")}
+            </Button>
+            <Button
+              type="submit"
+              disabled={loadingSave}
+              className="flex-1 h-12 rounded-2xl bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+            >
+              {loadingSave ? (
+                <div className="flex items-center gap-2">
+                  <Iconify icon="svg-spinners:180-ring-with-bg" width={20} />
+                  {t("Sending...")}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Iconify
+                    icon="material-symbols-light:send-rounded"
+                    width={22}
+                  />
+                  {t("Send Notification")}
+                </div>
+              )}
+            </Button>
+          </DialogFooter>
         </form>
-      </Box>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 }
 

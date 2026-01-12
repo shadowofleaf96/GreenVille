@@ -1,17 +1,24 @@
 import React from "react";
-import Modal from "@mui/material/Modal";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import Chip from "@mui/material/Chip";
-import Stack from "@mui/material/Stack";
 import DOMPurify from "dompurify";
-import Divider from "@mui/material/Divider";
 import { useTranslation } from "react-i18next";
+import Iconify from "../../../components/iconify";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 const NotificationDetailsPopup = ({ notification, open, onClose }) => {
   const { t } = useTranslation();
 
   const decodeHtmlEntities = (text) => {
+    if (!text) return "";
     const textarea = document.createElement("textarea");
     textarea.innerHTML = text;
     return textarea.value;
@@ -21,82 +28,111 @@ const NotificationDetailsPopup = ({ notification, open, onClose }) => {
   const sanitizedBody = DOMPurify.sanitize(decodedBody);
   const cleanedBody = sanitizedBody.replace(/<\/?(html|body)[^>]*>/g, "");
 
-  let notificationSentType = notification?.sendType;
+  const notificationSentType = notification?.sendType;
 
   return (
-    <Modal open={open} onClose={onClose}>
-      <Box
-        sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          bgcolor: "background.paper",
-          boxShadow: 24,
-          borderRadius: 3,
-          width: 600,
-          maxHeight: "80vh",
-          overflowY: "auto",
-          p: 4,
-        }}
-      >
-        <Typography
-          variant="h5"
-          sx={{
-            textAlign: "center",
-            fontWeight: "bold",
-            color: "#1976d2",
-            mb: 3,
-          }}
-        >
-          {t("Notification Details")}
-        </Typography>
+    <Dialog
+      open={open}
+      onOpenChange={(val) => {
+        if (!val) onClose();
+      }}
+    >
+      <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-3xl border-none shadow-2xl">
+        <DialogHeader className="p-8 pb-4 bg-gray-50/50">
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-2xl font-extrabold text-primary tracking-tight">
+              {t("Notification Details")}
+            </DialogTitle>
+          </div>
+        </DialogHeader>
 
-        <Stack spacing={2}>
-          <Box>
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: "bold",
-                color: "#424242",
-                mb: 1,
-                textAlign: "center",
-              }}
-            >
-              {notification?.subject}
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-          </Box>
+        <ScrollArea className="max-h-[80vh] p-8 pt-4">
+          <div className="space-y-8">
+            {/* Subject and Content */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-gray-900 leading-tight">
+                {t(notification?.subject)}
+              </h3>
 
-          <Box sx={{ color: "#424242", mb: 2 }}>
-            <div dangerouslySetInnerHTML={{ __html: cleanedBody }} />
-          </Box>
+              <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm transition-all hover:shadow-md">
+                <div
+                  className="prose prose-sm max-w-none text-gray-600 leading-relaxed min-h-[100px]"
+                  dangerouslySetInnerHTML={{ __html: cleanedBody }}
+                />
+              </div>
+            </div>
 
-          <Box sx={{ p: 2, borderRadius: 2, bgcolor: "#f5f5f5" }}>
-            <Typography variant="body1" sx={{ marginTop: 1, marginBottom: 1 }}>
-              <strong>{t("Notification Type")}: </strong>
-              <span className="!capitalize" style={{ color: "#d32f2f", fontWeight: "bold" }}>
-                {notification?.sendType}
-              </span>
-            </Typography>
+            <Separator className="bg-gray-100" />
 
-            {notificationSentType === "email" ? (
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, maxWidth: "100%" }}>
-                {notification?.recipients.map((recipient, index) => (
-                  <Chip key={index} label={recipient} sx={{ maxWidth: "100%" }} />
-                ))}
-              </Box>) 
-              :
-              <Chip label="All Android Users" />
-            }
+            {/* Meta Information Container */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Type */}
+              <div className="space-y-2">
+                <span className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">
+                  {t("Type")}
+                </span>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={
+                      notificationSentType === "email" ? "info" : "warning"
+                    }
+                    className="px-3 py-1 rounded-full font-bold text-xs uppercase tracking-wider"
+                  >
+                    {t(notificationSentType)}
+                  </Badge>
+                </div>
+              </div>
 
-            <Typography variant="body1" sx={{ marginTop: 1, marginBottom: 1 }}>
-              <strong>{t("Date Sent")}: </strong> {notification?.dateSent}
-            </Typography>
-          </Box>
-        </Stack>
-      </Box>
-    </Modal>
+              {/* Date Sent */}
+              <div className="space-y-2 text-right sm:text-left">
+                <span className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">
+                  {t("Date Sent")}
+                </span>
+                <p className="text-sm font-bold text-gray-700">
+                  {new Date(notification?.dateSent).toLocaleString()}
+                </p>
+              </div>
+
+              {/* Recipients */}
+              <div className="sm:col-span-2 space-y-3">
+                <span className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">
+                  {t("Recipients")}
+                </span>
+                <div className="flex flex-wrap gap-2 p-4 bg-gray-50/50 rounded-2xl border border-gray-50">
+                  {notificationSentType === "email" ? (
+                    notification?.recipients.map((recipient, index) => (
+                      <Badge
+                        key={index}
+                        variant="secondary"
+                        className="px-2.5 py-1 rounded-lg font-medium text-[11px] bg-white text-gray-600 border-gray-100 shadow-sm"
+                      >
+                        {recipient}
+                      </Badge>
+                    ))
+                  ) : (
+                    <Badge
+                      variant="secondary"
+                      className="px-3 py-1 rounded-lg font-bold text-xs bg-amber-50 text-amber-600 border-amber-100"
+                    >
+                      {t("All Android Users")}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </ScrollArea>
+
+        <div className="p-6 bg-gray-50 border-t flex justify-end">
+          <Button
+            onClick={onClose}
+            className="rounded-2xl bg-primary text-white font-bold px-8 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95"
+          >
+            {t("Close")}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

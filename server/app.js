@@ -5,9 +5,12 @@ require("dotenv").config();
 const path = require("path");
 const cors = require("cors");
 const helmet = require("helmet");
+const compression = require("compression");
 const { rateLimit } = require("express-rate-limit");
 
 const app = express();
+
+app.use(compression());
 
 const allowedOrigins = [
   "http://localhost:4173",
@@ -102,7 +105,7 @@ const softLimiter = rateLimit({
   handler: (req, res, next) => {
     strictLimiter(req, res, next);
   },
-	standardHeaders: 'draft-8',
+  standardHeaders: "draft-8",
   legacyHeaders: false,
 });
 
@@ -110,7 +113,7 @@ const strictLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
   limit: 10,
   message: "You have exceeded the request limit. Please try again later.",
-	standardHeaders: 'draft-8',
+  standardHeaders: "draft-8",
   legacyHeaders: false,
 });
 

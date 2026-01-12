@@ -1,1 +1,1 @@
-export { default as SubCategoryView } from './subcategory-view';
+export { default as SubCategoryView } from "./subcategory-view";

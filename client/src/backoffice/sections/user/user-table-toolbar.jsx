@@ -1,23 +1,32 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import Tooltip from "@mui/material/Tooltip";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteUser } from "../../../redux/backoffice/userSlice";
-import LoadingButton from "@mui/lab/LoadingButton";
-import Alert from "@mui/material/Alert";
-import Stack from "@mui/material/Stack";
-import InputAdornment from "@mui/material/InputAdornment";
-import Snackbar from "@mui/material/Snackbar";
-import Popover from "@mui/material/Popover";
-import Button from "@mui/material/Button";
-import axios from "axios";
-import Iconify from "../../components/iconify";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 import createAxiosInstance from "../../../utils/axiosConfig";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import Iconify from "../../../components/iconify";
 
 export default function UserTableToolbar({
   numSelected,
@@ -29,16 +38,16 @@ export default function UserTableToolbar({
   onEmailFilter,
   showFilters,
   setShowFilters,
+  roleFilter,
+  onRoleFilter,
+  statusFilter,
+  onStatusFilter,
 }) {
-  const { t } = useTranslation(); // Using translation hook
-  const [popoverAnchor, setPopoverAnchor] = useState(null);
-  const [snackbarMessage, setSnackbarMessage] = useState(null);
+  const { t } = useTranslation();
+  const [popoverOpen, setPopoverOpen] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const user = useSelector((state) => state.adminAuth.adminUser);
-  const axiosInstance = createAxiosInstance("admin")
-
-
+  const axiosInstance = createAxiosInstance("admin");
   const dispatch = useDispatch();
 
   const handleDelete = async () => {
@@ -54,7 +63,7 @@ export default function UserTableToolbar({
 
       dispatch(deleteUser(deletedUserIds));
 
-      setPopoverAnchor(null);
+      setPopoverOpen(false);
       setSelected([]);
       const snackbarMessage =
         selected.length === 1
@@ -63,135 +72,191 @@ export default function UserTableToolbar({
 
       toast.success(snackbarMessage);
     } catch (error) {
-      setPopoverAnchor(null);
+      setPopoverOpen(false);
       toast.error(t("Error deleting users:") + " " + error);
     } finally {
       setLoadingDelete(false);
     }
   };
 
-
-  const handleOpenPopover = (event) => {
-    setPopoverAnchor(event.currentTarget);
-  };
-
-  const handleClosePopover = () => {
-    setPopoverAnchor(null);
-  };
-
   return (
-    <>
-      <Toolbar
-        sx={{
-          height: 96,
-          display: "flex",
-          justifyContent: "space-between",
-          p: (theme) => theme.spacing(0, 1, 0, 3),
-          ...(numSelected > 0 && {
-            color: "primary.main",
-            bgcolor: "primary.lighter",
-          }),
-        }}
-      >
+    <div
+      className={`flex flex-col gap-4 px-6 py-4 transition-all duration-300 ${
+        numSelected > 0 ? "bg-primary/5" : "bg-transparent"
+      }`}
+    >
+      <div className="flex items-center justify-between">
         {numSelected > 0 ? (
-          <Typography component="div" variant="subtitle1" color="secondary">
-            {numSelected} {t("selected")}
-          </Typography>
+          <div className="flex items-center gap-4">
+            <p className="text-sm font-bold text-primary">
+              {numSelected} {t("selected")}
+            </p>
+          </div>
         ) : (
-          <>
-            {showFilters ? (
-              <>
-                <Stack direction="row" spacing={2}>
-                  <OutlinedInput
-                    value={filterName}
-                    onChange={onFilterName}
-                    placeholder={t("Filter by Name")}
-                  />
-                  <OutlinedInput
-                    value={emailFilter}
-                    onChange={onEmailFilter}
-                    placeholder={t("Filter by Email")}
-                  />
-                </Stack>
-              </>
-            ) : (
-              <>
-                <OutlinedInput
-                  value={filterName}
-                  onChange={onFilterName}
-                  placeholder={t("Search for Users...")}
-                  startAdornment={
-                    <InputAdornment position="start">
-                      <Iconify
-                        icon="material-symbols-light:search-rounded"
-                        width={30}
-                        height={30}
-                      />
-                    </InputAdornment>
-                  }
-                />
-              </>
-            )}
-          </>
-        )}
-        {numSelected > 0 && user.role !== "manager" ? (
-          <>
-            <Tooltip title={t("Delete")}>
-              <IconButton onClick={handleOpenPopover} color="secondary">
-                <Iconify
-                  icon="material-symbols-light:delete-sweep-outline-rounded"
-                  width={40}
-                  height={40}
-                />
-              </IconButton>
-            </Tooltip>
-
-            <Popover
-              open={Boolean(popoverAnchor)}
-              anchorEl={popoverAnchor}
-              onClose={handleClosePopover}
-              anchorOrigin={{ vertical: "top", horizontal: "left" }}
-              transformOrigin={{ vertical: "top", horizontal: "right" }}
-              PaperProps={{
-                sx: {
-                  width: 250,
-                  p: 2,
-                  mt: 2,
-                  mb: 2,
-                  ml: 2,
-                  mr: 2,
-                },
-              }}
-            >
-              <Typography sx={{ mb: 1 }} component="div" variant="subtitle1">
-              {t("Are you sure you want to delete")} {numSelected} {t("selected elements ?")}
-              </Typography>
-
-              <LoadingButton
-                color="primary"
-                onClick={handleDelete}
-                loading={loadingDelete}
-              >
-                {t("Yes")}
-              </LoadingButton>
-              <Button color="secondary" onClick={handleClosePopover}>
-                {t("No")}
-              </Button>
-            </Popover>
-          </>
-        ) : (
-          <>
-            <IconButton onClick={() => setShowFilters(!showFilters)}>
+          <div className="flex-1 max-w-md">
+            <div className="relative w-full">
               <Iconify
-                icon="material-symbols-light:filter-list-rounded"
-                width={30}
-                height={30}
+                icon="material-symbols-light:search-rounded"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                width={20}
               />
-            </IconButton>
-          </>
+              <Input
+                value={filterName}
+                onChange={onFilterName}
+                placeholder={t("Search for User...")}
+                className="pl-10 h-11 bg-gray-50/50 border-gray-100 rounded-xl focus:ring-primary/20 transition-all"
+              />
+            </div>
+          </div>
         )}
-      </Toolbar>
-    </>
+
+        <div className="flex items-center gap-2 ml-4">
+          {numSelected > 0 && user.role !== "manager" ? (
+            <TooltipProvider>
+              <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="rounded-xl shadow-lg shadow-red-200 hover:scale-105 transition-all"
+                      >
+                        <Iconify
+                          icon="material-symbols-light:delete-sweep-outline-rounded"
+                          width={24}
+                          height={24}
+                        />
+                      </Button>
+                    </PopoverTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{t("Delete")}</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <PopoverContent className="w-64 p-4">
+                  <p className="text-sm font-medium mb-4">
+                    {t("Are you sure you want to delete")} {numSelected}{" "}
+                    {t("selected elements ?")}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleDelete}
+                      disabled={loadingDelete}
+                      className="flex-1 bg-red-500 hover:bg-red-600 text-white"
+                    >
+                      {loadingDelete ? (
+                        <Iconify
+                          icon="svg-spinners:180-ring-with-bg"
+                          className="mr-2"
+                          width={16}
+                          height={16}
+                        />
+                      ) : null}
+                      {t("Yes")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setPopoverOpen(false)}
+                      className="flex-1"
+                    >
+                      {t("No")}
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </TooltipProvider>
+          ) : (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`rounded-xl transition-all ${
+                      showFilters
+                        ? "bg-primary/10 text-primary"
+                        : "text-gray-500 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Iconify
+                      icon="material-symbols-light:filter-list-rounded"
+                      width={24}
+                    />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t("Filters")}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
+      </div>
+
+      {showFilters && !numSelected && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="space-y-1.5">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">
+              {t("Filter by Email")}
+            </span>
+            <div className="relative">
+              <Iconify
+                icon="material-symbols-light:mail-outline"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                width={18}
+              />
+              <Input
+                value={emailFilter}
+                onChange={onEmailFilter}
+                placeholder={t("Email...")}
+                className="pl-9 h-10 bg-white border-gray-100 rounded-lg text-sm focus:ring-primary/20"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">
+              {t("Filter by Role")}
+            </span>
+            <Select
+              value={roleFilter}
+              onValueChange={(value) => onRoleFilter(value)}
+            >
+              <SelectTrigger className="h-10 bg-white border-gray-100 rounded-lg text-sm">
+                <SelectValue placeholder={t("All")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("All")}</SelectItem>
+                <SelectItem value="admin">{t("Admin")}</SelectItem>
+                <SelectItem value="manager">{t("Manager")}</SelectItem>
+                <SelectItem value="client">{t("Client")}</SelectItem>
+                <SelectItem value="vendor">{t("Vendor")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">
+              {t("Filter by Status")}
+            </span>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => onStatusFilter(value)}
+            >
+              <SelectTrigger className="h-10 bg-white border-gray-100 rounded-lg text-sm">
+                <SelectValue placeholder={t("All")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("All")}</SelectItem>
+                <SelectItem value="active">{t("Active")}</SelectItem>
+                <SelectItem value="banned">{t("Banned")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -199,4 +264,10 @@ UserTableToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
+  emailFilter: PropTypes.string,
+  onEmailFilter: PropTypes.func,
+  selected: PropTypes.array,
+  setSelected: PropTypes.func,
+  showFilters: PropTypes.bool,
+  setShowFilters: PropTypes.func,
 };

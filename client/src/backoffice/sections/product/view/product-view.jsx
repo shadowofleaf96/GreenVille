@@ -1,70 +1,67 @@
-import { useState } from "react";
-import Card from "@mui/material/Card";
-import Stack from "@mui/material/Stack";
-import Table from "@mui/material/Table";
-import Button from "@mui/material/Button";
-import LoadingButton from "@mui/lab/LoadingButton";
-import Container from "@mui/material/Container";
-import TableBody from "@mui/material/TableBody";
-import Typography from "@mui/material/Typography";
-import Popover from "@mui/material/Popover";
-import TableContainer from "@mui/material/TableContainer";
-import Fab from "@mui/material/Fab";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import TablePagination from "@mui/material/TablePagination";
-
+import { useState, useCallback, useEffect } from "react";
 import Iconify from "../../../components/iconify";
 import Scrollbar from "../../../components/scrollbar";
-
-import TableNoDataFilter from "../table-no-data";
-import axios from "axios";
-
-import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import ProductTableRow from "../product-table-row";
 import { useTranslation } from "react-i18next";
+import ProductTableRow from "../product-table-row";
 import ProductTableHead from "../product-table-head";
-import TableEmptyRows from "../table-empty-rows";
+import TableEmptyRows from "../../../components/table/TableEmptyRows";
+import TableNoDataFilter from "../../../components/table/TableNoData";
 import ProductTableToolbar from "../product-table-toolbar";
 import EditProductForm from "../product-edit";
 import NewProductForm from "../new-product-form.jsx";
 import ProductDetailsPopup from "../product-details";
-
-import { emptyRows, applyFilter, getComparator } from "../utils";
+import { debounce } from "lodash";
 import {
   setData,
   setLoading,
   setError,
   setFilterName,
+  setTotal,
 } from "../../../../redux/backoffice/productSlice.js";
 import Loader from "../../../../frontoffice/components/loader/Loader.jsx";
 import createAxiosInstance from "../../../../utils/axiosConfig.jsx";
 import { toast } from "react-toastify";
-import { Backdrop } from "@mui/material";
-const backend = import.meta.env.VITE_BACKEND_URL;
 
-// ----------------------------------------------------------------------
+import { Card, CardContent } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function ProductPage() {
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
-  const currentLanguage = i18n.language
 
   const data = useSelector((state) => state.adminProduct.data);
+  const total = useSelector((state) => state.adminProduct.total);
   const error = useSelector((state) => state.adminProduct.error);
   const loading = useSelector((state) => state.adminProduct.loading);
   const filterName = useSelector((state) => state.adminProduct.filterName);
+  const { admin } = useSelector((state) => state.adminAuth);
+
   const [skuFilter, setSkuFilter] = useState("");
   const [priceFilter, setPriceFilter] = useState("");
   const [quantityFilter, setQuantityFilter] = useState("");
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
-  const [anchorEl, setAnchorEl] = useState(null);
   const [selected, setSelected] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  const [orderBy, setOrderBy] = useState("name");
+  const [orderBy, setOrderBy] = useState("product_name");
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isDetailsPopupOpen, setDetailsPopupOpen] = useState(false);
@@ -78,10 +75,25 @@ export default function ProductPage() {
   const fetchData = async () => {
     try {
       dispatch(setLoading(true));
-      const response = await axiosInstance.get(`/products`);
-      const data = response.data.data;
+      const params = {
+        page: page + 1,
+        limit: rowsPerPage,
+        sortOrder: order,
+        sortBy: orderBy,
+      };
 
-      dispatch(setData(data));
+      if (filterName) params.search = filterName;
+      if (skuFilter) params.sku = skuFilter;
+      if (priceFilter) params.price = priceFilter;
+      if (quantityFilter) params.quantity = quantityFilter;
+
+      const endpoint =
+        admin?.role === "vendor" ? "/products/vendor" : "/products";
+
+      const response = await axiosInstance.get(endpoint, { params });
+      const { data: products, total: totalCount } = response.data;
+      dispatch(setData(products));
+      dispatch(setTotal(totalCount));
     } catch (err) {
       dispatch(setError(err));
     } finally {
@@ -89,110 +101,106 @@ export default function ProductPage() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-    dispatch(setData(data));
-  }, [dispatch]);
+  const debouncedFetchData = useCallback(
+    debounce(() => {
+      fetchData();
+    }, 500),
+    [
+      page,
+      rowsPerPage,
+      order,
+      orderBy,
+      filterName,
+      skuFilter,
+      priceFilter,
+      quantityFilter,
+    ],
+  );
 
-  if (loading) {
+  useEffect(() => {
+    debouncedFetchData();
+    return () => debouncedFetchData.cancel();
+  }, [
+    page,
+    rowsPerPage,
+    order,
+    orderBy,
+    filterName,
+    skuFilter,
+    priceFilter,
+    quantityFilter,
+  ]);
+
+  if (loading && !data) return <Loader />;
+
+  if (error) {
     return (
-      <Loader />
+      <div className="p-8 text-destructive font-bold">
+        Error: {error.message}
+      </div>
     );
   }
 
-  if (error) {
-    return <Typography variant="body2">Error : {error.message} </Typography>;
-  }
-
-  if (!data && !loading) {
-    return <Typography variant="body2">No Data found</Typography>;
-  }
+  const dataFiltered = data || [];
+  const notFound = !dataFiltered.length && !loading;
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === "asc";
     if (id !== "") {
       setOrder(isAsc ? "desc" : "asc");
       setOrderBy(id);
+      setPage(0);
     }
   };
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = data.map((n) => n._id);
+      const newSelecteds = dataFiltered.map((n) => n._id);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, id) => {
+  const handleClick = (id) => {
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
-    } else if (selectedIndex === 0) {
+    if (selectedIndex === -1) newSelected = newSelected.concat(selected, id);
+    else if (selectedIndex === 0)
       newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
+    else if (selectedIndex === selected.length - 1)
       newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
+    else if (selectedIndex > 0)
       newSelected = newSelected.concat(
         selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
+        selected.slice(selectedIndex + 1),
       );
-    }
-
     setSelected(newSelected);
   };
 
   const openDeleteConfirmation = (event, productId) => {
     setSelectedDeleteProductId(productId);
-    setAnchorEl(event.currentTarget);
     setDeleteConfirmationOpen(true);
   };
 
   const closeDeleteConfirmation = () => {
-    setSelectedDeleteProductId(null);
     setDeleteConfirmationOpen(false);
-    setAnchorEl(null);
   };
 
-  const handleChangePage = (event, newPage) => {
+  const handlePageChange = (newPage) => {
+    dispatch(setLoading(true));
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
+  const handleRowsPerPageChange = (newRows) => {
+    dispatch(setLoading(true));
+    setRowsPerPage(newRows);
     setPage(0);
-    setRowsPerPage(parseInt(event.target.value, 10));
   };
 
   const handleFilterByName = (event) => {
-    const value = event.target.value;
-    dispatch(setFilterName(value));
+    dispatch(setFilterName(event.target.value));
     setPage(0);
-  };
-
-  const handleFilterBySku = (event) => {
-    const value = event.target.value;
-    setSkuFilter(value);
-    setPage(0);
-  };
-
-  const handleFilterByPrice = (event) => {
-    const value = event.target.value;
-    setPriceFilter(value);
-    setPage(0);
-  };
-
-  const handleFilterByQuantity = (event) => {
-    const value = event.target.value;
-    setQuantityFilter(value);
-    setPage(0);
-  };
-
-  const handleEditProduct = (product) => {
-    setEditingProduct(product);
-    setOpenModal(true);
   };
 
   const handleSaveEditedProduct = async (editedProduct, selectedImages) => {
@@ -203,227 +211,167 @@ export default function ProductPage() {
       formData.append("product_name[en]", editedProduct.product_name.en);
       formData.append("product_name[fr]", editedProduct.product_name.fr);
       formData.append("product_name[ar]", editedProduct.product_name.ar);
-      formData.append("short_description[en]", editedProduct.short_description.en);
-      formData.append("short_description[fr]", editedProduct.short_description.fr);
-      formData.append("short_description[ar]", editedProduct.short_description.ar);
-      formData.append("long_description[en]", editedProduct.long_description.en);
-      formData.append("long_description[fr]", editedProduct.long_description.fr);
-      formData.append("long_description[ar]", editedProduct.long_description.ar);
       formData.append("subcategory_id", editedProduct.subcategory_id);
       formData.append("price", editedProduct.price);
       formData.append("discount_price", editedProduct.discount_price);
       formData.append("option", editedProduct.option);
       formData.append("quantity", editedProduct.quantity);
       formData.append("status", editedProduct.status);
+      formData.append("on_sale", editedProduct.on_sale);
 
-      if (selectedImages) {
-        Array.from(selectedImages).forEach((image) => {
-          formData.append("product_images", image);
-        });
+      // Add missing description fields
+      if (editedProduct.short_description) {
+        formData.append(
+          "short_description[en]",
+          editedProduct.short_description.en || "",
+        );
+        formData.append(
+          "short_description[fr]",
+          editedProduct.short_description.fr || "",
+        );
+        formData.append(
+          "short_description[ar]",
+          editedProduct.short_description.ar || "",
+        );
       }
-
-      const response = await axiosInstance.put(`/products/${editedProduct._id}`, formData);
-      const productData = response.data.data;
-
-      const index = data.findIndex((product) => product._id === editedProduct._id);
-
-
-      if (index !== -1) {
-        const updatedProducts = [...data];
-        updatedProducts[index] = {
-          ...updatedProducts[index],
-          product_images: selectedImages ? productData.product_images : updatedProducts[index].product_images,
-          sku: editedProduct.sku,
-          product_name: editedProduct.product_name,
-          short_description: editedProduct.short_description,
-          long_description: editedProduct.long_description,
-          subcategory_id: editedProduct.subcategory_id,
-          subcategory: productData.subcategory,
-          price: editedProduct.price,
-          discount_price: editedProduct.discount_price,
-          option: editedProduct.option,
-          quantity: editedProduct.quantity,
-          status: editedProduct.status,
-          creation_date: productData.creation_date,
-          last_update: productData.last_update,
-        };
-
-        dispatch(setData(updatedProducts));
-        toast.success(response.data.message);
-        setEditingProduct(null);
-        setOpenModal(false);
+      if (editedProduct.long_description) {
+        formData.append(
+          "long_description[en]",
+          editedProduct.long_description.en || "",
+        );
+        formData.append(
+          "long_description[fr]",
+          editedProduct.long_description.fr || "",
+        );
+        formData.append(
+          "long_description[ar]",
+          editedProduct.long_description.ar || "",
+        );
       }
+      if (editedProduct.variants)
+        formData.append("variants", JSON.stringify(editedProduct.variants));
+      if (selectedImages)
+        Array.from(selectedImages).forEach((image) =>
+          formData.append("product_images", image),
+        );
+
+      const response = await axiosInstance.put(
+        `/products/${editedProduct._id}`,
+        formData,
+      );
+      toast.success(response.data.message);
+      setEditingProduct(null);
+      setOpenModal(false);
+      fetchData();
     } catch (error) {
-      console.error("Error editing product:" + error);
-      toast.error("Error: " + error.response.data.message);
+      toast.error("Error: " + (error.response?.data?.message || error.message));
     } finally {
       setLoadingDelete(false);
     }
-  };
-
-
-  const handleCancelEdit = () => {
-    setEditingProduct(null);
   };
 
   const handleDeleteProduct = async (productId) => {
     setLoadingDelete(true);
     try {
-      const response = await axiosInstance.delete(`/products/${productId}`);
-      const updatedProducts = data.filter(
-        (product) => product._id !== productId
-      );
-      dispatch(setData(updatedProducts));
-      toast.success(response.data.message);
+      await axiosInstance.delete(`/products/${productId}`);
+      toast.success(t("Product deleted successfully"));
+      fetchData();
+      setSelected([]);
     } catch (error) {
-      console.error("Error deleting product:", error);
-      toast.error("Error: " + error.response.data.message);
+      toast.error("Error: " + (error.response?.data?.message || error.message));
     } finally {
       setLoadingDelete(false);
+      closeDeleteConfirmation();
     }
-  };
-
-  const handleOpenDetailsPopup = (product) => {
-    setSelectedProduct(product);
-    setDetailsPopupOpen(true);
-  };
-
-  const handleCloseDetailsPopup = () => {
-    setDetailsPopupOpen(false);
-  };
-
-  const handleOpenNewProductForm = () => {
-    setNewProductFormOpen(true);
-  };
-
-  const handleCloseNewProductForm = () => {
-    setNewProductFormOpen(false);
   };
 
   const handleSaveNewProduct = async (newProduct, selectedImages) => {
     setLoadingDelete(true);
-
     try {
       const formData = new FormData();
-
       formData.append("sku", newProduct.sku);
-
       formData.append("product_name[en]", newProduct.product_name.en);
       formData.append("product_name[fr]", newProduct.product_name.fr);
       formData.append("product_name[ar]", newProduct.product_name.ar);
-
-      formData.append("short_description[en]", newProduct.short_description.en);
-      formData.append("short_description[fr]", newProduct.short_description.fr);
-      formData.append("short_description[ar]", newProduct.short_description.ar);
-
-      formData.append("long_description[en]", newProduct.long_description.en);
-      formData.append("long_description[fr]", newProduct.long_description.fr);
-      formData.append("long_description[ar]", newProduct.long_description.ar);
-
       formData.append("subcategory_id", newProduct.subcategory_id);
       formData.append("price", newProduct.price);
       formData.append("discount_price", newProduct.discount_price);
       formData.append("option", String(newProduct.option));
       formData.append("quantity", newProduct.quantity);
       formData.append("status", newProduct.status);
+      formData.append("on_sale", newProduct.on_sale);
+      if (newProduct.variants)
+        formData.append("variants", JSON.stringify(newProduct.variants));
+      if (selectedImages)
+        Array.from(selectedImages).forEach((image) =>
+          formData.append("product_images", image),
+        );
 
-      if (selectedImages) {
-        Array.from(selectedImages).forEach((image) => {
-          formData.append("product_images", image);
-        });
-      }
-
-      const response = await axiosInstance.post("/products", formData);
-      const productdata = response.data.data;
-
-      const AddedProducts = {
-        key: productdata._id,
-        _id: productdata._id,
-        product_images: productdata.product_images,
-        sku: newProduct.sku,
-        product_name: newProduct.product_name,
-        short_description: newProduct.short_description,
-        long_description: newProduct.long_description,
-        subcategory_id: newProduct.subcategory_id,
-        subcategory: productdata.subcategory,
-        price: newProduct.price,
-        discount_price: newProduct.discount_price,
-        quantity: newProduct.quantity,
-        option: newProduct.option,
-        status: newProduct.status,
-        creation_date: productdata.creation_date,
-        last_update: productdata.last_update,
-      };
-
-      dispatch(setData([...data, AddedProducts]));
-      toast.success(t(response.data.message));
-
+      await axiosInstance.post("/products", formData);
+      toast.success(t("Product created successfully"));
+      fetchData();
     } catch (error) {
-      console.error("Error creating new product:", error);
-      toast.error(t("Error: ") + error.response.data.message);
+      toast.error(t("Error creating product"));
     } finally {
-      handleCloseNewProductForm();
+      setNewProductFormOpen(false);
       setLoadingDelete(false);
     }
   };
 
-
-  const dataFiltered = applyFilter({
-    inputData: data,
-    comparator: getComparator(order, orderBy),
-    filterName,
-    skuFilter,
-    priceFilter,
-    quantityFilter,
-    currentLanguage
-  });
-
-  const notFound = !dataFiltered.length;
-
   return (
-    <Container>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        mb={5}
-      >
-        <Typography variant="h4">{t("Products")}</Typography>
-        <Fab
-          variant="contained"
-          onClick={handleOpenNewProductForm}
-          color="primary"
-          aria-label="add"
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-in fade-in duration-500">
+      <div className="flex items-center justify-between">
+        <h4 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+          {t("Products")}
+        </h4>
+        <Button
+          onClick={() => setNewProductFormOpen(true)}
+          className="h-12 px-6 rounded-2xl bg-primary text-white shadow-lg shadow-primary/30 hover:shadow-primary/40 hover:scale-105 active:scale-95 transition-all duration-200"
         >
-          <Iconify icon="material-symbols-light:add" width={36} height={36} />
-        </Fab>
-      </Stack>
+          <Iconify
+            icon="material-symbols-light:add"
+            className="mr-2"
+            width={24}
+            height={24}
+          />
+          {t("Add Product")}
+        </Button>
+      </div>
 
-      <Card>
-        <ProductTableToolbar
-          numSelected={selected.length}
-          filterName={filterName}
-          onFilterName={handleFilterByName}
-          skuFilter={skuFilter}
-          onSkuFilter={handleFilterBySku}
-          priceFilter={priceFilter}
-          onPriceFilter={handleFilterByPrice}
-          quantityFilter={quantityFilter}
-          onQuantityFilter={handleFilterByQuantity}
-          selected={selected}
-          setSelected={setSelected}
-          fetchData={fetchData}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-        />
+      <Card className="rounded-3xl border-gray-100 shadow-sm overflow-hidden bg-white">
+        <CardContent className="p-0">
+          <ProductTableToolbar
+            numSelected={selected.length}
+            filterName={filterName}
+            onFilterName={handleFilterByName}
+            skuFilter={skuFilter}
+            onSkuFilter={(e) => {
+              setSkuFilter(e.target.value);
+              setPage(0);
+            }}
+            priceFilter={priceFilter}
+            onPriceFilter={(e) => {
+              setPriceFilter(e.target.value);
+              setPage(0);
+            }}
+            quantityFilter={quantityFilter}
+            onQuantityFilter={(e) => {
+              setQuantityFilter(e.target.value);
+              setPage(0);
+            }}
+            selected={selected}
+            setSelected={setSelected}
+            fetchData={fetchData}
+            showFilters={showFilters}
+            setShowFilters={setShowFilters}
+          />
 
-        <Scrollbar>
-          <TableContainer sx={{ overflow: "unset" }}>
-            <Table sx={{ minWidth: 800 }}>
+          <Scrollbar>
+            <Table>
               <ProductTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={data.length}
+                rowCount={total}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
@@ -439,115 +387,202 @@ export default function ProductPage() {
                 ]}
               />
               <TableBody>
-                {dataFiltered
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => {
-                    return (
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="h-24">
+                      <div className="flex justify-center items-center h-full">
+                        <Iconify
+                          icon="svg-spinners:180-ring-with-bg"
+                          width={40}
+                          className="text-primary"
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <>
+                    {dataFiltered.map((row) => (
                       <ProductTableRow
                         key={row._id}
-                        product_images={`${row.product_images[0]}`}
+                        product_images={row.product_images?.[0]}
                         sku={row.sku}
                         product_name={row.product_name}
                         price={row.price}
                         quantity={row.quantity}
                         creation_date={row.creation_date}
                         status={row.status}
+                        on_sale={row.on_sale}
                         selected={selected.indexOf(row._id) !== -1}
-                        handleClick={(event) => handleClick(event, row._id)}
-                        onEdit={() => handleEditProduct(row)}
-                        onDelete={(event) => openDeleteConfirmation(event, row._id)}
-                        onDetails={() => handleOpenDetailsPopup(row)}
+                        handleClick={() => handleClick(row._id)}
+                        onEdit={() => {
+                          setEditingProduct(row);
+                          setOpenModal(true);
+                        }}
+                        onDelete={(event) =>
+                          openDeleteConfirmation(event, row._id)
+                        }
+                        onDetails={() => {
+                          setSelectedProduct(row);
+                          setDetailsPopupOpen(true);
+                        }}
                       />
-                    );
-                  })}
-                <TableEmptyRows
-                  height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, data.length)}
-                />
-                {notFound && <TableNoDataFilter query={filterName} />}
+                    ))}
+
+                    {notFound && (
+                      <TableNoDataFilter query={filterName} colSpan={9} />
+                    )}
+                  </>
+                )}
               </TableBody>
             </Table>
-          </TableContainer>
-        </Scrollbar>
+          </Scrollbar>
 
-        <TablePagination
-          page={page}
-          component="div"
-          count={data.length}
-          rowsPerPage={rowsPerPage}
-          labelRowsPerPage={t("Rows per page:")}
-          onPageChange={handleChangePage}
-          rowsPerPageOptions={[5, 10, 25]}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+          <div className="flex items-center justify-between px-6 py-5 bg-gray-50/50 border-t border-gray-100">
+            <div className="text-sm font-semibold text-gray-500">
+              {t("Total")}:{" "}
+              <span className="text-gray-900 font-bold">{total}</span>{" "}
+              {t("products")}
+            </div>
+            <div className="flex items-center space-x-8">
+              <div className="flex items-center space-x-3">
+                <span className="text-sm font-bold text-gray-500 whitespace-nowrap">
+                  {t("Rows per page")}:
+                </span>
+                <Select
+                  value={rowsPerPage.toString()}
+                  onValueChange={(v) => handleRowsPerPageChange(parseInt(v))}
+                >
+                  <SelectTrigger className="w-[70px] bg-transparent border-none text-sm font-bold shadow-none focus:ring-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[5, 10, 25].map((v) => (
+                      <SelectItem key={v} value={v.toString()}>
+                        {v}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={page === 0}
+                  onClick={() => handlePageChange(page - 1)}
+                  className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
+                >
+                  <Iconify
+                    icon="material-symbols:chevron-left"
+                    width={20}
+                    height={20}
+                  />
+                </Button>
+                <div className="bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 text-sm font-bold text-primary min-w-[36px] text-center">
+                  {page + 1}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={(page + 1) * rowsPerPage >= total}
+                  onClick={() => handlePageChange(page + 1)}
+                  className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
+                >
+                  <Iconify
+                    icon="material-symbols:chevron-right"
+                    width={20}
+                    height={20}
+                  />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
       </Card>
 
       <NewProductForm
         open={isNewProductFormOpen}
         onSave={handleSaveNewProduct}
-        onCancel={handleCloseNewProductForm}
-        onClose={handleCloseNewProductForm}
+        onCancel={() => setNewProductFormOpen(false)}
+        onClose={() => setNewProductFormOpen(false)}
       />
 
       <ProductDetailsPopup
         product={selectedProduct}
         open={isDetailsPopupOpen}
-        onClose={handleCloseDetailsPopup}
+        onClose={() => setDetailsPopupOpen(false)}
       />
+
       {editingProduct && (
         <EditProductForm
           Product={editingProduct}
           onSave={handleSaveEditedProduct}
-          onCancel={handleCancelEdit}
+          onCancel={() => {
+            setEditingProduct(null);
+            setOpenModal(false);
+          }}
           open={openModal}
-          onClose={() => setOpenModal(false)}
+          onClose={() => {
+            setEditingProduct(null);
+            setOpenModal(false);
+          }}
         />
       )}
-      <Backdrop
-        open={isDeleteConfirmationOpen}
-        sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        }}
-        onClick={closeDeleteConfirmation}
-      />
-      <Popover
-        anchorEl={anchorEl}
-        open={isDeleteConfirmationOpen}
-        onClose={closeDeleteConfirmation}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
-        PaperProps={{
-          sx: {
-            width: 250,
-            p: 2,
-          },
-        }}
-      >
-        <Typography sx={{ mb: 1 }} component="div" variant="subtitle1">
-          {t("Are you sure you want to delete this element ?")}
-        </Typography>
-        <LoadingButton
-          color="primary"
-          loading={loadingDelete}
-          onClick={() => {
-            handleDeleteProduct(selectedDeleteProductId);
-            closeDeleteConfirmation();
-          }}
-        >
-          {t("Confirm")}
-        </LoadingButton>
-        <Button color="secondary" onClick={closeDeleteConfirmation}>
-          {t("Cancel")}
-        </Button>
-      </Popover>
 
-    </Container>
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={isDeleteConfirmationOpen}
+        onOpenChange={setDeleteConfirmationOpen}
+      >
+        <DialogContent className="max-w-md rounded-3xl p-8 shadow-2xl">
+          <DialogHeader>
+            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mb-6">
+              <Iconify
+                icon="material-symbols:warning-outline-rounded"
+                width={32}
+                height={32}
+              />
+            </div>
+            <DialogTitle className="text-2xl font-bold text-gray-900">
+              {t("Confirm Deletion")}
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 mt-2 text-base leading-relaxed">
+              {t(
+                "Are you sure you want to delete this element ? This action cannot be undone.",
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col sm:flex-col gap-3 mt-8">
+            <Button
+              disabled={loadingDelete}
+              onClick={() => handleDeleteProduct(selectedDeleteProductId)}
+              className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl shadow-lg shadow-red-200 hover:bg-red-600 transition-all active:scale-95 disabled:opacity-50"
+            >
+              {loadingDelete ? (
+                <>
+                  <Iconify
+                    icon="svg-spinners:180-ring-with-bg"
+                    className="mr-2"
+                    width={20}
+                    height={20}
+                  />
+                  {t("Deleting...")}
+                </>
+              ) : (
+                t("Yes, Delete")
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={closeDeleteConfirmation}
+              className="w-full h-12 bg-gray-50 text-gray-600 font-bold border-none rounded-2xl hover:bg-gray-100 transition-all active:scale-95"
+            >
+              {t("Cancel")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

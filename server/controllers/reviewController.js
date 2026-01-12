@@ -1,6 +1,11 @@
 const Review = require("../models/Review");
 const { Product } = require("../models/Product");
 const Order = require("../models/Order");
+const { Customer } = require("../models/Customer");
+const { sendReviewNotificationEmail } = require("../utils/emailUtility");
+const {
+  createDashboardNotification,
+} = require("../utils/dashboardNotificationUtility");
 
 exports.createReview = async (req, res) => {
   const { product_id, customer_id, rating, comment, status } = req.body;
@@ -46,7 +51,43 @@ exports.createReview = async (req, res) => {
     product.total_reviews = newTotalReviews;
     product.average_rating = newAverageRating.toFixed(1);
     await product.save();
-    
+
+    // Send confirmation email to customer
+    const customer = await Customer.findById(customer_id);
+    if (customer) {
+      sendReviewNotificationEmail(customer, product, review);
+    }
+
+    // Dashboard Notifications
+    try {
+      // Notify Admin
+      await createDashboardNotification({
+        type: "REVIEW_ADDED",
+        title: "New Review Added",
+        message: `A new ${rating}-star review was added for "${
+          product.product_name?.en || "Product"
+        }"`,
+        metadata: { review_id: review._id, product_id: product._id },
+        recipient_role: "admin",
+      });
+
+      // Notify Vendor
+      if (product.vendor) {
+        await createDashboardNotification({
+          type: "REVIEW_ADDED",
+          title: "New Product Review",
+          message: `Your product "${
+            product.product_name?.en || "Product"
+          }" received a ${rating}-star review.`,
+          metadata: { review_id: review._id, product_id: product._id },
+          recipient_role: "vendor",
+          vendor_id: product.vendor,
+        });
+      }
+    } catch (notifError) {
+      console.error("Failed to create dashboard notifications:", notifError);
+    }
+
     res.status(201).json({
       message: "Review added successfully.",
       data: review,
@@ -61,7 +102,6 @@ exports.createReview = async (req, res) => {
   }
 };
 
-
 exports.getProductReviews = async (req, res) => {
   const { id } = req.params;
 
@@ -69,7 +109,9 @@ exports.getProductReviews = async (req, res) => {
     const reviews = await Review.find({
       product_id: id,
       status: "active",
-    }).populate("customer_id", "first_name last_name customer_image");
+    })
+      .populate("customer_id", "first_name last_name customer_image")
+      .lean();
 
     res.status(200).json({ data: reviews });
   } catch (error) {
@@ -138,7 +180,7 @@ exports.deleteReview = async (req, res) => {
     const review = await Review.findById(id);
     if (!review) return res.status(404).json({ error: "Review not found" });
 
-    const product = await Product.findById(review.product);
+    const product = await Product.findById(review.product_id);
     if (!product) return res.status(404).json({ error: "Product not found" });
 
     const totalReviews = product.total_reviews - 1;

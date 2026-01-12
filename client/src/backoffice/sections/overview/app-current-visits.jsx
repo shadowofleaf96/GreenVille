@@ -1,38 +1,22 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import { fNumber } from "../../../utils/format-number";
+import Chart, { useChart } from "../../components/chart";
 
-import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import { styled, useTheme } from '@mui/material/styles';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 
-import { fNumber } from '../../../utils/format-number';
-
-import Chart, { useChart } from '../../components/chart';
-
-// ----------------------------------------------------------------------
-
-const CHART_HEIGHT = 400;
-
-const LEGEND_HEIGHT = 72;
-
-const StyledChart = styled(Chart)(({ theme }) => ({
-  height: CHART_HEIGHT,
-  '& .apexcharts-canvas, .apexcharts-inner, svg, foreignObject': {
-    height: `100% !important`,
-  },
-  '& .apexcharts-legend': {
-    height: LEGEND_HEIGHT,
-    borderTop: `dashed 1px ${theme.palette.divider}`,
-    top: `calc(${CHART_HEIGHT - LEGEND_HEIGHT}px) !important`,
-  },
-}));
-
-// ----------------------------------------------------------------------
-
-export default function AppCurrentVisits({ title, subheader, chart, ...other }) {
-  const theme = useTheme();
-
+export default function AppCurrentVisits({
+  title,
+  subheader,
+  chart,
+  ...other
+}) {
   const { colors, series, options } = chart;
-
   const chartSeries = series.map((i) => i.value);
 
   const chartOptions = useChart({
@@ -44,17 +28,30 @@ export default function AppCurrentVisits({ title, subheader, chart, ...other }) 
     colors,
     labels: series.map((i) => i.label),
     stroke: {
-      colors: [theme.palette.background.paper],
+      show: true,
+      width: 2,
+      colors: ["#FFFFFF"],
     },
     legend: {
-      floating: true,
-      position: 'bottom',
-      horizontalAlign: 'center',
+      position: "bottom",
+      horizontalAlign: "center",
+      fontSize: "13px",
+      fontWeight: 600,
+      itemMargin: {
+        horizontal: 10,
+        vertical: 5,
+      },
+      markers: {
+        radius: 12,
+      },
     },
     dataLabels: {
       enabled: true,
       dropShadow: {
         enabled: false,
+      },
+      style: {
+        fontWeight: 700,
       },
     },
     tooltip: {
@@ -69,6 +66,7 @@ export default function AppCurrentVisits({ title, subheader, chart, ...other }) 
     plotOptions: {
       pie: {
         donut: {
+          size: "90%",
           labels: {
             show: false,
           },
@@ -79,17 +77,33 @@ export default function AppCurrentVisits({ title, subheader, chart, ...other }) 
   });
 
   return (
-    <Card {...other}>
-      <CardHeader title={title} subheader={subheader} sx={{ mb: 5 }} />
+    <Card
+      className="shadow-sm border border-gray-100 bg-white overflow-hidden h-full flex flex-col rounded-3xl"
+      {...other}
+    >
+      <CardHeader className="pb-2">
+        <CardTitle className="text-xl font-extrabold text-gray-900 tracking-tight">
+          {title}
+        </CardTitle>
+        {subheader && (
+          <CardDescription className="text-gray-500 font-medium">
+            {subheader}
+          </CardDescription>
+        )}
+      </CardHeader>
 
-      <StyledChart
-        dir="ltr"
-        type="pie"
-        series={chartSeries}
-        options={chartOptions}
-        width="100%"
-        height={280}
-      />
+      <CardContent className="grow flex items-center justify-center pt-2">
+        <div className="w-full relative" style={{ height: 400 }}>
+          <Chart
+            dir="ltr"
+            type="pie"
+            series={chartSeries}
+            options={chartOptions}
+            width="400px"
+            height="400px"
+          />
+        </div>
+      </CardContent>
     </Card>
   );
 }

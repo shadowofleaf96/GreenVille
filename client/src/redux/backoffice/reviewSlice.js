@@ -23,18 +23,13 @@ const reviewSlice = createSlice({
     },
     deleteReview: (state, action) => {
       state.data = state.data.filter(
-        (reviews) => !action.payload.includes(reviews._id)
+        (reviews) => !action.payload.includes(reviews._id),
       );
     },
   },
 });
 
-export const {
-  setData,
-  setLoading,
-  setError,
-  setFilterName,
-  deleteReview,
-} = reviewSlice.actions;
+export const { setData, setLoading, setError, setFilterName, deleteReview } =
+  reviewSlice.actions;
 
 export default reviewSlice.reducer;

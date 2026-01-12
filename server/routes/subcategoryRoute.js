@@ -5,6 +5,7 @@ const {
   verifyToken,
   requireAdminOrManager,
 } = require("../middleware/authMiddleware");
+const { upload } = require("../middleware/multerMiddleware");
 
 const {
   createSubcategory,
@@ -18,6 +19,7 @@ route.post(
   "/",
   verifyToken,
   requireAdminOrManager,
+  upload.single("subcategory_image"),
   createSubcategory
 );
 route.get("/", getAllSubcategories);
@@ -26,6 +28,7 @@ route.put(
   "/:id",
   verifyToken,
   requireAdminOrManager,
+  upload.single("subcategory_image"),
   updateSubcategoryById
 );
 route.delete("/:id", deleteSubcategoryById);

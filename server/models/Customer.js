@@ -14,6 +14,8 @@ const customerJoiSchema = Joi.object({
     postal_code: Joi.string().required(),
     phone_no: Joi.string().required(),
     country: Joi.string().optional(),
+    latitude: Joi.number().optional().allow(null),
+    longitude: Joi.number().optional().allow(null),
   }).optional(),
   creation_date: Joi.number(),
   last_login: Joi.number(),
@@ -71,7 +73,7 @@ const customerSchema = new Schema(
     },
     status: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     shipping_address: {
       street: String,
@@ -79,6 +81,8 @@ const customerSchema = new Schema(
       phone_no: String,
       postal_code: String,
       country: String,
+      latitude: Number,
+      longitude: Number,
     },
   },
   { collection: "Customers", versionKey: false }

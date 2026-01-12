@@ -1,48 +1,46 @@
-import { useState } from "react";
-import Card from "@mui/material/Card";
-import Stack from "@mui/material/Stack";
-import Table from "@mui/material/Table";
-import Button from "@mui/material/Button";
-import LoadingButton from "@mui/lab/LoadingButton";
-import Container from "@mui/material/Container";
-import Fab from "@mui/material/Fab";
-import TableBody from "@mui/material/TableBody";
-import Typography from "@mui/material/Typography";
-import Popover from "@mui/material/Popover";
-import TableContainer from "@mui/material/TableContainer";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import { useTranslation } from "react-i18next";
-import TablePagination from "@mui/material/TablePagination";
-
-import Iconify from "../../../components/iconify/index.js";
-import Scrollbar from "../../../components/scrollbar/index.js";
-
-import TableNoDataFilter from "../table-no-data.jsx";
-
-import React, { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import ContactTableRow from "../contact-table-row.jsx";
-import ContactTableHead from "../contact-table-head.jsx";
-import TableEmptyRows from "../table-empty-rows.jsx";
-import ContactTableToolbar from "../contact-table-toolbar.jsx";
-import EditContactForm from "../contact-edit.jsx";
-import ReplyContactForm from "../reply-contact-form.jsx";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 
+import Iconify from "../../../components/iconify";
+import Scrollbar from "../../../components/scrollbar";
+import TableNoDataFilter from "../../../components/table/TableNoData";
+import ContactTableRow from "../contact-table-row";
+import ContactTableHead from "../contact-table-head";
+import TableEmptyRows from "../../../components/table/TableEmptyRows";
+import ContactTableToolbar from "../contact-table-toolbar";
+import EditContactForm from "../contact-edit";
+import ReplyContactForm from "../reply-contact-form";
 
-import { emptyRows, applyFilter, getComparator } from "../utils.js";
+import { emptyRows, applyFilter, getComparator } from "../utils";
 import {
   setData,
   setLoading,
   setError,
   setFilterName,
-} from "../../../../redux/backoffice/contactSlice.js";
-import Loader from "../../../../frontoffice/components/loader/Loader.jsx";
-import createAxiosInstance from "../../../../utils/axiosConfig.jsx";
-import { toast } from "react-toastify";
-import { Backdrop } from "@mui/material";
+} from "../../../../redux/backoffice/contactSlice";
+import Loader from "../../../../frontoffice/components/loader/Loader";
+import createAxiosInstance from "../../../../utils/axiosConfig";
 
-// ----------------------------------------------------------------------
+import { Card, CardContent } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function ContactView() {
   const dispatch = useDispatch();
@@ -52,8 +50,8 @@ export default function ContactView() {
   const error = useSelector((state) => state.adminContact.error);
   const loading = useSelector((state) => state.adminContact.loading);
   const filterName = useSelector((state) => state.adminContact.filterName);
+
   const [page, setPage] = useState(0);
-  const [anchorEl, setAnchorEl] = useState(null);
   const [order, setOrder] = useState("asc");
   const [selected, setSelected] = useState([]);
   const [openModal, setOpenModal] = useState(false);
@@ -61,21 +59,18 @@ export default function ContactView() {
   const [replyingContact, setReplyingContact] = useState(null);
   const [orderBy, setOrderBy] = useState("name");
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [isNewContactFormOpen, setNewContactFormOpen] = useState(false);
   const [isDeleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
-  const [selectedDeleteContactId, setSelectedDeleteContactId] =
-    useState(null);
+  const [selectedDeleteContactId, setSelectedDeleteContactId] = useState(null);
   const [loadingDelete, setLoadingDelete] = useState(false);
-  const axiosInstance = createAxiosInstance("admin")
+
+  const axiosInstance = createAxiosInstance("admin");
   const currentLanguage = i18n.language;
 
   const fetchData = async () => {
     try {
       dispatch(setLoading(true));
-
       const response = await axiosInstance.get("/contact");
-      const data = response.data.data;
-      dispatch(setData(data));
+      dispatch(setData(response.data.data));
     } catch (err) {
       dispatch(setError(err));
     } finally {
@@ -85,23 +80,16 @@ export default function ContactView() {
 
   useEffect(() => {
     fetchData();
-    dispatch(setData(data));
   }, [dispatch]);
 
-
-
-  if (loading) {
-    return (
-      <Loader />
-    );
-  }
+  if (loading && !data) return <Loader />;
 
   if (error) {
-    return <Typography variant="body2">Error : {error.message} </Typography>;
-  }
-
-  if (!data && !loading) {
-    return <Typography variant="body2">No Data found</Typography>;
+    return (
+      <div className="p-8 text-destructive font-bold text-center">
+        {t("Error")}: {error.message}
+      </div>
+    );
   }
 
   const handleSort = (event, id) => {
@@ -124,47 +112,40 @@ export default function ContactView() {
   const handleClick = (event, id) => {
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
-    } else if (selectedIndex === 0) {
+    if (selectedIndex === -1) newSelected = newSelected.concat(selected, id);
+    else if (selectedIndex === 0)
       newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
+    else if (selectedIndex === selected.length - 1)
       newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
+    else if (selectedIndex > 0)
       newSelected = newSelected.concat(
         selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
+        selected.slice(selectedIndex + 1),
       );
-    }
-
     setSelected(newSelected);
   };
 
   const openDeleteConfirmation = (event, contactId) => {
     setSelectedDeleteContactId(contactId);
-    setAnchorEl(event.currentTarget);
     setDeleteConfirmationOpen(true);
   };
 
   const closeDeleteConfirmation = () => {
     setSelectedDeleteContactId(null);
     setDeleteConfirmationOpen(false);
-    setAnchorEl(null);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setPage(0);
-    setRowsPerPage(parseInt(event.target.value, 10));
   };
 
   const handleFilterByName = (event) => {
-    const value = event.target.value;
-    dispatch(setFilterName(value));
+    dispatch(setFilterName(event.target.value));
+    setPage(0);
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (newRows) => {
+    setRowsPerPage(newRows);
     setPage(0);
   };
 
@@ -173,27 +154,20 @@ export default function ContactView() {
     setOpenModal(true);
   };
 
-
   const handleSaveEditedContact = async (editedContact) => {
     setLoadingDelete(true);
     try {
       const response = await axiosInstance.put(
         `/contact/${editedContact._id}`,
-        editedContact
+        editedContact,
       );
 
-      const index = data.findIndex(
-        (contact) => contact._id === editedContact._id
-      );
-
+      const index = data.findIndex((c) => c._id === editedContact._id);
       if (index !== -1) {
         const updatedContacts = [...data];
         updatedContacts[index] = {
           ...updatedContacts[index],
-          name: editedContact.name,
-          email: editedContact.email,
-          phone_number: editedContact.phone_number,
-          message: editedContact.message
+          ...editedContact,
         };
         dispatch(setData(updatedContacts));
         toast.success(response.data.message);
@@ -201,8 +175,8 @@ export default function ContactView() {
         setOpenModal(false);
       }
     } catch (error) {
-      console.error("Error editing contact:" + error);
-      toast.error("Error: " + error.response.data.message);
+      console.error("Error editing contact:", error);
+      toast.error(error.response?.data?.message || t("An error occurred"));
     } finally {
       setLoadingDelete(false);
     }
@@ -213,15 +187,14 @@ export default function ContactView() {
     try {
       const response = await axiosInstance.post(
         `/contact/reply`,
-        replyingContact
+        replyingContact,
       );
-
       toast.success(response.data.message);
       setReplyingContact(null);
       setOpenModal(false);
     } catch (error) {
-      console.error("Error replying to contact:" + error);
-      toast.error("Error: " + error);
+      console.error("Error replying to contact:", error);
+      toast.error(error.response?.data?.message || t("An error occurred"));
     } finally {
       setLoadingDelete(false);
     }
@@ -232,68 +205,59 @@ export default function ContactView() {
     setOpenModal(true);
   };
 
-  const handleCancelEdit = () => {
-    setEditingContact(null);
-  };
-
-  const handleCancelReply = () => {
-    setReplyingContact(null);
-  };
-
-  const handleDeleteContact = async (contactId) => {
+  const handleDeleteContact = async () => {
     setLoadingDelete(true);
     try {
-      const response = await axiosInstance.delete(`/contact/${contactId}`);
+      const response = await axiosInstance.delete(
+        `/contact/${selectedDeleteContactId}`,
+      );
       const updatedContacts = data.filter(
-        (contact) => contact._id !== contactId
+        (c) => c._id !== selectedDeleteContactId,
       );
       dispatch(setData(updatedContacts));
       toast.success(response.data.message);
+      closeDeleteConfirmation();
     } catch (error) {
       console.error("Error deleting contact:", error);
-      toast.error("Error: " + error.response.data.message);
+      toast.error(error.response?.data?.message || t("An error occurred"));
     } finally {
       setLoadingDelete(false);
     }
   };
 
   const dataFiltered = applyFilter({
-    inputData: data,
+    inputData: data || [],
     comparator: getComparator(order, orderBy),
     filterName,
-    currentLanguage
+    currentLanguage,
   });
 
-  const notFound = !dataFiltered.length;
+  const notFound = !dataFiltered.length && !loading;
 
   return (
-    <Container>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        mb={5}
-      >
-        <Typography variant="h4">{t("Contact")}</Typography>
-      </Stack>
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-in fade-in duration-500">
+      <div className="flex items-center justify-between">
+        <h4 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+          {t("Contact")}
+        </h4>
+      </div>
 
-      <Card>
-        <ContactTableToolbar
-          numSelected={selected.length}
-          filterName={filterName}
-          onFilterName={handleFilterByName}
-          selected={selected}
-          setSelected={setSelected}
-          fetchData={fetchData}
-        />
+      <Card className="rounded-3xl border-gray-100 shadow-sm overflow-hidden bg-white">
+        <CardContent className="p-0">
+          <ContactTableToolbar
+            numSelected={selected.length}
+            selected={selected}
+            setSelected={setSelected}
+            filterName={filterName}
+            onFilterName={handleFilterByName}
+          />
 
-        <Scrollbar>
-          <TableContainer sx={{ overflow: "unset" }}>
-            <Table sx={{ minWidth: 800 }}>
+          <Scrollbar>
+            <Table>
               <ContactTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={data.length}
+                rowCount={dataFiltered.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
@@ -306,52 +270,129 @@ export default function ContactView() {
                 ]}
               />
               <TableBody>
-                {dataFiltered
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => {
-                    return (
-                      <ContactTableRow
-                        key={row._id}
-                        name={row.name}
-                        email={row.email}
-                        phone_number={row.phone_number}
-                        message={row.message}
-                        selected={selected.indexOf(row._id) !== -1}
-                        handleClick={(event) => handleClick(event, row._id)}
-                        onEdit={() => handleEditContact(row)}
-                        onReply={() => handleReplyContact(row)}
-                        onDelete={(event) => openDeleteConfirmation(event, row._id)}
-                      />
-                    );
-                  })}
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-24">
+                      <div className="flex justify-center items-center h-full">
+                        <Iconify
+                          icon="svg-spinners:180-ring-with-bg"
+                          width={40}
+                          className="text-primary"
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <>
+                    {dataFiltered
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage,
+                      )
+                      .map((row) => (
+                        <ContactTableRow
+                          key={row._id}
+                          name={row.name}
+                          email={row.email}
+                          phone_number={row.phone_number}
+                          message={row.message}
+                          selected={selected.indexOf(row._id) !== -1}
+                          handleClick={(event) => handleClick(event, row._id)}
+                          onEdit={() => handleEditContact(row)}
+                          onReply={() => handleReplyContact(row)}
+                          onDelete={(event) =>
+                            openDeleteConfirmation(event, row._id)
+                          }
+                        />
+                      ))}
 
-                <TableEmptyRows
-                  height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, data.length)}
-                />
-                {notFound && <TableNoDataFilter query={filterName} />}
+                    {!notFound && (
+                      <TableEmptyRows
+                        height={77}
+                        emptyRows={emptyRows(
+                          page,
+                          rowsPerPage,
+                          dataFiltered.length,
+                        )}
+                      />
+                    )}
+
+                    {notFound && (
+                      <TableNoDataFilter
+                        query={filterName}
+                        colSpan={6}
+                        resourceName="Messages"
+                      />
+                    )}
+                  </>
+                )}
               </TableBody>
             </Table>
-          </TableContainer>
-        </Scrollbar>
+          </Scrollbar>
 
-        <TablePagination
-          page={page}
-          component="div"
-          count={data.length}
-          rowsPerPage={rowsPerPage}
-          labelRowsPerPage={t("Rows per page:")}
-          onPageChange={handleChangePage}
-          rowsPerPageOptions={[5, 10, 25]}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+          <div className="flex items-center justify-between px-6 py-5 bg-gray-50/50 border-t border-gray-100">
+            <div className="text-sm font-semibold text-gray-500">
+              {t("Total")}:{" "}
+              <span className="text-gray-900 font-bold">
+                {dataFiltered.length}
+              </span>{" "}
+              {t("contacts")}
+            </div>
+            <div className="flex items-center space-x-8">
+              <div className="flex items-center space-x-3">
+                <span className="text-sm font-bold text-gray-500 whitespace-nowrap">
+                  {t("Rows per page")}:
+                </span>
+                <Select
+                  value={rowsPerPage.toString()}
+                  onValueChange={(v) => handleRowsPerPageChange(parseInt(v))}
+                >
+                  <SelectTrigger className="w-[70px] bg-transparent border-none text-sm font-bold shadow-none focus:ring-0 text-gray-900">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[5, 10, 25].map((v) => (
+                      <SelectItem key={v} value={v.toString()}>
+                        {v}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={page === 0}
+                  onClick={() => handlePageChange(page - 1)}
+                  className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
+                >
+                  <Iconify icon="material-symbols:chevron-left" width={20} />
+                </Button>
+                <div className="bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 text-sm font-bold text-primary min-w-[36px] text-center">
+                  {page + 1}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={(page + 1) * rowsPerPage >= dataFiltered.length}
+                  onClick={() => handlePageChange(page + 1)}
+                  className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
+                >
+                  <Iconify icon="material-symbols:chevron-right" width={20} />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
       </Card>
 
       {editingContact && (
         <EditContactForm
           contact={editingContact}
           onSave={handleSaveEditedContact}
-          onCancel={handleCancelEdit}
+          onCancel={() => setEditingContact(null)}
           open={openModal}
           onClose={() => setOpenModal(false)}
         />
@@ -361,57 +402,60 @@ export default function ContactView() {
         <ReplyContactForm
           contact={replyingContact}
           onSave={handleReplyingContact}
-          onCancel={handleCancelReply}
+          onCancel={() => setReplyingContact(null)}
           open={openModal}
           onClose={() => setOpenModal(false)}
         />
       )}
 
-      <Backdrop
+      {/* Delete Confirmation Dialog */}
+      <Dialog
         open={isDeleteConfirmationOpen}
-        sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        }}
-        onClick={closeDeleteConfirmation}
-      />
-      <Popover
-        anchorEl={anchorEl}
-        open={isDeleteConfirmationOpen}
-        onClose={closeDeleteConfirmation}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
-        PaperProps={{
-          sx: {
-            width: 250,
-            p: 2,
-          },
-        }}
+        onOpenChange={setDeleteConfirmationOpen}
       >
-        <Typography sx={{ mb: 1 }} component="div" variant="subtitle1">
-          {t("Are you sure you want to delete this element ?")}
-        </Typography>
-        <LoadingButton
-          color="primary"
-          loading={loadingDelete}
-          onClick={() => {
-            handleDeleteContact(selectedDeleteContactId);
-            closeDeleteConfirmation();
-          }}
-        >
-          {t("Confirm")}
-        </LoadingButton>
-        <Button color="secondary" onClick={closeDeleteConfirmation}>
-          {t("Cancel")}
-        </Button>
-      </Popover>
-
-    </Container>
+        <DialogContent className="max-w-md rounded-3xl p-8 shadow-2xl border-none">
+          <DialogHeader>
+            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mb-6">
+              <Iconify
+                icon="material-symbols:warning-outline-rounded"
+                width={32}
+                height={32}
+              />
+            </div>
+            <DialogTitle className="text-2xl font-bold text-gray-900 uppercase">
+              {t("Confirm Deletion")}
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 mt-2 text-base leading-relaxed">
+              {t(
+                "Are you sure you want to delete this element ? This action cannot be undone.",
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col sm:flex-col gap-3 mt-8">
+            <Button
+              disabled={loadingDelete}
+              onClick={handleDeleteContact}
+              className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl shadow-lg shadow-red-200 hover:bg-red-600 transition-all active:scale-95"
+            >
+              {loadingDelete ? (
+                <div className="flex items-center gap-2">
+                  <Iconify icon="svg-spinners:180-ring-with-bg" width={20} />
+                  {t("Deleting...")}
+                </div>
+              ) : (
+                t("Yes, Delete")
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={closeDeleteConfirmation}
+              className="w-full h-12 bg-gray-50 text-gray-600 font-bold border-none rounded-2xl hover:bg-gray-100 transition-all active:scale-95"
+            >
+              {t("Cancel")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

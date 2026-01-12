@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import Button from "@mui/material/Button";
-import Stack from"@mui/material/Stack";
-import Iconify from "../../components/iconify";
+import React, { useState, useRef } from "react";
+import Iconify from "../../../components/iconify";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 
 function UploadButton({ onChange }) {
   const [file, setFile] = useState(null);
   const { t } = useTranslation();
+  const fileInputRef = useRef(null);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -18,36 +18,37 @@ function UploadButton({ onChange }) {
   };
 
   const handleButtonClick = () => {
-    document.getElementById("fileInput").click();
+    fileInputRef.current.click();
   };
 
   return (
-    <Stack
-      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-    >
+    <div className="flex flex-col items-center">
       <input
         type="file"
-        id="fileInput"
+        ref={fileInputRef}
         accept="image/*"
-        style={{ display: "none" }}
+        className="hidden"
         onChange={handleFileChange}
       />
       <Button
-        variant="outlined"
-        startIcon={
-          <Iconify
-            icon="material-symbols-light:upload-rounded"
-            height={28}
-            width={28}
-          />
-        }
+        type="button"
+        variant="outline"
         onClick={handleButtonClick}
-        sx={{ margin: 1, padding: 1 }}
+        className="text-primary hover:text-primary-foreground flex items-center gap-2 h-12 px-6 rounded-2xl"
       >
+        <Iconify
+          icon="material-symbols-light:upload-rounded"
+          height={24}
+          width={24}
+        />
         {t("Choose a File")}
       </Button>
-      {file && <p>{t("Selected file:")} {file.name}</p>}
-    </Stack>
+      {file && (
+        <p className="mt-2 text-sm text-gray-500 font-medium">
+          {t("Selected file:")} {file.name}
+        </p>
+      )}
+    </div>
   );
 }
 

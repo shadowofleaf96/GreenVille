@@ -1,184 +1,430 @@
-import React, { Fragment, useState } from "react";
+import { Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import MetaData from "../../../components/MetaData";
 import CheckoutSteps from "../checkoutSteps/CheckoutSteps";
 import { useTranslation } from "react-i18next";
 import DOMPurify from "dompurify";
-import { toast } from 'react-toastify';
-import { applyCouponCode, saveShippingInfo } from "../../../../redux/frontoffice/cartSlice";
+import { toast } from "react-toastify";
+import {
+  applyCouponCode,
+  saveShippingInfo,
+} from "../../../../redux/frontoffice/cartSlice";
 import createAxiosInstance from "../../../../utils/axiosConfig";
-import { LoadingButton } from "@mui/lab";
 import optimizeImage from "../../../components/optimizeImage";
+import LazyImage from "../../../../components/lazyimage/LazyImage";
+import { motion } from "framer-motion";
+import Iconify from "../../../../backoffice/components/iconify";
 
-const backend = import.meta.env.VITE_BACKEND_URL;
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
 
 const ConfirmOrder = () => {
-    const { t, i18n } = useTranslation();
-    const { cartItems, shippingInfo, coupon } = useSelector((state) => state.carts);
-    const { customer } = useSelector((state) => state.customers);
-    const currentLanguage = i18n.language
-    const history = useNavigate();
-    const [couponCode, setCouponCode] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const axiosInstance = createAxiosInstance("customer")
-    const dispatch = useDispatch();
+  const { t, i18n } = useTranslation();
+  const { cartItems, shippingInfo, coupon } = useSelector(
+    (state) => state.carts
+  );
+  const { customer } = useSelector((state) => state.customers);
+  const { data: settings } = useSelector((state) => state.adminSettings);
+  const isVatActive = settings?.vat_config?.isActive;
+  const isStripeActive = settings?.payment_methods?.stripe_active;
+  const currentLanguage = i18n.language;
+  const history = useNavigate();
+  const [couponCode, setCouponCode] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const axiosInstance = createAxiosInstance("customer");
+  const dispatch = useDispatch();
 
+  const itemsPrice = cartItems.reduce(
+    (acc, item) => acc + (item.discountPrice || item.price) * item.quantity,
+    0
+  );
 
-    const itemsPrice = cartItems.reduce((acc, item) => acc + item.discountPrice * item.quantity, 0);
+  if (itemsPrice === 0) {
+    history("/products");
+  }
 
-    if (itemsPrice === 0) {
-        history("/products");
+  let discountedTotal;
+  let discountedPrice = ((itemsPrice * coupon?.discount) / 100).toFixed(2);
+  if (coupon) {
+    discountedTotal = itemsPrice - discountedPrice;
+  } else {
+    discountedTotal = itemsPrice;
+  }
+  const totalPrice = (
+    discountedTotal +
+    shippingInfo.shippingPrice +
+    shippingInfo.taxPrice
+  ).toFixed(2);
+
+  const applyCoupon = async () => {
+    if (!couponCode) return;
+    setIsLoading(true);
+    const sanitizedCouponCode = DOMPurify.sanitize(couponCode);
+
+    try {
+      const response = await axiosInstance.post(`/coupons/apply`, {
+        code: sanitizedCouponCode,
+        userId: customer._id,
+      });
+      dispatch(
+        applyCouponCode({
+          code: response.data.code,
+          discount: response.data.discount,
+        })
+      );
+      setCouponCode("");
+      toast.success(t("Coupon applied successfully"));
+    } catch {
+      toast.error(t("Failed to apply coupon"));
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    let discountedTotal
-    let discountedPrice = ((itemsPrice * coupon?.discount) / 100).toFixed(2)
-    if (coupon) {
-        discountedTotal = itemsPrice - discountedPrice;
-    } else {
-        discountedTotal = itemsPrice;
-    }
-    const totalPrice = (discountedTotal + shippingInfo.shippingPrice + shippingInfo.taxPrice).toFixed(2);
-
-    const applyCoupon = async () => {
-        setIsLoading(true);
-        const sanitizedCouponCode = DOMPurify.sanitize(couponCode);
-
-        try {
-            const response = await axiosInstance.post(`/coupons/apply`, {
-                code: sanitizedCouponCode,
-                userId: customer._id,
-            });
-            dispatch(applyCouponCode({ code: response.data.code, discount: response.data.discount }));
-            setCouponCode("");
-            toast.success(t("Coupon applied successfully"));
-        } catch (error) {
-            toast.error(t("Failed to apply coupon"));
-            console.error(error)
-        } finally {
-            setIsLoading(false);
-        }
+  const processToPayment = () => {
+    const updatedShippingInfo = {
+      ...shippingInfo,
+      totalPrice,
+      discountedTotal,
+      discountedPrice,
     };
+    dispatch(saveShippingInfo(updatedShippingInfo));
+    history("/payment", { replace: true });
+  };
 
-    const processToPayment = () => {
-        const updatedShippingInfo = {
-            ...shippingInfo,
-            totalPrice,
-            discountedTotal,
-            discountedPrice
-        };
-        dispatch(saveShippingInfo(updatedShippingInfo));
-        history("/payment", { replace: true });
-    };
+  return (
+    <Fragment>
+      <MetaData title={t("Confirm Order")} />
 
-    return (
-        <div className="flex flex-col gap-6 w-full">
-            <MetaData title={t("Confirm Order")} />
-            <div className="container py-2 my-8 mx-auto">
-                <CheckoutSteps shipping confirmOrder />
-                <div className="flex flex-col md:flex-row justify-between gap-6 mx-4 md:mx-8">
-                    <div className="mb-8 bg-white shadow-lg p-8 rounded-2xl border border-gray-200 w-full md:w-3/5">
-                        <div className="mb-4">
-                            <label htmlFor="couponCode" className="block text-lg font-semibold mb-2">
-                                {t("Coupon Code")}
-                            </label>
-                            <div className="flex items-center mt-1">
-                                <input
-                                    type="text"
-                                    id="couponCode"
-                                    value={couponCode}
-                                    onChange={(e) => setCouponCode(e.target.value)}
-                                    placeholder={t("Enter coupon code")}
-                                    className="p-2 w-full rounded-l-md bg-gray-100 focus:border-r-0 border-[#8DC63F] focus:outline-none focus:ring-0 focus:border-transparent"
-                                />
-                                <LoadingButton
-                                    onClick={applyCoupon}
-                                    loading={isLoading}
-                                    variant="contained"
-                                    sx={{ fontWeight: 500, fontSize: 15, borderRadius: 0 }}
-                                    className="!bg-[#8DC63F] !shadow-none !transition-shadow !duration-300 !cursor-pointer !hover:shadow-lg !hover:shadow-yellow-400 !text-white !py-2 !px-6 border-0 !rounded-r-md"
-                                >
-                                    {isLoading ? t('Loading') : t("Apply")}
-                                </LoadingButton>
-                            </div>
-                        </div>
-                        <hr className="my-2" />
-
-                        <h4 className="text-lg font-semibold mb-3">{t("Shipping Info")}</h4>
-                        <p className="text-gray-700 mb-2">
-                            <b>{t("Name")}: </b> {customer && `${customer.first_name} ${customer.last_name}`}
-                        </p>
-                        <p className="text-gray-700 mb-2">
-                            <b>{t("Phone")}: </b> {shippingInfo.phoneNo}
-                        </p>
-                        <p className="text-gray-700 mb-2">
-                            <b>{t("Address")}: </b> {`${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.postalCode}`}
-                        </p>
-                        <p className="text-gray-700 mb-4 flex">
-                            <b>{t("Shipping Method")}:</b>
-                            <span className="ml-1 capitalize">{`${t(shippingInfo.shippingMethod)}`}</span>
-                        </p>
-                        <hr className="my-4" />
-                        <h4 className="text-lg font-semibold mt-4">{t("Your Cart Items")}:</h4>
-                        {cartItems.map((item) => (
-                            <Fragment key={item.product}>
-                                <hr className="my-2" />
-                                <div className="flex items-center py-2">
-                                    <div className="w-1/4 lg:w-1/6">
-                                        <img
-                                            src={typeof item?.image === "string" ? `${optimizeImage(item?.image, 100)}` : `${optimizeImage(item?.image[0], 100)}`}
-                                            alt={item.name[currentLanguage]}
-                                            className="w-16 h-16 object-cover"
-                                        />
-                                    </div>
-                                    <div className="w-1/2 lg:w-1/2">
-                                        <Link to={`/products/${item.product}`} className="text-blue-600 hover:underline">
-                                            {item.name[currentLanguage]}
-                                        </Link>
-                                    </div>
-                                    <div className="w-1/4 lg:w-1/6">
-                                        <p className="text-gray-700">
-                                            {item.quantity} x {item.discountPrice} DH ={" "}
-                                            <b>{(item.quantity * item.discountPrice).toFixed(2)} DH</b>
-                                        </p>
-                                    </div>
-                                </div>
-                            </Fragment>
-                        ))}
-                        <button
-                            className="w-full bg-[#8DC63F] font-medium shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-yellow-400 text-white py-3 px-8 rounded-lg mt-4"
-                            onClick={processToPayment}
-                        >
-                            {t("Proceed to Payment")}
-                        </button>
-                    </div>
-
-                    <div className="bg-blue-50 p-4 rounded-lg shadow w-full md:w-2/5 max-h-72">
-                        <h4 className="text-lg font-semibold mb-4">{t("Order Summary")}</h4>
-                        <hr className="mb-4" />
-                        <p className="flex justify-between mb-2">
-                            {t("Subtotal")} <span>{itemsPrice} DH</span>
-                        </p>
-                        <p className="flex justify-between mb-2">
-                            {t("Shipping")} <span>{shippingInfo?.shippingPrice} DH</span>
-                        </p>
-                        {coupon && (
-                            <p className="flex justify-between mb-2">
-                                {t("Coupon")} ({coupon.code} - {coupon.discount}%) <span>-{((itemsPrice * coupon.discount) / 100).toFixed(2)} DH</span>
-                            </p>
-                        )}
-                        <p className="flex justify-between mb-2">
-                            {t("Tax")} <span>{shippingInfo?.taxPrice} DH</span>
-                        </p>
-                        <hr className="my-4" />
-                        <p className="flex justify-between text-xl font-bold">
-                            {t("Total")} <span>{totalPrice} DH</span>
-                        </p>
-                    </div>
-                </div>
+      <div className="min-h-screen bg-gray-50/50 pt-24 sm:pt-28 pb-12 sm:pb-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-black text-gray-900 tracking-tight uppercase mb-4">
+              {t("Confirmation")}
+            </h1>
+            <div className="flex items-center justify-center gap-2">
+              <div className="h-1 w-12 bg-primary rounded-full" />
+              <p className="text-xs font-black text-gray-400 uppercase tracking-widest italic">
+                {t("Review your selection and complete your order")}
+              </p>
             </div>
-        </div >
-    );
+          </div>
+
+          <CheckoutSteps shipping confirmOrder />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-12">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Shipping Info Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-4xl sm:rounded-[2.5rem] p-6 sm:p-10 shadow-xl shadow-gray-200/50 border border-gray-100"
+              >
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary/5 text-primary rounded-xl flex items-center justify-center">
+                      <Iconify icon="solar:user-bold-duotone" width={24} />
+                    </div>
+                    <h2 className="text-xl font-black text-gray-900 tracking-tight uppercase">
+                      {t("Shipping Information")}
+                    </h2>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => history("/shipping?edit=true")}
+                    className="text-[10px] font-black uppercase text-primary tracking-widest gap-2"
+                  >
+                    <Iconify
+                      icon="solar:pen-new-square-bold-duotone"
+                      width={16}
+                    />
+                    {t("Edit Info")}
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        {t("Recipient")}
+                      </p>
+                      <p className="font-black text-gray-900">
+                        {customer &&
+                          `${customer.first_name} ${customer.last_name}`}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        {t("Contact Details")}
+                      </p>
+                      <p className="font-black text-gray-900 italic">
+                        {shippingInfo.phoneNo}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        {t("Delivery Address")}
+                      </p>
+                      <p className="font-bold text-gray-600 leading-relaxed text-sm">
+                        {shippingInfo.address}, {shippingInfo.city},{" "}
+                        {shippingInfo.postalCode}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-black uppercase tracking-widest">
+                        <Iconify
+                          icon="solar:delivery-bold-duotone"
+                          width={14}
+                        />
+                        {t(shippingInfo.shippingMethod)}
+                      </div>
+                      <div className="flex items-center gap-1.5 px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        <Iconify icon="solar:global-bold-duotone" width={14} />
+                        {shippingInfo.country}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Cart Items List */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 px-4">
+                  <div className="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center">
+                    <Iconify icon="solar:bag-heart-bold-duotone" width={20} />
+                  </div>
+                  <h2 className="text-lg font-black text-gray-900 tracking-tight uppercase">
+                    {t("Review Items")}
+                  </h2>
+                  <Badge
+                    variant="secondary"
+                    className="ml-auto bg-gray-100 text-gray-500 font-black uppercase tracking-widest text-[10px]"
+                  >
+                    {cartItems.length} {t("items")}
+                  </Badge>
+                </div>
+
+                <div className="space-y-4">
+                  {cartItems.map((item) => (
+                    <motion.div
+                      key={`${item.product}-${item.variant?._id || "base"}`}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="flex items-center gap-6 p-6 bg-white rounded-4xl border border-gray-100 shadow-sm hover:shadow-md transition-all group"
+                    >
+                      <div className="w-20 h-20 bg-gray-50 rounded-2xl p-2 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-500">
+                        <LazyImage
+                          src={
+                            typeof item?.image === "string"
+                              ? optimizeImage(item?.image, 150)
+                              : optimizeImage(item?.image[0], 150)
+                          }
+                          alt={item.name[currentLanguage]}
+                          className="w-full h-full object-contain drop-shadow-lg"
+                        />
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <Link
+                          to={`/product/${item.product}`}
+                          className="font-black text-gray-900 hover:text-primary transition-colors block text-base"
+                        >
+                          {item.name[currentLanguage]}
+                        </Link>
+                        {item.variant && (
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            {t("Variant")}:{" "}
+                            <span className="text-primary">
+                              {item.variant.variant_name}
+                            </span>
+                          </p>
+                        )}
+                        <p className="text-xs font-black text-gray-400 tracking-tight">
+                          {item.quantity} x {item.discountPrice} DH
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-black text-lg text-gray-900">
+                          {(
+                            item.quantity * (item.discountPrice || item.price)
+                          ).toFixed(2)}{" "}
+                          <span className="text-xs text-primary">
+                            {t("DH")}
+                          </span>
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Order Summary & Actions */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-32 space-y-8">
+                <Card className="rounded-4xl sm:rounded-[3rem] border-none shadow-2xl shadow-gray-200 bg-white overflow-hidden">
+                  <CardContent className="p-6 sm:p-10 space-y-8 sm:space-y-10">
+                    {/* Coupon Section */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Iconify
+                          icon="solar:tag-bold-duotone"
+                          width={20}
+                          className="text-primary"
+                        />
+                        <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">
+                          {t("Have a coupon?")}
+                        </h3>
+                      </div>
+                      {coupon ? (
+                        <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10 flex items-center justify-between border-dashed animate-in zoom-in">
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">
+                              {t("Active Reward")}
+                            </span>
+                            <span className="text-sm font-black text-gray-900 uppercase tracking-tight italic">
+                              {coupon.code}
+                            </span>
+                          </div>
+                          <Badge className="bg-primary text-white font-black text-[10px] uppercase">
+                            -{coupon.discount}%
+                          </Badge>
+                        </div>
+                      ) : (
+                        <div className="relative group">
+                          <Input
+                            value={couponCode}
+                            onChange={(e) => setCouponCode(e.target.value)}
+                            placeholder={t("Enter code here...")}
+                            className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 pr-24 focus:bg-white transition-all font-medium uppercase tracking-tight text-xs"
+                          />
+                          <Button
+                            onClick={applyCoupon}
+                            disabled={!couponCode || isLoading}
+                            className="absolute right-1 top-1 bottom-1 h-12 rounded-xl bg-gray-900 text-white font-black text-[10px] uppercase tracking-widest px-6 hover:bg-black transition-all"
+                          >
+                            {isLoading ? (
+                              <Iconify
+                                icon="svg-spinners:ring-resize"
+                                width={16}
+                              />
+                            ) : (
+                              t("Apply")
+                            )}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    <Separator className="bg-gray-100" />
+
+                    <div className="space-y-6">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="font-bold text-gray-400 uppercase tracking-widest">
+                          {t("Subtotal")}
+                        </span>
+                        <span className="font-black text-gray-900">
+                          {itemsPrice.toFixed(2)} DH
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="font-bold text-gray-400 uppercase tracking-widest">
+                          {t("Shipping")}
+                        </span>
+                        <span className="font-black text-gray-900">
+                          {shippingInfo?.shippingPrice === 0
+                            ? t("Free")
+                            : `${shippingInfo?.shippingPrice} DH`}
+                        </span>
+                      </div>
+                      {coupon && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="font-bold text-primary uppercase tracking-widest">
+                            {t("Discount")}
+                          </span>
+                          <span className="font-black text-primary animate-pulse">
+                            -{discountedPrice} DH
+                          </span>
+                        </div>
+                      )}
+                      {isVatActive && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="font-bold text-gray-400 uppercase tracking-widest">
+                            {t("VAT")} ({settings?.vat_config?.percentage}%)
+                          </span>
+                          <span className="font-black text-gray-900">
+                            {shippingInfo?.taxPrice} DH
+                          </span>
+                        </div>
+                      )}
+                      <Separator className="bg-gray-50" />
+                      <div className="flex justify-between items-end">
+                        <span className="font-black text-gray-900 uppercase tracking-widest text-lg">
+                          {t("Total Pay")}
+                        </span>
+                        <div className="text-right">
+                          <span className="text-3xl font-black text-primary tracking-tight">
+                            {totalPrice}{" "}
+                            <span className="text-base font-bold">
+                              {t("DH")}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={processToPayment}
+                      className="w-full h-16 rounded-[2.5rem] bg-primary text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all gap-4 border-none"
+                    >
+                      <Iconify icon="solar:card-send-bold-duotone" width={24} />
+                      {t("Proceed to Payment")}
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Secure Info */}
+                <div className="flex items-center justify-center gap-6 py-4 bg-gray-50/50 rounded-3xl border border-gray-100 border-dashed">
+                  {isStripeActive && (
+                    <>
+                      <div className="flex flex-col items-center gap-1">
+                        <Iconify
+                          icon="logos:stripe"
+                          width={40}
+                          className="grayscale hover:grayscale-0 transition-all cursor-pointer"
+                        />
+                      </div>
+                      <Separator
+                        orientation="vertical"
+                        className="h-4 bg-gray-200"
+                      />
+                    </>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <Iconify
+                      icon="solar:shield-check-bold"
+                      width={20}
+                      className="text-green-500"
+                    />
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                      {t("SSL Secure")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Fragment>
+  );
 };
 
 export default ConfirmOrder;

@@ -6,16 +6,18 @@ import en from "./en.json";
 import ar from "./ar.json";
 import fr from "./fr.json";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+
 i18n
-  .use(LanguageDetector) 
-  .use(initReactI18next) 
+  .use(LanguageDetector)
+  .use(initReactI18next)
   .init({
     resources: {
       en: { translation: en },
       ar: { translation: ar },
       fr: { translation: fr },
     },
-    fallbackLng: "en", 
+    fallbackLng: "en",
     interpolation: {
       escapeValue: false,
     },
@@ -49,5 +51,24 @@ i18n
       },
     },
   });
+
+const loadRemoteTranslations = async (lng) => {
+  const lang = lng.split("-")[0];
+  try {
+    const response = await fetch(`${backendUrl}/v1/locales/${lang}`);
+    if (response.ok) {
+      const remoteData = await response.json();
+      i18n.addResourceBundle(lang, "translation", remoteData, true, true);
+    }
+  } catch (error) {
+    console.error(`Error loading remote translations for ${lang}:`, error);
+  }
+};
+
+i18n.on("languageChanged", (lng) => {
+  loadRemoteTranslations(lng);
+});
+
+loadRemoteTranslations(i18n.language || "en");
 
 export default i18n;

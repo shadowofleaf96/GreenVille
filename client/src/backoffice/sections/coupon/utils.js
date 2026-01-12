@@ -48,8 +48,7 @@ export function applyFilter({ inputData, comparator, filterName }) {
 
   if (filterName) {
     inputData = inputData.filter((coupon) => {
-      const couponNameMatch =
-      coupon.code.indexOf(filterName) !== -1;
+      const couponNameMatch = coupon.code.indexOf(filterName) !== -1;
       return couponNameMatch;
     });
   }

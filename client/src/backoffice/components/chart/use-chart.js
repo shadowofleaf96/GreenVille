@@ -1,68 +1,67 @@
-import merge from 'lodash/merge';
+import merge from "lodash/merge";
 
-import { alpha, useTheme } from '@mui/material/styles';
-
-import { useResponsive } from '../../hooks/use-responsive';
+import { palette as getPalette } from "../../../theme/palette";
+import { typography } from "../../../theme/typography";
+import { alpha } from "../../../theme/css";
+import { useResponsive } from "../../hooks/use-responsive";
 
 // ----------------------------------------------------------------------
 
 export default function useChart(options) {
-  const theme = useTheme();
-
-  const smUp = useResponsive('up', 'sm');
+  const palette = getPalette();
+  const smUp = useResponsive("up", "sm");
 
   const LABEL_TOTAL = {
     show: true,
-    label: 'Total',
-    color: theme.palette.text.secondary,
-    fontSize: theme.typography.subtitle2.fontSize,
-    fontWeight: theme.typography.subtitle2.fontWeight,
-    lineHeight: theme.typography.subtitle2.lineHeight,
+    label: "Total",
+    color: palette.text.secondary,
+    fontSize: typography.subtitle2.fontSize,
+    fontWeight: typography.subtitle2.fontWeight,
+    lineHeight: typography.subtitle2.lineHeight,
   };
 
   const LABEL_VALUE = {
     offsetY: 8,
-    color: theme.palette.text.primary,
-    fontSize: theme.typography.h3.fontSize,
-    fontWeight: theme.typography.h3.fontWeight,
-    lineHeight: theme.typography.h3.lineHeight,
+    color: palette.text.primary,
+    fontSize: typography.h3.fontSize,
+    fontWeight: typography.h3.fontWeight,
+    lineHeight: typography.h3.lineHeight,
   };
 
   const baseOptions = {
     // Colors
     colors: [
-      theme.palette.primary.main,
-      theme.palette.secondary.main,
-      theme.palette.warning.main,
-      theme.palette.info.main,
-      theme.palette.error.main,
-      theme.palette.success.main,
-      theme.palette.warning.dark,
-      theme.palette.success.darker,
-      theme.palette.info.dark,
-      theme.palette.info.darker,
+      palette.primary.main,
+      palette.secondary.main,
+      palette.warning.main,
+      palette.info.main,
+      palette.error.main,
+      palette.success.main,
+      palette.warning.dark,
+      palette.success.darker,
+      palette.info.dark,
+      palette.info.darker,
     ],
 
     // Chart
     chart: {
       toolbar: { show: false },
       zoom: { enabled: false },
-      // animations: { enabled: false },
-      foreColor: theme.palette.text.disabled,
-      fontFamily: theme.typography.fontFamily,
+      foreColor: palette.text.disabled,
+      fontFamily: typography.fontFamily,
     },
 
     // States
     states: {
       hover: {
         filter: {
-          type: 'lighten',
+          type: "lighten",
           value: 0.04,
         },
       },
       active: {
         filter: {
-          type: 'darken',
+          type: "darken",
           value: 0.88,
         },
       },
@@ -72,7 +71,7 @@ export default function useChart(options) {
     fill: {
       opacity: 1,
       gradient: {
-        type: 'vertical',
+        type: "vertical",
         shadeIntensity: 0,
         opacityFrom: 0.4,
         opacityTo: 0,
@@ -88,14 +87,14 @@ export default function useChart(options) {
     // Stroke
     stroke: {
       width: 3,
-      curve: 'smooth',
-      lineCap: 'round',
+      curve: "smooth",
+      lineCap: "round",
     },
 
     // Grid
     grid: {
       strokeDashArray: 3,
-      borderColor: theme.palette.divider,
+      borderColor: palette.divider,
       xaxis: {
         lines: {
           show: false,
@@ -112,7 +111,7 @@ export default function useChart(options) {
     // Markers
     markers: {
       size: 0,
-      strokeColors: theme.palette.background.paper,
+      strokeColors: palette.background.paper,
     },
 
     // Tooltip
@@ -127,8 +126,8 @@ export default function useChart(options) {
     legend: {
       show: true,
       fontSize: 13,
-      position: 'top',
-      horizontalAlign: 'right',
+      position: "top",
+      horizontalAlign: "right",
       markers: {
         radius: 12,
       },
@@ -137,7 +136,7 @@ export default function useChart(options) {
         horizontal: 8,
       },
       labels: {
-        colors: theme.palette.text.primary,
+        colors: palette.text.primary,
       },
     },
 
@@ -146,9 +145,9 @@ export default function useChart(options) {
       // Bar
       bar: {
         borderRadius: smUp ? 3 : 1,
-        columnWidth: '28%',
-        borderRadiusApplication: 'end',
-        borderRadiusWhenStacked: 'last',
+        columnWidth: "28%",
+        borderRadiusApplication: "end",
+        borderRadiusWhenStacked: "last",
       },
 
       // Pie + Donut
@@ -165,8 +164,8 @@ export default function useChart(options) {
       // Radialbar
       radialBar: {
         track: {
-          strokeWidth: '100%',
-          background: alpha(theme.palette.grey[500], 0.16),
+          strokeWidth: "100%",
+          background: alpha(palette.grey[500], 0.16),
         },
         dataLabels: {
           value: LABEL_VALUE,
@@ -177,19 +176,19 @@ export default function useChart(options) {
       // Radar
       radar: {
         polygons: {
-          fill: { colors: ['transparent'] },
-          strokeColors: theme.palette.divider,
-          connectorColors: theme.palette.divider,
+          fill: { colors: ["transparent"] },
+          strokeColors: palette.divider,
+          connectorColors: palette.divider,
         },
       },
 
       // polarArea
       polarArea: {
         rings: {
-          strokeColor: theme.palette.divider,
+          strokeColor: palette.divider,
         },
         spokes: {
-          connectorColors: theme.palette.divider,
+          connectorColors: palette.divider,
         },
       },
     },
@@ -198,16 +197,16 @@ export default function useChart(options) {
     responsive: [
       {
         // sm
-        breakpoint: theme.breakpoints.values.sm,
+        breakpoint: 600,
         options: {
-          plotOptions: { bar: { columnWidth: '40%' } },
+          plotOptions: { bar: { columnWidth: "40%" } },
         },
       },
       {
         // md
-        breakpoint: theme.breakpoints.values.md,
+        breakpoint: 900,
         options: {
-          plotOptions: { bar: { columnWidth: '32%' } },
+          plotOptions: { bar: { columnWidth: "32%" } },
         },
       },
     ],

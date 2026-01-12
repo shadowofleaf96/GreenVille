@@ -1,38 +1,21 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-
-import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
-import Drawer from "@mui/material/Drawer";
-import Button from "@mui/material/Button";
-import Avatar from "@mui/material/Avatar";
-import { logout, fetchUserProfile } from "../../../redux/backoffice/authSlice";
-import { alpha } from "@mui/material/styles";
-import Typography from "@mui/material/Typography";
-import ListItemButton from "@mui/material/ListItemButton";
-
+import { fetchUserProfile } from "../../../redux/backoffice/authSlice";
 import { useDispatch, useSelector } from "react-redux";
-
 import { usePathname } from "../../../routes/hooks";
-import Divider from "@mui/material/Divider";
 import { RouterLink } from "../../../routes/components";
 import { useTranslation } from "react-i18next";
-
 import { useResponsive } from "../../hooks/use-responsive";
-
 import MiniLogo from "../../components/logo/miniLogo";
 import Scrollbar from "../../components/scrollbar";
-
 import { NAV } from "../dashboard/config-layout";
-import TranslatedNavConfig from "../dashboard/config-navigation";
-
-// ----------------------------------------------------------------------
-
+import useNavConfig from "../dashboard/config-navigation";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
   const { admin } = useSelector((state) => state.adminAuth);
   const { t } = useTranslation();
-
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -49,101 +32,81 @@ export default function Nav({ openNav, onCloseNav }) {
     }
   }, [pathname]);
 
+  const navConfig = useNavConfig();
+
   const renderAccount = (
-    <Stack
-      sx={{
-        mx: 2.5,
-        py: 1,
-        px: 1,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Avatar
-        src={`${admin?.user_image}`}
-        alt="photoURL"
-        sx={{ width: 120, height: 120, my: 0.5 }}
-      />
+    <div className="mx-6 py-8 flex flex-col items-center justify-center space-y-4">
+      <Avatar className="w-24 h-24 border-4 border-primary/10 shadow-xl scale-110">
+        <AvatarImage
+          src={admin?.user_image}
+          alt="Avatar"
+          className="object-cover"
+        />
+        <AvatarFallback className="text-2xl font-bold bg-primary/5 text-primary">
+          {admin?.first_name?.charAt(0)}
+        </AvatarFallback>
+      </Avatar>
 
-      <Typography sx={{ my: 0.5 }}>
-        <strong>{t("yourAccount")}</strong>
-      </Typography>
-
-      <Typography variant="body2" sx={{ my: 0.5 }}>
-        {admin?.first_name + " " + admin?.last_name}
-      </Typography>
-
-      <Typography className="capitalize" variant="body2" sx={{ my: 0.5 }}>
-        {admin?.role}
-      </Typography>
-    </Stack>
+      <div className="text-center space-y-1">
+        <p className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em]">
+          {t("yourAccount")}
+        </p>
+        <p className="text-base font-bold text-gray-900 tracking-tight">
+          {admin?.first_name + " " + admin?.last_name}
+        </p>
+        <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 capitalize tracking-wide">
+          {admin?.role}
+        </div>
+      </div>
+    </div>
   );
 
   const renderMenu = (
-    <Stack component="nav" spacing={0.5} sx={{ px: 2 }}>
-      {TranslatedNavConfig().map((item) => (
+    <nav className="grow px-4 space-y-2 overflow-y-auto scrollbar-hide">
+      {navConfig.map((item) => (
         <NavItem key={item.title} item={item} />
       ))}
-    </Stack>
+    </nav>
   );
 
   const renderContent = (
-    <Scrollbar
-      sx={{
-        height: 1,
-        "& .simplebar-content": {
-          height: 1,
-          display: "flex",
-          flexDirection: "column",
-        },
-      }}
-    >
-      <Box sx={{ mt: 1 }} alignSelf="center">
+    <div className="h-full flex flex-col bg-white overflow-hidden">
+      <div className="mt-8 flex justify-center mb-4">
         <MiniLogo />
-      </Box>
+      </div>
 
-      {renderAccount}
+      <Scrollbar className="h-full">
+        {renderAccount}
+        {renderMenu}
+      </Scrollbar>
 
-      {renderMenu}
-
-      <Box sx={{ flexGrow: 1 }} />
-    </Scrollbar>
+      <div className="p-6">
+        <div className="bg-gray-50 rounded-2xl p-4 border border-dashed border-gray-200">
+          <p className="text-[10px] font-bold text-gray-400 text-center uppercase tracking-widest">
+            GreenVille v1.0
+          </p>
+        </div>
+      </div>
+    </div>
   );
 
+  if (upLg) {
+    return (
+      <aside
+        className="fixed left-0 top-0 bottom-0 bg-white border-r border-dashed border-gray-200 z-10"
+        style={{ width: NAV.WIDTH }}
+      >
+        {renderContent}
+      </aside>
+    );
+  }
+
   return (
-    <Box
-      sx={{
-        flexShrink: { lg: 0 },
-        width: { lg: NAV.WIDTH },
-      }}
-    >
-      {upLg ? (
-        <Box
-          sx={{
-            height: 1,
-            position: "fixed",
-            width: NAV.WIDTH,
-            borderRight: (theme) => `dashed 1px ${theme.palette.divider}`,
-          }}
-        >
-          {renderContent}
-        </Box>
-      ) : (
-        <Drawer
-          open={openNav}
-          onClose={onCloseNav}
-          PaperProps={{
-            sx: {
-              width: NAV.WIDTH,
-            },
-          }}
-        >
-          {renderContent}
-        </Drawer>
-      )}
-    </Box>
+    <Sheet open={openNav} onOpenChange={onCloseNav}>
+      <SheetContent side="left" className="p-0 w-[280px] border-none">
+        {renderContent}
+      </SheetContent>
+    </Sheet>
   );
 }
 
@@ -152,40 +115,33 @@ Nav.propTypes = {
   onCloseNav: PropTypes.func,
 };
 
-// ----------------------------------------------------------------------
-
 function NavItem({ item }) {
   const pathname = usePathname();
-
   const active = item.path === pathname;
 
   return (
-    <ListItemButton
-      component={RouterLink}
+    <RouterLink
       href={item.path}
-      sx={{
-        minHeight: 44,
-        borderRadius: 0.75,
-        typography: "body2",
-        color: "text.secondary",
-        textTransform: "capitalize",
-        fontWeight: "fontWeightMedium",
-        ...(active && {
-          color: "primary.main",
-          fontWeight: "fontWeightSemiBold",
-          bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
-          "&:hover": {
-            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
-          },
-        }),
-      }}
+      className={`
+        flex items-center min-h-[44px] px-4 rounded-lg
+        transition-all duration-200 group
+        ${
+          active
+            ? "bg-primary/10 text-primary font-semibold"
+            : "text-gray-500 hover:bg-gray-50 hover:text-gray-800 font-medium"
+        }
+      `}
     >
-      <Box component="span" sx={{ width: 24, height: 24, mr: 2, mb: 0.5 }}>
+      <div
+        className={`w-6 h-6 mr-4 flex items-center justify-center transition-colors ${
+          active ? "text-primary" : "text-gray-400 group-hover:text-gray-600"
+        }`}
+      >
         {item.icon}
-      </Box>
+      </div>
 
-      <Box className="rtl:mr-3" component="span">{item.title}</Box>
-    </ListItemButton>
+      <span className="text-sm capitalize grow">{item.title}</span>
+    </RouterLink>
   );
 }
 

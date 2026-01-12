@@ -1,24 +1,18 @@
-import { useState } from "react";
 import PropTypes from "prop-types";
-
-import Stack from "@mui/material/Stack";
-import Avatar from "@mui/material/Avatar";
-import Popover from "@mui/material/Popover";
-import TableRow from "@mui/material/TableRow";
 import { useTranslation } from "react-i18next";
-import Checkbox from "@mui/material/Checkbox";
-import MenuItem from "@mui/material/MenuItem";
-import TableCell from "@mui/material/TableCell";
-import Badge from "@mui/material/Badge";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import axios from "axios";
-
-import Label from "../../components/label";
-import Iconify from "../../components/iconify";
 import { fDateTime } from "../../../utils/format-time";
+import Iconify from "../../../components/iconify";
 
-// ----------------------------------------------------------------------
+import { TableRow, TableCell } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export default function CustomerTableRow({
   selected,
@@ -34,91 +28,121 @@ export default function CustomerTableRow({
   onDelete,
   onDetails,
 }) {
-  // Toggle the selection
-  const [open, setOpen] = useState(null);
-  const isActive = status;
   const { t } = useTranslation();
-  const color = isActive ? "primary" : "secondary";
+  const isActive = status;
+
   return (
-    <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox disableRipple checked={selected} onChange={handleClick} />
-        </TableCell>
+    <TableRow
+      className={`group transition-colors ${
+        selected ? "bg-primary/5 hover:bg-primary/10" : "hover:bg-gray-50/50"
+      }`}
+    >
+      <TableCell className="pl-6 py-4">
+        <Checkbox
+          checked={selected}
+          onCheckedChange={(checked) => handleClick({ target: { checked } })}
+          aria-label={`Select ${first_name} ${last_name}`}
+          className="rounded-md border-gray-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+        />
+      </TableCell>
 
-        <TableCell>
-          <Avatar
-            align="center"
-            alt={`${first_name} ${last_name}`}
-            src={customer_image}
-          />
-        </TableCell>
-
-        <TableCell>{first_name}</TableCell>
-
-        <TableCell>{last_name}</TableCell>
-
-        <TableCell>{email}</TableCell>
-
-        <TableCell>{fDateTime(creation_date)}</TableCell>
-
-        <TableCell>
-          <Badge
-            sx={{
-              minWidth: 24,
-            }}
-            badgeContent={isActive ? t("Active") : t("Inactive")}
-            color={color}
-          ></Badge>
-        </TableCell>
-
-        <TableCell align="center">
-          <IconButton
-            onClick={() =>
-              onDetails({
-                first_name,
-                last_name,
-                email,
-                status,
-                creation_date,
-                last_login,
-              })
-            }
-          >
-            <Iconify
-              icon="material-symbols-light:visibility-outline-rounded"
-              width={26}
-              height={26}
+      <TableCell className="py-4">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-10 w-10 border border-gray-100 shadow-sm">
+            <AvatarImage
+              src={customer_image}
+              alt={`${first_name} ${last_name}`}
+              className="object-cover"
             />
-          </IconButton>
+            <AvatarFallback className="bg-primary/10 text-primary font-bold">
+              {first_name?.charAt(0)}
+              {last_name?.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+      </TableCell>
 
-          <IconButton
-            onClick={() => {
-              onEdit && onEdit();
-            }}
-          >
-            <Iconify
-              icon="material-symbols-light:edit-outline-rounded"
-              width={28}
-              height={28}
-            />
-          </IconButton>
+      <TableCell className="py-4 font-medium text-gray-900">
+        {first_name}
+      </TableCell>
 
-          <IconButton
-            onClick={(event) => {
-              onDelete && onDelete(event);
-            }}
-            sx={{ color: "error.main" }}
+      <TableCell className="py-4 font-medium text-gray-900">
+        {last_name}
+      </TableCell>
+
+      <TableCell className="py-4 text-gray-600">{email}</TableCell>
+
+      <TableCell className="py-4 text-gray-600 font-medium">
+        {fDateTime(creation_date)}
+      </TableCell>
+
+      <TableCell className="py-4">
+        <Badge
+          variant={isActive ? "success" : "destructive"}
+          className={`px-2.5 py-0.5 rounded-full font-bold text-[11px] uppercase tracking-wider ${
+            isActive
+              ? "bg-green-100 text-green-700 hover:bg-green-100 border-none"
+              : "bg-red-100 text-red-700 hover:bg-red-100 border-none"
+          }`}
+        >
+          {isActive ? t("Active") : t("Inactive")}
+        </Badge>
+      </TableCell>
+
+      <TableCell className="py-4 pr-6 text-right">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-lg text-gray-400 hover:text-primary transition-all"
+            >
+              <Iconify icon="eva:more-vertical-fill" width={20} />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            className="w-40 p-2 rounded-2xl shadow-xl border-none"
+            align="end"
           >
-            <Iconify
-              icon="material-symbols-light:delete-outline-rounded"
-              width={28}
-              height={28}
-            />
-          </IconButton>
-        </TableCell>
-      </TableRow>
-    </>
+            <div className="flex flex-col gap-1">
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-2 rounded-xl text-sm font-bold text-gray-600 hover:text-primary hover:bg-primary/5 px-3 py-2"
+                onClick={() =>
+                  onDetails({
+                    first_name,
+                    last_name,
+                    email,
+                    status,
+                    creation_date,
+                    last_login,
+                  })
+                }
+              >
+                <Iconify icon="eva:eye-fill" width={18} />
+                {t("Details")}
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-2 rounded-xl text-sm font-bold text-gray-600 hover:text-primary hover:bg-primary/5 px-3 py-2"
+                onClick={onEdit}
+              >
+                <Iconify icon="eva:edit-fill" width={18} />
+                {t("Edit")}
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-2 rounded-xl text-sm font-bold text-destructive hover:bg-destructive/5 px-3 py-2"
+                onClick={onDelete}
+              >
+                <Iconify icon="eva:trash-2-outline" width={18} />
+                {t("Delete")}
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </TableCell>
+    </TableRow>
   );
 }
 

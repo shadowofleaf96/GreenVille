@@ -1,22 +1,27 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import Tooltip from "@mui/material/Tooltip";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import { useDispatch, useSelector } from "react-redux";
-import { deleteProduct } from "../../../redux/backoffice/productSlice";
-import LoadingButton from "@mui/lab/LoadingButton";
-import Alert from "@mui/material/Alert";
-import InputAdornment from "@mui/material/InputAdornment";
-import Snackbar from "@mui/material/Snackbar";
-import Popover from "@mui/material/Popover";
-import Button from "@mui/material/Button";
-import createAxiosInstance from "../../../utils/axiosConfig";
-import axios from "axios";
-import Iconify from "../../components/iconify";
 import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import Iconify from "../../../components/iconify";
+
+import { deleteProduct } from "../../../redux/backoffice/productSlice";
+import createAxiosInstance from "../../../utils/axiosConfig";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
 export default function ProductTableToolbar({
   numSelected,
   selected,
@@ -33,180 +38,202 @@ export default function ProductTableToolbar({
   setShowFilters,
 }) {
   const { t } = useTranslation();
-  const [popoverAnchor, setPopoverAnchor] = useState(null);
-  const [snackbarMessage, setSnackbarMessage] = useState(null);
+  const [popoverOpen, setPopoverOpen] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-
   const dispatch = useDispatch();
 
   const handleDelete = async () => {
     try {
       setLoadingDelete(true);
-
-      let response;
-      const deletedProductIds = [];
-      for (const productId of selected) {
-        const axiosInstance = createAxiosInstance("admin")
-        response = await axiosInstance.delete(`/products/${productId}`);
-        deletedProductIds.push(productId);
+      const axiosInstance = createAxiosInstance("admin");
+      const deletedIds = [];
+      for (const id of selected) {
+        await axiosInstance.delete(`/products/${id}`);
+        deletedIds.push(id);
       }
-
-      dispatch(deleteProduct(deletedProductIds));
-
-      setPopoverAnchor(null);
+      dispatch(deleteProduct(deletedIds));
       setSelected([]);
-      const snackbarMessage =
+      const message =
         selected.length === 1
-          ? response.data.message
+          ? t("Product deleted successfully")
           : t(`Selected ${selected.length} products are deleted`);
-
-      toast.success(snackbarMessage);
+      toast.success(message);
     } catch (error) {
-      setPopoverAnchor(null);
-      toast.error(t("Error deleting products:", error));
+      toast.error(t("Error deleting products:"), error);
     } finally {
       setLoadingDelete(false);
+      setPopoverOpen(false);
     }
   };
 
-  const handleOpenPopover = (event) => {
-    setPopoverAnchor(event.currentTarget);
-  };
-
-  const handleClosePopover = () => {
-    setPopoverAnchor(null);
-  };
-
   return (
-    <>
-      <Toolbar
-        sx={{
-          height: 96,
-          display: "flex",
-          justifyContent: "space-between",
-          p: (theme) => theme.spacing(0, 1, 0, 3),
-          ...(numSelected > 0 && {
-            color: "primary.main",
-            bgcolor: "primary.lighter",
-          }),
-        }}
-      >
+    <div
+      className={`flex flex-col gap-4 px-6 py-4 transition-all duration-300 ${
+        numSelected > 0 ? "bg-primary/5" : "bg-transparent"
+      }`}
+    >
+      <div className="flex items-center justify-between">
         {numSelected > 0 ? (
-          <Typography component="div" variant="subtitle1" color="secondary">
-            {numSelected} {t("selected")}
-          </Typography>
+          <div className="flex items-center gap-4">
+            <p className="text-sm font-bold text-primary">
+              {numSelected} {t("selected")}
+            </p>
+          </div>
         ) : (
-          <>
-            {showFilters ? (
-              <>
-                <OutlinedInput
-                  value={filterName}
-                  onChange={onFilterName}
-                  placeholder={t("Filter by Name")}
-                />
-                <OutlinedInput
-                  value={skuFilter}
-                  onChange={onSkuFilter}
-                  placeholder={t("Filter by SKU")}
-                />
-                <OutlinedInput
-                  value={priceFilter}
-                  onChange={onPriceFilter}
-                  placeholder={t("Filter by Price")}
-                />
-                <OutlinedInput
-                  value={quantityFilter}
-                  onChange={onQuantityFilter}
-                  placeholder={t("Filter by Quantity")}
-                />
-              </>
-            ) : (
-              <>
-                <OutlinedInput
-                  value={filterName}
-                  onChange={onFilterName}
-                  placeholder={t("Search for Product...")}
-                  startAdornment={
-                    <InputAdornment position="start">
-                      <Iconify
-                        icon="material-symbols-light:search-rounded"
-                        width={30}
-                        height={30}
-                      />
-                    </InputAdornment>
-                  }
-                />
-              </>
-            )}
-          </>
-        )}
-
-        {numSelected > 0 ? (
-          <>
-            <Tooltip title={t("Delete")} color="secondary">
-              <IconButton onClick={handleOpenPopover}>
-                <Iconify
-                  icon="material-symbols-light:delete-sweep-outline-rounded"
-                  width={40}
-                  height={40}
-                />
-              </IconButton>
-            </Tooltip>
-
-            <Popover
-              open={Boolean(popoverAnchor)}
-              anchorEl={popoverAnchor}
-              onClose={handleClosePopover}
-              anchorOrigin={{ vertical: "top", horizontal: "left" }}
-              transformOrigin={{ vertical: "top", horizontal: "right" }}
-              PaperProps={{
-                sx: {
-                  width: 250,
-                  p: 2,
-                  mt: 2,
-                  mb: 2,
-                  ml: 2,
-                  mr: 2,
-                },
-              }}
-            >
-              <Typography sx={{ mb: 1 }} component="div" variant="subtitle1">
-                {`${t("Are you sure you want to delete")} ${numSelected} ${t(
-                  "selected elements"
-                )} ?`}
-              </Typography>
-
-              <LoadingButton
-                color="primary"
-                onClick={handleDelete}
-                loading={loadingDelete}
-              >
-                {t("Yes")}
-              </LoadingButton>
-              <Button color="secondary" onClick={handleClosePopover}>
-                {t("No")}
-              </Button>
-            </Popover>
-          </>
-        ) : (
-          <>
-            <IconButton onClick={() => setShowFilters(!showFilters)}>
+          <div className="flex-1 max-w-md">
+            <div className="relative w-full">
               <Iconify
-                icon="material-symbols-light:filter-list-rounded"
-                width={30}
-                height={30}
-              />{" "}
-            </IconButton>
-          </>
+                icon="material-symbols-light:search-rounded"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                width={20}
+              />
+              <Input
+                value={filterName}
+                onChange={onFilterName}
+                placeholder={t("Search for Product...")}
+                className="pl-10 h-11 bg-gray-50/50 border-gray-100 rounded-xl focus:ring-primary/20 transition-all"
+              />
+            </div>
+          </div>
         )}
-      </Toolbar>
-    </>
+
+        <div className="flex items-center gap-2 ml-4">
+          {numSelected > 0 ? (
+            <TooltipProvider>
+              <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Iconify
+                          icon="material-symbols-light:delete-sweep-outline-rounded"
+                          width={24}
+                          height={24}
+                        />
+                      </Button>
+                    </PopoverTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{t("Delete")}</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <PopoverContent className="w-64 p-4">
+                  <p className="text-sm font-medium mb-4">
+                    {t("Are you sure you want to delete")} {numSelected}{" "}
+                    {t("selected elements?")}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleDelete}
+                      disabled={loadingDelete}
+                      className="flex-1"
+                    >
+                      {loadingDelete && (
+                        <Iconify
+                          icon="svg-spinners:180-ring-with-bg"
+                          className="mr-2"
+                          width={16}
+                          height={16}
+                        />
+                      )}
+                      {t("Yes")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setPopoverOpen(false)}
+                      className="flex-1"
+                    >
+                      {t("No")}
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </TooltipProvider>
+          ) : (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`rounded-xl transition-all ${
+                      showFilters
+                        ? "bg-primary/10 text-primary"
+                        : "text-gray-500 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Iconify
+                      icon="material-symbols-light:filter-list-rounded"
+                      width={24}
+                    />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t("Filters")}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
+      </div>
+
+      {showFilters && !numSelected && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="space-y-1.5">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">
+              {t("Filter by SKU")}
+            </span>
+            <Input
+              value={skuFilter}
+              onChange={onSkuFilter}
+              placeholder={t("SKU...")}
+              className="h-10 bg-white border-gray-100 rounded-lg text-sm"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">
+              {t("Filter by Price")}
+            </span>
+            <Input
+              value={priceFilter}
+              onChange={onPriceFilter}
+              placeholder={t("Price...")}
+              className="h-10 bg-white border-gray-100 rounded-lg text-sm"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">
+              {t("Filter by Quantity")}
+            </span>
+            <Input
+              value={quantityFilter}
+              onChange={onQuantityFilter}
+              placeholder={t("Quantity...")}
+              className="h-10 bg-white border-gray-100 rounded-lg text-sm"
+            />
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
 ProductTableToolbar.propTypes = {
   numSelected: PropTypes.number,
+  selected: PropTypes.array,
+  setSelected: PropTypes.func,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
+  skuFilter: PropTypes.string,
+  onSkuFilter: PropTypes.func,
+  priceFilter: PropTypes.string,
+  onPriceFilter: PropTypes.func,
+  quantityFilter: PropTypes.string,
+  onQuantityFilter: PropTypes.func,
+  showFilters: PropTypes.bool,
+  setShowFilters: PropTypes.func,
 };

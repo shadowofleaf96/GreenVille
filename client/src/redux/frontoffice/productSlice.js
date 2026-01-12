@@ -4,14 +4,16 @@ const axiosInstance = createAxiosInstance("customer");
 
 export const getProducts = createAsyncThunk(
   "products/getProducts",
-  async (keyword = "", { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/products");
-      return response.data.data;
+      const response = await axiosInstance.get("/products", { params });
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch products",
+      );
     }
-  }
+  },
 );
 
 export const getProductDetails = createAsyncThunk(
@@ -23,12 +25,21 @@ export const getProductDetails = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response.data.message);
     }
-  }
+  },
 );
 
 const productSlice = createSlice({
   name: "products",
-  initialState: { product: null, products: [], loading: false, error: null },
+  initialState: {
+    product: {},
+    products: [],
+    loading: false,
+    error: null,
+    total: 0,
+    page: 1,
+    limit: 10,
+    maxPrice: 10000,
+  },
   reducers: {
     clearErrors: (state) => {
       state.error = null;
@@ -40,9 +51,11 @@ const productSlice = createSlice({
     });
     builder.addCase(getProducts.fulfilled, (state, action) => {
       state.loading = false;
-      state.products = action.payload;
-      state.productsCount = action.payload.length;
-      state.filteredProductsCount = action.payload.length;
+      state.products = action.payload.data || [];
+      state.total = action.payload.total || 0;
+      state.page = action.payload.page || 1;
+      state.limit = action.payload.limit || 10;
+      state.maxPrice = action.payload.maxPrice || 10000;
     });
     builder.addCase(getProducts.rejected, (state, action) => {
       state.loading = false;

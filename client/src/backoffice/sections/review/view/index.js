@@ -1,1 +1,1 @@
-export { default as ReviewView } from './review-view';
+export { default as ReviewView } from "./review-view";

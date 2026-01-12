@@ -7,16 +7,16 @@ const {
   getUserOrders,
   searchingOrders,
   UpdateOrdersById,
-  DeleteOrdersById
+  DeleteOrdersById,
 } = require("../controllers/ordersController");
 const {
   verifyToken,
   requireAdminOrManager,
 } = require("../middleware/authMiddleware");
 
-router.post("/", CreateOrders);
-router.get("/", RetrievingOrders);
-router.get("/:userId", getUserOrders);
+router.post("/", verifyToken, CreateOrders);
+router.get("/", verifyToken, requireAdminOrManager, RetrievingOrders);
+router.get("/:userId", verifyToken, getUserOrders);
 router.get("/:id", verifyToken, requireAdminOrManager, searchingOrders);
 router.put("/:id", verifyToken, requireAdminOrManager, UpdateOrdersById);
 router.delete("/:id", verifyToken, requireAdminOrManager, DeleteOrdersById);

@@ -48,7 +48,7 @@ exports.applyCoupon = async (req, res) => {
 
 exports.getAllCoupons = async (req, res) => {
   try {
-    const coupons = await Coupon.find();
+    const coupons = await Coupon.find().populate("usedBy", "name email").lean();
     res.status(200).json({ data: coupons });
   } catch (error) {
     res.status(500).json({ error: "Failed to retrieve coupons" });
@@ -92,5 +92,24 @@ exports.deleteCoupon = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: "Failed to delete coupon" });
+  }
+};
+
+exports.revokeCouponUsage = async (req, res) => {
+  try {
+    const { id, userId } = req.params;
+
+    const coupon = await Coupon.findById(id);
+    if (!coupon) return res.status(404).json({ error: "Coupon not found" });
+
+    coupon.usedBy = coupon.usedBy.filter((u) => u.toString() !== userId);
+    await coupon.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Coupon usage revoked successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to revoke coupon usage" });
   }
 };

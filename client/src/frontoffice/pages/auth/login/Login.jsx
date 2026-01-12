@@ -1,54 +1,58 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useDispatch } from "react-redux";
+import { useState, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   loginStart,
   loginSuccess,
-  loginFailure,
 } from "../../../../redux/frontoffice/customerSlice";
-import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
-import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
-import { motion } from "framer-motion";
 import {
-  TextField,
-  Button,
-  Paper,
-  Typography,
-  Link as MuiLink,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from "@mui/material";
-import Logo from "../../../../backoffice/components/logo";
-import Link from "@mui/material/Link";
-import InputAdornment from "@mui/material/InputAdornment";
-import createAxiosInstance from "../../../../utils/axiosConfig";
+  Link as RouterLink,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
+import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { LoadingButton } from "@mui/lab";
 import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+
+import Logo from "../../../../backoffice/components/logo";
+import createAxiosInstance from "../../../../utils/axiosConfig";
+import Iconify from "../../../../backoffice/components/iconify";
+
+import { Input } from "@/components/ui/input";
+import AuthBackground from "../../../components/auth/AuthBackground";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
-  GoogleReCaptchaProvider,
-  useGoogleReCaptcha
-} from 'react-google-recaptcha-v3';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Login = () => {
   const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
-  const history = useNavigate();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [refreshReCaptcha, setRefreshReCaptcha] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [enteredForgotEmail, setEnteredForgotEmail] = useState("");
   const [loadingSave, setLoadingSave] = useState(false);
+  const [loadingForgot, setLoadingForgot] = useState(false);
   const axiosInstance = createAxiosInstance("customer");
   const [isWebView, setIsWebView] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm();
-
-  const isRtl = i18n.language === 'ar';
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   useEffect(() => {
     if (searchParams.get("validationSuccess")) {
@@ -56,14 +60,16 @@ const Login = () => {
     }
   }, [searchParams, t]);
 
-  const isLoggedin = localStorage.getItem("customer_access_token")
+  const { data: settings } = useSelector((state) => state.adminSettings);
+
+  const isLoggedin = localStorage.getItem("customer_access_token");
 
   useEffect(() => {
     if (isLoggedin) {
       const redirect = searchParams.get("redirect");
-      history(redirect || "/", { replace: true });
+      navigate(redirect || "/", { replace: true });
     }
-  }, [isLoggedin, searchParams, history]);
+  }, [isLoggedin, searchParams, navigate]);
 
   const { executeRecaptcha } = useGoogleReCaptcha();
 
@@ -71,7 +77,7 @@ const Login = () => {
     if (!executeRecaptcha) {
       return;
     }
-    const captchaToken = await executeRecaptcha('loginAction');
+    const captchaToken = await executeRecaptcha("loginAction");
     return captchaToken;
   }, [executeRecaptcha]);
 
@@ -81,15 +87,6 @@ const Login = () => {
       setIsWebView(true);
     }
   }, []);
-
-
-  const handleOpenDialog = () => {
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
 
   const validateEmail = (email) => {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -118,22 +115,29 @@ const Login = () => {
       });
 
       if (response.status === 200) {
-        localStorage.setItem("customer_access_token", response.data.access_token);
+        localStorage.setItem(
+          "customer_access_token",
+          response.data.access_token,
+        );
 
         dispatch(
           loginSuccess({
             customerToken: response.data.access_token,
-            isLoggedIn: true
-          })
+            isLoggedIn: true,
+          }),
         );
         if (window.AndroidInterface) {
-          window.AndroidInterface.onLoginSuccess(JSON.stringify({
-            customer: response.data.customer,
-          }));
+          window.AndroidInterface.onLoginSuccess(
+            JSON.stringify({
+              customer: response.data.customer,
+            }),
+          );
         }
       }
     } catch (error) {
-      toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
+      toast.error(
+        "Error: " + (error.response?.data?.message || t("login.loginFailed")),
+      );
     } finally {
       setRefreshReCaptcha(!refreshReCaptcha);
       setLoadingSave(false);
@@ -156,16 +160,18 @@ const Login = () => {
           dispatch(
             loginSuccess({
               customerToken: res.data.access_token,
-            })
+            }),
           );
         }
         const redirect = searchParams.get("redirect");
-        history(redirect || "/", { replace: true });
+        navigate(redirect || "/", { replace: true });
       }
     } catch (error) {
-      toast.error("Error: " + (error.response?.data?.message || t('login.loginFailed')));
+      toast.error(
+        "Error: " + (error.response?.data?.message || t("login.loginFailed")),
+      );
     }
-  }
+  };
 
   const errorMessage = (error) => {
     console.error(error);
@@ -173,7 +179,11 @@ const Login = () => {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-
+    if (!validateEmail(enteredForgotEmail)) {
+      toast.error(t("login.invalidEmail"));
+      return;
+    }
+    setLoadingForgot(true);
     try {
       const response = await axiosInstance.post("/customers/forgot-password", {
         email: enteredForgotEmail,
@@ -185,167 +195,248 @@ const Login = () => {
     } catch (error) {
       console.error(error.response?.data?.error);
       toast.error("Error: " + error.response?.data?.error);
+    } finally {
+      setLoadingForgot(false);
     }
   };
 
   return (
-    <div className="backImage">
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-6 overflow-hidden bg-black">
+      {/* Background Video with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <AuthBackground
+          url={settings?.auth_settings?.auth_video_url}
+          className="w-full h-full object-cover opacity-60 filter brightness-50"
+        />
+        <div className="absolute inset-0 bg-linear-to-b from-black/80 via-transparent to-black/80" />
+      </div>
+
       <motion.div
-        initial={{ scale: 0.8 }}
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative z-10 w-full max-w-lg"
       >
-        <video autoPlay loop muted playsInline className="background-video" preload="auto"
-        >
-          <source src="https://res.cloudinary.com/donffivrz/video/upload/f_auto:video,q_auto/v1/greenville/public/videos/qdbnvi7dzfw7mc4i1mt7" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-        <Paper
-          elevation={3}
-          className="form-container p-0 !rounded-2xl"
-        >
-          <div className="max-w-[380px] md:max-w-[450px] p-5 md:p-10"
-          >
-            <div className="flex justify-center mb-4">
-              <Logo />
-            </div>
-            <Typography variant="h5" gutterBottom style={{ color: "black" }}>
-              {t("login.welcome")}
-            </Typography>
-
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <TextField
-                label={t("login.email")}
-                variant="outlined"
-                autoComplete="chrome-off"
-                fullWidth
-                margin="normal"
-                {...register("email", {
-                  required: t("login.emailRequired"),
-                  validate: {
-                    isValidEmail: value =>
-                      validateEmail(value) || t("login.invalidEmail"),
-                  },
-                })}
-                error={!!errors.email}
-                helperText={errors.email?.message}
-              />
-              <TextField
-                label={t("login.password")}
-                type="password"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                {...register("password", {
-                  required: t("PasswordRequired"),
-                  minLength: {
-                    value: 6,
-                    message: t("login.passwordLength"),
-                  },
-                })}
-                error={!!errors.password}
-                helperText={errors.password?.message}
-                InputProps={{
-                  ...(isRtl
-                    ? {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <MuiLink
-                            component={Link}
-                            to="/forgot-password"
-                            variant="body2"
-                            style={{ color: "black", cursor: "pointer" }}
-                            onClick={handleOpenDialog}
-                          >
-                            {t("login.forgotPassword")}
-                          </MuiLink>
-                        </InputAdornment>
-                      ),
-                    }
-                    : {
-                      autoComplete: "new-password",
-                      form: { autoComplete: "off" },
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <MuiLink
-                            component={Link}
-                            to="/forgot-password"
-                            variant="body2"
-                            style={{ color: "black", cursor: "pointer" }}
-                            onClick={handleOpenDialog}
-                          >
-                            {t("login.forgotPassword")}
-                          </MuiLink>
-                        </InputAdornment>
-                      ),
-                    }),
-                }}
-              />
-              <LoadingButton
-                type="submit"
-                fullWidth
-                loading={loadingSave}
-                variant="contained"
-                sx={{ fontWeight: 500, fontSize: 15 }}
-                className="bg-[#8DC63F] text-white rounded-md text-sm px-6 !py-2 !mb-2 !mt-2"
+        <Card className="rounded-4xl sm:rounded-[2.5rem] border-none shadow-2xl bg-white/95 overflow-hidden ring-1 ring-black/5">
+          <CardContent className="p-6 sm:p-10 md:p-12">
+            <div className="flex flex-col items-center">
+              <RouterLink
+                to="/"
+                className="mb-8 hover:scale-105 transition-transform duration-300"
               >
-                {loadingSave ? t("login.loggingIn") : t("login.login")}
-              </LoadingButton>
+                <Logo />
+              </RouterLink>
 
-              {!isWebView ? <div className="mt-2 flex justify-center">
-                <GoogleLogin
-                  onSuccess={responseMessage}
-                  onError={errorMessage}
-                  size="medium"
-                  useOneTap
-                  width="320px"
-                  theme="outline"
-                  locale={i18n.language}
-                  auto_select={false}
-                  use_fedcm_for_prompt={true}
-                  ux_mode="popup"
-                  context="signin"
-                />
-              </div> : null}
+              <div className="text-center space-y-2 mb-10">
+                <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+                  {t("login.welcome")}
+                </h1>
+              </div>
 
-              <Typography
-                variant="body2"
-                style={{ textAlign: "center", marginTop: "30px" }}
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="w-full space-y-6"
               >
-                {t("login.noAccount")}{" "}
-                <Link
-                  component={RouterLink}
-                  to="/register"
-                  style={{ color: "#8dc63f", fontWeight: 600 }}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">
+                      {t("login.email")}
+                    </Label>
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
+                        <Iconify icon="solar:letter-bold-duotone" width={20} />
+                      </div>
+                      <Input
+                        {...register("email", {
+                          required: t("login.emailRequired"),
+                          validate: {
+                            isValidEmail: (value) =>
+                              validateEmail(value) || t("login.invalidEmail"),
+                          },
+                        })}
+                        placeholder="john@example.com"
+                        className={`h-14 pl-12 rounded-2xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all font-bold ${
+                          errors.email ? "border-red-500 bg-red-50/50" : ""
+                        }`}
+                      />
+                    </div>
+                    {errors.email && (
+                      <p className="text-[10px] font-black text-red-500 uppercase tracking-widest ml-1 animate-in fade-in slide-in-from-left-2">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between ml-1">
+                      <Label className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                        {t("login.password")}
+                      </Label>
+                      <button
+                        type="button"
+                        onClick={() => setOpenDialog(true)}
+                        className="text-[10px] font-black text-primary uppercase tracking-widest hover:text-primary/70 transition-colors"
+                      >
+                        {t("login.forgotPassword")}
+                      </button>
+                    </div>
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
+                        <Iconify
+                          icon="solar:lock-password-bold-duotone"
+                          width={20}
+                        />
+                      </div>
+                      <Input
+                        type="password"
+                        {...register("password", {
+                          required: t("PasswordRequired"),
+                          minLength: {
+                            value: 6,
+                            message: t("login.passwordLength"),
+                          },
+                        })}
+                        placeholder="••••••••"
+                        className={`h-14 pl-12 rounded-2xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all font-bold ${
+                          errors.password ? "border-red-500 bg-red-50/50" : ""
+                        }`}
+                      />
+                    </div>
+                    {errors.password && (
+                      <p className="text-[10px] font-black text-red-500 uppercase tracking-widest ml-1 animate-in fade-in slide-in-from-left-2">
+                        {errors.password.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={loadingSave}
+                  className="w-full h-14 rounded-2xl bg-primary text-white font-black text-base shadow-xl shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
                 >
-                  {t("login.register")}
-                </Link>
-              </Typography>
-            </form>
+                  {loadingSave ? (
+                    <div className="flex items-center gap-2">
+                      <Iconify
+                        icon="svg-spinners:180-ring-with-bg"
+                        width={24}
+                      />
+                      {t("login.loggingIn")}
+                    </div>
+                  ) : (
+                    t("login.login")
+                  )}
+                </Button>
 
-            <Dialog open={openDialog} onClose={handleCloseDialog}>
-              <DialogTitle>{t("login.forgotPasswordTitle")}</DialogTitle>
-              <DialogContent>
-                <TextField
+                {!isWebView && (
+                  <div className="relative py-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-gray-100" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-transparent px-2 text-gray-400 font-black tracking-widest">
+                        {t("login.orContinueWith") || "Or continue with"}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {!isWebView && (
+                  <div className="flex justify-center transition-all hover:scale-[1.02] active:scale-[0.98]">
+                    <GoogleLogin
+                      onSuccess={responseMessage}
+                      onError={errorMessage}
+                      size="large"
+                      width={window.innerWidth < 640 ? "300" : "400"}
+                      theme="outline"
+                      shape="pill"
+                      locale={i18n.language}
+                      auto_select={false}
+                      use_fedcm_for_prompt={true}
+                      ux_mode="popup"
+                      context="signin"
+                    />
+                  </div>
+                )}
+              </form>
+
+              <div className="mt-10 text-center">
+                <p className="text-gray-500 font-bold text-sm">
+                  {t("login.noAccount")}{" "}
+                  <RouterLink
+                    to="/register"
+                    className="text-primary hover:underline ml-1 font-black underline-offset-4"
+                  >
+                    {t("login.register")}
+                  </RouterLink>
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Forgot Password Dialog */}
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="max-w-md p-0 overflow-hidden rounded-[2.5rem] border-none shadow-2xl bg-white">
+          <DialogHeader className="p-8 pb-4 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mx-auto mb-4">
+              <Iconify icon="solar:key-bold-duotone" width={32} />
+            </div>
+            <DialogTitle className="text-2xl font-black text-gray-900 tracking-tight">
+              {t("login.forgotPasswordTitle")}
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 font-medium px-4">
+              {t("login.forgotPasswordDesc")}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="p-8 pt-4 space-y-6">
+            <div className="space-y-2">
+              <Label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">
+                {t("login.email")}
+              </Label>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
+                  <Iconify icon="solar:letter-bold-duotone" width={20} />
+                </div>
+                <Input
                   autoFocus
-                  margin="dense"
-                  label={t("login.email")}
+                  placeholder="john@example.com"
                   type="email"
-                  fullWidth
                   value={enteredForgotEmail}
                   onChange={(e) => setEnteredForgotEmail(e.target.value)}
-                  variant="outlined"
+                  className="h-14 pl-12 rounded-2xl bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all font-bold"
                 />
-                <Typography>{t("login.forgotPasswordDesc")}</Typography>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleCloseDialog}>{t("login.cancel")}</Button>
-                <Button onClick={handleForgotPassword}>{t("login.submit")}</Button>
-              </DialogActions>
-            </Dialog>
+              </div>
+            </div>
           </div>
-        </Paper>
-      </motion.div>
+
+          <DialogFooter className="p-8 pt-0 flex flex-col sm:flex-row gap-4 sm:justify-between items-center">
+            <Button
+              variant="ghost"
+              onClick={() => setOpenDialog(false)}
+              className="flex-1 h-14 rounded-2xl font-black text-gray-500 hover:bg-gray-100 transition-all border-none uppercase tracking-widest text-xs"
+            >
+              {t("login.cancel")}
+            </Button>
+            <Button
+              onClick={handleForgotPassword}
+              disabled={loadingForgot}
+              className="flex-2 h-14 rounded-2xl bg-primary text-white font-black shadow-xl shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 uppercase tracking-widest text-xs"
+            >
+              {loadingForgot ? (
+                <div className="flex items-center gap-2">
+                  <Iconify icon="svg-spinners:180-ring-with-bg" width={20} />
+                  {t("login.submitting") || "Submitting..."}
+                </div>
+              ) : (
+                t("login.submit")
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

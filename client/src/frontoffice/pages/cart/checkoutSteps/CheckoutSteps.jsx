@@ -1,106 +1,115 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import Iconify from "../../../../components/iconify";
 
 const CheckoutSteps = ({ shipping, confirmOrder, payment }) => {
   const { t } = useTranslation();
 
+  const steps = [
+    {
+      id: 1,
+      label: t("Shipping"),
+      active: shipping,
+      link: "/shipping?edit=true",
+      icon: "solar:delivery-bold-duotone",
+    },
+    {
+      id: 2,
+      label: t("Confirm Order"),
+      active: confirmOrder,
+      link: "/confirm",
+      icon: "solar:clipboard-check-bold-duotone",
+    },
+    {
+      id: 3,
+      label: t("Payment"),
+      active: payment,
+      link: "/payment",
+      icon: "solar:card-2-bold-duotone",
+    },
+  ];
+
   return (
-    <div className="flex items-center justify-center mt-4 md:mt-0">
-      <nav>
-        <ol className="flex flex-row md:space-x-4">
-          {shipping ? (
-            <Link to="/shipping">
-              <li className="md:flex-1 w-24">
-                <div
-                  className="group cursor-pointer flex flex-col items-center py-2 px-4 md:pb-0 md:pt-4 border-l-4 border-[#8DC63F] md:border-l-0 md:border-t-4 w-full text-center"
-                  aria-current="step"
-                >
-                  <span className="text-sm font-medium text-[#8DC63F]">{t("Step 1")}
-                  </span>
-                  <span className="text-sm font-medium">{t("Shipping")}</span>
-                </div>
-              </li>
-            </Link>
-          ) : (
-            <li className="md:flex-1 w-24">
-              <div
-                className="group cursor-pointer flex flex-col items-center py-2 px-4 md:pb-0 md:pt-4 border-l-4 border-gray-200 md:border-l-0 md:border-t-4 w-full text-center"
-                aria-current="step"
-              >
-                <span className="text-sm font-medium text-gray-500 group-hover:text-gray-700">
-                  {t("Step 1")}
-                </span>
-                <span className="text-sm font-medium">
-                  {t("Shipping")}
-                </span>
-              </div>
-            </li>
-          )}
+    <div className="w-full max-w-4xl mx-auto mb-16">
+      <div className="relative flex items-center justify-between">
+        {/* Background Line */}
+        <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-primary transition-all duration-1000 ease-in-out"
+            style={{ width: payment ? "100%" : confirmOrder ? "50%" : "0%" }}
+          />
+        </div>
 
-          {/* Step 2: Confirm Order */}
-          {confirmOrder ? (
-            <Link to="/confirm">
-              <li className="md:flex-1 w-24">
-                <div
-                  className="group cursor-pointer flex flex-col items-center py-2 px-4 md:pb-0 md:pt-4 border-l-4 border-[#8DC63F] md:border-l-0 md:border-t-4 w-full text-center"
-                >
-                  <span className="text-sm font-medium text-[#8DC63F]">
-                    {t("Step 2")}
-                  </span>
-                  <span className="text-sm font-medium">
-                    {t("Confirm Order")}
-                  </span>
-                </div>
-              </li>
-            </Link>
-          ) : (
-            <li className="md:flex-1 w-24">
-              <div
-                className="group cursor-pointer flex flex-col items-center py-2 px-4 md:pb-0 md:pt-4 border-l-4 border-gray-200 hover:border-gray-300 md:border-l-0 md:border-t-4 w-full text-center"
-              >
-                <span className="text-sm font-medium text-gray-500 group-hover:text-gray-700">
-                  {t("Step 2")}
-                </span>
-                <span className="text-sm font-medium">
-                  {t("Confirm Order")}
-                </span>
-              </div>
-            </li>
-          )}
+        {/* Steps */}
+        {steps.map((step, index) => {
+          const isCompleted =
+            (index === 0 && (confirmOrder || payment)) ||
+            (index === 1 && payment);
+          const isCurrent = step.active && !isCompleted;
 
-          {/* Step 3: Payment */}
-          {payment ? (
-            <Link to="/payment">
-              <li className="md:flex-1 w-24">
-                <div
-                  className="group cursor-pointer flex flex-col items-center py-2 px-4 md:pb-0 md:pt-4 border-l-4 border-[#8DC63F] md:border-l-0 md:border-t-4 w-full text-center"
-                >
-                  <span className="text-sm font-medium text-[#8DC63F]">
-                    {t("Step 3")}
-                  </span>
-                  <span className="text-sm font-medium">
-                    {t("Payment")}
-                  </span>
+          return (
+            <div
+              key={step.id}
+              className="relative z-10 flex flex-col items-center group"
+            >
+              {step.active || isCompleted ? (
+                <Link to={step.link} className="flex flex-col items-center">
+                  <div
+                    className={`w-10 h-10 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-500 shadow-xl ${
+                      isCompleted
+                        ? "bg-primary text-white scale-110 shadow-primary/30"
+                        : isCurrent
+                          ? "bg-primary text-white scale-110 sm:scale-125 shadow-primary/40 ring-4 ring-primary/10"
+                          : "bg-white text-gray-400 border-2 border-gray-100 group-hover:border-primary/30 group-hover:text-primary"
+                    }`}
+                  >
+                    <Iconify
+                      icon={isCompleted ? "solar:check-circle-bold" : step.icon}
+                      width={20}
+                      className="sm:w-7"
+                    />
+                  </div>
+                  <div className="mt-4 text-center">
+                    <p
+                      className={`text-[10px] font-black uppercase tracking-widest mb-1 ${
+                        step.active || isCompleted
+                          ? "text-primary"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      {t("Step")} {step.id}
+                    </p>
+                    <p
+                      className={`text-sm font-black transition-colors ${
+                        step.active || isCompleted
+                          ? "text-gray-900"
+                          : "text-gray-400 group-hover:text-primary"
+                      }`}
+                    >
+                      {step.label}
+                    </p>
+                  </div>
+                </Link>
+              ) : (
+                <div className="flex flex-col items-center">
+                  <div className="w-14 h-14 rounded-2xl bg-white border-2 border-gray-100 flex items-center justify-center text-gray-300 shadow-sm transition-all grayscale opacity-60">
+                    <Iconify icon={step.icon} width={28} />
+                  </div>
+                  <div className="mt-4 text-center">
+                    <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1">
+                      {t("Step")} {step.id}
+                    </p>
+                    <p className="text-sm font-black text-gray-300">
+                      {step.label}
+                    </p>
+                  </div>
                 </div>
-              </li>
-            </Link>
-          ) : (
-            <li className="md:flex-1 w-24">
-              <div
-                className="group cursor-pointer flex flex-col items-center py-2 px-4 md:pb-0 md:pt-4 border-l-4 border-gray-200 hover:border-gray-300 md:border-l-0 md:border-t-4 w-full text-center"
-              >
-                <span className="text-sm font-medium text-gray-500 group-hover:text-gray-700">
-                  {t("Step 3")}
-                </span>
-                <span className="text-sm font-medium">
-                  {t("Payment")}
-                </span>
-              </div>
-            </li>
-          )}
-        </ol>
-      </nav>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

@@ -1,37 +1,45 @@
-import PropTypes from 'prop-types';
-
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import { alpha } from '@mui/material/styles';
+import PropTypes from "prop-types";
+import { alpha } from "../../../theme/css";
 
 // ----------------------------------------------------------------------
 
-export default function ColorPreview({ colors, limit = 3, sx }) {
+export default function ColorPreview({
+  colors,
+  limit = 3,
+  sx,
+  className,
+  style,
+}) {
   const renderColors = colors.slice(0, limit);
 
   const remainingColor = colors.length - limit;
 
   return (
-    <Stack component="span" direction="row" alignItems="center" justifyContent="flex-end" sx={sx}>
+    <span
+      className={`inline-flex flex-row items-center justify-end ${
+        className || ""
+      }`}
+      style={{ ...style, ...sx }}
+    >
       {renderColors.map((color, index) => (
-        <Box
+        <div
           key={color + index}
-          sx={{
-            ml: -0.75,
+          style={{
+            marginLeft: index === 0 ? 0 : -6,
             width: 16,
             height: 16,
-            bgcolor: color,
-            borderRadius: '50%',
-            border: (theme) => `solid 2px ${theme.palette.background.paper}`,
-            boxShadow: (theme) => `inset -1px 1px 2px ${alpha(theme.palette.common.black, 0.24)}`,
+            backgroundColor: color,
+            borderRadius: "50%",
+            border: "solid 2px #FFFFFF",
+            boxShadow: `inset -1px 1px 2px ${alpha("#000000", 0.24)}`,
           }}
         />
       ))}
 
       {colors.length > limit && (
-        <Box component="span" sx={{ typography: 'subtitle2' }}>{`+${remainingColor}`}</Box>
+        <span className="text-sm font-semibold ml-1">{`+${remainingColor}`}</span>
       )}
-    </Stack>
+    </span>
   );
 }
 
@@ -39,4 +47,6 @@ ColorPreview.propTypes = {
   colors: PropTypes.arrayOf(PropTypes.string),
   limit: PropTypes.number,
   sx: PropTypes.object,
+  className: PropTypes.string,
+  style: PropTypes.object,
 };

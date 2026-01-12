@@ -23,18 +23,13 @@ const couponSlice = createSlice({
     },
     deleteCoupon: (state, action) => {
       state.data = state.data.filter(
-        (coupons) => !action.payload.includes(coupons._id)
+        (coupons) => !action.payload.includes(coupons._id),
       );
     },
   },
 });
 
-export const {
-  setData,
-  setLoading,
-  setError,
-  setFilterName,
-  deleteCoupon,
-} = couponSlice.actions;
+export const { setData, setLoading, setError, setFilterName, deleteCoupon } =
+  couponSlice.actions;
 
 export default couponSlice.reducer;

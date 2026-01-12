@@ -1,6 +1,7 @@
 // Shadow Of Leaf was Here
 
 const { User } = require("../models/User");
+const Vendor = require("../models/Vendor"); // Import Vendor model
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
@@ -16,74 +17,94 @@ const createUser = async (req, res) => {
   const user_image = req.file;
   const { role, user_name, first_name, last_name, email, password } = req.body;
 
-  const existingUser = await User.findOne({
-    $or: [{ user_name }, { email }],
-  });
+  try {
+    const existingUser = await User.findOne({
+      $or: [{ user_name }, { email }],
+    });
 
-  if (existingUser) {
-    return res.status(400).json({
-      status: 400,
-      message: "User name or email already exists",
+    if (existingUser) {
+      return res.status(400).json({
+        status: 400,
+        message: "User name or email already exists",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await User.create({
+      user_image:
+        typeof user_image === "string" ? user_image : user_image?.path,
+      role,
+      user_name,
+      first_name,
+      last_name,
+      email,
+      password: hashedPassword,
+      creation_date: Date.now(),
+      status: true,
+    });
+
+    // If role is vendor, create the Vendor profile
+    if (role === "vendor") {
+      try {
+        await Vendor.create({
+          user: newUser._id,
+          store_name: `${user_name}'s Store`, // Default store name
+          store_description: `Welcome to ${user_name}'s store!`,
+          status: "approved", // Auto-approve admin-created vendors
+        });
+      } catch (vendorError) {
+        console.error("Error creating vendor profile:", vendorError);
+        // Optional: Delete the user if vendor creation fails to maintain consistency
+        // await User.findByIdAndDelete(newUser._id);
+        // return res.status(500).json({ message: "Failed to create vendor profile" });
+
+        // For now, just log it. The user exists, but might need manual vendor fixes.
+      }
+    }
+
+    const mailOptions = {
+      from: process.env.SENDER,
+      to: newUser.email,
+      subject: `Welcome to Our Ecommerce Project`,
+      text: `Hello ${newUser.first_name},\n\nWelcome to Our Ecommerce Project! Your account has been successfully created.`,
+    };
+
+    transporter.sendMail(mailOptions);
+
+    res.status(201).json({
+      status: 201,
+      message: "User created successfully",
+      data: newUser,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: "Error creating the user",
     });
   }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  User.create({
-    user_image: typeof user_image === "string" ? user_image : user_image.path,
-    role,
-    user_name,
-    first_name,
-    last_name,
-    email,
-    password: hashedPassword,
-    creation_date: Date.now(),
-    status: true,
-  })
-    .then((newUser) => {
-      res.status(201).json({
-        status: 201,
-        message: "User created successfully",
-        data: newUser,
-      });
-
-      const mailOptions = {
-        from: process.env.SENDER,
-        to: newUser.email,
-        subject: `Welcome to Our Ecommerce Project`,
-        text: `Hello ${newUser.first_name},\n\nWelcome to Our Ecommerce Project! Your account has been successfully created.`,
-      };
-
-      transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log("Email sent: " + info.response);
-        }
-      });
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).json({
-        status: 500,
-        message: "Error creating the user",
-      });
-    });
 };
 
 const getAllUsers = async (req, res, next) => {
-  const { page, sort } = req.query;
+  const { page, sort, role } = req.query;
   const perPage = 10;
 
   const skip = (page - 1) * perPage;
 
   const sortOrder = sort === "DESC" ? -1 : 1;
+  const filter = {};
+  if (role) {
+    filter.role = role;
+  }
+
   if (page) {
     try {
-      const Users = await User.find()
+      const Users = await User.find(filter)
         .skip(skip)
         .limit(perPage)
-        .sort({ creation_date: sortOrder });
+        .sort({ creation_date: sortOrder })
+        .lean();
       res.status(200).json({
         status: 200,
         data: Users,
@@ -94,7 +115,7 @@ const getAllUsers = async (req, res, next) => {
     }
   } else {
     try {
-      const Users = await User.find();
+      const Users = await User.find(filter).lean();
       res.status(200).json({
         status: 200,
         data: Users,
@@ -126,7 +147,8 @@ const searchUser = async (req, res, next) => {
     query = User.find(searchQuery)
       .skip(skip)
       .limit(perPage)
-      .sort({ creation_date: sortOrder });
+      .sort({ creation_date: sortOrder })
+      .lean();
 
     const users = await query.exec();
 
@@ -141,12 +163,10 @@ const searchUser = async (req, res, next) => {
 };
 
 const getUserDetails = async (req, res, next) => {
-  const Users = await User.find();
   const userId = req.params.id;
   try {
-    const matchingUser = Users.find((user) => {
-      return user.id === userId;
-    });
+    const matchingUser = await User.findById(userId).lean();
+
     if (matchingUser) {
       res.status(200).json({
         data: matchingUser,
@@ -179,9 +199,6 @@ const updateUser = async (req, res) => {
     }
 
     if (typeof role !== "string") {
-      invalidFields.push("user_image");
-    }
-    if (typeof role !== "string") {
       invalidFields.push("role");
     }
     if (typeof first_name !== "string") {
@@ -196,7 +213,7 @@ const updateUser = async (req, res) => {
     if (typeof email !== "string") {
       invalidFields.push("email");
     }
-    if (typeof password !== "string") {
+    if (password && typeof password !== "string") {
       invalidFields.push("password");
     }
 
@@ -208,15 +225,21 @@ const updateUser = async (req, res) => {
       });
     }
 
-    existingUser.user_image =
-      typeof user_image === "string" ? user_image : user_image.path;
-    existingUser.role = role;
-    existingUser.first_name = first_name;
-    existingUser.last_name = last_name;
-    existingUser.user_name = user_name;
-    existingUser.email = email;
-    existingUser.password = password;
-    existingUser.status = status;
+    if (user_image) {
+      existingUser.user_image =
+        typeof user_image === "string" ? user_image : user_image.path;
+    }
+
+    if (role) existingUser.role = role;
+    if (first_name) existingUser.first_name = first_name;
+    if (last_name) existingUser.last_name = last_name;
+    if (user_name) existingUser.user_name = user_name;
+    if (email) existingUser.email = email;
+    if (status !== undefined) existingUser.status = status;
+
+    if (password) {
+      existingUser.password = await bcrypt.hash(password, 10);
+    }
     existingUser.last_update = new Date();
 
     await existingUser.save();
@@ -224,7 +247,7 @@ const updateUser = async (req, res) => {
     res.status(200).json({
       message: "User updated successfully",
       success: true,
-      data: existingUser
+      data: existingUser,
     });
   } catch (error) {
     console.error(error);
@@ -334,13 +357,7 @@ const forgotPassword = async (req, res) => {
         If you did not request this, please ignore this email and your password will remain unchanged.\n`,
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("Email sent: " + info.response);
-      }
-    });
+    transporter.sendMail(mailOptions);
 
     res.json({ message: "Password reset email sent" });
   } catch (error) {

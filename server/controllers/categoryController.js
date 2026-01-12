@@ -2,7 +2,19 @@ const { Category } = require("../models/Category");
 const { SubCategory } = require("../models/SubCategory");
 
 const createCategory = async (req, res) => {
-  const { category_name, status } = req.body;
+  let { category_name, status } = req.body;
+
+  if (typeof category_name === "string") {
+    try {
+      category_name = JSON.parse(category_name);
+    } catch (error) {
+      // invalid json
+    }
+  }
+
+  if (typeof status === "string") {
+    status = status === "true";
+  }
 
   if (
     !category_name ||
@@ -31,8 +43,9 @@ const createCategory = async (req, res) => {
     }
 
     const newCategory = new Category({
-      category_name,
+      category_name: category_name,
       status: status || false,
+      category_image: req.file ? req.file.path.replace(/\\/g, "/") : "",
     });
 
     await newCategory.save();
@@ -57,7 +70,7 @@ const getAllCategories = async (req, res, next) => {
 
   if (page) {
     try {
-      const Categories = await Category.find().skip(skip).limit(perPage);
+      const Categories = await Category.find().skip(skip).limit(perPage).lean();
       res.status(200).json({
         data: Categories,
       });
@@ -67,7 +80,7 @@ const getAllCategories = async (req, res, next) => {
     }
   } else {
     try {
-      const Categories = await Category.find();
+      const Categories = await Category.find().lean();
       res.status(200).json({
         data: Categories,
       });
@@ -88,7 +101,7 @@ const searchCategory = async (req, res, next) => {
     const searchQuery = {
       $or: [{ category_name: { $regex: new RegExp(query, "i") } }],
     };
-    query = Category.find(searchQuery).skip(skip).limit(perPage);
+    query = Category.find(searchQuery).skip(skip).limit(perPage).lean();
     const categories = await query.exec();
 
     if (categories.length === 0) {
@@ -109,12 +122,10 @@ const searchCategory = async (req, res, next) => {
 };
 
 const getCategoryDetails = async (req, res, next) => {
-  const Categories = await Category.find();
   const catId = req.params.id;
   try {
-    const matchingCategory = Categories.find((cat) => {
-      return cat.id === catId;
-    });
+    const matchingCategory = await Category.findById(catId).lean();
+
     if (matchingCategory) {
       res.status(200).json({
         data: matchingCategory,
@@ -133,8 +144,18 @@ const getCategoryDetails = async (req, res, next) => {
 const updateCategory = async (req, res) => {
   try {
     const catId = req.params.id;
-    const { category_name, status } = req.body;
+    let { category_name, status } = req.body;
     const invalidFields = [];
+
+    if (typeof category_name === "string") {
+      try {
+        category_name = JSON.parse(category_name);
+      } catch (e) {}
+    }
+
+    if (typeof status === "string") {
+      status = status === "true";
+    }
 
     if (
       !category_name ||
@@ -176,9 +197,14 @@ const updateCategory = async (req, res) => {
       });
     }
 
-    existingCategory.category_name = category_name;
+    const parsedCategoryName = category_name;
+
+    existingCategory.category_name = parsedCategoryName;
     if (typeof status !== "undefined") {
       existingCategory.status = status;
+    }
+    if (req.file) {
+      existingCategory.category_image = req.file.path.replace(/\\/g, "/");
     }
 
     await existingCategory.save();
