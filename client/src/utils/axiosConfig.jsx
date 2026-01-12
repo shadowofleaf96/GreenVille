@@ -29,7 +29,13 @@ const createAxiosInstance = (userType) => {
     (response) => response,
     (error) => {
       if (error.response && error.response.status === 401) {
-        handleUnauthorized(userType);
+        if (userType === "admin") {
+          handleUnauthorized(userType);
+        } else {
+          // For customers, just clear the token but don't force redirect
+          // Individual protected pages (FrontProtectedRoute) will handle redirection if needed
+          localStorage.removeItem("customer_access_token");
+        }
       }
       return Promise.reject(error);
     }

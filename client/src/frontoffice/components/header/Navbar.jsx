@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -8,7 +8,6 @@ import { useProducts } from "../../../api/queries";
 
 import Iconify from "../../../backoffice/components/iconify";
 import Announcement from "../announcement/Announcement";
-import Loader from "../loader/Loader";
 import LazyImage from "../../../components/lazyimage/LazyImage";
 import optimizeImage from "../../components/optimizeImage";
 import LanguagePopover from "../../../backoffice/layouts/dashboard/common/language-popover";
@@ -58,10 +57,11 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!customer) {
+    const token = localStorage.getItem("customer_access_token");
+    if (!customer && token) {
       dispatch(fetchCustomerProfile());
     }
-  }, [dispatch]);
+  }, [dispatch, customer]);
 
   useEffect(() => {
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
