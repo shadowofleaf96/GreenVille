@@ -1,5 +1,4 @@
-import React from "react";
-import { Helmet, HelmetProvider } from "react-helmet-async";
+import { Helmet } from "react-helmet-async";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 

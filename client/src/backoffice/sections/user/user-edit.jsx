@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import DOMPurify from "dompurify";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";

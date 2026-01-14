@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
-import { useProducts } from "../../../api/queries";
+import { useProducts } from "../../../services/api/product.queries";
 
 import Iconify from "../../../backoffice/components/iconify";
 import Announcement from "../announcement/Announcement";
@@ -49,7 +49,7 @@ const Navbar = () => {
   const currentLanguage = i18n.language;
 
   // Fetch all products for search functionality
-  const { data: productsData } = useProducts({ limit: 1000, status: true });
+  const { data: productsData } = useProducts({ limit: 1000, status: "true" });
   const products = productsData?.data || [];
 
   const location = useLocation();
@@ -305,7 +305,7 @@ const Navbar = () => {
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="w-[300px] sm:w-[400px] border-none shadow-2xl p-0"
+                className="w-75 sm:w-100 border-none shadow-2xl p-0"
               >
                 <SheetHeader className="p-10 pb-0 flex flex-row items-center justify-between">
                   <SheetTitle className="text-2xl font-black text-primary tracking-tight uppercase">

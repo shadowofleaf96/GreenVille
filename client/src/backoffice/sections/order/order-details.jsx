@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import Iconify from "../../../components/iconify";
 
@@ -241,7 +241,7 @@ const OrderDetailsPopup = ({ order, open, onClose }) => {
                   {t("Order Notes")}
                 </div>
                 <div className="bg-amber-50/30 rounded-2xl p-6 border border-amber-100/50 italic text-sm text-gray-600 leading-relaxed">
-                  "{order.order_notes}"
+                  &quot;{order.order_notes}&quot;
                 </div>
               </div>
             )}

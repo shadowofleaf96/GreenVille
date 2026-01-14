@@ -7,7 +7,7 @@ const { upload } = require("../middleware/multerMiddleware");
 router.post(
   "/register",
   upload.single("store_logo"),
-  vendorController.registerVendor
+  vendorController.registerVendor,
 );
 const {
   verifyToken,
@@ -19,14 +19,14 @@ const {
 router.post(
   "/register",
   upload.single("store_logo"),
-  vendorController.registerVendor
+  vendorController.registerVendor,
 );
 router.get("/profile/:userId", vendorController.getVendorProfile);
 router.put(
   "/profile/:userId",
   verifyToken,
   upload.single("store_logo"),
-  vendorController.updateVendorProfile
+  vendorController.updateVendorProfile,
 );
 
 // Admin routes
@@ -34,13 +34,13 @@ router.patch(
   "/status/:id",
   verifyToken,
   requireAdmin,
-  vendorController.updateVendorStatus
+  vendorController.updateVendorStatus,
 );
 router.get(
   "/",
   verifyToken,
   requireAdminOrManager,
-  vendorController.getAllVendors
+  vendorController.getAllVendors,
 );
 router.delete("/:id", verifyToken, requireAdmin, vendorController.deleteVendor);
 

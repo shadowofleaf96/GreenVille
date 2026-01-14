@@ -36,7 +36,7 @@ const reviewSchema = new mongoose.Schema(
   {
     collection: "Reviews",
     versionKey: false,
-  }
+  },
 );
 
 const validateReview = (review) => {

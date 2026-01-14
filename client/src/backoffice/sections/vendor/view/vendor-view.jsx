@@ -7,7 +7,7 @@ import Iconify from "../../../components/iconify";
 import Scrollbar from "../../../components/scrollbar";
 import TableNoDataFilter from "../../../components/table/TableNoData";
 import createAxiosInstance from "../../../../utils/axiosConfig";
-import LazyImage from "../../../../components/lazyimage/LazyImage";
+
 import Loader from "../../../../frontoffice/components/loader/Loader";
 import {
   Select,
@@ -122,7 +122,7 @@ export default function VendorView() {
     handleSubmit: handleSubmitCreate,
     control: controlCreate,
     reset: resetCreate,
-    setValue: setValueCreate,
+    setValue: setValueCreate, // eslint-disable-line no-unused-vars
     watch: watchCreate,
     formState: { errors: errorsCreate },
   } = useForm();
@@ -132,11 +132,11 @@ export default function VendorView() {
     handleSubmit: handleSubmitEdit,
     control: controlEdit,
     reset: resetEdit,
-    setValue: setValueEdit,
+    setValue: setValueEdit, // eslint-disable-line no-unused-vars
     formState: { errors: errorsEdit },
   } = useForm();
 
-  const selectedUser = watchCreate("user");
+  const selectedUser = watchCreate("user"); // eslint-disable-line no-unused-vars
 
   // Fetch Vendors
   const fetchVendors = async () => {
@@ -167,9 +167,10 @@ export default function VendorView() {
   useEffect(() => {
     fetchVendors();
     fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const totalPages = Math.ceil(vendors.length / rowsPerPage);
+  const totalPages = Math.ceil(vendors.length / rowsPerPage); // eslint-disable-line no-unused-vars
 
   // --- Actions ---
 

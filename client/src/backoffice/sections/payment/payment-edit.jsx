@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import DOMPurify from "dompurify";
 import Iconify from "../../../components/iconify";
@@ -21,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 function EditPaymentForm({ payment, onSave, onCancel, open, onClose }) {
   const { t } = useTranslation();

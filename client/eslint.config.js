@@ -7,8 +7,10 @@ import globals from "globals";
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
+    ignores: ["dist", ".eslintrc.cjs", "node_modules"],
+  },
+  {
     files: ["**/*.{js,jsx,ts,tsx}"],
-    ignores: ["dist", ".eslintrc.cjs"],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
@@ -36,6 +38,9 @@ export default [
         "warn",
         { allowConstantExport: true },
       ],
+      "react/prop-types": "off",
+      "react/display-name": "off",
+      "no-unused-vars": "warn",
     },
     settings: {
       react: {

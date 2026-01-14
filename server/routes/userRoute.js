@@ -27,14 +27,14 @@ router.post(
   verifyToken,
   requireAdmin,
   upload.single("user_image"),
-  createUser
+  createUser,
 );
 router.put(
   "/:id",
   verifyToken,
   requireAdmin,
   upload.single("user_image"),
-  updateUser
+  updateUser,
 );
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);

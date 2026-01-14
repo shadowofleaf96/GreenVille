@@ -1,7 +1,5 @@
-import React from "react";
 import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
-import Iconify from "../../../components/iconify";
 
 import {
   Dialog,

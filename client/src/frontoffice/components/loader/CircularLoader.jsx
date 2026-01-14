@@ -1,4 +1,3 @@
-import React from "react";
 import Iconify from "../../../backoffice/components/iconify";
 
 const CircularLoader = () => {

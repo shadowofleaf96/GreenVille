@@ -21,10 +21,10 @@ const UpdateAddress = () => {
   const { customer } = useSelector((state) => state.customers);
 
   const [latitude, setLatitude] = useState(
-    customer?.shipping_address?.latitude || 33.5731
+    customer?.shipping_address?.latitude || 33.5731,
   );
   const [longitude, setLongitude] = useState(
-    customer?.shipping_address?.longitude || -7.5898
+    customer?.shipping_address?.longitude || -7.5898,
   );
 
   const dispatch = useDispatch();
@@ -69,7 +69,7 @@ const UpdateAddress = () => {
     try {
       await handleSaveEditedShippingAddress(
         customer._id,
-        updatedShippingAddress
+        updatedShippingAddress,
       );
     } catch (error) {
       console.error(error);
@@ -78,7 +78,7 @@ const UpdateAddress = () => {
 
   const handleSaveEditedShippingAddress = async (
     customerId,
-    updatedShippingAddress
+    updatedShippingAddress,
   ) => {
     setLoading(true);
     try {
@@ -91,7 +91,7 @@ const UpdateAddress = () => {
     } catch (error) {
       setLoading(false);
       toast.error(
-        "Error: " + t(error.response?.data?.message || "Unknown error")
+        "Error: " + t(error.response?.data?.message || "Unknown error"),
       );
     }
   };
@@ -123,7 +123,7 @@ const UpdateAddress = () => {
                       </h1>
                       <p className="text-sm font-bold text-gray-400 italic">
                         {t(
-                          "Keep your primary shipping information up to date for faster checkouts."
+                          "Keep your primary shipping information up to date for faster checkouts.",
                         )}
                       </p>
                     </div>
@@ -255,7 +255,7 @@ const UpdateAddress = () => {
                               onChange: (e) => {
                                 e.target.value = e.target.value.replace(
                                   /\D/g,
-                                  ""
+                                  "",
                                 );
                               },
                             })}
@@ -355,7 +355,7 @@ const UpdateAddress = () => {
                     />
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-relaxed text-center">
                       {t(
-                        "Accurate shipping details ensure timely delivery. Please verify all fields before saving."
+                        "Accurate shipping details ensure timely delivery. Please verify all fields before saving.",
                       )}
                     </p>
                   </div>

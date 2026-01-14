@@ -29,7 +29,7 @@ const notificationSchema = new mongoose.Schema(
   {
     collection: "Notifications",
     versionKey: false,
-  }
+  },
 );
 
 const notificationValidationSchema = Joi.object({

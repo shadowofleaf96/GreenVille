@@ -192,7 +192,7 @@ const updateCategory = async (req, res) => {
     if (invalidFields.length > 0) {
       return res.status(400).json({
         message: `Bad request. The following fields have invalid data types: ${invalidFields.join(
-          ", "
+          ", ",
         )}`,
       });
     }

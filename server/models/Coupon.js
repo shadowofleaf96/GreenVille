@@ -57,7 +57,7 @@ const couponMongooseSchema = new Schema(
       default: "active",
     },
   },
-  { collection: "Coupon", versionKey: false }
+  { collection: "Coupon", versionKey: false },
 );
 
 couponMongooseSchema.pre("save", async function (next) {

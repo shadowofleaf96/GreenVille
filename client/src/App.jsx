@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useScrollToTop } from "../src/backoffice/hooks/use-scroll-to-top";
 import Router from "../src/routes/sections";
-import ThemeProvider from "../src/theme";
 import { useTranslation } from "react-i18next";
 import Loader from "./frontoffice/components/loader/Loader";
 import { fetchSettings } from "./redux/backoffice/settingsSlice";
@@ -25,7 +24,7 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute(
       "dir",
-      i18n.language === "ar" ? "rtl" : "ltr",
+      i18n.language === "ar" ? "rtl" : "ltr"
     );
   }, [i18n.language]);
 
@@ -49,11 +48,9 @@ export default function App() {
   return (
     <HelmetProvider>
       <ErrorBoundary>
-        <ThemeProvider>
-          <DynamicThemeProvider>
-            <Router />
-          </DynamicThemeProvider>
-        </ThemeProvider>
+        <DynamicThemeProvider>
+          <Router />
+        </DynamicThemeProvider>
       </ErrorBoundary>
     </HelmetProvider>
   );

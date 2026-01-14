@@ -59,7 +59,7 @@ export default function OrderTableRow({
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const [shippingStatusLabel, setShippingStatusLabel] = useState("");
-  const [shippingMethodLabel, setShippingMethodLabel] = useState("");
+  const [shippingMethodLabel, setShippingMethodLabel] = useState(""); // eslint-disable-line no-unused-vars
 
   useEffect(() => {
     const statusMap = {

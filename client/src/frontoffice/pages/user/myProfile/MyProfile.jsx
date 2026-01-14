@@ -105,7 +105,7 @@ const MyProfile = () => {
                             />
                             {t("Member since")}{" "}
                             {new Date(
-                              customer?.createdAt || Date.now()
+                              customer?.createdAt || Date.now(),
                             ).getFullYear()}
                           </div>
                         </div>
@@ -298,7 +298,7 @@ const MyProfile = () => {
                             />
                             <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-relaxed">
                               {t(
-                                "Your information is securely encrypted and never shared with third parties."
+                                "Your information is securely encrypted and never shared with third parties.",
                               )}
                             </p>
                           </div>

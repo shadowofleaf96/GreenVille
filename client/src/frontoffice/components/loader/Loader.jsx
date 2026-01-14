@@ -1,4 +1,3 @@
-import React from "react";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import LazyImage from "../../../components/lazyimage/LazyImage";

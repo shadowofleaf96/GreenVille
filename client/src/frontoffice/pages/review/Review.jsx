@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import DOMPurify from "dompurify";
@@ -62,6 +62,7 @@ const Review = ({ productId, customerId, closeModal }) => {
 
     fetchProductInfo();
     checkExistingReview();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId, customerId]);
 
   const onSubmit = async (data) => {

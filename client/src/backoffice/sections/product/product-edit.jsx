@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import Iconify from "../../../components/iconify";
 import UploadButton from "../../components/button/UploadButton";
 import LazyImage from "@/components/lazyimage/LazyImage";
-import { useSubcategories } from "@/api/queries";
+import { useSubcategories } from "@/services/api/category.queries";
 import {
   Dialog,
   DialogContent,
@@ -28,13 +28,12 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 
 function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
   const { t, i18n } = useTranslation();
   const { data: subcategories = [] } = useSubcategories();
   const [selectedImages, setSelectedImages] = useState(
-    Product?.product_images || [],
+    Product?.product_images || []
   );
   const [loadingSave, setLoadingSave] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
@@ -330,7 +329,7 @@ function EditProductForm({ Product, onSave, onCancel, open, onClose }) {
                               <SelectItem key={sc._id} value={sc._id}>
                                 {t(
                                   sc.subcategory_name[currentLanguage] ||
-                                    sc.subcategory_name.en,
+                                    sc.subcategory_name.en
                                 )}
                               </SelectItem>
                             ))}

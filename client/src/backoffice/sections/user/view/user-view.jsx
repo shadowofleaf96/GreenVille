@@ -85,6 +85,7 @@ export default function UserView() {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   if (loading) {
@@ -129,14 +130,14 @@ export default function UserView() {
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
         selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
+        selected.slice(selectedIndex + 1)
       );
     }
 
     setSelected(newSelected);
   };
 
-  const openDeleteConfirmation = (userId, event) => {
+  const openDeleteConfirmation = (userId) => {
     setSelectedDeleteUserId(userId);
     setDeleteConfirmationOpen(true);
   };
@@ -191,7 +192,7 @@ export default function UserView() {
 
       const response = await axiosInstance.put(
         `/users/${editedUser._id}`,
-        formData,
+        formData
       );
 
       const index = data.findIndex((user) => user._id === editedUser._id);

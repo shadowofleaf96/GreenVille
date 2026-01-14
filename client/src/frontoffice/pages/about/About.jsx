@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 import { useTranslation } from "react-i18next";
 import Iconify from "../../../backoffice/components/iconify";
 import { Link } from "react-router-dom";
@@ -134,8 +134,9 @@ const About = () => {
 
               <div className="flex items-center justify-center md:justify-start rtl:md:justify-end gap-3 mb-8">
                 <h3 className="text-xl lg:text-2xl font-bold text-gray-500 uppercase tracking-widest">
-                  {aboutPage?.subtitle?.[currentLang] || t("about.subtitle")}
-                  {aboutPage?.subtitle?.[currentLang] || t("about.subtitle")}
+                  {aboutPage?.subtitle?.[currentLang] +
+                    " " +
+                    settings?.website_title?.[currentLang]}
                 </h3>
               </div>
 

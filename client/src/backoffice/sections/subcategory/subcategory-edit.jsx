@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import DOMPurify from "dompurify";
@@ -57,6 +57,7 @@ function EditSubCategoryForm({ subcategory, open, onClose, onSave }) {
     if (open) {
       fetchCategories();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, t]);
 
   const {

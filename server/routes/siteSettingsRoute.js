@@ -10,7 +10,7 @@ router.put(
   verifyToken,
   requireAdmin,
   upload.any(),
-  siteSettingsController.updateSettings
+  siteSettingsController.updateSettings,
 );
 
 module.exports = router;

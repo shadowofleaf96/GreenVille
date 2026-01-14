@@ -44,10 +44,10 @@ const dashboardNotificationSchema = new mongoose.Schema(
     timestamps: true,
     collection: "DashboardNotifications",
     versionKey: false,
-  }
+  },
 );
 
 module.exports = mongoose.model(
   "DashboardNotification",
-  dashboardNotificationSchema
+  dashboardNotificationSchema,
 );

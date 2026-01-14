@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 
 import LazyImage from "../../../components/lazyimage/LazyImage";
 
-const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
+const Logo = forwardRef(({ disabledLink = false, sx }) => {
   const { data: settings } = useSelector((state) => state.adminSettings);
   const { admin, vendor } = useSelector((state) => state.adminAuth);
 

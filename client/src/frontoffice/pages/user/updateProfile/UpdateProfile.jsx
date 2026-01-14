@@ -54,7 +54,7 @@ const UpdateProfile = () => {
       await handleSaveEditedCustomer(
         customer._id,
         editedCustomer,
-        selectedImage
+        selectedImage,
       );
     } catch (error) {
       console.error(error);
@@ -64,7 +64,7 @@ const UpdateProfile = () => {
   const handleSaveEditedCustomer = async (
     customerId,
     editedCustomer,
-    selectedImage
+    selectedImage,
   ) => {
     setLoading(true);
     try {
@@ -81,7 +81,7 @@ const UpdateProfile = () => {
 
       const response = await axiosInstance.put(
         `/customers/${customerId}`,
-        formData
+        formData,
       );
       dispatch(fetchCustomerProfile(customerId));
       setLoading(false);
@@ -89,7 +89,7 @@ const UpdateProfile = () => {
     } catch (error) {
       setLoading(false);
       toast.error(
-        "Error: " + t(error.response?.data?.message || "Unknown error")
+        "Error: " + t(error.response?.data?.message || "Unknown error"),
       );
     }
   };
@@ -121,7 +121,7 @@ const UpdateProfile = () => {
                       </h1>
                       <p className="text-sm font-bold text-gray-400 italic">
                         {t(
-                          "Refine your account credentials and personal details."
+                          "Refine your account credentials and personal details.",
                         )}
                       </p>
                     </div>
@@ -390,7 +390,7 @@ const UpdateProfile = () => {
                     />
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-relaxed">
                       {t(
-                        "All password updates are encrypted instantly for your safety."
+                        "All password updates are encrypted instantly for your safety.",
                       )}
                     </p>
                   </div>

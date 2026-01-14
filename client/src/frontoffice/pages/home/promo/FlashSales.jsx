@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import Iconify from "../../../../backoffice/components/iconify";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";

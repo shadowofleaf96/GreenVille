@@ -97,7 +97,7 @@ function ReviewItem({ review }) {
         </div>
 
         <p className="text-sm text-gray-600 italic leading-relaxed line-clamp-2">
-          "{comment}"
+          &quot;{comment}&quot;
         </p>
       </div>
     </div>

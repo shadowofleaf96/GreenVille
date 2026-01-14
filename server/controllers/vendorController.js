@@ -209,7 +209,7 @@ const updateVendorProfile = async (req, res) => {
     const vendor = await Vendor.findOneAndUpdate(
       { $or: [{ customer: req.params.userId }, { user: req.params.userId }] },
       updateData,
-      { new: true }
+      { new: true },
     );
 
     if (!vendor) {

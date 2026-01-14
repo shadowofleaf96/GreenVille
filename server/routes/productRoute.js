@@ -25,7 +25,7 @@ router.post(
   verifyToken,
   requireAdminOrManager,
   upload.array("product_images", 5),
-  createData
+  createData,
 );
 router.get("/", optionalVerifyToken, RetrievingItems);
 router.get("/vendor", verifyToken, requireAdminOrManager, getVendorProducts);
@@ -37,7 +37,7 @@ router.put(
   verifyToken,
   requireAdminOrManager,
   upload.array("product_images", 5),
-  UpdateProductById
+  UpdateProductById,
 );
 router.put("/:reviewId", verifyToken, requireAdminOrManager, updateReview);
 router.delete("/:id", verifyToken, requireAdminOrManager, DeleteProductById);

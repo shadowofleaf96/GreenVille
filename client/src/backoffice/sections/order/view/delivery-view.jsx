@@ -51,6 +51,7 @@ export default function DeliveryView() {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   const updateStatus = async (orderId, newShippingStatus) => {

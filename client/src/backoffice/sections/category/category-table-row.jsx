@@ -1,4 +1,3 @@
-import { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 
@@ -23,7 +22,7 @@ export default function CategoryTableRow({
   status,
   onEdit,
   onDelete,
-  onDetails,
+  onDetails, // eslint-disable-line no-unused-vars
 }) {
   const { t, i18n } = useTranslation();
   const isActive = status;

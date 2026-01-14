@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Iconify from "../../../../backoffice/components/iconify";
 import { useTranslation } from "react-i18next";
-import { motion, useAnimation, useMotionValue } from "framer-motion";
+import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
 import LazyImage from "../../../../components/lazyimage/LazyImage";
 import { Button } from "@/components/ui/button";

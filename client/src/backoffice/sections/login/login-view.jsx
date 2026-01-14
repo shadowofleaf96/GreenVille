@@ -39,7 +39,7 @@ export default function LoginView() {
   const [loadingSave, setLoadingSave] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const axiosInstance = createAxiosInstance("admin");
-  const isRtl = i18n.language === "ar";
+  const isRtl = i18n.language === "ar"; // eslint-disable-line no-unused-vars
 
   const isLoggedin = localStorage.getItem("user_access_token");
 

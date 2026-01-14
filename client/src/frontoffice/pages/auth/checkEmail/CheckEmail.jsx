@@ -1,4 +1,3 @@
-import React from "react";
 import Logo from "../../../../backoffice/components/logo";
 
 const CheckYourEmailPage = () => {

@@ -49,7 +49,7 @@ const Shipping = () => {
 
   const itemsPrice = cartItems.reduce(
     (acc, item) => acc + (item.discountPrice || item.price) * item.quantity,
-    0
+    0,
   );
 
   if (itemsPrice === 0) {
@@ -69,14 +69,14 @@ const Shipping = () => {
           ? "express"
           : overnight_shipping_enabled
             ? "overnight"
-            : "")
+            : ""),
   );
   const [country] = useState(shippingInfo.country || "Morocco");
   const [latitude, setLatitude] = useState(
-    shippingInfo?.latitude || customer?.shipping_address?.latitude || 33.5731
+    shippingInfo?.latitude || customer?.shipping_address?.latitude || 33.5731,
   );
   const [longitude, setLongitude] = useState(
-    shippingInfo?.longitude || customer?.shipping_address?.longitude || -7.5898
+    shippingInfo?.longitude || customer?.shipping_address?.longitude || -7.5898,
   );
   const [saveToProfile, setSaveToProfile] = useState(true);
 
@@ -147,7 +147,7 @@ const Shipping = () => {
           country,
           latitude,
           longitude,
-        })
+        }),
       );
       dispatch(applyCouponCode(null));
 
@@ -224,7 +224,7 @@ const Shipping = () => {
           country: finalCountry,
           latitude: finalLat,
           longitude: finalLng,
-        })
+        }),
       );
 
       dispatch(applyCouponCode(null));
@@ -524,7 +524,7 @@ const Shipping = () => {
                           />
                           <p className="text-xs font-black text-green-700 uppercase tracking-tight">
                             {t(
-                              "Congratulations! You unlocked FREE Standard Shipping."
+                              "Congratulations! You unlocked FREE Standard Shipping.",
                             )}
                           </p>
                         </div>
@@ -635,7 +635,7 @@ const Shipping = () => {
                         />
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-relaxed">
                           {t(
-                            "Free returns within 14 days for all eligible items"
+                            "Free returns within 14 days for all eligible items",
                           )}
                         </p>
                       </div>

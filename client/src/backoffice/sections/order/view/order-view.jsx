@@ -84,6 +84,7 @@ export default function OrderView() {
   useEffect(() => {
     fetchData();
     dispatch(fetchSettings());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   if (loading && !data) return <Loader />;

@@ -1,7 +1,7 @@
 import { memo } from "react";
 import ApexChart from "react-apexcharts";
 
-import { bgBlur, alpha } from "../../../theme/css";
+import { bgBlur } from "../../../utils/css-utils";
 
 // ----------------------------------------------------------------------
 
@@ -14,7 +14,7 @@ const Chart = (props) => {
         ${Object.entries(bgBlur({ color: "#FFFFFF", opacity: 0.8 }))
           .map(
             ([k, v]) =>
-              `${k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}: ${v};`,
+              `${k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}: ${v};`
           )
           .join(" ")}
         color: #212B36;
@@ -26,7 +26,7 @@ const Chart = (props) => {
          ${Object.entries(bgBlur({ color: "#FFFFFF", opacity: 0.8 }))
            .map(
              ([k, v]) =>
-               `${k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}: ${v};`,
+               `${k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}: ${v};`
            )
            .join(" ")}
         border-color: transparent;

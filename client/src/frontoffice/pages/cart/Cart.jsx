@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Iconify from "../../../backoffice/components/iconify";
 import { useDispatch, useSelector } from "react-redux";

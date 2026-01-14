@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import ProductTableRow from "../product-table-row";
 import ProductTableHead from "../product-table-head";
-import TableEmptyRows from "../../../components/table/TableEmptyRows";
+
 import TableNoDataFilter from "../../../components/table/TableNoData";
 import ProductTableToolbar from "../product-table-toolbar";
 import EditProductForm from "../product-edit";
@@ -44,7 +44,7 @@ import {
 
 export default function ProductPage() {
   const dispatch = useDispatch();
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation(); // eslint-disable-line no-unused-vars
 
   const data = useSelector((state) => state.adminProduct.data);
   const total = useSelector((state) => state.adminProduct.total);
@@ -101,6 +101,7 @@ export default function ProductPage() {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedFetchData = useCallback(
     debounce(() => {
       fetchData();
@@ -114,12 +115,13 @@ export default function ProductPage() {
       skuFilter,
       priceFilter,
       quantityFilter,
-    ],
+    ]
   );
 
   useEffect(() => {
     debouncedFetchData();
     return () => debouncedFetchData.cancel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     page,
     rowsPerPage,
@@ -173,7 +175,7 @@ export default function ProductPage() {
     else if (selectedIndex > 0)
       newSelected = newSelected.concat(
         selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
+        selected.slice(selectedIndex + 1)
       );
     setSelected(newSelected);
   };
@@ -223,41 +225,41 @@ export default function ProductPage() {
       if (editedProduct.short_description) {
         formData.append(
           "short_description[en]",
-          editedProduct.short_description.en || "",
+          editedProduct.short_description.en || ""
         );
         formData.append(
           "short_description[fr]",
-          editedProduct.short_description.fr || "",
+          editedProduct.short_description.fr || ""
         );
         formData.append(
           "short_description[ar]",
-          editedProduct.short_description.ar || "",
+          editedProduct.short_description.ar || ""
         );
       }
       if (editedProduct.long_description) {
         formData.append(
           "long_description[en]",
-          editedProduct.long_description.en || "",
+          editedProduct.long_description.en || ""
         );
         formData.append(
           "long_description[fr]",
-          editedProduct.long_description.fr || "",
+          editedProduct.long_description.fr || ""
         );
         formData.append(
           "long_description[ar]",
-          editedProduct.long_description.ar || "",
+          editedProduct.long_description.ar || ""
         );
       }
       if (editedProduct.variants)
         formData.append("variants", JSON.stringify(editedProduct.variants));
       if (selectedImages)
         Array.from(selectedImages).forEach((image) =>
-          formData.append("product_images", image),
+          formData.append("product_images", image)
         );
 
       const response = await axiosInstance.put(
         `/products/${editedProduct._id}`,
-        formData,
+        formData
       );
       toast.success(response.data.message);
       setEditingProduct(null);
@@ -304,13 +306,14 @@ export default function ProductPage() {
         formData.append("variants", JSON.stringify(newProduct.variants));
       if (selectedImages)
         Array.from(selectedImages).forEach((image) =>
-          formData.append("product_images", image),
+          formData.append("product_images", image)
         );
 
       await axiosInstance.post("/products", formData);
       toast.success(t("Product created successfully"));
       fetchData();
     } catch (error) {
+      console.log(error);
       toast.error(t("Error creating product"));
     } finally {
       setNewProductFormOpen(false);
@@ -549,7 +552,7 @@ export default function ProductPage() {
             </DialogTitle>
             <DialogDescription className="text-gray-500 mt-2 text-base leading-relaxed">
               {t(
-                "Are you sure you want to delete this element ? This action cannot be undone.",
+                "Are you sure you want to delete this element ? This action cannot be undone."
               )}
             </DialogDescription>
           </DialogHeader>

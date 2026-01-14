@@ -25,7 +25,7 @@ import { Card, CardContent } from "@/components/ui/card";
 const ConfirmOrder = () => {
   const { t, i18n } = useTranslation();
   const { cartItems, shippingInfo, coupon } = useSelector(
-    (state) => state.carts
+    (state) => state.carts,
   );
   const { customer } = useSelector((state) => state.customers);
   const { data: settings } = useSelector((state) => state.adminSettings);
@@ -40,7 +40,7 @@ const ConfirmOrder = () => {
 
   const itemsPrice = cartItems.reduce(
     (acc, item) => acc + (item.discountPrice || item.price) * item.quantity,
-    0
+    0,
   );
 
   if (itemsPrice === 0) {
@@ -74,7 +74,7 @@ const ConfirmOrder = () => {
         applyCouponCode({
           code: response.data.code,
           discount: response.data.discount,
-        })
+        }),
       );
       setCouponCode("");
       toast.success(t("Coupon applied successfully"));

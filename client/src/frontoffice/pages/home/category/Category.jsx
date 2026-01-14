@@ -1,9 +1,8 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import LazyImage from "../../../../components/lazyimage/LazyImage";
-import { motion, useAnimation, useMotionValue } from "framer-motion";
+import { motion } from "framer-motion";
 
 const Category = () => {
   const { t } = useTranslation();

@@ -20,7 +20,7 @@ route.post(
   verifyToken,
   requireAdminOrManager,
   upload.single("subcategory_image"),
-  createSubcategory
+  createSubcategory,
 );
 route.get("/", getAllSubcategories);
 route.get("/:id", getSubcategoryById);
@@ -29,7 +29,7 @@ route.put(
   verifyToken,
   requireAdminOrManager,
   upload.single("subcategory_image"),
-  updateSubcategoryById
+  updateSubcategoryById,
 );
 route.delete("/:id", deleteSubcategoryById);
 

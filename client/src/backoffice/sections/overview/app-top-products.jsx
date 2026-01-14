@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Scrollbar from "../../components/scrollbar";
-import { fCurrency } from "@/utils/format-number";
 
 export default function AppTopProducts({ title, subheader, list, ...other }) {
   return (

@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import MetaData from "../../components/MetaData";
 import { useTranslation } from "react-i18next";

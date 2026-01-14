@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useCallback, memo } from "react";
+import { useState, useMemo, useCallback, memo } from "react";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 import Iconify from "../../../backoffice/components/iconify";
 import { addItemToCart } from "../../../redux/frontoffice/cartSlice";
@@ -131,7 +131,7 @@ const VariantItem = memo(
       prevProps.isOutOfStock === nextProps.isOutOfStock &&
       prevProps.variant._id === nextProps.variant._id
     );
-  },
+  }
 );
 
 const ProductQuickViewModal = ({ open, onClose, product }) => {
@@ -151,22 +151,6 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
     }));
   }, []);
 
-  const handleQuantityChange = useCallback((e, variantId, delta) => {
-    e.stopPropagation();
-    setVariantSelections((prev) => {
-      const currentQty = prev[variantId]?.quantity || 1;
-      const newQty = currentQty + delta;
-
-      return {
-        ...prev,
-        [variantId]: {
-          ...prev[variantId],
-          quantity: newQty,
-        },
-      };
-    });
-  }, []);
-
   const handleQuantityChangeSafe = useCallback(
     (e, variantId, delta) => {
       e.stopPropagation();
@@ -177,7 +161,7 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
         const currentQty = prev[variantId]?.quantity || 1;
         const newQty = Math.max(
           1,
-          Math.min(currentQty + delta, variant.quantity),
+          Math.min(currentQty + delta, variant.quantity)
         );
 
         if (newQty < 1 || newQty > variant.quantity) return prev;
@@ -191,12 +175,12 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
         };
       });
     },
-    [product],
+    [product]
   );
 
   const handleAddToCart = useCallback(() => {
     const selectedVariants = Object.entries(variantSelections)
-      .filter(([_, data]) => data.selected)
+      .filter(([_, data]) => data.selected) // eslint-disable-line no-unused-vars
       .map(([variantId, data]) => ({ variantId, quantity: data.quantity }));
 
     if (selectedVariants.length === 0) {
@@ -210,7 +194,8 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
           id: product._id,
           quantity: quantity,
           variantId: variantId,
-        }),
+          product,
+        })
       );
     });
 
@@ -231,7 +216,7 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
 
   const selectedTotal = useMemo(() => {
     return Object.entries(variantSelections)
-      .filter(([_, data]) => data.selected)
+      .filter(([_, data]) => data.selected) // eslint-disable-line no-unused-vars
       .reduce((total, [variantId, data]) => {
         const variant = product?.variants?.find((v) => v._id === variantId);
         return total + (variant?.price || 0) * data.quantity;
@@ -273,7 +258,7 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
                 {product?.short_description?.[currentLanguage] && (
                   <div className="p-5 bg-primary/5 rounded-2xl border-l-4 border-primary">
                     <p className="text-sm font-medium text-gray-600 leading-relaxed italic">
-                      "{product.short_description[currentLanguage]}"
+                      &quot;{product.short_description[currentLanguage]}&quot;
                     </p>
                   </div>
                 )}

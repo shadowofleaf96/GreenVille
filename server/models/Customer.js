@@ -85,7 +85,7 @@ const customerSchema = new Schema(
       longitude: Number,
     },
   },
-  { collection: "Customers", versionKey: false }
+  { collection: "Customers", versionKey: false },
 );
 
 customerSchema.pre("save", async function (next) {

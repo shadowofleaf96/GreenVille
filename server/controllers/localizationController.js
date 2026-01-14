@@ -35,24 +35,20 @@ const upsertLocalization = async (req, res) => {
       localization.fr = fr !== undefined ? fr : localization.fr;
       localization.ar = ar !== undefined ? ar : localization.ar;
       await localization.save();
-      return res
-        .status(200)
-        .json({
-          success: true,
-          message: "Translation updated",
-          data: localization,
-        });
+      return res.status(200).json({
+        success: true,
+        message: "Translation updated",
+        data: localization,
+      });
     } else {
       // Create new
       localization = new Localization({ key, en, fr, ar });
       await localization.save();
-      return res
-        .status(201)
-        .json({
-          success: true,
-          message: "Translation added",
-          data: localization,
-        });
+      return res.status(201).json({
+        success: true,
+        message: "Translation added",
+        data: localization,
+      });
     }
   } catch (error) {
     res

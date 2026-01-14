@@ -1,4 +1,3 @@
-import React from "react";
 import { useTranslation } from "react-i18next";
 import { fDateTime } from "../../../utils/format-time";
 import Iconify from "../../../components/iconify";

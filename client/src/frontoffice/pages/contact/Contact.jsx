@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import { Fragment, useState } from "react";
 import Iconify from "../../../backoffice/components/iconify";
 import { Link } from "react-router-dom";
 import MetaData from "../../components/MetaData";
@@ -18,7 +18,6 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 
 const fadeInVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -88,6 +87,7 @@ const Contact = () => {
       await axiosInstance.post("/contact", sanitizedData);
       toast.success(t("Message sent successfully!"));
       reset();
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       toast.error(t("Failed to send message. Please try again."));
     } finally {
@@ -126,7 +126,7 @@ const Contact = () => {
                 </h1>
                 <p className="text-lg font-bold text-gray-400 italic max-w-lg mx-auto lg:mx-0 leading-relaxed">
                   {t(
-                    "Discover our exceptional customer service tailored to your most distinguished expectations.",
+                    "Discover our exceptional customer service tailored to your most distinguished expectations."
                   )}
                 </p>
               </div>
@@ -206,7 +206,7 @@ const Contact = () => {
                             onChange: (e) => {
                               e.target.value = e.target.value.replace(
                                 /\D/g,
-                                "",
+                                ""
                               );
                             },
                           })}
@@ -228,7 +228,7 @@ const Contact = () => {
                       </Label>
                       <Textarea
                         placeholder={t(
-                          "How can we assist your distinguished needs?",
+                          "How can we assist your distinguished needs?"
                         )}
                         rows={6}
                         {...register("message", {
@@ -306,7 +306,7 @@ const Contact = () => {
                 </h2>
                 <p className="text-sm font-bold text-gray-400 leading-relaxed italic">
                   {t(
-                    "Our dedicated consultants are at your disposal for any professional inquiry or selection assistance.",
+                    "Our dedicated consultants are at your disposal for any professional inquiry or selection assistance."
                   )}
                 </p>
               </div>

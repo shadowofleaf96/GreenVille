@@ -11,7 +11,7 @@ const LocalizationSchema = new mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
 const validateLocalization = (data) => {

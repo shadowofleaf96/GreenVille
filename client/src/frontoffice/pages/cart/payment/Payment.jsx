@@ -38,7 +38,7 @@ const Payment = () => {
 
   const itemsPrice = cartItems.reduce(
     (acc, item) => acc + (item.discountPrice || item.price) * item.quantity,
-    0
+    0,
   );
 
   const totalPriceUSD = (shippingInfo?.totalPrice * 0.11).toFixed(2);
@@ -61,7 +61,7 @@ const Payment = () => {
             headers: {
               "Content-Type": "application/json",
             },
-          }
+          },
         );
 
         const result = response.data;
@@ -97,7 +97,7 @@ const Payment = () => {
         order_items: cartItems.map((item) => {
           const price = item.discountPrice || item.price;
           console.log(
-            `Processing item ${item.product}: price=${price} (discount=${item.discountPrice}, base=${item.price})`
+            `Processing item ${item.product}: price=${price} (discount=${item.discountPrice}, base=${item.price})`,
           );
           return {
             product_id: item.product,
@@ -341,7 +341,7 @@ const Payment = () => {
                                   {shippingInfo?.totalPrice} DH
                                 </span>{" "}
                                 {t(
-                                  "ready upon delivery to ensure a smooth transaction."
+                                  "ready upon delivery to ensure a smooth transaction.",
                                 )}
                               </p>
                             </div>

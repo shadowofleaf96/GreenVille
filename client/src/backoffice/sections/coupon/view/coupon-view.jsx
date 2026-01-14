@@ -80,6 +80,7 @@ export default function CouponView() {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   if (loading && !data) return <Loader />;

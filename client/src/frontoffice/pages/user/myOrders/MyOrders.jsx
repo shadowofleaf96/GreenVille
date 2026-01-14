@@ -25,7 +25,7 @@ const MyOrders = () => {
   const dispatch = useDispatch();
   const { customer } = useSelector((state) => state.customers);
   const { loading, error, orders } = useSelector(
-    (state) => state.orders.ordersList
+    (state) => state.orders.ordersList,
   );
   const [activeOrder, setActiveOrder] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -113,7 +113,7 @@ const MyOrders = () => {
                       </h1>
                       <p className="text-sm font-bold text-gray-400 italic">
                         {t(
-                          "Detailed overview of all your past and current acquisitions."
+                          "Detailed overview of all your past and current acquisitions.",
                         )}
                       </p>
                     </div>
@@ -140,7 +140,7 @@ const MyOrders = () => {
                       <p className="text-sm font-bold text-gray-400 mb-10 max-w-sm mx-auto leading-relaxed">
                         {t("MyOrders.noOrdersDesc") ||
                           t(
-                            "Your purchase history is currently empty. Begin your journey with us today."
+                            "Your purchase history is currently empty. Begin your journey with us today.",
                           )}
                       </p>
                       <Link to="/products">
@@ -197,7 +197,7 @@ const MyOrders = () => {
                                     </p>
                                     <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">
                                       {new Date(
-                                        order.order_date
+                                        order.order_date,
                                       ).toLocaleDateString(undefined, {
                                         day: "numeric",
                                         month: "long",
@@ -262,12 +262,12 @@ const MyOrders = () => {
                                                       ? optimizeImage(
                                                           item?.product
                                                             ?.product_images,
-                                                          200
+                                                          200,
                                                         )
                                                       : optimizeImage(
                                                           item?.product
                                                             ?.product_images?.[0],
-                                                          200
+                                                          200,
                                                         )
                                                   }
                                                   alt={
@@ -329,7 +329,7 @@ const MyOrders = () => {
                                                     handleLeaveReview(
                                                       item.product._id,
                                                       order.order_date,
-                                                      order.customer._id
+                                                      order.customer._id,
                                                     )
                                                   }
                                                   className={`h-12 px-8 rounded-2xl font-black text-[10px] uppercase tracking-widest gap-2 transition-all shadow-xl hover:shadow-primary/20 ${
@@ -353,7 +353,7 @@ const MyOrders = () => {
                                                 </Button>
                                               </div>
                                             </div>
-                                          )
+                                          ),
                                         )}
                                       </div>
 
@@ -379,7 +379,7 @@ const MyOrders = () => {
                                           />
                                           <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-relaxed italic max-w-xs text-right">
                                             {t(
-                                              "Order is fully protected by our selection guarantee and return policy."
+                                              "Order is fully protected by our selection guarantee and return policy.",
                                             )}
                                           </p>
                                         </div>

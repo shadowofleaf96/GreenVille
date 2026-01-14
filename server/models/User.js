@@ -78,7 +78,7 @@ const userSchema = new mongoose.Schema(
   {
     collection: "Users",
     versionKey: false,
-  }
+  },
 );
 
 userSchema.pre("save", async function (next) {

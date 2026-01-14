@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { formatDistanceToNow } from "date-fns";
-import { useSelector } from "react-redux";
 
 import { useRouter } from "../../../../routes/hooks";
 import Iconify from "../../../components/iconify";

@@ -21,14 +21,14 @@ router.post(
   verifyToken,
   requireAdminOrManager,
   upload.single("category_image"),
-  createCategory
+  createCategory,
 );
 router.put(
   "/:id",
   verifyToken,
   requireAdminOrManager,
   upload.single("category_image"),
-  updateCategory
+  updateCategory,
 );
 router.delete("/:id", verifyToken, requireAdminOrManager, deleteCategory);
 router.get("/", getAllCategories);

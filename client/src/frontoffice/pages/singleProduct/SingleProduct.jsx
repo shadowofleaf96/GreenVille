@@ -1,7 +1,7 @@
-import React, { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { useProduct, useReviews } from "../../../api/queries";
+import { useProduct, useReviews } from "../../../services/api/product.queries";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -54,7 +54,7 @@ const SingleProduct = () => {
     const interval = setInterval(() => {
       if (product?.product_images?.length > 0) {
         setCurrentIndex(
-          (prevIndex) => (prevIndex + 1) % product?.product_images?.length,
+          (prevIndex) => (prevIndex + 1) % product?.product_images?.length
         );
       }
     }, 10000);
@@ -98,7 +98,7 @@ const SingleProduct = () => {
 
   const getSelectedTotal = () => {
     return Object.entries(variantSelections)
-      .filter(([_, data]) => data.selected)
+      .filter(([_, data]) => data.selected) // eslint-disable-line no-unused-vars
       .reduce((total, [variantId, data]) => {
         const variant = product?.variants?.find((v) => v._id === variantId);
         return total + (variant?.price || 0) * data.quantity;
@@ -128,7 +128,7 @@ const SingleProduct = () => {
   const addToCart = () => {
     if (product?.variants?.length > 0) {
       const selectedVariants = Object.entries(variantSelections)
-        .filter(([_, data]) => data.selected)
+        .filter(([_, data]) => data.selected) // eslint-disable-line no-unused-vars
         .map(([variantId, data]) => ({ variantId, quantity: data.quantity }));
 
       if (selectedVariants.length === 0) {
@@ -142,12 +142,15 @@ const SingleProduct = () => {
             id: product._id,
             quantity: quantity,
             variantId: variantId,
-          }),
+            product,
+          })
         );
       });
       setVariantSelections({});
     } else {
-      dispatch(addItemToCart({ id: product._id, quantity, variant: null }));
+      dispatch(
+        addItemToCart({ id: product._id, quantity, variant: null, product })
+      );
     }
     toast.success(t("itemAdded"));
   };
@@ -201,7 +204,7 @@ const SingleProduct = () => {
 
   const displayReviewCount = Math.max(
     totalReviewsFromList,
-    product.total_reviews || 0,
+    product.total_reviews || 0
   );
 
   return (
@@ -241,7 +244,7 @@ const SingleProduct = () => {
                       setCurrentIndex(
                         (prev) =>
                           (prev - 1 + product.product_images.length) %
-                          product.product_images.length,
+                          product.product_images.length
                       )
                     }
                     className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white/80 backdrop-blur shadow-lg text-gray-500 hover:text-primary transition-all"
@@ -257,7 +260,7 @@ const SingleProduct = () => {
                     variant="ghost"
                     onClick={() =>
                       setCurrentIndex(
-                        (prev) => (prev + 1) % product.product_images.length,
+                        (prev) => (prev + 1) % product.product_images.length
                       )
                     }
                     className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white/80 backdrop-blur shadow-lg text-gray-500 hover:text-primary transition-all"
@@ -621,7 +624,7 @@ const SingleProduct = () => {
                                   </p>
                                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                     {new Date(
-                                      review.review_date,
+                                      review.review_date
                                     ).toLocaleDateString()}
                                   </p>
                                 </div>

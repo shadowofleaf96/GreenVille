@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
 import {
@@ -21,7 +21,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import UploadButton from "../../components/button/UploadButton";
-import LazyImage from "../../../components/lazyimage/LazyImage";
+
 import Iconify from "../../../components/iconify";
 
 function AddUserForm({ onSave, onCancel, open, onClose }) {

@@ -19,7 +19,7 @@ export function useResponsive(query, start, end) {
         return `(max-width: ${breakpoints[start]}px)`;
       case "between":
         return `(min-width: ${breakpoints[start]}px) and (max-width: ${breakpoints[end]}px)`;
-      case "only":
+      case "only": {
         // For 'only', we use the range from current to next breakpoint
         const keys = Object.keys(breakpoints);
         const startIdx = keys.indexOf(start);
@@ -27,6 +27,7 @@ export function useResponsive(query, start, end) {
         return `(min-width: ${breakpoints[start]}px) and (max-width: ${
           endVal - 0.05
         }px)`;
+      }
       default:
         return "";
     }

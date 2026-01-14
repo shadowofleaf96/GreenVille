@@ -81,6 +81,7 @@ export default function PaymentView() {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   if (loading && !data) return <Loader />;

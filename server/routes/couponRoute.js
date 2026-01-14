@@ -10,7 +10,7 @@ router.post(
   "/create",
   verifyToken,
   requireAdminOrManager,
-  couponController.createCoupon
+  couponController.createCoupon,
 );
 
 router.post("/apply", verifyToken, couponController.applyCoupon);
@@ -19,28 +19,28 @@ router.get(
   "/",
   verifyToken,
   requireAdminOrManager,
-  couponController.getAllCoupons
+  couponController.getAllCoupons,
 );
 
 router.put(
   "/:id",
   verifyToken,
   requireAdminOrManager,
-  couponController.editCoupon
+  couponController.editCoupon,
 );
 
 router.delete(
   "/:id",
   verifyToken,
   requireAdminOrManager,
-  couponController.deleteCoupon
+  couponController.deleteCoupon,
 );
 
 router.delete(
   "/revoke-usage/:id/:userId",
   verifyToken,
   requireAdminOrManager,
-  couponController.revokeCouponUsage
+  couponController.revokeCouponUsage,
 );
 
 module.exports = router;

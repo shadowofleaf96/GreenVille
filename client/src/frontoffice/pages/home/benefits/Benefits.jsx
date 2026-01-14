@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import Iconify from "../../../../backoffice/components/iconify";
 import { useSelector } from "react-redux";

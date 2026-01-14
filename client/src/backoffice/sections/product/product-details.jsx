@@ -1,4 +1,3 @@
-import React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -9,7 +8,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
 import Iconify from "../../../components/iconify";
 import LazyImage from "../../../components/lazyimage/LazyImage";
 import { fDateTime } from "../../../utils/format-time";
@@ -113,10 +111,10 @@ const ProductDetailsPopup = ({ product, open, onClose }) => {
                       {t("Short Description")}
                     </p>
                     <p className="text-sm font-medium text-gray-600 leading-relaxed italic">
-                      "
+                      &quot;
                       {product?.short_description?.[currentLanguage] ||
                         t("No description available")}
-                      "
+                      &quot;
                     </p>
                   </div>
                 </div>

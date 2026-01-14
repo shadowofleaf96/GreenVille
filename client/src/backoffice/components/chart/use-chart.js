@@ -1,8 +1,7 @@
 import merge from "lodash/merge";
 
-import { palette as getPalette } from "../../../theme/palette";
-import { typography } from "../../../theme/typography";
-import { alpha } from "../../../theme/css";
+import { palette as getPalette, typography } from "../../../utils/theme-config";
+import { alpha } from "../../../utils/css-utils";
 import { useResponsive } from "../../hooks/use-responsive";
 
 // ----------------------------------------------------------------------

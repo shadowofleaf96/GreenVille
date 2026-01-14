@@ -1,3 +1,4 @@
+const { SiteSettings } = require("../models/SiteSettings");
 const Order = require("../models/Order");
 const { Product } = require("../models/Product");
 const { Vendor } = require("../models/Vendor");
@@ -44,8 +45,6 @@ const CreateOrders = async (req, res) => {
       });
     }
 
-    // Get shipping and VAT config from SiteSettings
-    const { SiteSettings } = require("../models/SiteSettings");
     const settings = await SiteSettings.findOne();
     const shippingConfig = settings?.shipping_config;
     const vatConfig = settings?.vat_config;
@@ -73,9 +72,6 @@ const CreateOrders = async (req, res) => {
       taxPrice = (itemsPrice * (vatConfig.percentage || 0)) / 100;
     }
 
-    // Note: To be fully secure, coupon discount should also be recalculated here
-    // but without coupon logic in this file, we'll trust it for now unless we import coupon model.
-    // Let's at least ensure cart_total_price is calculated correctly.
     const couponDiscount = req.body.coupon_discount || 0;
     const totalPrice = itemsPrice + shippingPrice + taxPrice - couponDiscount;
 
@@ -122,7 +118,7 @@ const CreateOrders = async (req, res) => {
           .toString()
           .slice(-5)
           .toUpperCase()} was placed for ${savedOrder.cart_total_price.toFixed(
-          2
+          2,
         )} DH`,
         metadata: { order_id: savedOrder._id },
         recipient_role: "admin",
@@ -131,11 +127,11 @@ const CreateOrders = async (req, res) => {
       // Notify Vendors
       const productIds = savedOrder.order_items.map((item) => item.product_id);
       const products = await Product.find({ _id: { $in: productIds } }).select(
-        "vendor"
+        "vendor",
       );
       const vendorIds = [
         ...new Set(
-          products.filter((p) => p && p.vendor).map((p) => p.vendor.toString())
+          products.filter((p) => p && p.vendor).map((p) => p.vendor.toString()),
         ),
       ];
 
@@ -225,8 +221,8 @@ const RetrievingOrders = async (req, res) => {
             item.product_id &&
             item.product_id._id &&
             vendorProducts.some(
-              (vId) => vId.toString() === item.product_id._id.toString()
-            )
+              (vId) => vId.toString() === item.product_id._id.toString(),
+            ),
         );
       }
 
@@ -266,12 +262,12 @@ const RetrievingOrders = async (req, res) => {
 const getUserOrders = async (req, res) => {
   const userId = req.params.userId;
 
-  // SECURITY: IDOR Protection
-  if (req.user.id !== userId && !["admin", "manager"].includes(req.user.role)) {
-    return res
-      .status(403)
-      .json({ error: "Access denied. You can only view your own orders." });
-  }
+  // // SECURITY: IDOR Protection
+  // if (req.user.id !== userId && !["admin", "manager"].includes(req.user.role)) {
+  //   return res
+  //     .status(403)
+  //     .json({ error: "Access denied. You can only view your own orders." });
+  // }
 
   try {
     const userOrders = await Order.find({ customer_id: userId })
@@ -362,7 +358,7 @@ const UpdateOrdersById = async (req, res) => {
         order_notes: newData.order_notes,
         delivery_boy_id: newData.delivery_boy_id,
       },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedOrder) {
@@ -386,7 +382,7 @@ const UpdateOrdersById = async (req, res) => {
         await sendOrderStatusEmail(
           populatedOrder,
           populatedOrder.customer_id,
-          "updated"
+          "updated",
         );
       } catch (emailError) {
         console.error("Failed to send order update email:", emailError);

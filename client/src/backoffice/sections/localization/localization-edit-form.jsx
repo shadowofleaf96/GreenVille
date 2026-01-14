@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -20,7 +20,7 @@ export default function LocalizationEditForm({
   currentItem,
 }) {
   const { t } = useTranslation();
-  const { register, handleSubmit, reset, control } = useForm({
+  const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       key: "",
       en: "",
@@ -64,7 +64,7 @@ export default function LocalizationEditForm({
           return JSON.parse(val);
         }
       } catch (e) {
-        // Fallback to string if parsing fails
+        console.error(e);
       }
       return val;
     };

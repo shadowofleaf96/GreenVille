@@ -52,5 +52,5 @@ root.render(
         </QueryClientProvider>
       </HelmetProvider>
     </PersistGate>
-  </Provider>
+  </Provider>,
 );

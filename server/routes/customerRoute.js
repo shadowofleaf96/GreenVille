@@ -25,7 +25,11 @@ const {
 route.post("/login", login);
 route.post("/", upload.single("customer_image"), createCustomer);
 route.post("/google-login", googleLogin);
-route.post("/complete-registration", upload.single("customer_image"), completeRegistration);
+route.post(
+  "/complete-registration",
+  upload.single("customer_image"),
+  completeRegistration,
+);
 route.get("/profile", verifyToken, getCustomerProfile);
 route.get("/", verifyToken, requireAdminOrManager, getAllCustomers);
 route.get("/:id", verifyToken, requireAdminOrManager, getCustomerById);

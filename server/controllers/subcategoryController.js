@@ -55,7 +55,7 @@ const subcategoriesController = {
 
       // Populate category before sending response
       const populatedSubcategory = await SubCategory.findById(
-        newSubcategory._id
+        newSubcategory._id,
       )
         .populate("category_id")
         .lean();
@@ -83,7 +83,7 @@ const subcategoriesController = {
       if (query) {
         queryBuilder = queryBuilder.where(
           "subcategory_name",
-          new RegExp(query, "i")
+          new RegExp(query, "i"),
         );
       }
 

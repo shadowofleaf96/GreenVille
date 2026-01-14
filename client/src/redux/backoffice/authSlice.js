@@ -38,7 +38,7 @@ export const updateVendorProfile = (userId, formData) => async (dispatch) => {
     const axiosInstance = createAxiosInstance("admin");
     const response = await axiosInstance.put(
       `/vendors/profile/${userId}`,
-      formData
+      formData,
     );
     dispatch(setVendor(response.data.data));
     return response.data.data;

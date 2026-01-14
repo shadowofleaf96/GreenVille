@@ -1,30 +1,29 @@
-﻿import React, { useEffect, useState, useCallback, Fragment } from "react";
-import { useDispatch, useSelector } from "react-redux";
+﻿import { useEffect, useState, useCallback, Fragment, useMemo } from "react";
+// import { useDispatch } from "react-redux"; // Keeping useDispatch if needed for Cart, but removing for fetching
 import {
   useNavigate,
-  useLocation,
+  // useLocation,
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
 
 import Iconify from "../../../backoffice/components/iconify";
-import { getProducts } from "../../../redux/frontoffice/productSlice";
-import { getCategories } from "../../../redux/frontoffice/categoriesSlice";
-import { getSubcategories } from "../../../redux/frontoffice/subcategoriesSlice";
+// Removed Redux fetching actions
+import { useProducts } from "../../../services/api/product.queries";
+import {
+  useCategories,
+  useSubcategories,
+} from "../../../services/api/category.queries";
 import Product from "./Product";
 import ProductQuickViewModal from "./ProductQuickViewModal";
 import MetaData from "../../components/MetaData";
-import Loader from "../../components/loader/Loader";
 
-import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Sheet,
   SheetContent,
@@ -35,170 +34,172 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Products = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language;
   const { subcategory: routeCategoryId } = useParams();
 
-  const {
-    products,
-    loading: isLoading,
-    error: isError,
-    total,
-    maxPrice: apiMaxPrice,
-  } = useSelector((state) => state.products);
-  const { categories } = useSelector((state) => state.categories);
-  const { subcategories } = useSelector((state) => state.subcategories);
+  // 1. Validated Params from URL
+  const urlCategory = useMemo(() => {
+    const p = searchParams.get("category");
+    return p ? p.split(",").map((c) => c.trim()) : [];
+  }, [searchParams]);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [price, setPrice] = useState([0, 10000]);
-  const [committedPrice, setCommittedPrice] = useState([0, 10000]);
-  const [category, setCategory] = useState([]);
-  const [subcategory, setSubcategory] = useState([]);
-  const [sortBy, setSortBy] = useState("creation_date");
-  const [sortOrder, setSortOrder] = useState("desc");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [expandedCategories, setExpandedCategories] = useState([]);
-  const [onSale, setOnSale] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const urlSubcategory = useMemo(() => {
+    const p = searchParams.get("subcategory");
+    return p ? p.split(",").map((s) => s.trim()) : [];
+  }, [searchParams]);
+
+  const urlPrice = useMemo(() => {
+    const p = searchParams.getAll("price");
+    return p.length === 2 ? [Number(p[0]), Number(p[1])] : null;
+  }, [searchParams]);
+
+  const urlSortBy = searchParams.get("sortBy") || "creation_date";
+  const urlSortOrder = searchParams.get("sortOrder") || "desc";
+  const urlPage = parseInt(searchParams.get("page") || "1", 10);
+  const urlKeyword = searchParams.get("keyword") || "";
+  const urlOnSale = searchParams.get("sales") !== null;
+
+  // 2. React Query Hooks
+  const { data: categories = [] } = useCategories();
+  const { data: subcategories = [] } = useSubcategories();
+
   const productsPerPage = 21;
 
-  const fetchProducts = useCallback(() => {
-    const keyword = searchParams.get("keyword") || "";
+  // Query Params for usage in useProducts
+  const queryParams = useMemo(() => {
     const params = {
-      page: currentPage,
+      page: urlPage,
       limit: productsPerPage,
-      minPrice: committedPrice[0],
-      maxPrice: committedPrice[1],
-      search: keyword,
-      sortBy,
-      sortOrder,
+      minPrice: urlPrice ? urlPrice[0] : 0,
+      // Use a very high default if not set, handled by API usually but good to be explicit
+      // or let the API handle "undefined" maxPrice
+      maxPrice: urlPrice ? urlPrice[1] : 10000,
+      search: urlKeyword,
+      sortBy: urlSortBy,
+      sortOrder: urlSortOrder,
       status: "true",
-      onSale,
+      onSale: urlOnSale,
     };
 
-    if (category.length > 0) {
-      params.category_id = category.join(",");
-    }
+    if (urlCategory.length > 0) params.category_id = urlCategory.join(",");
+    if (urlSubcategory.length > 0)
+      params.subcategory_id = urlSubcategory.join(",");
 
-    if (subcategory.length > 0) {
-      params.subcategory_id = subcategory.join(",");
-    }
-
-    dispatch(getProducts(params));
+    return params;
   }, [
-    dispatch,
-    currentPage,
-    committedPrice,
-    category,
-    subcategory,
-    sortBy,
-    sortOrder,
-    searchParams,
-    onSale,
+    urlPage,
+    urlPrice,
+    urlKeyword,
+    urlSortBy,
+    urlSortOrder,
+    urlOnSale,
+    urlCategory,
+    urlSubcategory,
   ]);
 
+  const { data: productsData, isLoading, isError } = useProducts(queryParams);
+
+  const products = productsData?.data || [];
+  const total = productsData?.total || 0;
+  const apiMaxPrice = productsData?.maxPrice || 10000;
+
+  // 3. UI State (Local) - For price inputs
+  const [localMinPrice, setLocalMinPrice] = useState(0);
+  const [localMaxPrice, setLocalMaxPrice] = useState(apiMaxPrice);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Sync Local Price with URL Price or API Max Price on load/change
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
-
-  useEffect(() => {
-    dispatch(getCategories());
-    dispatch(getSubcategories());
-  }, [dispatch]);
-
-  // Read params from URL
-  useEffect(() => {
-    const categoryParam = searchParams.get("category");
-    const subcategoryParam = searchParams.get("subcategory");
-    const priceParam = searchParams.getAll("price");
-
-    if (categoryParam) {
-      const catArray = categoryParam.split(",").map((c) => c.trim());
-      setCategory(catArray);
+    if (urlPrice) {
+      setLocalMinPrice(urlPrice[0]);
+      setLocalMaxPrice(urlPrice[1]);
+    } else if (apiMaxPrice) {
+      setLocalMinPrice(0);
+      setLocalMaxPrice(apiMaxPrice);
     }
-    if (subcategoryParam) {
-      const subCatArray = subcategoryParam.split(",").map((s) => s.trim());
-      setSubcategory(subCatArray);
-    }
-    if (priceParam.length === 2) {
-      const p = [Number(priceParam[0]), Number(priceParam[1])];
-      setPrice(p);
-      setCommittedPrice(p);
-    }
-  }, [searchParams]);
+  }, [urlPrice, apiMaxPrice]);
 
-  // Sync price with apiMaxPrice when it loads
-  useEffect(() => {
-    if (apiMaxPrice && !searchParams.get("price")) {
-      setPrice([0, apiMaxPrice]);
-      setCommittedPrice([0, apiMaxPrice]);
-    }
-  }, [apiMaxPrice, searchParams]);
+  // Handlers that update URL Params (Source of Truth)
+  const updateParams = useCallback(
+    (newParams) => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        Object.entries(newParams).forEach(([key, value]) => {
+          if (
+            value === null ||
+            value === undefined ||
+            value === "" ||
+            (Array.isArray(value) && value.length === 0)
+          ) {
+            next.delete(key);
+          } else if (Array.isArray(value)) {
+            next.delete(key);
+            value.forEach((v) => next.append(key, v));
+          } else {
+            next.set(key, value);
+          }
+        });
+        // Reset page on filter change if not explicitly setting page
+        if (!Object.prototype.hasOwnProperty.call(newParams, "page")) {
+          next.set("page", 1);
+        }
+        return next;
+      });
+    },
+    [setSearchParams]
+  );
 
-  const handlePriceChange = (value) => {
-    setPrice(value);
+  const handleMinPriceChange = (e) => {
+    const value = e.target.value;
+    setLocalMinPrice(value === "" ? 0 : Number(value));
   };
 
-  const handlePriceCommit = (value) => {
-    setCommittedPrice(value);
-    setCurrentPage(1);
+  const handleMaxPriceChange = (e) => {
+    const value = e.target.value;
+    setLocalMaxPrice(value === "" ? apiMaxPrice : Number(value));
   };
 
-  useEffect(() => {
-    if (routeCategoryId) {
-      setCategory([routeCategoryId]);
-    }
-  }, [routeCategoryId]);
-
-  // Check for sales parameter in URL
-  useEffect(() => {
-    const salesParam = searchParams.get("sales");
-    if (salesParam !== null) {
-      setOnSale(true);
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (apiMaxPrice && !searchParams.get("maxPrice")) {
-      setPrice([0, apiMaxPrice]);
-      setCommittedPrice([0, apiMaxPrice]);
-    }
-  }, [apiMaxPrice]);
+  const handlePriceApply = () => {
+    setIsFilterOpen(false);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete("price");
+      next.append("price", localMinPrice);
+      next.append("price", localMaxPrice);
+      next.set("page", 1);
+      return next;
+    });
+  };
 
   const handleCategoryToggle = (catId) => {
-    setCategory((prev) =>
-      prev.includes(catId)
-        ? prev.filter((id) => id !== catId)
-        : [...prev, catId],
-    );
-    setCurrentPage(1);
+    const newCategories = urlCategory.includes(catId)
+      ? urlCategory.filter((id) => id !== catId)
+      : [...urlCategory, catId];
+    updateParams({
+      category: newCategories.length > 0 ? newCategories.join(",") : null,
+    });
   };
 
   const handleSubcategoryToggle = (subcatId) => {
-    setSubcategory((prev) =>
-      prev.includes(subcatId)
-        ? prev.filter((id) => id !== subcatId)
-        : [...prev, subcatId],
-    );
-    setCurrentPage(1);
+    const newSubcategories = urlSubcategory.includes(subcatId)
+      ? urlSubcategory.filter((id) => id !== subcatId)
+      : [...urlSubcategory, subcatId];
+    updateParams({
+      subcategory:
+        newSubcategories.length > 0 ? newSubcategories.join(",") : null,
+    });
   };
 
   const resetFilters = () => {
-    setPrice([0, apiMaxPrice]);
-    setCommittedPrice([0, apiMaxPrice]);
-    setCategory([]);
-    setSubcategory([]);
-    setSortBy("creation_date");
-    setSortOrder("desc");
-    setCurrentPage(1);
-    setSortOrder("desc");
-    setCurrentPage(1);
-    setOnSale(false);
-    navigate("/products");
+    setLocalMinPrice(0);
+    setLocalMaxPrice(apiMaxPrice);
+    setSearchParams(new URLSearchParams()); // Clear all
     setExpandedCategories([]);
   };
 
@@ -207,45 +208,31 @@ const Products = () => {
     setExpandedCategories((prev) =>
       prev.includes(catId)
         ? prev.filter((id) => id !== catId)
-        : [...prev, catId],
+        : [...prev, catId]
     );
   };
 
   const handleSortChange = (value) => {
-    if (value === "price_asc") {
-      setSortBy("price");
-      setSortOrder("asc");
-    } else if (value === "price_desc") {
-      setSortBy("price");
-      setSortOrder("desc");
-    } else if (value === "newest") {
-      setSortBy("creation_date");
-      setSortOrder("desc");
-    } else if (value === "rating") {
-      setSortBy("average_rating");
-      setSortOrder("desc");
-    } else if (value === "name_asc") {
-      setSortBy("name");
-      setSortOrder("asc");
-    } else if (value === "name_desc") {
-      setSortBy("name");
-      setSortOrder("desc");
-    }
-    setCurrentPage(1);
+    let sort = { sortBy: "creation_date", sortOrder: "desc" };
+    if (value === "price_asc") sort = { sortBy: "price", sortOrder: "asc" };
+    else if (value === "price_desc")
+      sort = { sortBy: "price", sortOrder: "desc" };
+    else if (value === "rating")
+      sort = { sortBy: "average_rating", sortOrder: "desc" };
+    else if (value === "name_asc") sort = { sortBy: "name", sortOrder: "asc" };
+    else if (value === "name_desc")
+      sort = { sortBy: "name", sortOrder: "desc" };
+
+    updateParams(sort);
   };
 
-  const handleNextPage = () => {
-    if (currentPage < Math.ceil(total / productsPerPage)) {
-      setCurrentPage((prev) => prev + 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+  const handlePageChange = (newPage) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set("page", newPage);
+      return next;
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleQuickView = useCallback((product) => {
@@ -255,9 +242,22 @@ const Products = () => {
 
   const handleModalClose = useCallback(() => {
     setIsModalOpen(false);
-    // We keep selectedProduct to avoid jumpy transitions if needed,
-    // but usually setting it to null after close is fine.
   }, []);
+
+  // Sync initial route param for category
+  useEffect(() => {
+    if (routeCategoryId && !searchParams.get("category")) {
+      // If coming from a route like /products/category/:id, sync it to params
+      // But wait, user might have navigated away.
+      // Usually better to let the link set the param?
+      // The original code reset category to [routeCategoryId] whenever it changed.
+      // If we want to support /products/:subcategory route:
+      updateParams({ category: routeCategoryId });
+    }
+  }, [routeCategoryId, searchParams, updateParams]);
+
+  // Derived state for UI convenience
+  // We can just use the url* variables directly in render logic
 
   return (
     <Fragment>
@@ -318,42 +318,44 @@ const Products = () => {
                       key={opt.id}
                       variant={
                         (opt.id === "newest" &&
-                          sortBy === "creation_date" &&
-                          sortOrder === "desc") ||
+                          urlSortBy === "creation_date" &&
+                          urlSortOrder === "desc") ||
                         (opt.id === "price_asc" &&
-                          sortBy === "price" &&
-                          sortOrder === "asc") ||
+                          urlSortBy === "price" &&
+                          urlSortOrder === "asc") ||
                         (opt.id === "price_desc" &&
-                          sortBy === "price" &&
-                          sortOrder === "desc") ||
-                        (opt.id === "rating" && sortBy === "average_rating") ||
+                          urlSortBy === "price" &&
+                          urlSortOrder === "desc") ||
+                        (opt.id === "rating" &&
+                          urlSortBy === "average_rating") ||
                         (opt.id === "name_asc" &&
-                          sortBy === "name" &&
-                          sortOrder === "asc") ||
+                          urlSortBy === "name" &&
+                          urlSortOrder === "asc") ||
                         (opt.id === "name_desc" &&
-                          sortBy === "name" &&
-                          sortOrder === "desc")
+                          urlSortBy === "name" &&
+                          urlSortOrder === "desc")
                           ? "default"
                           : "outline"
                       }
                       onClick={() => handleSortChange(opt.id)}
                       className={`h-10 sm:h-11 px-4 sm:px-6 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300 gap-2 border-none shrink-0 ${
                         (opt.id === "newest" &&
-                          sortBy === "creation_date" &&
-                          sortOrder === "desc") ||
+                          urlSortBy === "creation_date" &&
+                          urlSortOrder === "desc") ||
                         (opt.id === "price_asc" &&
-                          sortBy === "price" &&
-                          sortOrder === "asc") ||
+                          urlSortBy === "price" &&
+                          urlSortOrder === "asc") ||
                         (opt.id === "price_desc" &&
-                          sortBy === "price" &&
-                          sortOrder === "desc") ||
-                        (opt.id === "rating" && sortBy === "average_rating") ||
+                          urlSortBy === "price" &&
+                          urlSortOrder === "desc") ||
+                        (opt.id === "rating" &&
+                          urlSortBy === "average_rating") ||
                         (opt.id === "name_asc" &&
-                          sortBy === "name" &&
-                          sortOrder === "asc") ||
+                          urlSortBy === "name" &&
+                          urlSortOrder === "asc") ||
                         (opt.id === "name_desc" &&
-                          sortBy === "name" &&
-                          sortOrder === "desc")
+                          urlSortBy === "name" &&
+                          urlSortOrder === "desc")
                           ? "bg-primary text-white shadow-lg shadow-primary/30"
                           : "bg-white text-gray-500 hover:bg-gray-50"
                       }`}
@@ -374,13 +376,12 @@ const Products = () => {
                     </Button>
                   ))}
                   <Button
-                    variant={onSale ? "default" : "outline"}
+                    variant={urlOnSale ? "default" : "outline"}
                     onClick={() => {
-                      setOnSale(!onSale);
-                      setCurrentPage(1);
+                      updateParams({ sales: urlOnSale ? null : "true" });
                     }}
                     className={`h-10 sm:h-11 px-4 sm:px-6 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300 gap-2 border-none shrink-0 ${
-                      onSale
+                      urlOnSale
                         ? "bg-red-500 text-white shadow-lg shadow-red-500/30"
                         : "bg-white text-gray-500 hover:bg-gray-50"
                     }`}
@@ -392,12 +393,18 @@ const Products = () => {
                     />
                     {t("On Sale")}
                   </Button>
-                  {(sortBy !== "creation_date" || onSale) && (
+                  {(urlSortBy !== "creation_date" ||
+                    urlOnSale ||
+                    urlPrice ||
+                    urlCategory.length > 0) && (
                     <Button
                       variant="ghost"
                       onClick={() => {
-                        setSortBy("creation_date");
-                        setSortOrder("desc");
+                        updateParams({
+                          sortBy: "creation_date",
+                          sortOrder: "desc",
+                          sales: null,
+                        });
                       }}
                       className="h-10 w-10 sm:h-11 sm:w-11 p-0 rounded-full text-red-500 hover:bg-red-50 shrink-0"
                     >
@@ -423,22 +430,45 @@ const Products = () => {
                     <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">
                       {t("Price Range")}
                     </h3>
-                    <Badge
-                      variant="outline"
-                      className="text-[10px] font-black border-primary/20 text-primary uppercase"
-                    >
-                      {price[0]}DH - {price[1]}DH
-                    </Badge>
                   </div>
-                  <Slider
-                    defaultValue={[0, apiMaxPrice]}
-                    max={apiMaxPrice}
-                    step={10}
-                    value={price}
-                    onValueChange={handlePriceChange}
-                    onValueCommit={handlePriceCommit}
-                    className="py-4"
-                  />
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+                          {t("Min")}
+                        </label>
+                        <Input
+                          type="number"
+                          min="0"
+                          max={apiMaxPrice}
+                          value={localMinPrice}
+                          onChange={handleMinPriceChange}
+                          className="h-12 rounded-xl border-gray-200 focus-visible:ring-primary"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+                          {t("Max")}
+                        </label>
+                        <Input
+                          type="number"
+                          min="0"
+                          max={apiMaxPrice}
+                          value={localMaxPrice}
+                          onChange={handleMaxPriceChange}
+                          className="h-12 rounded-xl border-gray-200 focus-visible:ring-primary"
+                          placeholder={apiMaxPrice.toString()}
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      onClick={handlePriceApply}
+                      className="w-full h-12 rounded-xl bg-primary text-white font-black uppercase tracking-widest text-xs hover:bg-primary/90 transition-all"
+                    >
+                      {t("Apply")}
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Categories */}
@@ -456,7 +486,7 @@ const Products = () => {
                           >
                             <Checkbox
                               id={cat._id}
-                              checked={category.includes(cat._id)}
+                              checked={urlCategory.includes(cat._id)}
                               className="w-5 h-5 rounded-lg border-gray-200 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                             />
                             <label className="text-sm font-bold text-gray-500 group-hover:text-gray-900 cursor-pointer transition-colors flex-1">
@@ -471,7 +501,7 @@ const Products = () => {
                           >
                             <Iconify
                               icon={
-                                category.includes(cat._id) ||
+                                urlCategory.includes(cat._id) ||
                                 expandedCategories.includes(cat._id)
                                   ? "solar:alt-arrow-up-linear"
                                   : "solar:alt-arrow-down-linear"
@@ -482,7 +512,7 @@ const Products = () => {
                         </div>
 
                         {/* Nested Subcategories for selected or expanded category */}
-                        {(category.includes(cat._id) ||
+                        {(urlCategory.includes(cat._id) ||
                           expandedCategories.includes(cat._id)) && (
                           <div className="pl-8 space-y-2 animate-in slide-in-from-top-2 duration-300">
                             {subcategories
@@ -503,7 +533,7 @@ const Products = () => {
                                 >
                                   <Checkbox
                                     id={sub._id}
-                                    checked={subcategory.includes(sub._id)}
+                                    checked={urlSubcategory.includes(sub._id)}
                                     className="w-4 h-4 rounded-md border-gray-200 data-[state=checked]:bg-primary/80 data-[state=checked]:border-primary/80"
                                   />
                                   <label className="text-xs font-semibold text-gray-400 group-hover:text-gray-700 cursor-pointer transition-colors flex-1">
@@ -545,7 +575,7 @@ const Products = () => {
                   </h2>
                   <p className="text-gray-500 font-medium max-w-md mx-auto mb-8">
                     {t(
-                      "There was an issue loading the products. Please try again later.",
+                      "There was an issue loading the products. Please try again later."
                     )}
                   </p>
                   <Button
@@ -597,7 +627,7 @@ const Products = () => {
                   </h2>
                   <p className="text-gray-500 font-medium max-w-sm mx-auto mb-8 italic">
                     {t(
-                      "Try adjusting your filters or search terms to find what you're looking for.",
+                      "Try adjusting your filters or search terms to find what you're looking for."
                     )}
                   </p>
                   <Button
@@ -616,8 +646,8 @@ const Products = () => {
                 <div className="flex flex-wrap items-center justify-center gap-2 pt-10 px-2">
                   <Button
                     variant="ghost"
-                    onClick={handlePrevPage}
-                    disabled={currentPage === 1}
+                    onClick={() => handlePageChange(urlPage - 1)}
+                    disabled={urlPage === 1}
                     className="h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-full border border-gray-200 text-gray-500 hover:bg-primary transition-colors disabled:opacity-30 group"
                   >
                     <Iconify
@@ -630,17 +660,14 @@ const Products = () => {
                   <div className="flex items-center gap-2">
                     {Array.from(
                       { length: Math.ceil(total / productsPerPage) },
-                      (_, i) => i + 1,
+                      (_, i) => i + 1
                     ).map((page) => (
                       <Button
                         key={page}
-                        variant={currentPage === page ? "default" : "ghost"}
-                        onClick={() => {
-                          setCurrentPage(page);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
+                        variant={urlPage === page ? "default" : "ghost"}
+                        onClick={() => handlePageChange(page)}
                         className={`h-8 w-8 rounded-2xl font-black text-sm uppercase transition-all duration-300 ${
-                          currentPage === page
+                          urlPage === page
                             ? "bg-primary text-white shadow-xl shadow-primary/30 scale-110"
                             : "text-gray-400 hover:text-gray-900 hover:bg-gray-100"
                         }`}
@@ -652,10 +679,8 @@ const Products = () => {
 
                   <Button
                     variant="ghost"
-                    onClick={handleNextPage}
-                    disabled={
-                      currentPage === Math.ceil(total / productsPerPage)
-                    }
+                    onClick={() => handlePageChange(urlPage + 1)}
+                    disabled={urlPage === Math.ceil(total / productsPerPage)}
                     className="h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-full border border-gray-200 text-gray-500 hover:bg-primary transition-colors disabled:opacity-30 group"
                   >
                     <Iconify
@@ -700,19 +725,37 @@ const Products = () => {
                       <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">
                         {t("Price Range")}
                       </h3>
-                      <span className="text-sm font-black text-primary">
-                        {price[0]}DH - {price[1]}DH
-                      </span>
                     </div>
-                    <Slider
-                      defaultValue={[0, apiMaxPrice]}
-                      max={apiMaxPrice}
-                      step={100}
-                      value={price}
-                      onValueChange={handlePriceChange}
-                      onValueCommit={handlePriceCommit}
-                      className="py-4"
-                    />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+                          {t("Min")}
+                        </label>
+                        <Input
+                          type="number"
+                          min="0"
+                          max={apiMaxPrice}
+                          value={localMinPrice}
+                          onChange={handleMinPriceChange}
+                          className="h-12 rounded-xl border-gray-200 focus-visible:ring-primary"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+                          {t("Max")}
+                        </label>
+                        <Input
+                          type="number"
+                          min="0"
+                          max={apiMaxPrice}
+                          value={localMaxPrice}
+                          onChange={handleMaxPriceChange}
+                          className="h-12 rounded-xl border-gray-200 focus-visible:ring-primary"
+                          placeholder={apiMaxPrice.toString()}
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <Separator className="bg-gray-100" />
@@ -730,7 +773,7 @@ const Products = () => {
                           >
                             <Checkbox
                               id={`mobile-${cat._id}`}
-                              checked={category.includes(cat._id)}
+                              checked={urlCategory.includes(cat._id)}
                               className="w-5 h-5 rounded-md"
                             />
                             <span className="text-sm font-bold text-gray-900">
@@ -739,7 +782,7 @@ const Products = () => {
                           </div>
 
                           {/* Mobile Subcategories */}
-                          {(category.includes(cat._id) ||
+                          {(urlCategory.includes(cat._id) ||
                             expandedCategories.includes(cat._id)) && (
                             <div className="pl-4 grid grid-cols-1 gap-2 border-l-2 border-gray-100 ml-4 py-2">
                               {subcategories
@@ -760,7 +803,7 @@ const Products = () => {
                                   >
                                     <Checkbox
                                       id={`mobile-sub-${sub._id}`}
-                                      checked={subcategory.includes(sub._id)}
+                                      checked={urlSubcategory.includes(sub._id)}
                                       className="w-4 h-4 rounded-md"
                                     />
                                     <span className="text-xs font-bold text-gray-500">
@@ -786,7 +829,10 @@ const Products = () => {
                   {t("Reset")}
                 </Button>
                 <Button
-                  onClick={() => setIsFilterOpen(false)}
+                  onClick={() => {
+                    handlePriceApply();
+                    setIsFilterOpen(false);
+                  }}
                   className="h-12 rounded-xl bg-gray-900 text-white font-black uppercase tracking-widest text-xs shadow-xl shadow-black/20"
                 >
                   {t("Apply Filters")}

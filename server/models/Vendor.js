@@ -70,7 +70,7 @@ const vendorSchema = new mongoose.Schema(
   {
     collection: "Vendors",
     versionKey: false,
-  }
+  },
 );
 
 const Vendor = mongoose.model("Vendors", vendorSchema);

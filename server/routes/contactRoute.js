@@ -15,21 +15,21 @@ router.get(
   "/",
   verifyToken,
   requireAdminOrManager,
-  contactController.getAllContactMessages
+  contactController.getAllContactMessages,
 );
 
 router.put(
   "/:id",
   verifyToken,
   requireAdminOrManager,
-  contactController.editContact
+  contactController.editContact,
 );
 
 router.delete(
   "/:id",
   verifyToken,
   requireAdminOrManager,
-  contactController.deleteContact
+  contactController.deleteContact,
 );
 
 module.exports = router;

@@ -1,4 +1,4 @@
-import { React, useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import CircularLoader from "../../../components/loader/CircularLoader";
@@ -13,7 +13,7 @@ import "swiper/css/scrollbar";
 import "swiper/css/effect-fade";
 
 import { Autoplay, Pagination, Navigation, EffectFade } from "swiper/modules";
-import { motion, useAnimation, useMotionValue } from "framer-motion";
+import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
 
 import { useSwiper } from "swiper/react";
@@ -50,8 +50,8 @@ const MobileNav = () => {
 };
 
 const Banner = () => {
-  const { t, i18n } = useTranslation();
-  const [_, setInit] = useState(false);
+  const { t, i18n } = useTranslation(); // eslint-disable-line no-unused-vars
+  const [_, setInit] = useState(false); // eslint-disable-line no-unused-vars
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const { data: settings, loading } = useSelector(

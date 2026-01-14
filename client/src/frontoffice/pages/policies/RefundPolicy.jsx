@@ -1,4 +1,3 @@
-import React from "react";
 import MetaData from "../../components/MetaData";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";

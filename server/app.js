@@ -48,11 +48,11 @@ app.use((req, res, next) => {
 
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
+    "GET, POST, PUT, DELETE, OPTIONS",
   );
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
   );
 
   if (req.method === "OPTIONS") {
@@ -83,7 +83,7 @@ app.use(
       maxAge: 31536000,
       includeSubDomains: true,
     },
-  })
+  }),
 );
 app.disable("x-powered-by");
 
@@ -93,7 +93,7 @@ app.use(
   express.static(staticPath, {
     maxAge: "1d",
     etag: true,
-  })
+  }),
 );
 
 app.use(express.urlencoded({ extended: true }));

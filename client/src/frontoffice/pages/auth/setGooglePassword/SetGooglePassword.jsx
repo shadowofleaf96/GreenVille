@@ -90,7 +90,7 @@ const SetGooglePassword = () => {
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-        }
+        },
       );
       setCompleteSuccess(true);
       toast.success(t(axiosResponse.data.message));
@@ -98,13 +98,13 @@ const SetGooglePassword = () => {
       if (axiosResponse.data.access_token) {
         localStorage.setItem(
           "customer_access_token",
-          axiosResponse.data.access_token
+          axiosResponse.data.access_token,
         );
         dispatch(
           loginSuccess({
             customer: axiosResponse.data.customer,
             token: axiosResponse.data.access_token,
-          })
+          }),
         );
         setTimeout(() => {
           navigate("/");
@@ -157,10 +157,10 @@ const SetGooglePassword = () => {
                 <p className="text-xs font-bold text-gray-400 italic">
                   {completeSuccess
                     ? t(
-                        "Your distinguished account is now fully operational. Redirecting..."
+                        "Your distinguished account is now fully operational. Redirecting...",
                       )
                     : t(
-                        "Establish a secure password to finalize your registration via Google."
+                        "Establish a secure password to finalize your registration via Google.",
                       )}
                 </p>
               </div>

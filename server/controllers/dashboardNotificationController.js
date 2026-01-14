@@ -31,7 +31,7 @@ const markAsRead = async (req, res) => {
     const notification = await DashboardNotification.findByIdAndUpdate(
       id,
       { is_read: true },
-      { new: true }
+      { new: true },
     );
 
     if (!notification) {

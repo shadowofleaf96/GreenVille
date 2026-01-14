@@ -1,6 +1,6 @@
-import React, { Fragment, useEffect } from "react";
+import { Fragment } from "react";
 import { useSelector } from "react-redux";
-import { useProducts } from "../../../api/queries";
+import { useProducts } from "../../../services/api/product.queries";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import Loader from "../../components/loader/Loader";
@@ -17,7 +17,10 @@ import { useTranslation } from "react-i18next";
 const Home = () => {
   const { i18n, t } = useTranslation();
 
-  const { data: productsData, isLoading: loading } = useProducts({ limit: 50 });
+  const { data: productsData, isLoading: loading } = useProducts({
+    limit: 50,
+    status: "true",
+  });
   const products = productsData?.data || [];
 
   const fadeIn = {

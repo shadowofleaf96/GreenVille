@@ -44,6 +44,7 @@ const ProtectedRoute = () => {
 
   useEffect(() => {
     fetchUserData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userToken]);
 
   if (loading) {

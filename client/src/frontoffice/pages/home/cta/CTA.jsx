@@ -36,7 +36,7 @@ const defaultCTA = {
 export default function CTA() {
   const { i18n } = useTranslation();
   const { data: settings, loading } = useSelector(
-    (state) => state.adminSettings
+    (state) => state.adminSettings,
   );
 
   const ctaData = settings?.cta

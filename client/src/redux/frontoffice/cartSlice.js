@@ -5,10 +5,11 @@ const ADD_TO_CART = "cart/addItem";
 
 export const addItemToCart = createAsyncThunk(
   ADD_TO_CART,
-  async ({ id, quantity, variantId }, { getState }) => {
+  async ({ id, quantity, variantId, product }, { getState }) => {
     try {
       const state = getState();
-      let productData = state.products.products.find((item) => item._id === id);
+      let productData =
+        product || state.products.products.find((item) => item._id === id);
 
       if (!productData) {
         const axiosInstance = createAxiosInstance("customer");
@@ -50,7 +51,7 @@ export const addItemToCart = createAsyncThunk(
     } catch (error) {
       console.error(error);
     }
-  },
+  }
 );
 
 const cartSlice = createSlice({
@@ -77,7 +78,7 @@ const cartSlice = createSlice({
       });
       state.cartCount = state.cartItems.reduce(
         (acc, item) => acc + item.quantity,
-        0,
+        0
       );
     },
     updateCartItemQuantity: (state, action) => {
@@ -86,7 +87,7 @@ const cartSlice = createSlice({
         (item) =>
           item.product === productId &&
           ((!item.variant && !variantId) ||
-            (item.variant && item.variant._id === variantId)),
+            (item.variant && item.variant._id === variantId))
       );
 
       if (existingItem) {
@@ -95,7 +96,7 @@ const cartSlice = createSlice({
 
       state.cartCount = state.cartItems.reduce(
         (acc, item) => acc + item.quantity,
-        0,
+        0
       );
     },
     saveShippingInfo: (state, action) => {
@@ -124,7 +125,7 @@ const cartSlice = createSlice({
           ((!item.variant && !action.payload.variant) ||
             (item.variant &&
               action.payload.variant &&
-              item.variant._id === action.payload.variant._id)),
+              item.variant._id === action.payload.variant._id))
       );
 
       if (isItemExist) {
@@ -135,7 +136,7 @@ const cartSlice = createSlice({
               isItemExist.variant &&
               item.variant._id === isItemExist.variant._id))
             ? { ...item, quantity: item.quantity + action.payload.quantity }
-            : item,
+            : item
         );
       } else {
         state.cartItems.push(action.payload);
@@ -143,7 +144,7 @@ const cartSlice = createSlice({
 
       state.cartCount = state.cartItems.reduce(
         (acc, item) => acc + item.quantity,
-        0,
+        0
       );
     });
     builder.addCase("customer/logout", (state) => {

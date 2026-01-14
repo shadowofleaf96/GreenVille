@@ -33,7 +33,7 @@ const contactSchema = new mongoose.Schema(
   {
     collection: "Contact",
     versionKey: false,
-  }
+  },
 );
 
 contactSchema.pre("save", async function (next) {

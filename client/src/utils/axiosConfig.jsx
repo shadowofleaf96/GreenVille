@@ -22,7 +22,7 @@ const createAxiosInstance = (userType) => {
       }
       return config;
     },
-    (error) => Promise.reject(error)
+    (error) => Promise.reject(error),
   );
 
   AxiosInstance.interceptors.response.use(
@@ -38,7 +38,7 @@ const createAxiosInstance = (userType) => {
         }
       }
       return Promise.reject(error);
-    }
+    },
   );
 
   return AxiosInstance;

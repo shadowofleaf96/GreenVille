@@ -61,7 +61,7 @@ const paymentSchema = new mongoose.Schema(
     timestamps: true,
     collection: "Payments",
     versionKey: false,
-  }
+  },
 );
 
 paymentSchema.pre("save", async function (next) {

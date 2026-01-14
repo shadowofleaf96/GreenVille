@@ -127,7 +127,7 @@ const VendorRegistration = () => {
                   </h2>
                   <p className="text-muted-foreground mt-2 text-sm">
                     {t(
-                      "Fill out the form below to apply for a vendor account."
+                      "Fill out the form below to apply for a vendor account.",
                     )}
                   </p>
                 </div>
@@ -184,7 +184,7 @@ const VendorRegistration = () => {
                             onChange: (e) => {
                               e.target.value = e.target.value.replace(
                                 /\D/g,
-                                ""
+                                "",
                               );
                             },
                           })}
@@ -313,7 +313,7 @@ const VendorRegistration = () => {
                       {...register("store_description")}
                       className="flex min-h-[100px] w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 focus:bg-white transition-all resize-none"
                       placeholder={t(
-                        "Tell us about your products and vision..."
+                        "Tell us about your products and vision...",
                       )}
                     />
                   </div>
@@ -413,7 +413,7 @@ const VendorRegistration = () => {
                         </p>
                         <p className="text-xs text-gray-500 leading-relaxed">
                           {t(
-                            "Fill in your store details and logo. Make sure your store name is unique."
+                            "Fill in your store details and logo. Make sure your store name is unique.",
                           )}
                         </p>
                       </div>
@@ -429,7 +429,7 @@ const VendorRegistration = () => {
                         </p>
                         <p className="text-xs text-gray-500 leading-relaxed">
                           {t(
-                            "Our team will review your application. This usually takes 24-48 hours."
+                            "Our team will review your application. This usually takes 24-48 hours.",
                           )}
                         </p>
                       </div>
@@ -445,7 +445,7 @@ const VendorRegistration = () => {
                         </p>
                         <p className="text-xs text-gray-500 leading-relaxed">
                           {t(
-                            "Once approved, you'll receive an email with instructions to access your dedicated dashboard."
+                            "Once approved, you'll receive an email with instructions to access your dedicated dashboard.",
                           )}
                         </p>
                       </div>
@@ -463,7 +463,7 @@ const VendorRegistration = () => {
                     <p className="text-xs text-primary/80 leading-relaxed">
                       <strong>{t("Tip")}:</strong>{" "}
                       {t(
-                        "Use the same password as your customer account. After approval, your accounts will be linked for easy access."
+                        "Use the same password as your customer account. After approval, your accounts will be linked for easy access.",
                       )}
                     </p>
                   </div>

@@ -95,7 +95,7 @@ const searchingItems = async (req, res) => {
   try {
     const products = await Product.find(
       { $text: { $search: searchQuery } },
-      { score: { $meta: "textScore" } }
+      { score: { $meta: "textScore" } },
     )
       .sort({ score: { $meta: "textScore" } })
       .skip(skip)
@@ -403,7 +403,7 @@ const UpdateProductById = async (req, res) => {
     });
 
     const subcategory = await SubCategory.findById(
-      newData.subcategory_id
+      newData.subcategory_id,
     ).lean();
 
     const enrichedProduct = {

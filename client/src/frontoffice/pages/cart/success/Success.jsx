@@ -1,6 +1,6 @@
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 import MetaData from "../../../components/MetaData";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import Iconify from "../../../../backoffice/components/iconify";

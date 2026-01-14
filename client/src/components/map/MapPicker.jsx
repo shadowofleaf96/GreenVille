@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -42,7 +42,7 @@ const MapEvents = ({ onLocationSelect, markerPosition }) => {
 };
 
 const MapPicker = ({ initialPosition, onLocationSelect, readOnly = false }) => {
-  const DEFAULT_CENTER = { lat: 33.5731, lng: -7.5898 }; // Casablanca
+  const DEFAULT_CENTER = { lat: 33.5731, lng: -7.5898 };
 
   const isValidLatLng = (pos) => {
     return (

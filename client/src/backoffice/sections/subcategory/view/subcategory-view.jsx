@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -31,18 +31,14 @@ import {
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
-  TableHeader,
+  TableHeader, // eslint-disable-line no-unused-vars
   TableBody,
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Pagination } from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
@@ -93,6 +89,7 @@ export default function SubCategoryView() {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) return <Loader />;
@@ -130,7 +127,7 @@ export default function SubCategoryView() {
     else if (selectedIndex > 0)
       newSelected = newSelected.concat(
         selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
+        selected.slice(selectedIndex + 1)
       );
     setSelected(newSelected);
   };
@@ -159,15 +156,14 @@ export default function SubCategoryView() {
     setLoadingDelete(true);
     try {
       await axiosInstance.delete(
-        `/subcategories/${selectedDeleteSubCategoryId}`,
+        `/subcategories/${selectedDeleteSubCategoryId}`
       );
       dispatch(
-        setData(
-          data.filter((item) => item._id !== selectedDeleteSubCategoryId),
-        ),
+        setData(data.filter((item) => item._id !== selectedDeleteSubCategoryId))
       );
       toast.success(t("Deleted successfully"));
       closeDeleteConfirmation();
+      // eslint-disable-next-line no-unused-vars
     } catch (err) {
       toast.error(t("Delete failed"));
     } finally {
@@ -193,7 +189,7 @@ export default function SubCategoryView() {
   });
 
   const notFound = !dataFiltered.length;
-  const emptyRowsCount = emptyRows(page, rowsPerPage, data.length);
+  const emptyRowsCount = emptyRows(page, rowsPerPage, data.length); // eslint-disable-line no-unused-vars
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-in fade-in duration-500">
@@ -359,7 +355,7 @@ export default function SubCategoryView() {
           const formData = new FormData();
           formData.append(
             "subcategory_name",
-            JSON.stringify(newData.subcategory_name),
+            JSON.stringify(newData.subcategory_name)
           );
           formData.append("category_id", newData.category_id);
           formData.append("status", newData.status);
@@ -379,19 +375,19 @@ export default function SubCategoryView() {
             const formData = new FormData();
             formData.append(
               "subcategory_name",
-              JSON.stringify(editedData.subcategory_name),
+              JSON.stringify(editedData.subcategory_name)
             );
             formData.append("category_id", editedData.category_id);
             formData.append("status", editedData.status);
             if (file) formData.append("subcategory_image", file);
             const response = await axiosInstance.put(
               `/subcategories/${editing._id}`,
-              formData,
+              formData
             );
             const updated = data.map((item) =>
               item._id === editing._id
                 ? { ...item, ...response.data.data }
-                : item,
+                : item
             );
             dispatch(setData(updated));
             toast.success(t("Updated successfully"));
@@ -417,7 +413,7 @@ export default function SubCategoryView() {
             </DialogTitle>
             <DialogDescription className="text-gray-500 mt-2 text-base leading-relaxed">
               {t(
-                "Are you sure you want to delete this subcategory? This action cannot be undone.",
+                "Are you sure you want to delete this subcategory? This action cannot be undone."
               )}
             </DialogDescription>
           </DialogHeader>

@@ -78,16 +78,16 @@ const sendOrderStatusEmail = async (order, customer, action) => {
       (item) => `
     <tr>
       <td style="padding: 10px; border-bottom: 1px solid #eee;">${getLocalizedName(
-        item.product_id?.product_name
+        item.product_id?.product_name,
       )}</td>
       <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${
         item.quantity
       }</td>
       <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${item.price.toFixed(
-        2
+        2,
       )} DH</td>
     </tr>
-  `
+  `,
     )
     .join("");
 
@@ -99,7 +99,7 @@ const sendOrderStatusEmail = async (order, customer, action) => {
         .slice(-5)
         .toUpperCase()}</p>
       <p style="margin: 5px 0; color: #666;">Date: ${new Date(
-        order_date
+        order_date,
       ).toLocaleDateString()}</p>
     </div>
 
@@ -118,8 +118,8 @@ const sendOrderStatusEmail = async (order, customer, action) => {
         <tr>
           <td colspan="2" style="padding: 10px; text-align: right; font-weight: bold;">Total:</td>
           <td style="padding: 10px; text-align: right; font-weight: bold; color: ${primaryColor};">${cart_total_price.toFixed(
-    2
-  )} DH</td>
+            2,
+          )} DH</td>
         </tr>
       </tfoot>
     </table>
@@ -168,7 +168,7 @@ const sendReviewNotificationEmail = async (customer, product, review) => {
 
   const title = "Thank you for your review!";
   const message = `Hi ${first_name}, thank you for sharing your feedback on <strong>"${getLocalizedName(
-    product.product_name
+    product.product_name,
   )}"</strong>. Your review has been submitted and will be visible shortly.`;
 
   const reviewHtml = `
@@ -249,8 +249,8 @@ const sendPaymentConfirmationEmail = async (customer, order, payment) => {
     <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
       <p style="margin: 0; font-weight: bold; color: #333;">Payment Details</p>
       <p style="margin: 5px 0; color: #666;">Amount: ${payment.amount} ${
-    payment.currency
-  }</p>
+        payment.currency
+      }</p>
       <p style="margin: 5px 0; color: #666;">Method: ${payment.paymentMethod
         .replace("_", " ")
         .toUpperCase()}</p>

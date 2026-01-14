@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -10,22 +10,14 @@ import {
   updateSettings,
 } from "../../../../redux/backoffice/settingsSlice";
 import createAxiosInstance from "../../../../utils/axiosConfig";
-import enTranslations from "../../../../locales/en.json";
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
 // Reusable Multilingual Input Component
@@ -36,7 +28,7 @@ const MultiLingualInput = ({
   multiline = false,
   disabled = false,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(); // eslint-disable-line no-unused-vars
   return (
     <div
       className={`space-y-2 ${
@@ -175,7 +167,7 @@ export default function SettingsView() {
   const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const { data: settingsData, loading } = useSelector(
-    (state) => state.adminSettings,
+    (state) => state.adminSettings
   );
   const [categories, setCategories] = useState([]);
   const [expandedSection, setExpandedSection] = useState("");
@@ -193,7 +185,7 @@ export default function SettingsView() {
     return sanitized;
   };
 
-  const { register, handleSubmit, control, setValue, reset, watch } = useForm({
+  const { handleSubmit, control, setValue, reset, watch } = useForm({
     defaultValues: {
       website_title: { en: "", fr: "", ar: "" },
       logo_url: "",
@@ -340,7 +332,7 @@ export default function SettingsView() {
         ...settingsData,
         home_categories:
           settingsData.home_categories?.map((cat) =>
-            typeof cat === "object" ? cat._id : cat,
+            typeof cat === "object" ? cat._id : cat
           ) || [],
         cta2: {
           ...settingsData.cta2,
@@ -436,7 +428,7 @@ export default function SettingsView() {
     formData.append("seo", JSON.stringify(seoPayload));
     formData.append(
       "auth_settings",
-      JSON.stringify(data.auth_settings || { auth_video_url: "" }),
+      JSON.stringify(data.auth_settings || { auth_video_url: "" })
     );
 
     if (data.auth_settings?.auth_video_url instanceof File) {
@@ -444,12 +436,12 @@ export default function SettingsView() {
     }
     formData.append(
       "shipping_config",
-      JSON.stringify(data.shipping_config || {}),
+      JSON.stringify(data.shipping_config || {})
     );
     formData.append("vat_config", JSON.stringify(data.vat_config || {}));
     formData.append(
       "payment_methods",
-      JSON.stringify(data.payment_methods || {}),
+      JSON.stringify(data.payment_methods || {})
     );
     formData.append("translations", JSON.stringify(data.translations || {}));
 
@@ -591,7 +583,7 @@ export default function SettingsView() {
 
                   <p className="text-xs text-gray-500 font-medium ml-1">
                     {t(
-                      "Upload a video or enter a URL for all authentication pages.",
+                      "Upload a video or enter a URL for all authentication pages."
                     )}
                   </p>
                 </div>
@@ -656,7 +648,7 @@ export default function SettingsView() {
                     />
                     <p className="text-xs text-gray-500 font-medium">
                       {t(
-                        "Cart total must be above this amount for free shipping.",
+                        "Cart total must be above this amount for free shipping."
                       )}
                     </p>
                   </div>

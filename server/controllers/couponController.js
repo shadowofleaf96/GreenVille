@@ -63,7 +63,7 @@ exports.editCoupon = async (req, res) => {
     const updatedCoupon = await Coupon.findByIdAndUpdate(
       id,
       { code, discount, expiresAt, usageLimit, status },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedCoupon)

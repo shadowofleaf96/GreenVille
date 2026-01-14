@@ -38,13 +38,13 @@ const subcategorieSchema = new Schema(
   {
     collection: "SubCategories",
     versionKey: false,
-  }
+  },
 );
 
 subcategorieSchema.pre("save", async function (next) {
   try {
     const validatedData = await SubCategoryJoiSchema.validateAsync(
-      this.toObject()
+      this.toObject(),
     );
     this.subcategory_name = validatedData.subcategory_name;
     this.category_id = validatedData.category_id;

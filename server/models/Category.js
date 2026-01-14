@@ -33,13 +33,13 @@ const CategorySchema = new mongoose.Schema(
   {
     collection: "Categories",
     versionKey: false,
-  }
+  },
 );
 
 CategorySchema.pre("save", async function (next) {
   try {
     const validatedData = await CategoryJoiSchema.validateAsync(
-      this.toObject()
+      this.toObject(),
     );
 
     this.category_name = validatedData.category_name;

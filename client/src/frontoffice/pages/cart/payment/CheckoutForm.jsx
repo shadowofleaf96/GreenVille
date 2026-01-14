@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -46,6 +46,7 @@ const CheckoutForm = () => {
         toast.success(t("Payment succeeded"));
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stripe]);
 
   const createOrder = async () => {

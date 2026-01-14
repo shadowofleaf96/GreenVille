@@ -70,7 +70,7 @@ function applyFilter({ inputData, comparator, filterName }) {
       ];
 
       return searchFields.some(
-        (field) => field && field.toLowerCase().indexOf(query) !== -1,
+        (field) => field && field.toLowerCase().indexOf(query) !== -1
       );
     });
   }
@@ -81,9 +81,7 @@ export default function LocalizationView() {
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
-  const { data, loading, error } = useSelector(
-    (state) => state.adminLocalization,
-  );
+  const { data, loading } = useSelector((state) => state.adminLocalization);
 
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
@@ -130,7 +128,7 @@ export default function LocalizationView() {
     else if (selectedIndex > 0)
       newSelected = newSelected.concat(
         selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
+        selected.slice(selectedIndex + 1)
       );
     setSelected(newSelected);
   };
@@ -237,7 +235,7 @@ export default function LocalizationView() {
                     {dataFiltered
                       .slice(
                         page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
                       )
                       .map((row) => (
                         <LocalizationTableRow
@@ -262,7 +260,7 @@ export default function LocalizationView() {
                         height={77}
                         emptyRows={Math.max(
                           0,
-                          (1 + page) * rowsPerPage - dataFiltered.length,
+                          (1 + page) * rowsPerPage - dataFiltered.length
                         )}
                       />
                     )}

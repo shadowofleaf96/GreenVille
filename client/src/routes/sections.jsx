@@ -41,16 +41,16 @@ import ReviewPage from "../backoffice/pages/review";
 export const IndexPage = lazy(() => import("../backoffice/pages/app"));
 export const CategoryPage = lazy(() => import("../backoffice/pages/category"));
 export const SubCategoryPage = lazy(
-  () => import("../backoffice/pages/subcategory")
+  () => import("../backoffice/pages/subcategory"),
 );
 export const CouponPage = lazy(() => import("../backoffice/pages/coupon"));
 export const ProfilePage = lazy(() => import("../backoffice/pages/profile"));
 export const NotificationPage = lazy(
-  () => import("../backoffice/pages/notification")
+  () => import("../backoffice/pages/notification"),
 );
 export const ContactPage = lazy(() => import("../backoffice/pages/contact"));
 export const PaymentListPage = lazy(
-  () => import("../backoffice/pages/payment")
+  () => import("../backoffice/pages/payment"),
 );
 export const CustomerPage = lazy(() => import("../backoffice/pages/customer"));
 export const OrderPage = lazy(() => import("../backoffice/pages/order"));
@@ -61,12 +61,11 @@ export const VendorPage = lazy(() => import("../backoffice/pages/vendor"));
 export const Page404 = lazy(() => import("../backoffice/pages/page-not-found"));
 export const SettingsPage = lazy(() => import("../backoffice/pages/settings"));
 export const LocalizationPage = lazy(
-  () => import("../backoffice/pages/localization")
+  () => import("../backoffice/pages/localization"),
 );
 import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import i18n from "i18next";
 
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const googleCaptchaKey = import.meta.env.VITE_CAPTCHA_SITE_KEY;
 const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
 

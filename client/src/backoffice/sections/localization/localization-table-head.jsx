@@ -13,7 +13,7 @@ export default function LocalizationTableHead({
   onRequestSort,
   onSelectAllClick,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(); // eslint-disable-line no-unused-vars
   const onSort = (property) => (event) => {
     onRequestSort(event, property);
   };

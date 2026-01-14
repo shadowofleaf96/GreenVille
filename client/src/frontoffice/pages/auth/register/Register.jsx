@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginSuccess } from "../../../../redux/frontoffice/customerSlice";
 import { useForm } from "react-hook-form";
@@ -40,14 +40,6 @@ const RegistrationForm = () => {
   const axiosInstance = createAxiosInstance("customer");
 
   const { executeRecaptcha } = useGoogleReCaptcha();
-
-  const handleReCaptchaVerify = useCallback(async () => {
-    if (!executeRecaptcha) {
-      return;
-    }
-    const captchaToken = await executeRecaptcha("RegisterAction");
-    return captchaToken;
-  }, [executeRecaptcha]);
 
   const { data: settings } = useSelector((state) => state.adminSettings);
 

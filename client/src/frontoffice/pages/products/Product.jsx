@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -16,7 +16,7 @@ const Product = memo(({ product, onQuickView }) => {
 
   const addToCart = (e) => {
     e.preventDefault();
-    dispatch(addItemToCart({ id: product._id, quantity: 1 }));
+    dispatch(addItemToCart({ id: product._id, quantity: 1, product }));
     toast.success(t("itemAdded"));
   };
 

@@ -1,17 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 import { updateVendorProfile } from "../../../../redux/backoffice/authSlice";
-import createAxiosInstance from "../../../../utils/axiosConfig";
+
 import Iconify from "../../../components/iconify";
 import LazyImage from "../../../../components/lazyimage/LazyImage";
-import UploadButton from "../../../components/button/UploadButton";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -35,7 +34,7 @@ const ProfilePage = () => {
   );
   const isActive = admin?.status;
 
-  const { register, handleSubmit, reset, control } = useForm();
+  const { register, handleSubmit, reset, control } = useForm(); // eslint-disable-line no-unused-vars
   const [openEditVendor, setOpenEditVendor] = useState(false);
   const [selectedLogo, setSelectedLogo] = useState(null);
   const [loadingSave, setLoadingSave] = useState(false);

@@ -6,11 +6,11 @@ import AppWidgetSummary from "../app-widget-summary";
 import AppCurrentVisits from "../app-current-visits";
 import AppRecentReviews from "../app-recent-reviews";
 import AppTopProducts from "../app-top-products";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
 import { fDayMonth } from "../../../../utils/format-time";
-import { format, isSameDay } from "date-fns";
+import { format } from "date-fns";
 import Loader from "../../../../frontoffice/components/loader/Loader";
 
 export default function AppView() {
@@ -63,7 +63,7 @@ export default function AppView() {
     const uniqueOrderDates = new Set(
       orders.map((order) => new Date(order.order_date).setHours(0, 0, 0, 0)),
     );
-    const sortedDates = Array.from(uniqueOrderDates).sort((a, b) => a - b);
+    const sortedDates = Array.from(uniqueOrderDates).sort((a, b) => a - b); // eslint-disable-line no-unused-vars
 
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import PropTypes from "prop-types";
 import { fetchUserProfile } from "../../../redux/backoffice/authSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,6 +22,7 @@ export default function Nav({ openNav, onCloseNav }) {
     if (!admin) {
       dispatch(fetchUserProfile());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   const upLg = useResponsive("up", "lg");
@@ -30,6 +31,7 @@ export default function Nav({ openNav, onCloseNav }) {
     if (openNav) {
       onCloseNav();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const navConfig = useNavConfig();
