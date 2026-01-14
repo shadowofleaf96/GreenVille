@@ -1,13 +1,8 @@
 ﻿import { useEffect, useState, useCallback, Fragment, useMemo } from "react";
-// import { useDispatch } from "react-redux"; // Keeping useDispatch if needed for Cart, but removing for fetching
-import {
-  useNavigate,
-  // useLocation,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 
 import Iconify from "../../../backoffice/components/iconify";
 // Removed Redux fetching actions
@@ -167,11 +162,21 @@ const Products = () => {
 
   const handlePriceApply = () => {
     setIsFilterOpen(false);
+
+    // Clamp values to valid range
+    const clampedMin = Math.max(0, localMinPrice);
+    const clampedMax = Math.min(apiMaxPrice, localMaxPrice);
+
+    // Show notification if max price was clamped
+    if (localMaxPrice > apiMaxPrice) {
+      toast.info(`${t("Maximum price adjusted to")} ${apiMaxPrice} DH`);
+    }
+
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       next.delete("price");
-      next.append("price", localMinPrice);
-      next.append("price", localMaxPrice);
+      next.append("price", clampedMin);
+      next.append("price", clampedMax);
       next.set("page", 1);
       return next;
     });
@@ -440,7 +445,6 @@ const Products = () => {
                         <Input
                           type="number"
                           min="0"
-                          max={apiMaxPrice}
                           value={localMinPrice}
                           onChange={handleMinPriceChange}
                           className="h-12 rounded-xl border-gray-200 focus-visible:ring-primary"
@@ -454,7 +458,6 @@ const Products = () => {
                         <Input
                           type="number"
                           min="0"
-                          max={apiMaxPrice}
                           value={localMaxPrice}
                           onChange={handleMaxPriceChange}
                           className="h-12 rounded-xl border-gray-200 focus-visible:ring-primary"
@@ -734,7 +737,6 @@ const Products = () => {
                         <Input
                           type="number"
                           min="0"
-                          max={apiMaxPrice}
                           value={localMinPrice}
                           onChange={handleMinPriceChange}
                           className="h-12 rounded-xl border-gray-200 focus-visible:ring-primary"
@@ -748,7 +750,6 @@ const Products = () => {
                         <Input
                           type="number"
                           min="0"
-                          max={apiMaxPrice}
                           value={localMaxPrice}
                           onChange={handleMaxPriceChange}
                           className="h-12 rounded-xl border-gray-200 focus-visible:ring-primary"
