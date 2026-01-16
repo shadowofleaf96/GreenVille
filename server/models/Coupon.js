@@ -1,4 +1,4 @@
-const { Schema, model, Types } = require("mongoose");
+const { Schema, model } = require("mongoose");
 const Joi = require("joi");
 const mongoose = require("mongoose");
 
@@ -57,15 +57,14 @@ const couponMongooseSchema = new Schema(
       default: "active",
     },
   },
-  { collection: "Coupon", versionKey: false },
+  { collection: "Coupon", versionKey: false }
 );
 
-couponMongooseSchema.pre("save", async function (next) {
+couponMongooseSchema.pre("save", async function () {
   try {
     await couponJoiSchema.validateAsync(this.toObject());
-    next();
   } catch (error) {
-    next(error);
+    console.error(error);
   }
 });
 

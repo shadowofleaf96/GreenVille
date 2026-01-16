@@ -1,6 +1,6 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
-const { Schema, model, Types } = require("mongoose");
+const { Schema, model } = require("mongoose");
 
 const notificationSchema = new mongoose.Schema(
   {
@@ -29,7 +29,7 @@ const notificationSchema = new mongoose.Schema(
   {
     collection: "Notifications",
     versionKey: false,
-  },
+  }
 );
 
 const notificationValidationSchema = Joi.object({
@@ -41,12 +41,11 @@ const notificationValidationSchema = Joi.object({
   dateSent: Joi.date().default(Date.now),
 });
 
-notificationSchema.pre("save", async function (next) {
+notificationSchema.pre("save", async function () {
   try {
     await notificationValidationSchema.validateAsync(this.toObject());
-    next();
   } catch (error) {
-    next(error);
+    console.error(error);
   }
 });
 

@@ -38,21 +38,20 @@ const subcategorieSchema = new Schema(
   {
     collection: "SubCategories",
     versionKey: false,
-  },
+  }
 );
 
-subcategorieSchema.pre("save", async function (next) {
+subcategorieSchema.pre("save", async function () {
   try {
     const validatedData = await SubCategoryJoiSchema.validateAsync(
-      this.toObject(),
+      this.toObject()
     );
     this.subcategory_name = validatedData.subcategory_name;
     this.category_id = validatedData.category_id;
     this.status = validatedData.status;
     this.subcategory_image = validatedData.subcategory_image;
-    next();
   } catch (error) {
-    next(error);
+    console.error(error);
   }
 });
 

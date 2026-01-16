@@ -27,7 +27,7 @@ const vendorSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Users",
-      default: null, // Populated only after approval
+      default: null,
     },
     store_name: {
       type: String,
@@ -70,7 +70,7 @@ const vendorSchema = new mongoose.Schema(
   {
     collection: "Vendors",
     versionKey: false,
-  },
+  }
 );
 
 const Vendor = mongoose.model("Vendors", vendorSchema);

@@ -31,7 +31,7 @@ const SiteSettingsJoiSchema = Joi.object({
         description: multilingualStringSchema.optional(),
         buttonText: multilingualStringSchema.optional(),
         link: Joi.string().allow("").optional(),
-      }),
+      })
     )
     .optional(),
   banner_active: Joi.boolean().default(true).optional(),
@@ -42,7 +42,7 @@ const SiteSettingsJoiSchema = Joi.object({
         icon: Joi.string().allow("").optional(),
         title: multilingualStringSchema.optional(),
         description: multilingualStringSchema.optional(),
-      }),
+      })
     )
     .optional(),
   benefits_active: Joi.boolean().default(true).optional(),
@@ -71,7 +71,7 @@ const SiteSettingsJoiSchema = Joi.object({
         _id: Joi.any().strip(),
         quote: multilingualStringSchema.optional(),
         attribution: multilingualStringSchema.optional(),
-      }),
+      })
     )
     .optional(),
   testimonials_active: Joi.boolean().default(true).optional(),
@@ -92,7 +92,7 @@ const SiteSettingsJoiSchema = Joi.object({
           icon: Joi.string().allow("").optional(),
           title: multilingualStringSchema.optional(),
           description: multilingualStringSchema.optional(),
-        }),
+        })
       )
       .optional(),
   }).optional(),
@@ -327,13 +327,13 @@ const SiteSettingsSchema = new mongoose.Schema(
     collection: "SiteSettings",
     versionKey: false,
     timestamps: true,
-  },
+  }
 );
 
-SiteSettingsSchema.pre("save", async function (next) {
+SiteSettingsSchema.pre("save", async function () {
   try {
     const validatedData = await SiteSettingsJoiSchema.validateAsync(
-      this.toObject(),
+      this.toObject()
     );
 
     this.logo_url = validatedData.logo_url;
@@ -361,10 +361,8 @@ SiteSettingsSchema.pre("save", async function (next) {
     this.shipping_config = validatedData.shipping_config;
     this.vat_config = validatedData.vat_config;
     this.payment_methods = validatedData.payment_methods;
-
-    next();
   } catch (error) {
-    next(error);
+    console.error(error);
   }
 });
 

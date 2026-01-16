@@ -12,7 +12,7 @@ const orderJoiSchema = Joi.object({
         product_id: Joi.any().required(),
         quantity: Joi.number().min(1).required(),
         price: Joi.number().min(0).required(),
-      }),
+      })
     )
     .required(),
   order_date: Joi.date().default(Date.now),
@@ -142,7 +142,7 @@ const ordersSchema = mongoose.Schema(
     collection: "Orders",
     versionKey: false,
     timestamps: true,
-  },
+  }
 );
 
 const calculateReviewAllowed = (orderDate) => {
@@ -151,7 +151,7 @@ const calculateReviewAllowed = (orderDate) => {
   return Date.now() >= reviewAllowedDate.getTime();
 };
 
-ordersSchema.pre("save", async function (next) {
+ordersSchema.pre("save", async function () {
   try {
     const rawData = this.toObject();
     const validatedData = await orderJoiSchema.validateAsync(rawData);
@@ -172,9 +172,8 @@ ordersSchema.pre("save", async function (next) {
     if (this.isModified("status") && this.status === "completed") {
       this.is_review_allowed = calculateReviewAllowed(this.order_date);
     }
-    next();
   } catch (error) {
-    next(error);
+    console.error(error);
   }
 });
 

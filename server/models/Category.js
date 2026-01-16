@@ -1,5 +1,4 @@
 const Joi = require("joi");
-const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
@@ -33,21 +32,19 @@ const CategorySchema = new mongoose.Schema(
   {
     collection: "Categories",
     versionKey: false,
-  },
+  }
 );
 
-CategorySchema.pre("save", async function (next) {
+CategorySchema.pre("save", async function () {
   try {
     const validatedData = await CategoryJoiSchema.validateAsync(
-      this.toObject(),
+      this.toObject()
     );
 
     this.category_name = validatedData.category_name;
     this.status = validatedData.status;
-
-    next();
   } catch (error) {
-    next(error);
+    console.error(error);
   }
 });
 

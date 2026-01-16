@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 import Iconify from "../../../components/iconify/iconify";
 import ImageUpload from "../../../components/image-upload";
 import IconPicker from "../../../components/icon-picker";
@@ -15,165 +16,31 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { TabsContent } from "@/components/ui/tabs";
 
-// Reusable Multilingual Input Component
-const MultiLingualInput = ({
-  control,
-  baseName,
-  label,
-  multiline = false,
-  disabled = false,
-}) => {
-  const { t } = useTranslation(); // eslint-disable-line no-unused-vars
-  return (
-    <div
-      className={`space-y-2 ${
-        disabled ? "opacity-50 pointer-events-none" : "opacity-100"
-      } transition-opacity duration-300`}
-    >
-      <Label className="text-sm font-bold text-gray-800">{label}</Label>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Controller
-          name={`${baseName}.en`}
-          control={control}
-          render={({ field }) => (
-            <div className="space-y-1">
-              <span className="text-[10px] uppercase font-black text-primary/40 tracking-[0.2em] px-1">
-                English
-              </span>
-              {multiline ? (
-                <Textarea
-                  {...field}
-                  className="rounded-xl border-gray-200 focus-visible:ring-primary/20 min-h-20 resize-none"
-                />
-              ) : (
-                <Input
-                  {...field}
-                  className="rounded-xl border-gray-200 focus-visible:ring-primary/20 h-9"
-                />
-              )}
-            </div>
-          )}
-        />
-        <Controller
-          name={`${baseName}.fr`}
-          control={control}
-          render={({ field }) => (
-            <div className="space-y-1">
-              <span className="text-[10px] uppercase font-black text-primary/40 tracking-[0.2em] px-1">
-                Français
-              </span>
-              {multiline ? (
-                <Textarea
-                  {...field}
-                  className="rounded-xl border-gray-200 focus-visible:ring-primary/20 min-h-20 resize-none"
-                />
-              ) : (
-                <Input
-                  {...field}
-                  className="rounded-xl border-gray-200 focus-visible:ring-primary/20 h-9"
-                />
-              )}
-            </div>
-          )}
-        />
-        <Controller
-          name={`${baseName}.ar`}
-          control={control}
-          render={({ field }) => (
-            <div className="space-y-1">
-              <span className="text-[10px] uppercase font-black text-primary/40 tracking-[0.2em] px-1">
-                العربية
-              </span>
-              {multiline ? (
-                <Textarea
-                  {...field}
-                  dir="rtl"
-                  className="rounded-xl border-gray-200 focus-visible:ring-primary/20 min-h-20 resize-none"
-                />
-              ) : (
-                <Input
-                  {...field}
-                  dir="rtl"
-                  className="rounded-xl border-gray-200 focus-visible:ring-primary/20 h-9"
-                />
-              )}
-            </div>
-          )}
-        />
-      </div>
-    </div>
-  );
-};
-
-const SectionHeader = ({
-  title,
-  isActive,
-  onToggle,
-  isCollapsible = true,
-  isOpen,
-  onToggleCollapse,
-  children,
-}) => {
-  const { t } = useTranslation();
-  return (
-    <Card className="border-none shadow-sm overflow-hidden mb-6 bg-white">
-      <div
-        className={`flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50/50 transition-colors ${
-          isOpen ? "border-b border-gray-100" : ""
-        }`}
-        onClick={onToggleCollapse}
-      >
-        <h6 className="text-xl font-bold text-gray-800 tracking-tight">
-          {title}
-        </h6>
-
-        <div className="flex items-center space-x-6">
-          {onToggle && (
-            <div
-              className="flex items-center space-x-3"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Switch checked={isActive} onCheckedChange={onToggle} />
-              <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">
-                {isActive ? t("Enabled") : t("Disabled")}
-              </span>
-            </div>
-          )}
-          {isCollapsible && (
-            <Iconify
-              icon="ic:baseline-expand-more"
-              className={`w-6 h-6 transform transition-transform duration-300 ${
-                isOpen ? "rotate-180" : ""
-              }`}
-            />
-          )}
-        </div>
-      </div>
-      {isOpen && (
-        <CardContent className="p-6 space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
-          {children}
-        </CardContent>
-      )}
-    </Card>
-  );
-};
+import SettingsTabs from "../components/settings-tabs";
+import SettingsSearch from "../components/settings-search";
+import SettingsActions from "../components/settings-actions";
+import SectionCard from "../components/section-card";
+import MultilingualInput from "../components/multilingual-input";
+import { exportSettings, getDefaultSettings } from "../utils/settings-export";
+import { useUnsavedChangesWarning } from "../hooks/use-settings-form";
 
 export default function SettingsView() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { data: settingsData, loading } = useSelector(
     (state) => state.adminSettings
   );
   const [categories, setCategories] = useState([]);
   const [expandedSection, setExpandedSection] = useState("");
+  const [activeTab, setActiveTab] = useState("general");
+  const [isDirty, setIsDirty] = useState(false);
 
   const formatPhone = (phone) => {
-    let sanitized = phone.replace(/\D/g, "");
+    let sanitized = phone.replace(/\\D/g, "");
     if (sanitized.startsWith("00212")) {
       sanitized = "0" + sanitized.slice(5);
     } else if (sanitized.startsWith("212")) {
@@ -186,109 +53,7 @@ export default function SettingsView() {
   };
 
   const { handleSubmit, control, setValue, reset, watch } = useForm({
-    defaultValues: {
-      website_title: { en: "", fr: "", ar: "" },
-      logo_url: "",
-      home_categories: [],
-      home_categories_active: true,
-      announcement: {
-        text: { en: "", fr: "", ar: "" },
-        isActive: true,
-      },
-      banner_slides: [],
-      banner_active: true,
-      benefits: [],
-      benefits_active: true,
-      cta: {
-        logo_image: "",
-        title_part1: { en: "", fr: "", ar: "" },
-        title_part2: { en: "", fr: "", ar: "" },
-        description: { en: "", fr: "", ar: "" },
-        primary_button_text: { en: "", fr: "", ar: "" },
-        secondary_button_text: { en: "", fr: "", ar: "" },
-        primary_button_link: "",
-        secondary_button_link: "",
-        isActive: true,
-      },
-      cta2: {
-        heading: { en: "", fr: "", ar: "" },
-        paragraph: { en: "", fr: "", ar: "" },
-        link_text: { en: "", fr: "", ar: "" },
-        link_url: "",
-        images: ["", ""],
-        isActive: true,
-      },
-      testimonials: [],
-      testimonials_active: true,
-      theme: {
-        primary_color: "#15803d",
-        secondary_color: "#eab308",
-        accent_color: "#fefce8",
-        bgColor: "#ffffff",
-      },
-      about_page: {
-        title: { en: "", fr: "", ar: "" },
-        subtitle: { en: "", fr: "", ar: "" },
-        description: { en: "", fr: "", ar: "" },
-        items: [],
-      },
-      contact_page: {
-        address: { en: "", fr: "", ar: "" },
-        address_city: { en: "", fr: "", ar: "" },
-        phone: "",
-        email: "",
-        google_maps_link: "",
-        working_hours: {
-          mon_fri: "08:00 - 19:00",
-          sat_sun: "08:00 - 12:00",
-        },
-      },
-      policies: {
-        terms: { text: { en: "", fr: "", ar: "" }, isActive: true },
-        returns: { text: { en: "", fr: "", ar: "" }, isActive: true },
-        shipping: { text: { en: "", fr: "", ar: "" }, isActive: true },
-        refund: { text: { en: "", fr: "", ar: "" }, isActive: true },
-        isActive: true,
-      },
-      footer_settings: {
-        description: { en: "", fr: "", ar: "" },
-        copyright: { en: "", fr: "", ar: "" },
-        isActive: true,
-      },
-      social_links: {
-        facebook: "",
-        instagram: "",
-        twitter: "",
-      },
-      seo: {
-        meta_title: { en: "", fr: "", ar: "" },
-        meta_description: { en: "", fr: "", ar: "" },
-        meta_keywords: { en: "", fr: "", ar: "" },
-        og_image: "",
-      },
-      auth_settings: {
-        auth_video_url: "",
-      },
-      shipping_config: {
-        standard_shipping_enabled: true,
-        express_shipping_enabled: true,
-        overnight_shipping_enabled: true,
-        free_shipping_enabled: false,
-        free_shipping_threshold: 0,
-        default_shipping_cost: 30,
-        express_shipping_cost: 45,
-        overnight_shipping_cost: 65,
-      },
-      vat_config: {
-        isActive: true,
-        percentage: 20,
-      },
-      payment_methods: {
-        paypal_active: true,
-        stripe_active: true,
-      },
-      translations: {},
-    },
+    defaultValues: getDefaultSettings(),
   });
 
   const {
@@ -296,21 +61,33 @@ export default function SettingsView() {
     append: appendBanner,
     remove: removeBanner,
   } = useFieldArray({ control, name: "banner_slides" });
+
   const {
     fields: benefitFields,
     append: appendBenefit,
     remove: removeBenefit,
   } = useFieldArray({ control, name: "benefits" });
+
   const {
     fields: testimonialFields,
     append: appendTestimonial,
     remove: removeTestimonial,
   } = useFieldArray({ control, name: "testimonials" });
+
   const {
     fields: aboutItemsFields,
     append: appendAboutItem,
     remove: removeAboutItem,
   } = useFieldArray({ control, name: "about_page.items" });
+
+  // Track form changes
+  useEffect(() => {
+    const subscription = watch(() => setIsDirty(true));
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  // Warn on unsaved changes
+  useUnsavedChangesWarning(isDirty);
 
   useEffect(() => {
     dispatch(fetchSettings());
@@ -340,27 +117,15 @@ export default function SettingsView() {
             ? settingsData.cta2.images
             : ["", ""],
         },
-        shipping_config: settingsData.shipping_config || {
-          standard_shipping_enabled: true,
-          express_shipping_enabled: true,
-          overnight_shipping_enabled: true,
-          free_shipping_enabled: false,
-          free_shipping_threshold: 0,
-          default_shipping_cost: 30,
-          express_shipping_cost: 45,
-          overnight_shipping_cost: 65,
-        },
-        vat_config: settingsData.vat_config || {
-          isActive: true,
-          percentage: 20,
-        },
-        payment_methods: settingsData.payment_methods || {
-          paypal_active: true,
-          stripe_active: true,
-        },
+        shipping_config:
+          settingsData.shipping_config || getDefaultSettings().shipping_config,
+        vat_config: settingsData.vat_config || getDefaultSettings().vat_config,
+        payment_methods:
+          settingsData.payment_methods || getDefaultSettings().payment_methods,
         translations: settingsData.translations || {},
       };
       reset(formData);
+      setIsDirty(false);
     }
   }, [settingsData, reset]);
 
@@ -416,7 +181,7 @@ export default function SettingsView() {
       phone: formatPhone(data.contact_page.phone),
     };
     formData.append("contact_page", JSON.stringify(contactPageToSave));
-    formData.append("policies", JSON.stringify(data.policies));
+    formData.append("policies", JSON.stringify(data?.policies));
     formData.append("footer_settings", JSON.stringify(data.footer_settings));
     formData.append("social_links", JSON.stringify(data.social_links));
 
@@ -445,762 +210,579 @@ export default function SettingsView() {
     );
     formData.append("translations", JSON.stringify(data.translations || {}));
 
-    dispatch(updateSettings(formData));
+    await dispatch(updateSettings(formData));
+    setIsDirty(false);
   };
 
   const toggleSection = (section) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
+  const handleExport = () => {
+    const currentValues = watch();
+    exportSettings(currentValues, `settings-backup-${Date.now()}.json`);
+  };
+
+  const handleImport = (data) => {
+    reset(data);
+    setIsDirty(true);
+    toast.success(t("Settings imported successfully"));
+  };
+
+  const handleReset = () => {
+    reset(getDefaultSettings());
+    setIsDirty(true);
+  };
+
+  // Search sections
+  const searchSections = useMemo(
+    () => [
+      {
+        id: "general",
+        title: t("General Settings"),
+        description: t("Logo, title, theme"),
+        onClick: () => setActiveTab("general"),
+      },
+      {
+        id: "announcement",
+        title: t("Announcement Bar"),
+        description: t("Top banner message"),
+        onClick: () => {
+          setActiveTab("content");
+          toggleSection("announcement");
+        },
+      },
+      {
+        id: "banner",
+        title: t("Banner Slides"),
+        description: t("Homepage carousel"),
+        onClick: () => {
+          setActiveTab("content");
+          toggleSection("banner");
+        },
+      },
+      {
+        id: "benefits",
+        title: t("Benefits Section"),
+        description: t("Key selling points"),
+        onClick: () => {
+          setActiveTab("content");
+          toggleSection("benefits");
+        },
+      },
+      {
+        id: "cta",
+        title: t("Call to Action"),
+        description: t("Primary promotion"),
+        onClick: () => {
+          setActiveTab("content");
+          toggleSection("cta");
+        },
+      },
+      {
+        id: "testimonials",
+        title: t("Testimonials"),
+        description: t("Customer reviews"),
+        onClick: () => {
+          setActiveTab("content");
+          toggleSection("testimonials");
+        },
+      },
+      {
+        id: "about",
+        title: t("About Page"),
+        description: t("Company bio content"),
+        onClick: () => {
+          setActiveTab("pages");
+          toggleSection("about");
+        },
+      },
+      {
+        id: "contact",
+        title: t("Contact Details"),
+        description: t("Address, phone, hours"),
+        onClick: () => {
+          setActiveTab("pages");
+          toggleSection("contact");
+        },
+      },
+      {
+        id: "policies",
+        title: t("Site Policies"),
+        description: t("Terms, returns, refund"),
+        onClick: () => {
+          setActiveTab("pages");
+          toggleSection("policies");
+        },
+      },
+      {
+        id: "shipping",
+        title: t("Shipping Configuration"),
+        description: t("Delivery options"),
+        onClick: () => {
+          setActiveTab("ecommerce");
+          toggleSection("shipping");
+        },
+      },
+      {
+        id: "seo",
+        title: t("SEO Settings"),
+        description: t("Meta tags, analytics"),
+        onClick: () => setActiveTab("seo"),
+      },
+      {
+        id: "advanced",
+        title: t("Advanced Settings"),
+        description: t("Auth, translations"),
+        onClick: () => setActiveTab("advanced"),
+      },
+    ],
+    [t]
+  );
+
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-10">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 space-y-4 sm:space-y-0">
-        <h4 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-          {t("Site Settings")}
-        </h4>
-        <Button
-          onClick={handleSubmit(onSubmit)}
-          disabled={loading}
-          className="px-8 py-6 rounded-2xl bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:scale-105 transition-all duration-200 active:scale-95 disabled:opacity-50 flex items-center space-x-2 text-lg"
-        >
-          {loading ? (
-            <Iconify
-              icon="svg-spinners:180-ring-with-bg"
-              className="w-6 h-6 mr-2"
-            />
-          ) : (
-            <Iconify icon="material-symbols:save" className="w-6 h-6 mr-2" />
-          )}
-          <span>{t("Save Changes")}</span>
-        </Button>
+    <div className="w-full px-4 sm:px-6 lg:px-12 py-8 max-w-[1600px] mx-auto">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-10">
+        <div>
+          <h4 className="text-4xl font-black text-gray-900 tracking-tight">
+            {t("Store Settings")}
+          </h4>
+          <p className="text-sm text-gray-500 mt-2 font-medium flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            {t("Your store configuration is up to date")}
+          </p>
+        </div>
+
+        <SettingsActions
+          onSave={handleSubmit(onSubmit)}
+          onExport={handleExport}
+          onImport={handleImport}
+          onReset={handleReset}
+          loading={loading}
+          unsavedChanges={isDirty}
+        />
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Announcement Section */}
-        <SectionHeader
-          title={t("Announcement Bar")}
-          isActive={watch("announcement.isActive")}
-          onToggle={(val) => setValue("announcement.isActive", val)}
-          isOpen={expandedSection === "announcement"}
-          onToggleCollapse={() => toggleSection("announcement")}
-        >
-          <MultiLingualInput
-            control={control}
-            baseName="announcement.text"
-            label={t("Announcement Text")}
-            disabled={!watch("announcement.isActive")}
-          />
-        </SectionHeader>
-
-        {/* Auth Page Settings Section */}
-        <SectionHeader
-          title={t("Auth Pages Settings")}
-          isOpen={expandedSection === "auth_settings"}
-          onToggleCollapse={() => toggleSection("auth_settings")}
-        >
-          <div className="grid grid-cols-1 gap-6">
-            <Controller
-              name="auth_settings.auth_video_url"
-              control={control}
-              render={({ field }) => (
-                <div className="space-y-4">
-                  <Label className="text-base font-bold text-gray-800 uppercase tracking-tight">
-                    {t("Authentication Video URL")}
-                  </Label>
-
-                  {/* Current Video Preview or URL Text */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-                    <div className="flex flex-col gap-2">
-                      <Label className="text-xs font-semibold text-gray-500 uppercase">
-                        Upload File
-                      </Label>
-                      <Input
-                        type="file"
-                        accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            field.onChange(file);
-                          }
-                        }}
-                        className="cursor-pointer file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 h-10 pt-1.5"
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                      <Label className="text-xs font-semibold text-gray-500 uppercase">
-                        Or Direct URL
-                      </Label>
-                      <Input
-                        value={
-                          typeof field.value === "string" ? field.value : ""
-                        }
-                        onChange={(e) => field.onChange(e.target.value)}
-                        placeholder="https://..."
-                        className="h-10 rounded-md bg-white border-gray-200"
-                      />
-                    </div>
-                  </div>
-
-                  {field.value && (
-                    <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-gray-200 bg-gray-100 mt-2">
-                      {(() => {
-                        const val = field.value;
-                        const isFile = val instanceof File;
-                        // Naive check: if it has image extension or is image file type, render img. Else video.
-                        const isImage = isFile
-                          ? val.type.startsWith("image/")
-                          : typeof val === "string" &&
-                            val.match(/\.(jpeg|jpg|gif|png|webp|svg|avif)$/i);
-
-                        if (isImage) {
-                          return (
-                            <img
-                              src={isFile ? URL.createObjectURL(val) : val}
-                              alt="Auth Background"
-                              className="w-full h-full object-cover"
-                            />
-                          );
-                        } else {
-                          return (
-                            <video
-                              src={isFile ? URL.createObjectURL(val) : val}
-                              controls
-                              className="w-full h-full object-cover"
-                            />
-                          );
-                        }
-                      })()}
-                    </div>
-                  )}
-
-                  {field.value instanceof File && (
-                    <div className="text-sm text-green-600 font-medium flex items-center gap-2">
-                      <Iconify icon="eva:checkmark-circle-2-fill" width={20} />
-                      File selected: {field.value.name}
-                    </div>
-                  )}
-
-                  <p className="text-xs text-gray-500 font-medium ml-1">
-                    {t(
-                      "Upload a video or enter a URL for all authentication pages."
-                    )}
-                  </p>
-                </div>
-              )}
+      <div className="flex flex-col lg:flex-row gap-10">
+        {/* Sidebar Navigation */}
+        <aside className="lg:w-72 xl:w-80 shrink-0">
+          <div className="sticky top-10 space-y-6">
+            <SettingsSearch sections={searchSections} />
+            <SettingsTabs
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              unsavedChanges={isDirty}
+              vertical
             />
-          </div>
-        </SectionHeader>
 
-        {/* Shipping Configuration Section */}
-        <SectionHeader
-          title={t("Shipping Configuration")}
-          isOpen={expandedSection === "shipping_config"}
-          onToggleCollapse={() => toggleSection("shipping_config")}
-        >
-          <div className="space-y-6">
-            <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
-              <div className="space-y-1">
-                <Label className="text-base font-bold text-gray-800 tracking-tight">
-                  {t("Free Shipping Feature")}
-                </Label>
-                <p className="text-xs text-gray-500 font-medium">
-                  {t("Enable or disable free shipping based on order total.")}
-                </p>
+            <div className="p-6 bg-primary/5 rounded-3xl border border-primary/10">
+              <div className="flex items-center gap-3 text-primary mb-2">
+                <Iconify icon="solar:info-circle-bold-duotone" width={24} />
+                <span className="text-sm font-black uppercase tracking-wider">
+                  {t("Pro Tip")}
+                </span>
               </div>
-              <Controller
-                name="shipping_config.free_shipping_enabled"
-                control={control}
-                render={({ field }) => (
-                  <div className="flex items-center space-x-3">
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                    <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">
-                      {field.value ? t("Enabled") : t("Disabled")}
-                    </span>
-                  </div>
+              <p className="text-xs text-primary/70 font-bold leading-relaxed">
+                {t(
+                  "You can use Cmd/Ctrl + K to quickly search through all settings sections."
                 )}
-              />
-            </div>
-
-            <div
-              className={`grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-300 ${
-                !watch("shipping_config.free_shipping_enabled")
-                  ? "opacity-50 pointer-events-none"
-                  : "opacity-100"
-              }`}
-            >
-              <Controller
-                name="shipping_config.free_shipping_threshold"
-                control={control}
-                render={({ field }) => (
-                  <div className="space-y-4">
-                    <Label className="text-base font-bold text-gray-800 uppercase tracking-tight">
-                      {t("Free Shipping Threshold (Amount)")}
-                    </Label>
-                    <Input
-                      {...field}
-                      type="number"
-                      min="0"
-                      className="rounded-xl border-gray-200 focus-visible:ring-primary/20 h-10"
-                    />
-                    <p className="text-xs text-gray-500 font-medium">
-                      {t(
-                        "Cart total must be above this amount for free shipping."
-                      )}
-                    </p>
-                  </div>
-                )}
-              />
+              </p>
             </div>
           </div>
+        </aside>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 border-t border-gray-100">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
-                <div className="space-y-1">
-                  <Label className="text-sm font-bold text-gray-800 uppercase tracking-tight">
-                    {t("Standard Shipping")}
-                  </Label>
-                </div>
-                <Controller
-                  name="shipping_config.standard_shipping_enabled"
-                  control={control}
-                  render={({ field }) => (
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  )}
-                />
-              </div>
-              <Controller
-                name="shipping_config.default_shipping_cost"
-                control={control}
-                render={({ field }) => (
-                  <div
-                    className={`space-y-4 transition-opacity duration-300 ${
-                      !watch("shipping_config.standard_shipping_enabled")
-                        ? "opacity-40 pointer-events-none"
-                        : "opacity-100"
-                    }`}
-                  >
-                    <Label className="text-sm font-bold text-gray-600 uppercase tracking-tight">
-                      {t("Price (DH)")}
-                    </Label>
-                    <Input
-                      {...field}
-                      type="number"
-                      min="0"
-                      className="rounded-xl border-gray-200 focus-visible:ring-primary/20 h-10"
-                    />
-                  </div>
-                )}
-              />
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
-                <div className="space-y-1">
-                  <Label className="text-sm font-bold text-gray-800 uppercase tracking-tight">
-                    {t("Express Shipping")}
-                  </Label>
-                </div>
-                <Controller
-                  name="shipping_config.express_shipping_enabled"
-                  control={control}
-                  render={({ field }) => (
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  )}
-                />
-              </div>
-              <Controller
-                name="shipping_config.express_shipping_cost"
-                control={control}
-                render={({ field }) => (
-                  <div
-                    className={`space-y-4 transition-opacity duration-300 ${
-                      !watch("shipping_config.express_shipping_enabled")
-                        ? "opacity-40 pointer-events-none"
-                        : "opacity-100"
-                    }`}
-                  >
-                    <Label className="text-sm font-bold text-gray-600 uppercase tracking-tight">
-                      {t("Price (DH)")}
-                    </Label>
-                    <Input
-                      {...field}
-                      type="number"
-                      min="0"
-                      className="rounded-xl border-gray-200 focus-visible:ring-primary/20 h-10"
-                    />
-                  </div>
-                )}
-              />
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
-                <div className="space-y-1">
-                  <Label className="text-sm font-bold text-gray-800 uppercase tracking-tight">
-                    {t("Overnight Shipping")}
-                  </Label>
-                </div>
-                <Controller
-                  name="shipping_config.overnight_shipping_enabled"
-                  control={control}
-                  render={({ field }) => (
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  )}
-                />
-              </div>
-              <Controller
-                name="shipping_config.overnight_shipping_cost"
-                control={control}
-                render={({ field }) => (
-                  <div
-                    className={`space-y-4 transition-opacity duration-300 ${
-                      !watch("shipping_config.overnight_shipping_enabled")
-                        ? "opacity-40 pointer-events-none"
-                        : "opacity-100"
-                    }`}
-                  >
-                    <Label className="text-sm font-bold text-gray-600 uppercase tracking-tight">
-                      {t("Price (DH)")}
-                    </Label>
-                    <Input
-                      {...field}
-                      type="number"
-                      min="0"
-                      className="rounded-xl border-gray-200 focus-visible:ring-primary/20 h-10"
-                    />
-                  </div>
-                )}
-              />
-            </div>
-          </div>
-        </SectionHeader>
-
-        {/* Tax & Payment Configuration Section */}
-        <SectionHeader
-          title={t("Tax & Payment Configuration")}
-          isOpen={expandedSection === "tax_payment_config"}
-          onToggleCollapse={() => toggleSection("tax_payment_config")}
-        >
-          <div className="space-y-8">
-            {/* VAT Config */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
-                <div className="space-y-1">
-                  <Label className="text-base font-bold text-gray-800 tracking-tight">
-                    {t("VAT (Value Added Tax)")}
-                  </Label>
-                  <p className="text-xs text-gray-500 font-medium">
-                    {t("Enable or disable tax calculation on orders.")}
-                  </p>
-                </div>
-                <Controller
-                  name="vat_config.isActive"
-                  control={control}
-                  render={({ field }) => (
-                    <div className="flex items-center space-x-3">
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                      <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">
-                        {field.value ? t("Enabled") : t("Disabled")}
-                      </span>
-                    </div>
-                  )}
-                />
-              </div>
-
-              <div
-                className={`grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-300 ${
-                  !watch("vat_config.isActive")
-                    ? "opacity-50 pointer-events-none"
-                    : "opacity-100"
-                }`}
-              >
-                <Controller
-                  name="vat_config.percentage"
-                  control={control}
-                  render={({ field }) => (
-                    <div className="space-y-4">
-                      <Label className="text-base font-bold text-gray-800 uppercase tracking-tight">
-                        {t("VAT Percentage (%)")}
-                      </Label>
-                      <Input
-                        {...field}
-                        type="number"
-                        min="0"
-                        max="100"
-                        className="rounded-xl border-gray-200 focus-visible:ring-primary/20 h-10"
-                      />
-                      <p className="text-xs text-gray-500 font-medium">
-                        {t("This percentage will be applied to the subtotal.")}
-                      </p>
-                    </div>
-                  )}
-                />
-              </div>
-            </div>
-
-            <Separator className="bg-gray-100" />
-
-            {/* Payment Methods */}
-            <div className="space-y-6">
-              <Label className="text-xl font-bold text-gray-800 tracking-tight">
-                {t("Payment Methods")}
-              </Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
-                  <div className="flex items-center gap-3">
-                    <Iconify
-                      icon="logos:paypal"
-                      width={24}
-                      className={
-                        watch("payment_methods.paypal_active")
-                          ? ""
-                          : "grayscale"
-                      }
-                    />
-                    <div className="space-y-1">
-                      <Label className="text-base font-bold text-gray-800 tracking-tight">
-                        {t("PayPal")}
-                      </Label>
-                    </div>
-                  </div>
-                  <Controller
-                    name="payment_methods.paypal_active"
+        {/* Main Content Area */}
+        <div className="flex-1 min-w-0">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            {/* GENERAL TAB */}
+            {activeTab === "general" && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                {/* Website Title */}
+                <SectionCard
+                  title={t("Website Title")}
+                  description={t("The name of your website")}
+                  isOpen={expandedSection === "website_title"}
+                  onToggleCollapse={() => toggleSection("website_title")}
+                >
+                  <MultilingualInput
                     control={control}
-                    render={({ field }) => (
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    )}
+                    baseName="website_title"
+                    label={t("Website Title")}
+                    showCharCount
+                    maxLength={100}
                   />
-                </div>
+                </SectionCard>
 
-                <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
-                  <div className="flex items-center gap-3">
-                    <Iconify
-                      icon="logos:stripe"
-                      width={40}
-                      className={
-                        watch("payment_methods.stripe_active")
-                          ? ""
-                          : "grayscale"
-                      }
-                    />
-                    <div className="space-y-1">
-                      <Label className="text-base font-bold text-gray-800 tracking-tight">
-                        {t("Stripe (Credit Card)")}
-                      </Label>
-                    </div>
-                  </div>
-                  <Controller
-                    name="payment_methods.stripe_active"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    )}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-gray-100/50 rounded-2xl border border-dashed border-gray-300 opacity-60">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                      <Iconify
-                        icon="solar:wallet-money-bold-duotone"
-                        width={24}
-                        className="text-gray-500"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-base font-bold text-gray-400 tracking-tight">
-                        {t("Cash on Delivery")}
-                      </Label>
-                    </div>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className="text-[10px] font-black uppercase text-gray-400"
-                  >
-                    {t("Always Enabled")}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-          </div>
-        </SectionHeader>
-
-        {/* Global Settings Section */}
-        <SectionHeader
-          title={t("General Information")}
-          isOpen={expandedSection === "panel1"}
-          onToggleCollapse={() => toggleSection("panel1")}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
-            <div className="md:col-span-4 space-y-4">
-              <Controller
-                name="logo_url"
-                control={control}
-                render={({ field }) => (
-                  <div className="space-y-4">
-                    <Label className="text-base font-bold text-gray-800 uppercase tracking-tight">
-                      {t("Website Logo")}
-                    </Label>
-                    <ImageUpload
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </div>
-                )}
-              />
-            </div>
-            <div className="md:col-span-8 space-y-6">
-              <MultiLingualInput
-                control={control}
-                baseName="website_title"
-                label={t("Website Title")}
-              />
-
-              <div className="space-y-4 bg-gray-50/50 p-4 rounded-2xl border border-dashed border-gray-200">
-                <div className="flex items-center justify-between">
-                  <Label className="text-lg font-bold text-gray-800 tracking-tight">
-                    {t("Home Categories")}
-                  </Label>
-                  <Controller
-                    name="home_categories_active"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    )}
-                  />
-                </div>
-
-                <div
-                  className={`transition-all duration-300 ${
-                    !watch("home_categories_active")
-                      ? "opacity-50 pointer-events-none"
-                      : "opacity-100"
-                  }`}
+                {/* Logo */}
+                <SectionCard
+                  title={t("Website Logo")}
+                  description={t("Upload your website logo")}
+                  isOpen={expandedSection === "logo"}
+                  onToggleCollapse={() => toggleSection("logo")}
                 >
                   <Controller
-                    name="home_categories"
+                    name="logo_url"
                     control={control}
                     render={({ field }) => (
-                      <div className="flex flex-wrap gap-3 mt-4">
-                        {categories.map((cat) => {
-                          const isSelected = field.value.includes(cat._id);
-                          return (
-                            <Badge
-                              key={cat._id}
-                              variant={isSelected ? "default" : "outline"}
-                              className={`
-                                cursor-pointer px-4 py-2 text-sm rounded-lg transition-all
-                                ${
-                                  isSelected
-                                    ? "bg-primary hover:bg-primary shadow-md"
-                                    : "hover:border-primary/50"
-                                }
-                              `}
-                              onClick={() => {
-                                const newValue = isSelected
-                                  ? field.value.filter((id) => id !== cat._id)
-                                  : [...field.value, cat._id];
-                                field.onChange(newValue);
-                              }}
-                            >
-                              {cat.category_name?.[i18n.language] ||
-                                cat.category_name?.en}
-                            </Badge>
-                          );
-                        })}
-                      </div>
+                      <ImageUpload
+                        value={field.value}
+                        onChange={field.onChange}
+                        label={t("Logo Image")}
+                      />
                     )}
                   />
-                </div>
-              </div>
-            </div>
-          </div>
-        </SectionHeader>
+                </SectionCard>
 
-        {/* Banner Slides Section */}
-        <SectionHeader
-          title={t("Banner Slides")}
-          isActive={watch("banner_active")}
-          onToggle={(val) => setValue("banner_active", val)}
-          isOpen={expandedSection === "banner"}
-          onToggleCollapse={() => toggleSection("banner")}
-        >
-          <div
-            className={`space-y-4 ${
-              !watch("banner_active") ? "opacity-50 pointer-events-none" : ""
-            }`}
-          >
-            {bannerFields.map((field, index) => (
-              <Card
-                key={field.id}
-                className="p-4 border border-dashed border-gray-200 bg-gray-50/10 relative group hover:bg-gray-50/30 transition-colors"
-              >
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeBanner(index)}
-                  className="absolute top-4 right-4 text-red-400 hover:text-red-700 hover:bg-red-50 rounded-xl"
+                {/* Theme Colors */}
+                <SectionCard
+                  title={t("Theme Colors")}
+                  description={t("Customize your website's color scheme")}
+                  isOpen={expandedSection === "theme"}
+                  onToggleCollapse={() => toggleSection("theme")}
                 >
-                  <Iconify
-                    icon="material-symbols:delete-outline"
-                    width={24}
-                    height={24}
-                  />
-                </Button>
-
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mt-4">
-                  <div className="md:col-span-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Controller
-                      name={`banner_slides[${index}].image`}
+                      name="theme.primary_color"
                       control={control}
                       render={({ field }) => (
-                        <div className="space-y-3">
-                          <Label className="text-xs font-black uppercase tracking-widest text-gray-400">
-                            {t("Slide Image")}
+                        <div className="space-y-2">
+                          <Label className="text-sm font-bold text-gray-800">
+                            {t("Primary Color")}
                           </Label>
-                          <ImageUpload
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
+                          <div className="flex gap-3">
+                            <Input
+                              type="color"
+                              {...field}
+                              className="w-20 h-10 rounded-xl cursor-pointer"
+                            />
+                            <Input
+                              type="text"
+                              value={field.value}
+                              onChange={(e) => field.onChange(e.target.value)}
+                              className="flex-1 h-10 rounded-xl"
+                              placeholder="#15803d"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    />
+
+                    <Controller
+                      name="theme.secondary_color"
+                      control={control}
+                      render={({ field }) => (
+                        <div className="space-y-2">
+                          <Label className="text-sm font-bold text-gray-800">
+                            {t("Secondary Color")}
+                          </Label>
+                          <div className="flex gap-3">
+                            <Input
+                              type="color"
+                              {...field}
+                              className="w-20 h-10 rounded-xl cursor-pointer"
+                            />
+                            <Input
+                              type="text"
+                              value={field.value}
+                              onChange={(e) => field.onChange(e.target.value)}
+                              className="flex-1 h-10 rounded-xl"
+                              placeholder="#eab308"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    />
+
+                    <Controller
+                      name="theme.accent_color"
+                      control={control}
+                      render={({ field }) => (
+                        <div className="space-y-2">
+                          <Label className="text-sm font-bold text-gray-800">
+                            {t("Accent Color")}
+                          </Label>
+                          <div className="flex gap-3">
+                            <Input
+                              type="color"
+                              {...field}
+                              className="w-20 h-10 rounded-xl cursor-pointer"
+                            />
+                            <Input
+                              type="text"
+                              value={field.value}
+                              onChange={(e) => field.onChange(e.target.value)}
+                              className="flex-1 h-10 rounded-xl"
+                              placeholder="#fefce8"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    />
+
+                    <Controller
+                      name="theme.bgColor"
+                      control={control}
+                      render={({ field }) => (
+                        <div className="space-y-2">
+                          <Label className="text-sm font-bold text-gray-800">
+                            {t("Background Color")}
+                          </Label>
+                          <div className="flex gap-3">
+                            <Input
+                              type="color"
+                              {...field}
+                              className="w-20 h-10 rounded-xl cursor-pointer"
+                            />
+                            <Input
+                              type="text"
+                              value={field.value}
+                              onChange={(e) => field.onChange(e.target.value)}
+                              className="flex-1 h-10 rounded-xl"
+                              placeholder="#ffffff"
+                            />
+                          </div>
                         </div>
                       )}
                     />
                   </div>
-                  <div className="md:col-span-9 space-y-6">
-                    <MultiLingualInput
-                      control={control}
-                      baseName={`banner_slides[${index}].title`}
-                      label={t("Title")}
-                    />
-                    <MultiLingualInput
-                      control={control}
-                      baseName={`banner_slides[${index}].subtitle`}
-                      label={t("Subtitle")}
-                    />
-                    <MultiLingualInput
-                      control={control}
-                      baseName={`banner_slides[${index}].description`}
-                      label={t("Description")}
-                      multiline
-                    />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <MultiLingualInput
-                        control={control}
-                        baseName={`banner_slides[${index}].buttonText`}
-                        label={t("Button Text")}
-                      />
-                      <div className="space-y-4">
-                        <Label className="text-base font-bold text-gray-800">
-                          {t("Button Link")}
-                        </Label>
-                        <Controller
-                          name={`banner_slides[${index}].link`}
-                          control={control}
-                          render={({ field }) => (
-                            <Input
-                              {...field}
-                              className="rounded-xl border-gray-200 focus-visible:ring-primary/20"
-                            />
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
+                </SectionCard>
+              </div>
+            )}
 
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() =>
-                appendBanner({
-                  image: "",
-                  title: { en: "", fr: "", ar: "" },
-                  subtitle: { en: "", fr: "", ar: "" },
-                  description: { en: "", fr: "", ar: "" },
-                  buttonText: { en: "", fr: "", ar: "" },
-                  link: "",
-                })
-              }
-              className="w-full h-12 border-2 border-dashed border-gray-200 text-gray-400 hover:border-primary hover:text-primary hover:bg-primary/5 rounded-2xl flex items-center justify-center space-x-2 transition-all font-bold"
-            >
-              <Iconify icon="material-symbols:add" width={24} />
-              <span>{t("Add New Slide")}</span>
-            </Button>
-          </div>
-        </SectionHeader>
-
-        {/* Benefits Section */}
-        <SectionHeader
-          title={t("Benefits Section")}
-          isActive={watch("benefits_active")}
-          onToggle={(val) => setValue("benefits_active", val)}
-          isOpen={expandedSection === "benefits"}
-          onToggleCollapse={() => toggleSection("benefits")}
-        >
-          <div
-            className={`space-y-4 ${
-              !watch("benefits_active") ? "opacity-50 pointer-events-none" : ""
-            }`}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {benefitFields.map((field, index) => (
-                <Card
-                  key={field.id}
-                  className="p-4 border border-dashed border-gray-200 bg-gray-50/10 relative group hover:bg-gray-50/30 transition-colors"
+            {/* CONTENT TAB */}
+            {activeTab === "content" && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                {/* Announcement Bar */}
+                <SectionCard
+                  title={t("Announcement Bar")}
+                  description={t(
+                    "Display a promotional message at the top of the site"
+                  )}
+                  isActive={watch("announcement.isActive")}
+                  onToggle={(val) => setValue("announcement.isActive", val)}
+                  isOpen={expandedSection === "announcement"}
+                  onToggleCollapse={() => toggleSection("announcement")}
                 >
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeBenefit(index)}
-                    className="absolute top-4 right-4 text-red-400 hover:text-red-700 hover:bg-red-50 rounded-xl"
+                  <MultilingualInput
+                    control={control}
+                    baseName="announcement.text"
+                    label={t("Announcement Message")}
+                    disabled={!watch("announcement.isActive")}
+                  />
+                </SectionCard>
+
+                {/* Banner Slides */}
+                <SectionCard
+                  title={t("Banner Slides")}
+                  description={t("Manage homepage carousel slides")}
+                  badge={bannerFields.length}
+                  isActive={watch("banner_active")}
+                  onToggle={(val) => setValue("banner_active", val)}
+                  isOpen={expandedSection === "banner"}
+                  onToggleCollapse={() => toggleSection("banner")}
+                >
+                  <div
+                    className={`space-y-6 ${!watch("banner_active") ? "opacity-50 pointer-events-none" : ""}`}
                   >
-                    <Iconify
-                      icon="material-symbols:delete-outline"
-                      width={24}
-                      height={24}
-                    />
-                  </Button>
-                  <div className="flex space-x-6">
-                    <div className="w-20">
+                    {bannerFields.map((field, index) => (
+                      <div
+                        key={field.id}
+                        className="p-6 bg-gray-50/50 rounded-3xl border border-gray-100 relative group animate-in slide-in-from-left-2 duration-300"
+                      >
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeBanner(index)}
+                          className="absolute -top-3 -right-3 bg-white shadow-md border border-gray-100 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Iconify
+                            icon="solar:trash-bin-trash-bold"
+                            width={18}
+                          />
+                        </Button>
+
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                          <div className="md:col-span-4">
+                            <Controller
+                              name={`banner_slides[${index}].image`}
+                              control={control}
+                              render={({ field }) => (
+                                <ImageUpload
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  label={t("Slide Image")}
+                                />
+                              )}
+                            />
+                          </div>
+                          <div className="md:col-span-8 space-y-4">
+                            <MultilingualInput
+                              control={control}
+                              baseName={`banner_slides[${index}].title`}
+                              label={t("Slide Title")}
+                            />
+                            <MultilingualInput
+                              control={control}
+                              baseName={`banner_slides[${index}].subtitle`}
+                              label={t("Slide Subtitle")}
+                            />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <MultilingualInput
+                                control={control}
+                                baseName={`banner_slides[${index}].buttonText`}
+                                label={t("Button Text")}
+                              />
+                              <div className="space-y-2">
+                                <Label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                  {t("Button Link")}
+                                </Label>
+                                <Controller
+                                  name={`banner_slides[${index}].link`}
+                                  control={control}
+                                  render={({ field }) => (
+                                    <Input
+                                      {...field}
+                                      className="h-9 rounded-xl border-gray-200"
+                                      placeholder="/products"
+                                    />
+                                  )}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() =>
+                        appendBanner({
+                          image: "",
+                          title: { en: "", fr: "", ar: "" },
+                          subtitle: { en: "", fr: "", ar: "" },
+                          description: { en: "", fr: "", ar: "" },
+                          buttonText: { en: "", fr: "", ar: "" },
+                          link: "",
+                        })
+                      }
+                      className="w-full border-2 border-dashed h-14 rounded-2xl text-gray-500 hover:text-primary hover:border-primary hover:bg-primary/5 transition-all text-xs uppercase font-black tracking-widest gap-2"
+                    >
+                      <Iconify icon="solar:add-circle-bold" width={20} />
+                      {t("Add New Banner Slide")}
+                    </Button>
+                  </div>
+                </SectionCard>
+
+                {/* Benefits Section */}
+                <SectionCard
+                  title={t("Benefits Section")}
+                  description={t("Display key selling points with icons")}
+                  badge={benefitFields.length}
+                  isActive={watch("benefits_active")}
+                  onToggle={(val) => setValue("benefits_active", val)}
+                  isOpen={expandedSection === "benefits"}
+                  onToggleCollapse={() => toggleSection("benefits")}
+                >
+                  <div
+                    className={`space-y-6 ${!watch("benefits_active") ? "opacity-50 pointer-events-none" : ""}`}
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {benefitFields.map((field, index) => (
+                        <div
+                          key={field.id}
+                          className="p-4 bg-gray-50/50 rounded-2xl border border-gray-100 relative group transition-all hover:shadow-sm"
+                        >
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeBenefit(index)}
+                            className="absolute top-2 right-2 text-red-500 hover:bg-red-50 rounded-full w-7 h-7"
+                          >
+                            <Iconify
+                              icon="solar:trash-bin-trash-bold"
+                              width={16}
+                            />
+                          </Button>
+
+                          <div className="flex gap-4">
+                            <div className="w-16">
+                              <Controller
+                                name={`benefits[${index}].icon`}
+                                control={control}
+                                render={({ field }) => (
+                                  <div className="space-y-2">
+                                    <Label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                      {t("Icon")}
+                                    </Label>
+                                    <IconPicker
+                                      value={field.value}
+                                      onChange={field.onChange}
+                                    />
+                                  </div>
+                                )}
+                              />
+                            </div>
+                            <div className="flex-1 space-y-4">
+                              <MultilingualInput
+                                control={control}
+                                baseName={`benefits[${index}].title`}
+                                label={t("Title")}
+                              />
+                              <MultilingualInput
+                                control={control}
+                                baseName={`benefits[${index}].description`}
+                                label={t("Description")}
+                                multiline
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() =>
+                        appendBenefit({
+                          icon: "solar:star-bold",
+                          title: { en: "", fr: "", ar: "" },
+                          description: { en: "", fr: "", ar: "" },
+                        })
+                      }
+                      className="w-full border-2 border-dashed h-12 rounded-2xl text-gray-500 hover:text-primary gap-2 transition-all font-bold text-sm"
+                    >
+                      <Iconify icon="solar:add-circle-bold" width={20} />
+                      {t("Add Benefit Point")}
+                    </Button>
+                  </div>
+                </SectionCard>
+
+                {/* CTA 1 */}
+                <SectionCard
+                  title={t("Call to Action (CTA)")}
+                  description={t("Primary promotional section on homepage")}
+                  isActive={watch("cta.isActive")}
+                  onToggle={(val) => setValue("cta.isActive", val)}
+                  isOpen={expandedSection === "cta"}
+                  onToggleCollapse={() => toggleSection("cta")}
+                >
+                  <div
+                    className={`grid grid-cols-1 md:grid-cols-12 gap-10 ${!watch("cta.isActive") ? "opacity-50 pointer-events-none" : ""}`}
+                  >
+                    <div className="md:col-span-4">
                       <Controller
-                        name={`benefits[${index}].icon`}
+                        name="cta.logo_image"
                         control={control}
                         render={({ field }) => (
-                          <div className="space-y-3">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-                              {t("Icon")}
+                          <div className="space-y-4">
+                            <Label className="text-base font-bold text-gray-800 uppercase tracking-tight">
+                              {t("CTA Image")}
                             </Label>
-                            <IconPicker
+                            <ImageUpload
                               value={field.value}
                               onChange={field.onChange}
                             />
@@ -1208,728 +790,1127 @@ export default function SettingsView() {
                         )}
                       />
                     </div>
-                    <div className="grow space-y-4">
-                      <MultiLingualInput
-                        control={control}
-                        baseName={`benefits[${index}].title`}
-                        label={t("Benefit Title")}
-                      />
-                      <MultiLingualInput
-                        control={control}
-                        baseName={`benefits[${index}].description`}
-                        label={t("Benefit Description")}
-                        multiline
-                      />
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() =>
-                appendBenefit({
-                  icon: "material-symbols:star",
-                  title: { en: "", fr: "", ar: "" },
-                  description: { en: "", fr: "", ar: "" },
-                })
-              }
-              className="w-full h-12 border-2 border-dashed border-gray-200 text-gray-400 hover:border-primary hover:text-primary hover:bg-primary/5 rounded-2xl flex items-center justify-center space-x-2 transition-all font-bold"
-            >
-              <Iconify icon="material-symbols:add" width={24} />
-              <span>{t("Add New Benefit")}</span>
-            </Button>
-          </div>
-        </SectionHeader>
-
-        {/* CTA Section */}
-        <SectionHeader
-          title={t("Call to Action (CTA)")}
-          isActive={watch("cta.isActive")}
-          onToggle={(val) => setValue("cta.isActive", val)}
-          isOpen={expandedSection === "cta"}
-          onToggleCollapse={() => toggleSection("cta")}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
-            <div className="md:col-span-4">
-              <Controller
-                name="cta.logo_image"
-                control={control}
-                render={({ field }) => (
-                  <div className="space-y-4">
-                    <Label className="text-base font-bold text-gray-800 uppercase tracking-tight">
-                      {t("CTA Image")}
-                    </Label>
-                    <ImageUpload
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </div>
-                )}
-              />
-            </div>
-            <div className="md:col-span-8 space-y-6">
-              <MultiLingualInput
-                control={control}
-                baseName="cta.title_part1"
-                label={t("Title Part 1")}
-              />
-              <MultiLingualInput
-                control={control}
-                baseName="cta.title_part2"
-                label={t("Title Part 2")}
-              />
-              <MultiLingualInput
-                control={control}
-                baseName="cta.description"
-                label={t("Description")}
-                multiline
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50/50 p-4 rounded-2xl border border-dashed border-gray-200">
-                <div className="space-y-6">
-                  <MultiLingualInput
-                    control={control}
-                    baseName="cta.primary_button_text"
-                    label={t("Primary Button Text")}
-                  />
-                  <div className="space-y-4">
-                    <Label className="text-base font-bold text-gray-800">
-                      {t("Primary Button Link")}
-                    </Label>
-                    <Controller
-                      name="cta.primary_button_link"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          className="rounded-xl border-gray-200 focus-visible:ring-primary/20"
+                    <div className="md:col-span-8 space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <MultilingualInput
+                          control={control}
+                          baseName="cta.title_part1"
+                          label={t("Title (Line 1)")}
                         />
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-6">
-                  <MultiLingualInput
-                    control={control}
-                    baseName="cta.secondary_button_text"
-                    label={t("Secondary Button Text")}
-                  />
-                  <div className="space-y-4">
-                    <Label className="text-base font-bold text-gray-800">
-                      {t("Secondary Button Link")}
-                    </Label>
-                    <Controller
-                      name="cta.secondary_button_link"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          className="rounded-xl border-gray-200 focus-visible:ring-primary/20"
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </SectionHeader>
-
-        {/* CTA2 Section */}
-        <SectionHeader
-          title={t("CTA 2 (Feature Promotion)")}
-          isActive={watch("cta2.isActive")}
-          onToggle={(val) => setValue("cta2.isActive", val)}
-          isOpen={expandedSection === "cta2"}
-          onToggleCollapse={() => toggleSection("cta2")}
-        >
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <MultiLingualInput
-                control={control}
-                baseName="cta2.heading"
-                label={t("Heading")}
-              />
-              <div className="space-y-6">
-                <MultiLingualInput
-                  control={control}
-                  baseName="cta2.paragraph"
-                  label={t("Paragraph")}
-                  multiline
-                />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <MultiLingualInput
-                    control={control}
-                    baseName="cta2.link_text"
-                    label={t("Link Text")}
-                  />
-                  <div className="space-y-2">
-                    <Label className="text-sm font-bold text-gray-800">
-                      {t("Link URL")}
-                    </Label>
-                    <Controller
-                      name="cta2.link_url"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          className="rounded-xl border-gray-200 focus-visible:ring-primary/20"
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[0, 1].map((idx) => (
-                <Card
-                  key={idx}
-                  className="p-4 border border-dashed border-gray-200 bg-gray-50/10"
-                >
-                  <Controller
-                    name={`cta2.images[${idx}]`}
-                    control={control}
-                    render={({ field }) => (
-                      <div className="space-y-2">
-                        <Label className="text-xs font-black uppercase tracking-widest text-gray-400">
-                          {t("Promotion Image")} {idx + 1}
-                        </Label>
-                        <ImageUpload
-                          value={field.value}
-                          onChange={field.onChange}
+                        <MultilingualInput
+                          control={control}
+                          baseName="cta.title_part2"
+                          label={t("Title (Line 2)")}
                         />
                       </div>
-                    )}
-                  />
-                </Card>
-              ))}
-            </div>
-          </div>
-        </SectionHeader>
+                      <MultilingualInput
+                        control={control}
+                        baseName="cta.description"
+                        label={t("Description")}
+                        multiline
+                      />
 
-        {/* Testimonials Section */}
-        <SectionHeader
-          title={t("Testimonials")}
-          isActive={watch("testimonials_active")}
-          onToggle={(val) => setValue("testimonials_active", val)}
-          isOpen={expandedSection === "testimonials"}
-          onToggleCollapse={() => toggleSection("testimonials")}
-        >
-          <div
-            className={`space-y-4 ${
-              !watch("testimonials_active")
-                ? "opacity-50 pointer-events-none"
-                : ""
-            }`}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {testimonialFields.map((field, index) => (
-                <Card
-                  key={field.id}
-                  className="p-6 border border-dashed border-gray-200 bg-gray-50/10 relative group hover:bg-gray-50/30 transition-colors"
-                >
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeTestimonial(index)}
-                    className="absolute top-4 right-4 text-red-400 hover:text-red-700 hover:bg-red-50 rounded-xl"
-                  >
-                    <Iconify
-                      icon="material-symbols:delete-outline"
-                      width={24}
-                      height={24}
-                    />
-                  </Button>
-                  <div className="space-y-4">
-                    <MultiLingualInput
-                      control={control}
-                      baseName={`testimonials[${index}].quote`}
-                      label={t("Quote")}
-                      multiline
-                    />
-                    <MultiLingualInput
-                      control={control}
-                      baseName={`testimonials[${index}].attribution`}
-                      label={t("Attribution")}
-                    />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50/50 rounded-3xl border border-gray-100">
+                        <div className="space-y-4">
+                          <MultilingualInput
+                            control={control}
+                            baseName="cta.primary_button_text"
+                            label={t("Primary Button Text")}
+                          />
+                          <div className="space-y-2">
+                            <Label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                              {t("Primary Link")}
+                            </Label>
+                            <Controller
+                              name="cta.primary_button_link"
+                              control={control}
+                              render={({ field }) => (
+                                <Input {...field} className="h-9 rounded-xl" />
+                              )}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-4">
+                          <MultilingualInput
+                            control={control}
+                            baseName="cta.secondary_button_text"
+                            label={t("Secondary Button Text")}
+                          />
+                          <div className="space-y-2">
+                            <Label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                              {t("Secondary Link")}
+                            </Label>
+                            <Controller
+                              name="cta.secondary_button_link"
+                              control={control}
+                              render={({ field }) => (
+                                <Input {...field} className="h-9 rounded-xl" />
+                              )}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </Card>
-              ))}
-            </div>
+                </SectionCard>
 
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() =>
-                appendTestimonial({
-                  quote: { en: "", fr: "", ar: "" },
-                  attribution: { en: "", fr: "", ar: "" },
-                })
-              }
-              className="w-full h-12 border-2 border-dashed border-gray-200 text-gray-400 hover:border-primary hover:text-primary hover:bg-primary/5 rounded-2xl flex items-center justify-center space-x-2 transition-all font-bold"
-            >
-              <Iconify icon="material-symbols:add" width={24} />
-              <span>{t("Add New Testimonial")}</span>
-            </Button>
-          </div>
-        </SectionHeader>
-
-        {/* About Page Section */}
-        <SectionHeader
-          title={t("About Page Content")}
-          isOpen={expandedSection === "about"}
-          onToggleCollapse={() => toggleSection("about")}
-        >
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <MultiLingualInput
-                control={control}
-                baseName="about_page.title"
-                label={t("Hero Title")}
-              />
-              <MultiLingualInput
-                control={control}
-                baseName="about_page.subtitle"
-                label={t("Hero Subtitle")}
-              />
-            </div>
-            <MultiLingualInput
-              control={control}
-              baseName="about_page.description"
-              label={t("Main Description")}
-              multiline
-            />
-
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <Label className="text-xl font-bold text-primary">
-                  {t("About Key Points")}
-                </Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    appendAboutItem({
-                      title: { en: "", fr: "", ar: "" },
-                      description: { en: "", fr: "", ar: "" },
-                    })
-                  }
-                  className="rounded-xl border-primary text-primary hover:bg-primary/5"
+                {/* CTA 2 */}
+                <SectionCard
+                  title={t("Featured Promotion (CTA 2)")}
+                  description={t(
+                    "Secondary promotion section with multiple images"
+                  )}
+                  isActive={watch("cta2.isActive")}
+                  onToggle={(val) => setValue("cta2.isActive", val)}
+                  isOpen={expandedSection === "cta2"}
+                  onToggleCollapse={() => toggleSection("cta2")}
                 >
-                  <Iconify icon="material-symbols:add" className="mr-2" />
-                  {t("Add Key Point")}
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-1 gap-6">
-                {aboutItemsFields.map((field, index) => (
-                  <Card
-                    key={field.id}
-                    className="p-4 border border-gray-100 bg-gray-50/30 relative group"
+                  <div
+                    className={`space-y-8 ${!watch("cta2.isActive") ? "opacity-50 pointer-events-none" : ""}`}
                   >
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-6">
+                        <MultilingualInput
+                          control={control}
+                          baseName="cta2.heading"
+                          label={t("Section Heading")}
+                        />
+                        <MultilingualInput
+                          control={control}
+                          baseName="cta2.paragraph"
+                          label={t("Promotion Paragraph")}
+                          multiline
+                        />
+                        <div className="grid grid-cols-2 gap-4">
+                          <MultilingualInput
+                            control={control}
+                            baseName="cta2.link_text"
+                            label={t("Link Text")}
+                          />
+                          <div className="space-y-2">
+                            <Label className="text-xs font-bold text-gray-500 tracking-widest uppercase">
+                              {t("Url")}
+                            </Label>
+                            <Controller
+                              name="cta2.link_url"
+                              control={control}
+                              render={({ field }) => (
+                                <Input {...field} className="h-9 rounded-xl" />
+                              )}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        {[0, 1].map((idx) => (
+                          <div
+                            key={idx}
+                            className="space-y-4 p-4 bg-gray-50/50 rounded-2xl border border-gray-100"
+                          >
+                            <Label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                              {t("Promo Image")} {idx + 1}
+                            </Label>
+                            <Controller
+                              name={`cta2.images[${idx}]`}
+                              control={control}
+                              render={({ field }) => (
+                                <ImageUpload
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                />
+                              )}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </SectionCard>
+
+                {/* Testimonials */}
+                <SectionCard
+                  title={t("Testimonials")}
+                  description={t("Customer success stories")}
+                  badge={testimonialFields.length}
+                  isActive={watch("testimonials_active")}
+                  onToggle={(val) => setValue("testimonials_active", val)}
+                  isOpen={expandedSection === "testimonials"}
+                  onToggleCollapse={() => toggleSection("testimonials")}
+                >
+                  <div
+                    className={`space-y-6 ${!watch("testimonials_active") ? "opacity-50 pointer-events-none" : ""}`}
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {testimonialFields.map((field, index) => (
+                        <div
+                          key={field.id}
+                          className="p-6 bg-gray-50/50 rounded-3xl border border-gray-100 relative group transition-all hover:shadow-md hover:bg-white"
+                        >
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeTestimonial(index)}
+                            className="absolute top-4 right-4 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Iconify
+                              icon="solar:trash-bin-trash-bold"
+                              width={18}
+                            />
+                          </Button>
+                          <div className="space-y-4">
+                            <Iconify
+                              icon="solar:quote-bold-duotone"
+                              width={32}
+                              className="text-primary/20"
+                            />
+                            <MultilingualInput
+                              control={control}
+                              baseName={`testimonials[${index}].quote`}
+                              label={t("Testimonial Quote")}
+                              multiline
+                            />
+                            <MultilingualInput
+                              control={control}
+                              baseName={`testimonials[${index}].attribution`}
+                              label={t("Customer Name/Role")}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                     <Button
                       type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeAboutItem(index)}
-                      className="absolute top-4 right-4 text-red-400 hover:text-red-700 hover:bg-red-50 rounded-xl"
+                      variant="outline"
+                      onClick={() =>
+                        appendTestimonial({
+                          quote: { en: "", fr: "", ar: "" },
+                          attribution: { en: "", fr: "", ar: "" },
+                        })
+                      }
+                      className="w-full border-2 border-dashed h-12 rounded-2xl text-gray-500 hover:text-primary gap-2 transition-all font-bold"
                     >
-                      <Iconify icon="material-symbols:delete-outline" />
+                      <Iconify icon="solar:add-circle-bold" width={20} />
+                      {t("Add Testimonial")}
                     </Button>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                      <MultiLingualInput
+                  </div>
+                </SectionCard>
+
+                {/* Home Categories */}
+                <SectionCard
+                  title={t("Home Categories")}
+                  description={t(
+                    "Select categories to highlight on the homepage"
+                  )}
+                  isActive={watch("home_categories_active")}
+                  onToggle={(val) => setValue("home_categories_active", val)}
+                  isOpen={expandedSection === "home_categories"}
+                  onToggleCollapse={() => toggleSection("home_categories")}
+                >
+                  <div
+                    className={`space-y-4 ${!watch("home_categories_active") ? "opacity-50 pointer-events-none" : ""}`}
+                  >
+                    <Label className="text-sm font-bold text-gray-800">
+                      {t("Selected Categories")}
+                    </Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {(categories || []).filter(Boolean).map((category) => (
+                        <div
+                          key={category._id}
+                          className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
+                            (watch("home_categories") || []).includes(
+                              category?._id
+                            )
+                              ? "border-primary bg-primary/5 shadow-sm"
+                              : "border-gray-100 hover:border-gray-200"
+                          }`}
+                          onClick={() => {
+                            const current = watch("home_categories") || [];
+                            const newValue = current.includes(category?._id)
+                              ? current.filter((id) => id !== category?._id)
+                              : [...current, category?._id];
+                            setValue("home_categories", newValue);
+                          }}
+                        >
+                          <div
+                            className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                              (watch("home_categories") || []).includes(
+                                category?._id
+                              )
+                                ? "bg-primary border-primary"
+                                : "bg-white border-gray-300"
+                            }`}
+                          >
+                            {(watch("home_categories") || []).includes(
+                              category?._id
+                            ) && (
+                              <Iconify
+                                icon="ic:baseline-check"
+                                className="text-white w-3 h-3"
+                              />
+                            )}
+                          </div>
+                          <span className="text-xs font-bold text-gray-700 truncate capitalize">
+                            {category?.category_name?.en || t("Unnamed Category")}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </SectionCard>
+              </div>
+            )}
+
+            {/* PAGES TAB */}
+            {activeTab === "pages" && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                {/* About Page */}
+                <SectionCard
+                  title={t("About Page")}
+                  description={t("Content for the company bio page")}
+                  isOpen={expandedSection === "about"}
+                  onToggleCollapse={() => toggleSection("about")}
+                >
+                  <div className="space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <MultilingualInput
                         control={control}
-                        baseName={`about_page.items[${index}].title`}
-                        label={t("Point Title")}
+                        baseName="about_page.title"
+                        label={t("Hero Title")}
                       />
-                      <MultiLingualInput
+                      <MultilingualInput
                         control={control}
-                        baseName={`about_page.items[${index}].description`}
-                        label={t("Point Description")}
-                        multiline
+                        baseName="about_page.subtitle"
+                        label={t("Hero Subtitle")}
                       />
                     </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </div>
-        </SectionHeader>
-
-        {/* Contact Page Section */}
-        <SectionHeader
-          title={t("Contact Information")}
-          isOpen={expandedSection === "contact"}
-          onToggleCollapse={() => toggleSection("contact")}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-6">
-              <MultiLingualInput
-                control={control}
-                baseName="contact_page.address"
-                label={t("Street Address")}
-              />
-              <MultiLingualInput
-                control={control}
-                baseName="contact_page.address_city"
-                label={t("City & Country")}
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-sm font-bold text-gray-800">
-                    {t("Phone Number")}
-                  </Label>
-                  <Controller
-                    name="contact_page.phone"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, "");
-                          field.onChange(val);
-                        }}
-                        className="rounded-xl border-gray-200"
-                      />
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-bold text-gray-800">
-                    {t("Email Address")}
-                  </Label>
-                  <Controller
-                    name="contact_page.email"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        type="email"
-                        className="rounded-xl border-gray-200"
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <Label className="text-sm font-bold text-gray-800">
-                  {t("Google Maps Link")}
-                </Label>
-                <Controller
-                  name="contact_page.google_maps_link"
-                  control={control}
-                  render={({ field }) => (
-                    <Input {...field} className="rounded-xl border-gray-200" />
-                  )}
-                />
-              </div>
-              <Card className="p-4 bg-gray-50/50 border-none">
-                <Label className="text-sm font-black uppercase text-gray-400 mb-4 block">
-                  {t("Working Hours")}
-                </Label>
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-xs text-gray-500">
-                      {t("Mon - Fri")}
-                    </Label>
-                    <Controller
-                      name="contact_page.working_hours.mon_fri"
+                    <MultilingualInput
                       control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          className="bg-white border-gray-100"
-                        />
-                      )}
+                      baseName="about_page.description"
+                      label={t("Main Description")}
+                      multiline
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs text-gray-500">
-                      {t("Sat - Sun")}
-                    </Label>
-                    <Controller
-                      name="contact_page.working_hours.sat_sun"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          className="bg-white border-gray-100"
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
-        </SectionHeader>
 
-        {/* Policies Section */}
-        <SectionHeader
-          title={t("Site Policies")}
-          isActive={watch("policies.isActive")}
-          onToggle={(val) => setValue("policies.isActive", val)}
-          isOpen={expandedSection === "policies"}
-          onToggleCollapse={() => toggleSection("policies")}
-        >
-          <div className="grid grid-cols-1 gap-8">
-            {["terms", "returns", "shipping", "refund"].map((policyKey) => (
-              <div
-                key={policyKey}
-                className="space-y-4 pb-4 border-b border-dashed border-gray-100 last:border-0 last:pb-0"
-              >
-                <div className="flex items-center justify-between">
-                  <Label className="text-xl font-bold text-gray-800 capitalize">
-                    {t(policyKey.replace("_", " "))}
-                  </Label>
-                  <Controller
-                    name={`policies.${policyKey}.isActive`}
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-base font-bold text-gray-800 uppercase tracking-tight">
+                          {t("Key Points")}
+                        </Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            appendAboutItem({
+                              title: { en: "", fr: "", ar: "" },
+                              description: { en: "", fr: "", ar: "" },
+                            })
+                          }
+                          className="rounded-xl font-bold"
+                        >
+                          <Iconify
+                            icon="solar:add-circle-bold"
+                            className="mr-2"
+                          />
+                          {t("Add Point")}
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-1 gap-6">
+                        {aboutItemsFields.map((field, index) => (
+                          <div
+                            key={field.id}
+                            className="p-6 bg-gray-50/50 rounded-3xl border border-gray-100 relative group animate-in slide-in-from-bottom-2 duration-300"
+                          >
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeAboutItem(index)}
+                              className="absolute top-4 right-4 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Iconify
+                                icon="solar:trash-bin-trash-bold"
+                                width={18}
+                              />
+                            </Button>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <MultilingualInput
+                                control={control}
+                                baseName={`about_page.items[${index}].title`}
+                                label={t("Point Title")}
+                              />
+                              <MultilingualInput
+                                control={control}
+                                baseName={`about_page.items[${index}].description`}
+                                label={t("Point Description")}
+                                multiline
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </SectionCard>
+
+                {/* Contact Information */}
+                <SectionCard
+                  title={t("Contact Information")}
+                  description={t(
+                    "Details for your contact page and store locations"
+                  )}
+                  isOpen={expandedSection === "contact"}
+                  onToggleCollapse={() => toggleSection("contact")}
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div className="space-y-6">
+                      <MultilingualInput
+                        control={control}
+                        baseName="contact_page.address"
+                        label={t("Street Address")}
                       />
-                    )}
-                  />
-                </div>
-                <MultiLingualInput
-                  control={control}
-                  baseName={`policies.${policyKey}.text`}
-                  label={t("Policy Content")}
-                  multiline
-                  disabled={!watch(`policies.${policyKey}.isActive`)}
-                />
-              </div>
-            ))}
-          </div>
-        </SectionHeader>
-
-        <div className="space-y-4">
-          {/* Footer Section */}
-          <SectionHeader
-            title={t("Footer Settings")}
-            isActive={watch("footer_settings.isActive")}
-            onToggle={(val) => setValue("footer_settings.isActive", val)}
-            isOpen={expandedSection === "footer"}
-            onToggleCollapse={() => toggleSection("footer")}
-          >
-            <div className="space-y-6">
-              <MultiLingualInput
-                control={control}
-                baseName="footer_settings.description"
-                label={t("Footer Description")}
-                multiline
-              />
-              <MultiLingualInput
-                control={control}
-                baseName="footer_settings.copyright"
-                label={t("Copyright Text")}
-              />
-            </div>
-          </SectionHeader>
-
-          {/* Social Links Section */}
-          <SectionHeader
-            title={t("Social Media Links")}
-            isOpen={expandedSection === "social"}
-            onToggleCollapse={() => toggleSection("social")}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <Label className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                  <Iconify
-                    icon="simple-icons:facebook"
-                    className="text-blue-600"
-                    width={16}
-                  />
-                  {t("Facebook URL")}
-                </Label>
-                <Controller
-                  name="social_links.facebook"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      placeholder="https://facebook.com/yourpage"
-                      className="rounded-xl border-gray-200 focus-visible:ring-primary/20"
-                      onBlur={(e) => {
-                        const value = e.target.value.trim();
-                        if (
-                          value &&
-                          !value.startsWith("http://") &&
-                          !value.startsWith("https://")
-                        ) {
-                          field.onChange("https://" + value);
-                        }
-                      }}
-                    />
-                  )}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                  <Iconify
-                    icon="simple-icons:instagram"
-                    className="text-pink-600"
-                    width={16}
-                  />
-                  {t("Instagram URL")}
-                </Label>
-                <Controller
-                  name="social_links.instagram"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      placeholder="https://instagram.com/yourpage"
-                      className="rounded-xl border-gray-200 focus-visible:ring-primary/20"
-                      onBlur={(e) => {
-                        const value = e.target.value.trim();
-                        if (
-                          value &&
-                          !value.startsWith("http://") &&
-                          !value.startsWith("https://")
-                        ) {
-                          field.onChange("https://" + value);
-                        }
-                      }}
-                    />
-                  )}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                  <Iconify
-                    icon="simple-icons:x"
-                    className="text-gray-900"
-                    width={16}
-                  />
-                  {t("Twitter/X URL")}
-                </Label>
-                <Controller
-                  name="social_links.twitter"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      placeholder="https://x.com/yourpage"
-                      className="rounded-xl border-gray-200 focus-visible:ring-primary/20"
-                      onBlur={(e) => {
-                        const value = e.target.value.trim();
-                        if (
-                          value &&
-                          !value.startsWith("http://") &&
-                          !value.startsWith("https://")
-                        ) {
-                          field.onChange("https://" + value);
-                        }
-                      }}
-                    />
-                  )}
-                />
-              </div>
-            </div>
-          </SectionHeader>
-
-          {/* SEO Section */}
-          <SectionHeader
-            title={t("SEO & Metadata")}
-            isOpen={expandedSection === "seo"}
-            onToggleCollapse={() => toggleSection("seo")}
-          >
-            <div className="space-y-6">
-              <MultiLingualInput
-                control={control}
-                baseName="seo.meta_title"
-                label={t("Meta Title")}
-              />
-              <MultiLingualInput
-                control={control}
-                baseName="seo.meta_description"
-                label={t("Meta Description")}
-                multiline
-              />
-              <MultiLingualInput
-                control={control}
-                baseName="seo.meta_keywords"
-                label={t("Meta Keywords")}
-              />
-              <Controller
-                name="seo.og_image"
-                control={control}
-                render={({ field }) => (
-                  <div className="space-y-2">
-                    <Label className="text-sm font-bold text-gray-800 uppercase tracking-tight">
-                      {t("OG Social Image")}
-                    </Label>
-                    <ImageUpload
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </div>
-                )}
-              />
-            </div>
-          </SectionHeader>
-        </div>
-
-        {/* Theme & Colors Section */}
-        <SectionHeader
-          title={t("Theme & Branding")}
-          isOpen={expandedSection === "theme"}
-          onToggleCollapse={() => toggleSection("theme")}
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              "primary_color",
-              "secondary_color",
-              "accent_color",
-              "bgColor",
-            ].map((colorKey) => (
-              <Card
-                key={colorKey}
-                className="p-4 border border-dashed border-gray-200 bg-gray-50/10"
-              >
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3 block">
-                  {t(colorKey.replace("_", " "))}
-                </Label>
-                <Controller
-                  name={`theme.${colorKey}`}
-                  control={control}
-                  render={({ field }) => (
-                    <div className="flex items-center space-x-3">
-                      <div
-                        className="w-10 h-10 rounded-lg border border-gray-200 relative overflow-hidden shrink-0"
-                        style={{ backgroundColor: field.value }}
-                      >
-                        <input
-                          {...field}
-                          type="color"
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      <MultilingualInput
+                        control={control}
+                        baseName="contact_page.address_city"
+                        label={t("City, Country")}
+                      />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-bold text-gray-800">
+                            {t("Phone Number")}
+                          </Label>
+                          <Controller
+                            name="contact_page.phone"
+                            control={control}
+                            render={({ field }) => (
+                              <Input
+                                {...field}
+                                value={formatPhone(field.value)}
+                                onChange={(e) => field.onChange(e.target.value)}
+                                className="rounded-xl border-gray-200"
+                              />
+                            )}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-sm font-bold text-gray-800">
+                            {t("Email Address")}
+                          </Label>
+                          <Controller
+                            name="contact_page.email"
+                            control={control}
+                            render={({ field }) => (
+                              <Input
+                                {...field}
+                                type="email"
+                                className="rounded-xl border-gray-200"
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-bold text-gray-800">
+                          {t("Google Maps Link")}
+                        </Label>
+                        <Controller
+                          name="contact_page.google_maps_link"
+                          control={control}
+                          render={({ field }) => (
+                            <Input
+                              {...field}
+                              className="rounded-xl border-gray-200"
+                            />
+                          )}
                         />
                       </div>
-                      <Input
-                        {...field}
-                        className="grow bg-white border-gray-200 font-mono text-xs font-bold text-primary focus-visible:ring-primary/20"
-                        placeholder="#000000"
+                      <div className="p-6 bg-gray-50/50 rounded-3xl border border-gray-100 flex flex-col gap-4">
+                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+                          {t("Store Working Hours")}
+                        </Label>
+                        <div className="grid grid-cols-1 gap-4">
+                          <div className="space-y-1">
+                            <span className="text-[10px] font-bold text-gray-500">
+                              {t("Monday - Friday")}
+                            </span>
+                            <Controller
+                              name="contact_page.working_hours.mon_fri"
+                              control={control}
+                              render={({ field }) => (
+                                <Input
+                                  {...field}
+                                  className="h-9 rounded-xl border-gray-100"
+                                />
+                              )}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <span className="text-[10px] font-bold text-gray-500">
+                              {t("Saturday - Sunday")}
+                            </span>
+                            <Controller
+                              name="contact_page.working_hours.sat_sun"
+                              control={control}
+                              render={({ field }) => (
+                                <Input
+                                  {...field}
+                                  className="h-9 rounded-xl border-gray-100"
+                                />
+                              )}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </SectionCard>
+
+                {/* Site Policies */}
+                <SectionCard
+                  title={t("Site Policies")}
+                  description={t(
+                    "Terms, returns, shipping, and refund policies"
+                  )}
+                  isActive={watch("policies.isActive")}
+                  onToggle={(val) => setValue("policies.isActive", val)}
+                  isOpen={expandedSection === "policies"}
+                  onToggleCollapse={() => toggleSection("policies")}
+                >
+                  <div
+                    className={`space-y-8 ${!watch("policies.isActive") ? "opacity-50 pointer-events-none" : ""}`}
+                  >
+                    {["terms", "returns", "shipping", "refund"].map(
+                      (policyKey) => (
+                        <div
+                          key={policyKey}
+                          className="space-y-4 pb-6 border-b border-dashed border-gray-100 last:border-0 last:pb-0"
+                        >
+                          <div className="flex items-center justify-between">
+                            <Label className="text-lg font-bold text-gray-800 capitalize">
+                              {t(policyKey)}
+                            </Label>
+                            <Controller
+                              name={`policies.${policyKey}.isActive`}
+                              control={control}
+                              render={({ field }) => (
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              )}
+                            />
+                          </div>
+                          <MultilingualInput
+                            control={control}
+                            baseName={`policies.${policyKey}.text`}
+                            label={t("Policy Text")}
+                            multiline
+                            disabled={!watch(`policies.${policyKey}.isActive`)}
+                          />
+                        </div>
+                      )
+                    )}
+                  </div>
+                </SectionCard>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* Social Links */}
+                  <SectionCard
+                    title={t("Social Media")}
+                    description={t("Connect your store with social platforms")}
+                    isOpen={expandedSection === "social"}
+                    onToggleCollapse={() => toggleSection("social")}
+                  >
+                    <div className="space-y-4">
+                      {["facebook", "instagram", "twitter"].map((platform) => (
+                        <div key={platform} className="space-y-2">
+                          <Label className="text-xs font-bold text-gray-700 flex items-center gap-2 capitalize">
+                            <Iconify
+                              icon={`simple-icons:${platform}`}
+                              className={
+                                platform === "facebook"
+                                  ? "text-blue-600"
+                                  : platform === "instagram"
+                                    ? "text-pink-600"
+                                    : "text-sky-500"
+                              }
+                            />
+                            {platform} URL
+                          </Label>
+                          <Controller
+                            name={`social_links.${platform}`}
+                            control={control}
+                            render={({ field }) => (
+                              <Input {...field} className="h-10 rounded-xl" />
+                            )}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </SectionCard>
+
+                  {/* Footer Settings */}
+                  <SectionCard
+                    title={t("Footer Settings")}
+                    description={t("Customize the bottom of your website")}
+                    isActive={watch("footer_settings.isActive")}
+                    onToggle={(val) =>
+                      setValue("footer_settings.isActive", val)
+                    }
+                    isOpen={expandedSection === "footer"}
+                    onToggleCollapse={() => toggleSection("footer")}
+                  >
+                    <div
+                      className={`space-y-6 ${!watch("footer_settings.isActive") ? "opacity-50 pointer-events-none" : ""}`}
+                    >
+                      <MultilingualInput
+                        control={control}
+                        baseName="footer_settings.description"
+                        label={t("Footer About Text")}
+                        multiline
+                      />
+                      <MultilingualInput
+                        control={control}
+                        baseName="footer_settings.copyright"
+                        label={t("Copyright Text")}
                       />
                     </div>
+                  </SectionCard>
+                </div>
+              </div>
+            )}
+            {/* E-COMMERCE TAB */}
+            {activeTab === "ecommerce" && (
+              <div className="space-y-4">
+                {/* Shipping Configuration */}
+                <SectionCard
+                  title={t("Shipping Configuration")}
+                  description={t("Configure shipping options and costs")}
+                  isOpen={expandedSection === "shipping_config"}
+                  onToggleCollapse={() => toggleSection("shipping_config")}
+                >
+                  <div className="space-y-6">
+                    {/* Free Shipping */}
+                    <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                      <div className="space-y-1">
+                        <Label className="text-base font-bold text-gray-800 tracking-tight">
+                          {t("Free Shipping Feature")}
+                        </Label>
+                        <p className="text-xs text-gray-500 font-medium">
+                          {t(
+                            "Enable or disable free shipping based on order total."
+                          )}
+                        </p>
+                      </div>
+                      <Controller
+                        name="shipping_config.free_shipping_enabled"
+                        control={control}
+                        render={({ field }) => (
+                          <div className="flex items-center space-x-3">
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                            <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">
+                              {field.value ? t("Enabled") : t("Disabled")}
+                            </span>
+                          </div>
+                        )}
+                      />
+                    </div>
+
+                    <div
+                      className={`grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-300 ${
+                        !watch("shipping_config.free_shipping_enabled")
+                          ? "opacity-50 pointer-events-none"
+                          : "opacity-100"
+                      }`}
+                    >
+                      <Controller
+                        name="shipping_config.free_shipping_threshold"
+                        control={control}
+                        render={({ field }) => (
+                          <div className="space-y-4">
+                            <Label className="text-base font-bold text-gray-800 uppercase tracking-tight">
+                              {t("Free Shipping Threshold (Amount)")}
+                            </Label>
+                            <Input
+                              {...field}
+                              type="number"
+                              min="0"
+                              className="rounded-xl border-gray-200 focus-visible:ring-primary/20 h-10"
+                            />
+                            <p className="text-xs text-gray-500 font-medium">
+                              {t(
+                                "Cart total must be above this amount for free shipping."
+                              )}
+                            </p>
+                          </div>
+                        )}
+                      />
+                    </div>
+
+                    {/* Shipping Methods */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 border-t border-gray-100">
+                      {/* Standard Shipping */}
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                          <div className="space-y-1">
+                            <Label className="text-sm font-bold text-gray-800 uppercase tracking-tight">
+                              {t("Standard Shipping")}
+                            </Label>
+                          </div>
+                          <Controller
+                            name="shipping_config.standard_shipping_enabled"
+                            control={control}
+                            render={({ field }) => (
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            )}
+                          />
+                        </div>
+                        <Controller
+                          name="shipping_config.default_shipping_cost"
+                          control={control}
+                          render={({ field }) => (
+                            <div
+                              className={`space-y-4 transition-opacity duration-300 ${
+                                !watch(
+                                  "shipping_config.standard_shipping_enabled"
+                                )
+                                  ? "opacity-40 pointer-events-none"
+                                  : "opacity-100"
+                              }`}
+                            >
+                              <Label className="text-sm font-bold text-gray-600 uppercase tracking-tight">
+                                {t("Price (DH)")}
+                              </Label>
+                              <Input
+                                {...field}
+                                type="number"
+                                min="0"
+                                className="rounded-xl border-gray-200 focus-visible:ring-primary/20 h-10"
+                              />
+                            </div>
+                          )}
+                        />
+                      </div>
+
+                      {/* Express Shipping */}
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                          <div className="space-y-1">
+                            <Label className="text-sm font-bold text-gray-800 uppercase tracking-tight">
+                              {t("Express Shipping")}
+                            </Label>
+                          </div>
+                          <Controller
+                            name="shipping_config.express_shipping_enabled"
+                            control={control}
+                            render={({ field }) => (
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            )}
+                          />
+                        </div>
+                        <Controller
+                          name="shipping_config.express_shipping_cost"
+                          control={control}
+                          render={({ field }) => (
+                            <div
+                              className={`space-y-4 transition-opacity duration-300 ${
+                                !watch(
+                                  "shipping_config.express_shipping_enabled"
+                                )
+                                  ? "opacity-40 pointer-events-none"
+                                  : "opacity-100"
+                              }`}
+                            >
+                              <Label className="text-sm font-bold text-gray-600 uppercase tracking-tight">
+                                {t("Price (DH)")}
+                              </Label>
+                              <Input
+                                {...field}
+                                type="number"
+                                min="0"
+                                className="rounded-xl border-gray-200 focus-visible:ring-primary/20 h-10"
+                              />
+                            </div>
+                          )}
+                        />
+                      </div>
+
+                      {/* Overnight Shipping */}
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                          <div className="space-y-1">
+                            <Label className="text-sm font-bold text-gray-800 uppercase tracking-tight">
+                              {t("Overnight Shipping")}
+                            </Label>
+                          </div>
+                          <Controller
+                            name="shipping_config.overnight_shipping_enabled"
+                            control={control}
+                            render={({ field }) => (
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            )}
+                          />
+                        </div>
+                        <Controller
+                          name="shipping_config.overnight_shipping_cost"
+                          control={control}
+                          render={({ field }) => (
+                            <div
+                              className={`space-y-4 transition-opacity duration-300 ${
+                                !watch(
+                                  "shipping_config.overnight_shipping_enabled"
+                                )
+                                  ? "opacity-40 pointer-events-none"
+                                  : "opacity-100"
+                              }`}
+                            >
+                              <Label className="text-sm font-bold text-gray-600 uppercase tracking-tight">
+                                {t("Price (DH)")}
+                              </Label>
+                              <Input
+                                {...field}
+                                type="number"
+                                min="0"
+                                className="rounded-xl border-gray-200 focus-visible:ring-primary/20 h-10"
+                              />
+                            </div>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </SectionCard>
+
+                {/* Tax & Payment Configuration */}
+                <SectionCard
+                  title={t("Tax & Payment Configuration")}
+                  description={t("Configure tax and payment methods")}
+                  isOpen={expandedSection === "tax_payment_config"}
+                  onToggleCollapse={() => toggleSection("tax_payment_config")}
+                >
+                  <div className="space-y-8">
+                    {/* VAT Config */}
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                        <div className="space-y-1">
+                          <Label className="text-base font-bold text-gray-800 tracking-tight">
+                            {t("VAT (Value Added Tax)")}
+                          </Label>
+                          <p className="text-xs text-gray-500 font-medium">
+                            {t("Enable or disable tax calculation on orders.")}
+                          </p>
+                        </div>
+                        <Controller
+                          name="vat_config.isActive"
+                          control={control}
+                          render={({ field }) => (
+                            <div className="flex items-center space-x-3">
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                              <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">
+                                {field.value ? t("Enabled") : t("Disabled")}
+                              </span>
+                            </div>
+                          )}
+                        />
+                      </div>
+
+                      <div
+                        className={`grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-300 ${
+                          !watch("vat_config.isActive")
+                            ? "opacity-50 pointer-events-none"
+                            : "opacity-100"
+                        }`}
+                      >
+                        <Controller
+                          name="vat_config.percentage"
+                          control={control}
+                          render={({ field }) => (
+                            <div className="space-y-4">
+                              <Label className="text-base font-bold text-gray-800 uppercase tracking-tight">
+                                {t("VAT Percentage (%)")}
+                              </Label>
+                              <Input
+                                {...field}
+                                type="number"
+                                min="0"
+                                max="100"
+                                className="rounded-xl border-gray-200 focus-visible:ring-primary/20 h-10"
+                              />
+                              <p className="text-xs text-gray-500 font-medium">
+                                {t(
+                                  "This percentage will be applied to the subtotal."
+                                )}
+                              </p>
+                            </div>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    <Separator className="bg-gray-100" />
+
+                    {/* Payment Methods */}
+                    <div className="space-y-6">
+                      <Label className="text-xl font-bold text-gray-800 tracking-tight">
+                        {t("Payment Methods")}
+                      </Label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                          <div className="flex items-center gap-3">
+                            <Iconify
+                              icon="logos:paypal"
+                              width={24}
+                              className={
+                                watch("payment_methods.paypal_active")
+                                  ? ""
+                                  : "grayscale"
+                              }
+                            />
+                            <div className="space-y-1">
+                              <Label className="text-base font-bold text-gray-800 tracking-tight">
+                                {t("PayPal")}
+                              </Label>
+                            </div>
+                          </div>
+                          <Controller
+                            name="payment_methods.paypal_active"
+                            control={control}
+                            render={({ field }) => (
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            )}
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                          <div className="flex items-center gap-3">
+                            <Iconify
+                              icon="logos:stripe"
+                              width={40}
+                              className={
+                                watch("payment_methods.stripe_active")
+                                  ? ""
+                                  : "grayscale"
+                              }
+                            />
+                            <div className="space-y-1">
+                              <Label className="text-base font-bold text-gray-800 tracking-tight">
+                                {t("Stripe (Credit Card)")}
+                              </Label>
+                            </div>
+                          </div>
+                          <Controller
+                            name="payment_methods.stripe_active"
+                            control={control}
+                            render={({ field }) => (
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </SectionCard>
+              </div>
+            )}
+
+            {/* SEO TAB */}
+            {activeTab === "seo" && (
+              <div className="space-y-4">
+                <SectionCard
+                  title={t("SEO Settings")}
+                  description={t(
+                    "Configure meta tags and search engine optimization"
                   )}
-                />
-              </Card>
-            ))}
-          </div>
-        </SectionHeader>
-      </form>
+                  isOpen={expandedSection === "seo"}
+                  onToggleCollapse={() => toggleSection("seo")}
+                >
+                  <div className="space-y-6">
+                    <MultilingualInput
+                      control={control}
+                      baseName="seo.meta_title"
+                      label={t("Meta Title")}
+                      showCharCount
+                      maxLength={60}
+                    />
+
+                    <MultilingualInput
+                      control={control}
+                      baseName="seo.meta_description"
+                      label={t("Meta Description")}
+                      multiline
+                      showCharCount
+                      maxLength={160}
+                    />
+
+                    <MultilingualInput
+                      control={control}
+                      baseName="seo.meta_keywords"
+                      label={t("Meta Keywords")}
+                      placeholder={{
+                        en: "keyword1, keyword2, keyword3",
+                        fr: "mot-clé1, mot-clé2, mot-clé3",
+                        ar: "كلمة1، كلمة2، كلمة3",
+                      }}
+                    />
+
+                    <Controller
+                      name="seo.og_image"
+                      control={control}
+                      render={({ field }) => (
+                        <div className="space-y-2">
+                          <Label className="text-sm font-bold text-gray-800">
+                            {t("Open Graph Image")}
+                          </Label>
+                          <ImageUpload
+                            value={field.value}
+                            onChange={field.onChange}
+                            label={t("OG Image (1200x630px recommended)")}
+                          />
+                        </div>
+                      )}
+                    />
+                  </div>
+                </SectionCard>
+              </div>
+            )}
+
+            {/* ADVANCED TAB */}
+            {activeTab === "advanced" && (
+              <div className="space-y-4">
+                <SectionCard
+                  title={t("Authentication Pages Settings")}
+                  description={t("Configure background media for auth pages")}
+                  isOpen={expandedSection === "auth_settings"}
+                  onToggleCollapse={() => toggleSection("auth_settings")}
+                >
+                  <Controller
+                    name="auth_settings.auth_video_url"
+                    control={control}
+                    render={({ field }) => (
+                      <div className="space-y-4">
+                        <Label className="text-base font-bold text-gray-800 uppercase tracking-tight">
+                          {t("Authentication Video/Image URL")}
+                        </Label>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                          <div className="flex flex-col gap-2">
+                            <Label className="text-xs font-semibold text-gray-500 uppercase">
+                              {t("Upload File")}
+                            </Label>
+                            <Input
+                              type="file"
+                              accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  field.onChange(file);
+                                }
+                              }}
+                              className="cursor-pointer file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 h-10 pt-1.5"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-2">
+                            <Label className="text-xs font-semibold text-gray-500 uppercase">
+                              {t("Or Direct URL")}
+                            </Label>
+                            <Input
+                              value={
+                                typeof field.value === "string"
+                                  ? field.value
+                                  : ""
+                              }
+                              onChange={(e) => field.onChange(e.target.value)}
+                              placeholder="https://..."
+                              className="h-10 rounded-md bg-white border-gray-200"
+                            />
+                          </div>
+                        </div>
+
+                        {field.value && (
+                          <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-gray-200 bg-gray-100 mt-2">
+                            {(() => {
+                              const val = field.value;
+                              const isFile = val instanceof File;
+                              const isImage = isFile
+                                ? val.type.startsWith("image/")
+                                : typeof val === "string" &&
+                                  val.match(
+                                    /\.(jpeg|jpg|gif|png|webp|svg|avif)$/i
+                                  );
+
+                              if (isImage) {
+                                return (
+                                  <img
+                                    src={
+                                      isFile ? URL.createObjectURL(val) : val
+                                    }
+                                    alt="Auth Background"
+                                    className="w-full h-full object-cover"
+                                  />
+                                );
+                              } else {
+                                return (
+                                  <video
+                                    src={
+                                      isFile ? URL.createObjectURL(val) : val
+                                    }
+                                    controls
+                                    className="w-full h-full object-cover"
+                                  />
+                                );
+                              }
+                            })()}
+                          </div>
+                        )}
+
+                        {field.value instanceof File && (
+                          <div className="text-sm text-green-600 font-medium flex items-center gap-2">
+                            <Iconify
+                              icon="eva:checkmark-circle-2-fill"
+                              width={20}
+                            />
+                            {t("File selected")}: {field.value.name}
+                          </div>
+                        )}
+
+                        <p className="text-xs text-gray-500 font-medium ml-1">
+                          {t(
+                            "Upload a video or enter a URL for all authentication pages."
+                          )}
+                        </p>
+                      </div>
+                    )}
+                  />
+                </SectionCard>
+              </div>
+            )}
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

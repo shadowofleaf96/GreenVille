@@ -61,10 +61,10 @@ const paymentSchema = new mongoose.Schema(
     timestamps: true,
     collection: "Payments",
     versionKey: false,
-  },
+  }
 );
 
-paymentSchema.pre("save", async function (next) {
+paymentSchema.pre("save", async function () {
   try {
     const validatedData = await paymentJoiSchema.validateAsync(this.toObject());
 
@@ -77,10 +77,8 @@ paymentSchema.pre("save", async function (next) {
     if (validatedData.paymentMethod === "credit_card") {
       this.paymentCredentials = validatedData.paymentCredentials;
     }
-
-    next();
   } catch (error) {
-    next(error);
+    console.error(error);
   }
 });
 

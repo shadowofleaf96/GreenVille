@@ -1,5 +1,6 @@
 const Joi = require("joi");
-const { Schema, model, Types } = require("mongoose");
+const { Schema, model } = require("mongoose");
+const bcrypt = require("bcrypt");
 
 const customerJoiSchema = Joi.object({
   _id: Joi.any().strip(),
@@ -85,15 +86,14 @@ const customerSchema = new Schema(
       longitude: Number,
     },
   },
-  { collection: "Customers", versionKey: false },
+  { collection: "Customers", versionKey: false }
 );
 
-customerSchema.pre("save", async function (next) {
+customerSchema.pre("save", async function () {
   try {
     await customerJoiSchema.validateAsync(this.toObject());
-    next();
   } catch (error) {
-    next(error);
+    console.error(error);
   }
 });
 

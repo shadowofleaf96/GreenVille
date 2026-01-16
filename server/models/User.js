@@ -78,39 +78,32 @@ const userSchema = new mongoose.Schema(
   {
     collection: "Users",
     versionKey: false,
-  },
+  }
 );
 
-userSchema.pre("save", async function (next) {
-  try {
-    if (this.isModified("password")) {
-      // Check if password is already hashed (starts with $2b$)
-      if (!this.password.startsWith("$2b$")) {
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(this.password, saltRounds);
-        this.password = hashedPassword;
-      }
+userSchema.pre("save", async function () {
+  if (this.isModified("password")) {
+    if (!this.password.startsWith("$2b$")) {
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(this.password, saltRounds);
+      this.password = hashedPassword;
     }
-
-    const validatedData = await userJoiSchema.validateAsync(this.toObject());
-
-    this.user_image = validatedData.user_image;
-    this.first_name = validatedData.first_name;
-    this.last_name = validatedData.last_name;
-    this.email = validatedData.email;
-    this.role = validatedData.role;
-    this.user_name = validatedData.user_name;
-    this.creation_date = validatedData.creation_date;
-    this.last_login = validatedData.last_login;
-    this.last_update = validatedData.last_update;
-    this.status = validatedData.status;
-    this.resetPasswordToken = validatedData.resetPasswordToken;
-    this.resetPasswordExpires = validatedData.resetPasswordExpires;
-
-    next();
-  } catch (error) {
-    next(error);
   }
+
+  const validatedData = await userJoiSchema.validateAsync(this.toObject());
+
+  this.user_image = validatedData.user_image;
+  this.first_name = validatedData.first_name;
+  this.last_name = validatedData.last_name;
+  this.email = validatedData.email;
+  this.role = validatedData.role;
+  this.user_name = validatedData.user_name;
+  this.creation_date = validatedData.creation_date;
+  this.last_login = validatedData.last_login;
+  this.last_update = validatedData.last_update;
+  this.status = validatedData.status;
+  this.resetPasswordToken = validatedData.resetPasswordToken;
+  this.resetPasswordExpires = validatedData.resetPasswordExpires;
 });
 
 userSchema.methods.validatePassword = async function (candidatePassword) {

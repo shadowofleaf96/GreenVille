@@ -6,11 +6,26 @@ const path = require("path");
 const cors = require("cors");
 const helmet = require("helmet");
 const compression = require("compression");
+const expressStaticGzip = require("express-static-gzip");
 const { rateLimit } = require("express-rate-limit");
 
 const app = express();
 
-app.use(compression());
+// Enhanced compression middleware for dynamic content
+app.use(
+  compression({
+    level: 6, // Compression level (0-9, 6 is default and good balance)
+    threshold: 1024, // Only compress responses larger than 1KB
+    filter: (req, res) => {
+      // Don't compress if client doesn't support it
+      if (req.headers["x-no-compression"]) {
+        return false;
+      }
+      // Use compression for all compressible content
+      return compression.filter(req, res);
+    },
+  })
+);
 
 const allowedOrigins = [
   "http://localhost:4173",
@@ -48,11 +63,11 @@ app.use((req, res, next) => {
 
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS",
+    "GET, POST, PUT, DELETE, OPTIONS"
   );
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
 
   if (req.method === "OPTIONS") {
@@ -83,7 +98,7 @@ app.use(
       maxAge: 31536000,
       includeSubDomains: true,
     },
-  }),
+  })
 );
 app.disable("x-powered-by");
 
@@ -93,7 +108,7 @@ app.use(
   express.static(staticPath, {
     maxAge: "1d",
     etag: true,
-  }),
+  })
 );
 
 app.use(express.urlencoded({ extended: true }));
@@ -124,6 +139,27 @@ app.use((req, res, next) => {
     next();
   }
 });
+
+// Serve pre-compressed static files from Vite build (production only)
+if (process.env.NODE_ENV === "production") {
+  const clientDistPath = path.join(__dirname, "..", "client", "dist");
+
+  app.use(
+    expressStaticGzip(clientDistPath, {
+      enableBrotli: true,
+      orderPreference: ["br", "gz"], // Prefer Brotli over gzip
+      serveStatic: {
+        maxAge: "1y", // Cache static assets for 1 year
+        immutable: true,
+      },
+    })
+  );
+
+  // Fallback to index.html for SPA routing
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(clientDistPath, "index.html"));
+  });
+}
 
 app.use("/", api);
 

@@ -33,10 +33,10 @@ const contactSchema = new mongoose.Schema(
   {
     collection: "Contact",
     versionKey: false,
-  },
+  }
 );
 
-contactSchema.pre("save", async function (next) {
+contactSchema.pre("save", async function () {
   try {
     const validatedData = await contactJoiSchema.validateAsync(this.toObject());
 
@@ -44,9 +44,8 @@ contactSchema.pre("save", async function (next) {
     this.email = validatedData.email;
     this.phone_number = validatedData.phone_number;
     this.message = validatedData.message;
-    next();
   } catch (error) {
-    next(error);
+    console.error(error);
   }
 });
 
