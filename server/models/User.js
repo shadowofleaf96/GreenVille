@@ -1,7 +1,6 @@
 // Shadow Of Leaf was here
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
-require("dotenv").config({ path: "../.env" });
 const mongoose = require("mongoose");
 
 const userJoiSchema = Joi.object({

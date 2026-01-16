@@ -1,6 +1,6 @@
 const Payment = require("../models/Payment");
 const Order = require("../models/Order");
-require("dotenv").config();
+
 const mongoose = require("mongoose");
 const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
 const axios = require("axios");
@@ -78,7 +78,7 @@ const updatePayment = async (req, res) => {
     const updatedPayment = await Payment.findByIdAndUpdate(
       id,
       { ...newData },
-      { new: true },
+      { new: true }
     );
 
     if (!updatedPayment) {
@@ -194,7 +194,7 @@ const savePaymentInfo = async (req, res) => {
           ...new Set(
             products
               .filter((p) => p && p.vendor)
-              .map((p) => p.vendor.toString()),
+              .map((p) => p.vendor.toString())
           ),
         ];
 

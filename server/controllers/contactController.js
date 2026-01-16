@@ -4,7 +4,6 @@ const { SiteSettings } = require("../models/SiteSettings");
 const {
   createDashboardNotification,
 } = require("../utils/dashboardNotificationUtility");
-require("dotenv").config();
 
 exports.createContact = async (req, res) => {
   try {
@@ -39,7 +38,7 @@ exports.createContact = async (req, res) => {
         newContact.name,
         siteLogo,
         siteTitle,
-        primaryColor,
+        primaryColor
       ),
     };
 
@@ -71,7 +70,7 @@ exports.editContact = async (req, res) => {
     const updatedContact = await Contacts.findByIdAndUpdate(
       id,
       { name, email, phone_number, message },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     );
 
     if (!updatedContact) {
@@ -124,7 +123,7 @@ exports.replyToContact = async (req, res) => {
         message,
         siteLogo,
         siteTitle,
-        primaryColor,
+        primaryColor
       ),
     };
 

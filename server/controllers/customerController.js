@@ -8,7 +8,7 @@ const axios = require("axios");
 const path = require("path");
 const fs = require("fs");
 const { OAuth2Client } = require("google-auth-library");
-require("dotenv").config();
+
 const { log } = require("console");
 const transporter = require("../middleware/mailMiddleware");
 const { SiteSettings } = require("../models/SiteSettings");
@@ -110,9 +110,9 @@ const googleLogin = async (req, res) => {
       const cleanUrl = `${
         process.env.FRONTEND_URL
       }/set-password?email=${encodeURIComponent(
-        email,
+        email
       )}&name=${encodeURIComponent(name)}&picture=${encodeURIComponent(
-        picture,
+        picture
       )}`;
 
       return res.json({ cleanUrl: cleanUrl });
@@ -146,7 +146,7 @@ function completeRegistrationEmailTemplate(
   name,
   siteLogo,
   siteTitle,
-  primaryColor,
+  primaryColor
 ) {
   return `
     <html>
@@ -206,7 +206,7 @@ const completeRegistration = async (req, res) => {
       newCustomer.first_name,
       siteLogo,
       siteTitle,
-      primaryColor,
+      primaryColor
     );
 
     const mailOptions = {
@@ -240,7 +240,7 @@ function validationEmailTemplate(
   validationLink,
   siteLogo,
   siteTitle,
-  primaryColor,
+  primaryColor
 ) {
   return `
     <html>
@@ -331,7 +331,7 @@ const createCustomer = async (req, res) => {
       validationLink,
       siteLogo,
       siteTitle,
-      primaryColor,
+      primaryColor
     );
 
     const mailOptions = {
@@ -475,7 +475,7 @@ function successValidationEmailTemplate(
   name,
   siteLogo,
   siteTitle,
-  primaryColor,
+  primaryColor
 ) {
   return `
     <html>
@@ -508,7 +508,7 @@ const validateCustomer = async (req, res) => {
       return res
         .status(404)
         .send(
-          "<html><body><h2>Invalid token or customer not found</h2></body></html>",
+          "<html><body><h2>Invalid token or customer not found</h2></body></html>"
         );
     }
 
@@ -516,7 +516,7 @@ const validateCustomer = async (req, res) => {
       return res
         .status(400)
         .send(
-          "<html><body><h2>Account is already validated</h2></body></html>",
+          "<html><body><h2>Account is already validated</h2></body></html>"
         );
     }
 
@@ -533,7 +533,7 @@ const validateCustomer = async (req, res) => {
       matchingCustomer.first_name,
       siteLogo,
       siteTitle,
-      primaryColor,
+      primaryColor
     );
 
     const mailOptions = {
@@ -655,7 +655,7 @@ function passwordResetEmailTemplate(
   resetToken,
   siteLogo,
   siteTitle,
-  primaryColor,
+  primaryColor
 ) {
   return `
     <html>
@@ -715,7 +715,7 @@ const forgotPassword = async (req, res) => {
         resetToken,
         siteLogo,
         siteTitle,
-        primaryColor,
+        primaryColor
       ),
     };
 

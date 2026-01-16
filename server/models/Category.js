@@ -1,6 +1,5 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
-require("dotenv").config();
 
 const CategoryJoiSchema = Joi.object({
   _id: Joi.any().strip(),

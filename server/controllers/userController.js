@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const { log } = require("console");
-require("dotenv").config();
+
 const crypto = require("crypto");
 const transporter = require("../middleware/mailMiddleware");
 const secretKey = process.env.SECRETKEY;
@@ -220,7 +220,7 @@ const updateUser = async (req, res) => {
     if (invalidFields.length > 0) {
       return res.status(400).json({
         message: `Bad request. The following fields have invalid data types: ${invalidFields.join(
-          ", ",
+          ", "
         )}`,
       });
     }
