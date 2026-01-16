@@ -69,6 +69,7 @@
     "prettier": "^3.7.4",
     "rc-slider": "^11.1.9",
     "react": "^19.2.3",
+    "apexcharts": "^4.0.0",
     "react-apexcharts": "^1.9.0",
     "react-compiler-runtime": "^1.0.0",
     "react-dom": "^19.2.3",
