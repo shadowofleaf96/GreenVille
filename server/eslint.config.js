@@ -9,8 +9,9 @@ export default [
         ...globals.node,
       },
       ecmaVersion: 2022,
-      sourceType: "commonjs",
+      sourceType: "module",
     },
+    files: ["**/*.js"],
     rules: {
       "no-unused-vars": "warn",
       "no-console": "off",
