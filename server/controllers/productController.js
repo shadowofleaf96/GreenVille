@@ -3,7 +3,6 @@
 const { Product } = require("../models/Product");
 const Review = require("../models/Review");
 const { SubCategory } = require("../models/SubCategory");
-const { Category } = require("../models/Category");
 const { Vendor } = require("../models/Vendor");
 
 const createData = async (req, res) => {
@@ -95,7 +94,7 @@ const searchingItems = async (req, res) => {
   try {
     const products = await Product.find(
       { $text: { $search: searchQuery } },
-      { score: { $meta: "textScore" } },
+      { score: { $meta: "textScore" } }
     )
       .sort({ score: { $meta: "textScore" } })
       .skip(skip)
@@ -112,6 +111,7 @@ const searchingItems = async (req, res) => {
       data: products,
     });
   } catch (error) {
+    console.error("Error in searchingItems:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -137,14 +137,12 @@ const RetrievingItems = async (req, res) => {
     onSale,
   } = req.query;
 
-  // Defaults for sorting
   sortBy = sortBy || "creation_date";
   sortOrder = sortOrder || "desc";
 
   try {
     let query = {};
 
-    // Specific Filters
     if (onSale === "true") {
       query.on_sale = true;
     }
@@ -161,7 +159,6 @@ const RetrievingItems = async (req, res) => {
       query.quantity = Number(quantity);
     }
 
-    // Subcategory Filter (supports array)
     if (subcategory_id) {
       if (Array.isArray(subcategory_id)) {
         query.subcategory_id = { $in: subcategory_id };
@@ -175,7 +172,6 @@ const RetrievingItems = async (req, res) => {
       }
     }
 
-    // Category Filter (supports array, only if subcategory_id not provided)
     if (category_id && !subcategory_id) {
       let catIds = category_id;
       if (typeof category_id === "string" && category_id.includes(",")) {
@@ -189,7 +185,6 @@ const RetrievingItems = async (req, res) => {
       query.subcategory_id = { $in: subcategoryIds };
     }
 
-    // Price range filter
     if (minPrice || maxPrice) {
       query.$or = [
         {
@@ -207,12 +202,10 @@ const RetrievingItems = async (req, res) => {
       ];
     }
 
-    // Option filter (Flash Sales, New Arrivals, Top Deals)
     if (option) {
       query.option = option;
     }
 
-    // Search by product name (supports multilingual)
     if (search) {
       query.$or = [
         { "product_name.en": { $regex: search, $options: "i" } },
@@ -223,9 +216,7 @@ const RetrievingItems = async (req, res) => {
 
     const total = await Product.countDocuments(query);
 
-    // 6. Max Price (Cached)
     let absoluteMaxPrice = 10000;
-    // Simple in-memory cache for max price to avoid expensive sort on every request
     if (
       global.maxPriceCache &&
       Date.now() - global.maxPriceCache.timestamp < 3600000
@@ -281,18 +272,21 @@ const RetrievingItems = async (req, res) => {
   }
 };
 
-const categorySub = (req, res) => {
-  Product.find({})
-    .populate({
-      path: "subcategory_id",
-      model: "Subcategory",
-      select: "subcategory_name",
-    })
-    .exec((err, product) => {
-      if (err) {
-      } else {
-      }
-    });
+const categorySub = async (req, res) => {
+  try {
+    const products = await Product.find({})
+      .populate({
+        path: "subcategory_id",
+        model: "Subcategory",
+        select: "subcategory_name",
+      })
+      .lean();
+
+    res.status(200).json({ data: products });
+  } catch (error) {
+    console.error("Error in categorySub:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 const RetrieveById = async (req, res) => {
@@ -321,7 +315,6 @@ const UpdateProductById = async (req, res) => {
     return res.status(404).json({ message: "Invalid product id" });
   }
 
-  // Ownership check
   if (req.user.role === "vendor") {
     const vendorProfile = await Vendor.findOne({ user: req.user._id });
 
@@ -349,14 +342,12 @@ const UpdateProductById = async (req, res) => {
 
   const imagePaths = product_images.map((file) => file.path);
 
-  // Handle nested keys from FormData (e.g. product_name[en])
   Object.keys(newData).forEach((key) => {
     const match = key.match(/^(.+)\[(.+)\]$/);
     if (match) {
       const field = match[1];
       const subField = match[2];
 
-      // Use dot notation for Mongoose partial update (preserves other fields like fr/ar if not sent)
       newData[`${field}.${subField}`] = newData[key];
       delete newData[key];
     }
@@ -373,7 +364,6 @@ const UpdateProductById = async (req, res) => {
     }
   }
 
-  // Handle Option Array
   if (newData.option && typeof newData.option === "string") {
     newData.option = newData.option
       .split(",")
@@ -392,7 +382,6 @@ const UpdateProductById = async (req, res) => {
     ...newData,
   };
 
-  // Only update images if new ones are uploaded
   if (imagePaths && imagePaths.length > 0) {
     updateData.product_images = imagePaths;
   }
@@ -403,7 +392,7 @@ const UpdateProductById = async (req, res) => {
     });
 
     const subcategory = await SubCategory.findById(
-      newData.subcategory_id,
+      newData.subcategory_id
     ).lean();
 
     const enrichedProduct = {
@@ -432,7 +421,6 @@ const DeleteProductById = async (req, res) => {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    // Ownership check
     if (req.user.role === "vendor") {
       const vendorProfile = await Vendor.findOne({ user: req.user._id });
 
@@ -441,8 +429,8 @@ const DeleteProductById = async (req, res) => {
       }
 
       if (
-        product.vendor &&
-        product.vendor.toString() !== vendorProfile._id.toString()
+        productById.vendor &&
+        productById.vendor.toString() !== vendorProfile._id.toString()
       ) {
         return res
           .status(403)
@@ -466,36 +454,35 @@ const updateReview = async (req, res) => {
     const { reviewId } = req.params;
     const { newRating, newComment } = req.body;
 
-    try {
-      const review = await Review.findById(reviewId);
-      if (!review) throw new Error("Review not found");
-
-      const product = await Product.findById(review.product);
-      if (!product) throw new Error("Product not found");
-
-      const oldRating = review.rating;
-      const totalRating = product.average_rating * product.total_reviews;
-      const newAverageRating =
-        (totalRating - oldRating + newRating) / product.total_reviews;
-
-      review.rating = newRating;
-      review.comment = newComment;
-      await review.save();
-
-      product.average_rating = newAverageRating.toFixed(1);
-      await product.save();
-
-      return {
-        success: true,
-        message: "Review updated in product model successfully!",
-      };
-    } catch (error) {
-      console.error("Error updating review in product model:", error.message);
-      throw new Error("Failed to update review in product model");
+    const review = await Review.findById(reviewId);
+    if (!review) {
+      return res.status(404).json({ error: "Review not found" });
     }
 
-    res.status(200).json(result);
+    const product = await Product.findById(review.product);
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    const oldRating = review.rating || 0;
+    const totalRating =
+      (product.average_rating || 0) * (product.total_reviews || 0);
+    const newAverageRating =
+      (totalRating - oldRating + newRating) / (product.total_reviews || 1);
+
+    review.rating = newRating;
+    review.comment = newComment;
+    await review.save();
+
+    product.average_rating = newAverageRating.toFixed(1);
+    await product.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Review updated in product model successfully!",
+    });
   } catch (error) {
+    console.error("Error updating review:", error);
     res.status(500).json({ error: error.message });
   }
 };
