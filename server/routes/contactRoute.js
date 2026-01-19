@@ -1,35 +1,30 @@
-const express = require("express");
+import express from "express";
+import express from "express";
 const router = express.Router();
-const {
+import {
+import {
   verifyToken,
   requireAdminOrManager,
-} = require("../middleware/authMiddleware");
+} from "../middleware/authMiddleware.js";
+} from "../middleware/authMiddleware.js";
 
-const contactController = require("../controllers/contactController");
+import {
+  createContact,
+  replyToContact,
+  getAllContactMessages,
+  editContact,
+  deleteContact,
+} from "../controllers/contactController.js";
 
-router.post("/", contactController.createContact);
+router.post("/", createContact);
 
-router.post("/reply", contactController.replyToContact);
+router.post("/reply", replyToContact);
 
-router.get(
-  "/",
-  verifyToken,
-  requireAdminOrManager,
-  contactController.getAllContactMessages,
-);
+router.get("/", verifyToken, requireAdminOrManager, getAllContactMessages);
 
-router.put(
-  "/:id",
-  verifyToken,
-  requireAdminOrManager,
-  contactController.editContact,
-);
+router.put("/:id", verifyToken, requireAdminOrManager, editContact);
 
-router.delete(
-  "/:id",
-  verifyToken,
-  requireAdminOrManager,
-  contactController.deleteContact,
-);
+router.delete("/:id", verifyToken, requireAdminOrManager, deleteContact);
 
-module.exports = router;
+export default router;
+export default router;

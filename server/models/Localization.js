@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const Joi = require("joi");
+import mongoose from "mongoose";
+import Joi from "joi";
 
 const LocalizationSchema = new mongoose.Schema(
   {
@@ -14,7 +14,7 @@ const LocalizationSchema = new mongoose.Schema(
   },
 );
 
-const validateLocalization = (data) => {
+export const validateLocalization = (data) => {
   const schema = Joi.object({
     key: Joi.string().required(),
     en: Joi.alternatives().try(Joi.string(), Joi.object()).allow("").optional(),
@@ -24,6 +24,4 @@ const validateLocalization = (data) => {
   return schema.validate(data);
 };
 
-const Localization = mongoose.model("Localization", LocalizationSchema);
-
-module.exports = { Localization, validateLocalization };
+export const Localization = mongoose.model("Localization", LocalizationSchema);

@@ -1,13 +1,13 @@
-const express = require("express");
+import express from "express";
 const route = express.Router();
-const { upload } = require("../middleware/multerMiddleware");
+import { upload } from "../middleware/multerMiddleware.js";
 
-const {
+import {
   verifyToken,
   requireAdminOrManager,
-} = require("../middleware/authMiddleware");
+} from "../middleware/authMiddleware.js";
 
-const {
+import {
   login,
   createCustomer,
   getCustomerById,
@@ -20,7 +20,7 @@ const {
   deleteCustomer,
   forgotPassword,
   resetPassword,
-} = require("../controllers/customerController");
+} from "../controllers/customerController.js";
 
 route.post("/login", login);
 route.post("/", upload.single("customer_image"), createCustomer);
@@ -39,4 +39,4 @@ route.delete("/:id", deleteCustomer);
 route.post("/forgot-password", forgotPassword);
 route.post("/reset-password/:token", resetPassword);
 
-module.exports = route;
+export default route;

@@ -1,6 +1,6 @@
-const DashboardNotification = require("../models/DashboardNotification");
+import DashboardNotification from "../models/DashboardNotification.js";
 
-const getNotifications = async (req, res) => {
+export const getNotifications = async (req, res) => {
   try {
     const { role, vendorId } = req.user;
 
@@ -25,7 +25,7 @@ const getNotifications = async (req, res) => {
   }
 };
 
-const markAsRead = async (req, res) => {
+export const markAsRead = async (req, res) => {
   try {
     const { id } = req.params;
     const notification = await DashboardNotification.findByIdAndUpdate(
@@ -47,7 +47,7 @@ const markAsRead = async (req, res) => {
   }
 };
 
-const markAllAsRead = async (req, res) => {
+export const markAllAsRead = async (req, res) => {
   try {
     const { role, vendorId } = req.user;
 
@@ -68,7 +68,7 @@ const markAllAsRead = async (req, res) => {
   }
 };
 
-const deleteNotification = async (req, res) => {
+export const deleteNotification = async (req, res) => {
   try {
     const { id } = req.params;
     await DashboardNotification.findByIdAndDelete(id);
@@ -77,11 +77,4 @@ const deleteNotification = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
-
-module.exports = {
-  getNotifications,
-  markAsRead,
-  markAllAsRead,
-  deleteNotification,
 };

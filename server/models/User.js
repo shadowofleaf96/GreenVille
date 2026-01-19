@@ -1,7 +1,6 @@
-// Shadow Of Leaf was here
-const Joi = require("joi");
-const bcrypt = require("bcrypt");
-const mongoose = require("mongoose");
+import Joi from "joi";
+import bcrypt from "bcrypt";
+import mongoose from "mongoose";
 
 const userJoiSchema = Joi.object({
   _id: Joi.any().strip(),
@@ -77,7 +76,7 @@ const userSchema = new mongoose.Schema(
   {
     collection: "Users",
     versionKey: false,
-  }
+  },
 );
 
 userSchema.pre("save", async function () {
@@ -110,13 +109,9 @@ userSchema.methods.validatePassword = async function (candidatePassword) {
   return isMatch;
 };
 
-const User = mongoose.model("Users", userSchema);
+export const User = mongoose.model("Users", userSchema);
 if (User) {
   console.log("User Schema created");
 } else {
   console.log("error");
 }
-
-module.exports = {
-  User,
-};

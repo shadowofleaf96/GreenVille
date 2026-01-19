@@ -1,46 +1,33 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   verifyToken,
   requireAdminOrManager,
-} = require("../middleware/authMiddleware");
-const couponController = require("../controllers/couponController");
+} from "../middleware/authMiddleware.js";
+import {
+  createCoupon,
+  applyCoupon,
+  getAllCoupons,
+  editCoupon,
+  deleteCoupon,
+  revokeCouponUsage,
+} from "../controllers/couponController.js";
 
-router.post(
-  "/create",
-  verifyToken,
-  requireAdminOrManager,
-  couponController.createCoupon,
-);
+router.post("/create", verifyToken, requireAdminOrManager, createCoupon);
 
-router.post("/apply", verifyToken, couponController.applyCoupon);
+router.post("/apply", verifyToken, applyCoupon);
 
-router.get(
-  "/",
-  verifyToken,
-  requireAdminOrManager,
-  couponController.getAllCoupons,
-);
+router.get("/", verifyToken, requireAdminOrManager, getAllCoupons);
 
-router.put(
-  "/:id",
-  verifyToken,
-  requireAdminOrManager,
-  couponController.editCoupon,
-);
+router.put("/:id", verifyToken, requireAdminOrManager, editCoupon);
 
-router.delete(
-  "/:id",
-  verifyToken,
-  requireAdminOrManager,
-  couponController.deleteCoupon,
-);
+router.delete("/:id", verifyToken, requireAdminOrManager, deleteCoupon);
 
 router.delete(
   "/revoke-usage/:id/:userId",
   verifyToken,
   requireAdminOrManager,
-  couponController.revokeCouponUsage,
+  revokeCouponUsage,
 );
 
-module.exports = router;
+export default router;

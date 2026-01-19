@@ -1,45 +1,44 @@
-// Shadow Of Leaf was Here
-
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const { upload } = require("../middleware/multerMiddleware");
+import { upload } from "../middleware/multerMiddleware.js";
 
-const {
+import {
   verifyToken,
   optionalVerifyToken,
   requireAdminOrManager,
-} = require("../middleware/authMiddleware");
-const {
-  createData,
-  searchingItems,
-  RetrievingItems,
-  categorySub,
-  RetrieveById,
-  UpdateProductById,
-  DeleteProductById,
+} from "../middleware/authMiddleware.js";
+import {
+  createProduct,
+  searchProducts,
+  getAllProducts,
+  getProductsWithDetails,
+  getProductById,
+  updateProduct,
+  deleteProduct,
   updateReview,
   getVendorProducts,
-} = require("../controllers/productController");
+} from "../controllers/productController.js";
+
 router.post(
   "/",
   verifyToken,
   requireAdminOrManager,
   upload.array("product_images", 5),
-  createData,
+  createProduct,
 );
-router.get("/", optionalVerifyToken, RetrievingItems);
+router.get("/", optionalVerifyToken, getAllProducts);
 router.get("/vendor", verifyToken, requireAdminOrManager, getVendorProducts);
-router.get("/replace", categorySub);
-router.get("/search", searchingItems);
-router.get("/:id", optionalVerifyToken, RetrieveById);
+router.get("/replace", getProductsWithDetails);
+router.get("/search", searchProducts);
+router.get("/:id", optionalVerifyToken, getProductById);
 router.put(
   "/:id",
   verifyToken,
   requireAdminOrManager,
   upload.array("product_images", 5),
-  UpdateProductById,
+  updateProduct,
 );
 router.put("/:reviewId", verifyToken, requireAdminOrManager, updateReview);
-router.delete("/:id", verifyToken, requireAdminOrManager, DeleteProductById);
+router.delete("/:id", verifyToken, requireAdminOrManager, deleteProduct);
 
-module.exports = router;
+export default router;

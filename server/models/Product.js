@@ -1,5 +1,5 @@
-const Joi = require("joi");
-const mongoose = require("mongoose");
+import Joi from "joi";
+import mongoose from "mongoose";
 
 const productJoiSchema = Joi.object({
   _id: Joi.any().strip(),
@@ -36,7 +36,7 @@ const productJoiSchema = Joi.object({
         price: Joi.number().positive().required(),
         quantity: Joi.number().integer().required(),
         sku: Joi.string().required(),
-      })
+      }),
     )
     .optional(),
   on_sale: Joi.boolean().default(false),
@@ -129,7 +129,7 @@ const productSchema = mongoose.Schema(
   {
     collection: "Products",
     versionKey: false,
-  }
+  },
 );
 
 productSchema.index({ subcategory_id: 1 });
@@ -152,7 +152,7 @@ productSchema.index(
       "product_name.ar": 5,
     },
     name: "ProductSearchIndex",
-  }
+  },
 );
 
 productSchema.pre("save", async function () {
@@ -163,8 +163,4 @@ productSchema.pre("save", async function () {
   }
 });
 
-const Product = mongoose.model("Product", productSchema);
-
-module.exports = {
-  Product,
-};
+export const Product = mongoose.model("Product", productSchema);

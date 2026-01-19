@@ -1,24 +1,24 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const {
-  CreateOrders,
-  RetrievingOrders,
+import {
+  createOrder,
+  getAllOrders,
   getUserOrders,
-  searchingOrders,
-  UpdateOrdersById,
-  DeleteOrdersById,
-} = require("../controllers/ordersController");
-const {
+  getOrderById,
+  updateOrder,
+  deleteOrder,
+} from "../controllers/ordersController.js";
+import {
   verifyToken,
   requireAdminOrManager,
-} = require("../middleware/authMiddleware");
+} from "../middleware/authMiddleware.js";
 
-router.post("/", verifyToken, CreateOrders);
-router.get("/", verifyToken, requireAdminOrManager, RetrievingOrders);
+router.post("/", verifyToken, createOrder);
+router.get("/", verifyToken, requireAdminOrManager, getAllOrders);
 router.get("/:userId", verifyToken, getUserOrders);
-router.get("/:id", verifyToken, requireAdminOrManager, searchingOrders);
-router.put("/:id", verifyToken, requireAdminOrManager, UpdateOrdersById);
-router.delete("/:id", verifyToken, requireAdminOrManager, DeleteOrdersById);
+router.get("/:id", verifyToken, requireAdminOrManager, getOrderById);
+router.put("/:id", verifyToken, requireAdminOrManager, updateOrder);
+router.delete("/:id", verifyToken, requireAdminOrManager, deleteOrder);
 
-module.exports = router;
+export default router;

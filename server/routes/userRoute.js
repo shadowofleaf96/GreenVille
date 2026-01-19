@@ -1,14 +1,14 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const { upload } = require("../middleware/multerMiddleware");
+import { upload } from "../middleware/multerMiddleware.js";
 
-const {
+import {
   verifyToken,
   requireAdmin,
   requireAdminOrManager,
-} = require("../middleware/authMiddleware");
+} from "../middleware/authMiddleware.js";
 
-const {
+import {
   createUser,
   getAllUsers,
   getUserDetails,
@@ -19,7 +19,7 @@ const {
   getAdminProfile,
   forgotPassword,
   resetPassword,
-} = require("../controllers/userController");
+} from "../controllers/userController.js";
 
 router.post("/login", loginUser);
 router.post(
@@ -44,4 +44,4 @@ router.get("/profile", verifyToken, getAdminProfile);
 router.get("/search", verifyToken, requireAdminOrManager, searchUser);
 router.get("/:id", verifyToken, requireAdminOrManager, getUserDetails);
 
-module.exports = router;
+export default router;

@@ -1,9 +1,9 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const controller = require("../controllers/localizationController");
+import * as controller from "../controllers/localizationController.js";
 
 router.get("/", controller.getAllLocalizations);
 router.put("/", controller.upsertLocalization);
 router.delete("/:id", controller.deleteLocalization);
 
-module.exports = router;
+export default router;

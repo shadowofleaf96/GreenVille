@@ -1,4 +1,4 @@
-const DashboardNotification = require("../models/DashboardNotification");
+import DashboardNotification from "../models/DashboardNotification.js";
 
 /**
  * Creates a notification for the dashboard (admin/vendor panel).
@@ -10,7 +10,7 @@ const DashboardNotification = require("../models/DashboardNotification");
  * @param {string} [params.recipient_role="admin"] - "admin" or "vendor"
  * @param {string} [params.vendor_id=null] - Specify if the notification is for a specific vendor
  */
-const createDashboardNotification = async ({
+export const createDashboardNotification = async ({
   type,
   title,
   message,
@@ -34,5 +34,3 @@ const createDashboardNotification = async ({
     console.error("Error creating dashboard notification:", error);
   }
 };
-
-module.exports = { createDashboardNotification };

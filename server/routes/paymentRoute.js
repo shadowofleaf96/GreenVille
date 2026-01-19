@@ -1,19 +1,18 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const {
-  createPayPalPayment,
+import {
   createStripePayment,
   savePaymentInfo,
   retrievePayments,
   searchPayment,
   updatePayment,
   removePayment,
-} = require("../controllers/paymentController");
-const {
+} from "../controllers/paymentController.js";
+import {
   verifyToken,
   requireAdminOrManager,
-} = require("../middleware/authMiddleware");
+} from "../middleware/authMiddleware.js";
 
 router.post("/create-stripe-payment", verifyToken, createStripePayment);
 router.post("/save-payment-info", verifyToken, savePaymentInfo);
@@ -22,4 +21,4 @@ router.delete("/:id", verifyToken, requireAdminOrManager, removePayment);
 router.get("/", verifyToken, requireAdminOrManager, retrievePayments);
 router.get("/:id", verifyToken, requireAdminOrManager, searchPayment);
 
-module.exports = router;
+export default router;

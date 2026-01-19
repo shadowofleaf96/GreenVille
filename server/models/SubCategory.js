@@ -1,6 +1,6 @@
-const Joi = require("joi");
-const mongoose = require("mongoose");
-const { Schema, model, Types } = mongoose;
+import Joi from "joi";
+import mongoose from "mongoose";
+const { Schema, model } = mongoose;
 
 const SubCategoryJoiSchema = Joi.object({
   _id: Joi.any().strip(),
@@ -38,13 +38,13 @@ const subcategorieSchema = new Schema(
   {
     collection: "SubCategories",
     versionKey: false,
-  }
+  },
 );
 
 subcategorieSchema.pre("save", async function () {
   try {
     const validatedData = await SubCategoryJoiSchema.validateAsync(
-      this.toObject()
+      this.toObject(),
     );
     this.subcategory_name = validatedData.subcategory_name;
     this.category_id = validatedData.category_id;
@@ -55,14 +55,10 @@ subcategorieSchema.pre("save", async function () {
   }
 });
 
-const SubCategory = model("SubCategories", subcategorieSchema);
+export const SubCategory = model("SubCategories", subcategorieSchema);
 
 if (SubCategory) {
   console.log("SubCategory Schema created");
 } else {
   console.log("Error creating SubCategory model");
 }
-
-module.exports = {
-  SubCategory,
-};

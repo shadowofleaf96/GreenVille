@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const dashboardNotificationSchema = new mongoose.Schema(
   {
@@ -47,7 +47,9 @@ const dashboardNotificationSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model(
+const DashboardNotification = mongoose.model(
   "DashboardNotification",
   dashboardNotificationSchema,
 );
+
+export default DashboardNotification;

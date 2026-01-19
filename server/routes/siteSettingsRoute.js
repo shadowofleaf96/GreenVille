@@ -1,8 +1,8 @@
-const express = require("express");
-const { upload } = require("../middleware/multerMiddleware");
+import express from "express";
+import { upload } from "../middleware/multerMiddleware.js";
 const router = express.Router();
-const siteSettingsController = require("../controllers/siteSettingsController");
-const { verifyToken, requireAdmin } = require("../middleware/authMiddleware");
+import * as siteSettingsController from "../controllers/siteSettingsController.js";
+import { verifyToken, requireAdmin } from "../middleware/authMiddleware.js";
 
 router.get("/", siteSettingsController.getSettings);
 router.put(
@@ -13,4 +13,4 @@ router.put(
   siteSettingsController.updateSettings,
 );
 
-module.exports = router;
+export default router;

@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const Joi = require("joi");
+import mongoose from "mongoose";
+import Joi from "joi";
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -39,10 +39,10 @@ const reviewSchema = new mongoose.Schema(
   },
 );
 
-const validateReview = (review) => {
+export const validateReview = (review) => {
   const schema = Joi.object({
-    product_id: Joi.string().required().objectId(),
-    customer_id: Joi.string().required().objectId(),
+    product_id: Joi.string().required(),
+    customer_id: Joi.string().required(),
     rating: Joi.number().min(1).max(5).required(),
     comment: Joi.string().allow("").optional().max(500),
   });
@@ -50,8 +50,4 @@ const validateReview = (review) => {
   return schema.validate(review);
 };
 
-const Review = mongoose.model("Review", reviewSchema);
-
-Review.validateReview = validateReview;
-
-module.exports = Review;
+export const Review = mongoose.model("Review", reviewSchema);

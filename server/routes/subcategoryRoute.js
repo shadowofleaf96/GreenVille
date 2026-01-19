@@ -1,36 +1,36 @@
-const express = require("express");
-const route = express.Router();
+import express from "express";
+const router = express.Router();
 
-const {
+import {
   verifyToken,
   requireAdminOrManager,
-} = require("../middleware/authMiddleware");
-const { upload } = require("../middleware/multerMiddleware");
+} from "../middleware/authMiddleware.js";
+import { upload } from "../middleware/multerMiddleware.js";
 
-const {
+import {
   createSubcategory,
   getAllSubcategories,
   getSubcategoryById,
   updateSubcategoryById,
   deleteSubcategoryById,
-} = require("../controllers/subcategoryController");
+} from "../controllers/subcategoryController.js";
 
-route.post(
+router.post(
   "/",
   verifyToken,
   requireAdminOrManager,
   upload.single("subcategory_image"),
   createSubcategory,
 );
-route.get("/", getAllSubcategories);
-route.get("/:id", getSubcategoryById);
-route.put(
+router.get("/", getAllSubcategories);
+router.get("/:id", getSubcategoryById);
+router.put(
   "/:id",
   verifyToken,
   requireAdminOrManager,
   upload.single("subcategory_image"),
   updateSubcategoryById,
 );
-route.delete("/:id", deleteSubcategoryById);
+router.delete("/:id", deleteSubcategoryById);
 
-module.exports = route;
+export default router;

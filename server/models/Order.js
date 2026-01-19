@@ -1,5 +1,5 @@
-const Joi = require("joi");
-const mongoose = require("mongoose");
+import Joi from "joi";
+import mongoose from "mongoose";
 
 const orderJoiSchema = Joi.object({
   _id: Joi.any().optional(),
@@ -12,7 +12,7 @@ const orderJoiSchema = Joi.object({
         product_id: Joi.any().required(),
         quantity: Joi.number().min(1).required(),
         price: Joi.number().min(0).required(),
-      })
+      }),
     )
     .required(),
   order_date: Joi.date().default(Date.now),
@@ -142,7 +142,7 @@ const ordersSchema = mongoose.Schema(
     collection: "Orders",
     versionKey: false,
     timestamps: true,
-  }
+  },
 );
 
 const calculateReviewAllowed = (orderDate) => {
@@ -201,4 +201,4 @@ if (Order) {
   console.log("Error creating Order Schema");
 }
 
-module.exports = Order;
+export default Order;

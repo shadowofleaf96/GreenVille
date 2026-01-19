@@ -1,23 +1,15 @@
-// Shadow Of Leaf was Here
+import { Customer } from "../models/Customer.js";
+import bcrypt from "bcrypt";
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import axios from "axios";
+import { OAuth2Client } from "google-auth-library";
+import transporter from "../middleware/mailMiddleware.js";
+import { SiteSettings } from "../models/SiteSettings.js";
+import { sendSecurityAlertEmail } from "../utils/emailUtility.js";
+import { createDashboardNotification } from "../utils/dashboardNotificationUtility.js";
 
-const { Customer } = require("../models/Customer");
-const bcrypt = require("bcrypt");
-const crypto = require("crypto");
-const jwt = require("jsonwebtoken");
-const axios = require("axios");
-const path = require("path");
-const fs = require("fs");
-const { OAuth2Client } = require("google-auth-library");
-
-const { log } = require("console");
-const transporter = require("../middleware/mailMiddleware");
-const { SiteSettings } = require("../models/SiteSettings");
-const { sendSecurityAlertEmail } = require("../utils/emailUtility");
-const {
-  createDashboardNotification,
-} = require("../utils/dashboardNotificationUtility");
 const secretKey = process.env.SECRETKEY;
-const secretRefreshKey = process.env.REFRESHSECRETLEY;
 const captchaSecretKey = process.env.CAPTCHA_SECRET_KEY;
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -39,7 +31,7 @@ const verifyReCaptcha = async (recaptchaToken) => {
   }
 };
 
-const login = async (req, res) => {
+export const login = async (req, res) => {
   const { email, password, recaptchaToken } = req.body;
 
   if (!recaptchaToken) {
@@ -51,102 +43,79 @@ const login = async (req, res) => {
     return res.status(400).json({ message: "reCAPTCHA verification failed" });
   }
 
-  try {
-    const customer = await Customer.findOne({ email });
+  const customer = await Customer.findOne({ email });
 
-    if (customer && customer.status === true) {
-      const isPasswordValid = await bcrypt.compare(password, customer.password);
+  if (customer && customer.status === true) {
+    const isPasswordValid = await bcrypt.compare(password, customer.password);
 
-      if (isPasswordValid) {
-        const payload = { id: customer._id, role: customer.role };
-        const accessToken = jwt.sign(payload, secretKey, {
-          expiresIn: "3d",
-        });
+    if (isPasswordValid) {
+      const payload = { id: customer._id, role: customer.role };
+      const accessToken = jwt.sign(payload, secretKey, {
+        expiresIn: "3d",
+      });
 
-        // const refreshTokenPayload = { id: customer._id, role: customer.role };
-        // const refreshToken = jwt.sign(refreshTokenPayload, secretRefreshKey, {
-        //   expiresIn: "7d",
-        // });
-
-        return res.status(200).json({
-          message: "Login success",
-          access_token: accessToken,
-          token_type: "Bearer",
-          expires_in: "3d",
-          // refresh_token: refreshToken,
-          customer: customer,
-        });
-      } else {
-        res
-          .status(401)
-          .json({ message: "Invalid credentials or inactive account" });
-      }
+      return res.status(200).json({
+        message: "Login success",
+        access_token: accessToken,
+        token_type: "Bearer",
+        expires_in: "3d",
+        customer: customer,
+      });
     } else {
-      res
+      return res
         .status(401)
         .json({ message: "Invalid credentials or inactive account" });
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+  } else {
+    return res
+      .status(401)
+      .json({ message: "Invalid credentials or inactive account" });
   }
 };
 
-const googleLogin = async (req, res) => {
+export const googleLogin = async (req, res) => {
   const { idToken } = req.body;
 
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
+  const ticket = await client.verifyIdToken({
+    idToken,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
 
-    const payload = ticket.getPayload();
-    const { email, name, picture } = payload;
+  const payload = ticket.getPayload();
+  const { email, name, picture } = payload;
 
-    let customer = await Customer.findOne({ email });
+  let customer = await Customer.findOne({ email });
 
-    if (!customer) {
-      const cleanUrl = `${
-        process.env.FRONTEND_URL
-      }/set-password?email=${encodeURIComponent(
-        email
-      )}&name=${encodeURIComponent(name)}&picture=${encodeURIComponent(
-        picture
-      )}`;
+  if (!customer) {
+    const cleanUrl = `${
+      process.env.FRONTEND_URL
+    }/set-password?email=${encodeURIComponent(
+      email,
+    )}&name=${encodeURIComponent(name)}&picture=${encodeURIComponent(picture)}`;
 
-      return res.json({ cleanUrl: cleanUrl });
-    }
-
-    const tokenPayload = { id: customer._id, role: customer.role };
-
-    const accessToken = jwt.sign(tokenPayload, secretKey, {
-      expiresIn: "3d",
-    });
-
-    // const refreshToken = jwt.sign(tokenPayload, secretRefreshKey, {
-    //   expiresIn: "7d",
-    // });
-
-    res.status(200).json({
-      message: "Google login success",
-      access_token: accessToken,
-      token_type: "Bearer",
-      expires_in: "3d",
-      // refresh_token: refreshToken,
-      customer: customer,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: "Google login failed" });
+    return res.status(200).json({ cleanUrl: cleanUrl });
   }
+
+  const tokenPayload = { id: customer._id, role: customer.role };
+
+  const accessToken = jwt.sign(tokenPayload, secretKey, {
+    expiresIn: "3d",
+  });
+
+  res.status(200).json({
+    message: "Google login success",
+    access_token: accessToken,
+    token_type: "Bearer",
+    expires_in: "3d",
+    customer: customer,
+  });
 };
 
 function completeRegistrationEmailTemplate(
   name,
   siteLogo,
   siteTitle,
-  primaryColor
+  primaryColor,
 ) {
   return `
     <html>
@@ -170,69 +139,68 @@ function completeRegistrationEmailTemplate(
   `;
 }
 
-const completeRegistration = async (req, res) => {
+export const completeRegistration = async (req, res) => {
   const { email, name, password } = req.body;
   const [first_name, last_name] = name.split(" ");
   const picture = req.file;
 
-  try {
-    const existingCustomer = await Customer.findOne({ email });
-    if (existingCustomer) {
-      return res
-        .status(400)
-        .json({ error: "Customer with this email already exists" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newCustomer = new Customer({
-      customer_image: typeof picture === "string" ? picture : picture.path,
-      first_name,
-      last_name,
-      email,
-      password: hashedPassword,
-      creation_date: Date.now(),
-      status: true,
-    });
-
-    await newCustomer.save();
-
-    const settings = await SiteSettings.findOne();
-    const siteLogo = settings?.logo_url;
-    const siteTitle = settings?.website_title?.en || "GreenVille";
-    const primaryColor = settings?.theme?.primary_color || "#4CAF50";
-
-    const emailTemplate = completeRegistrationEmailTemplate(
-      newCustomer.first_name,
-      siteLogo,
-      siteTitle,
-      primaryColor
-    );
-
-    const mailOptions = {
-      to: newCustomer.email,
-      from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
-      subject: `Welcome to ${siteTitle}`,
-      html: emailTemplate,
-    };
-
-    transporter.sendMail(mailOptions);
-
-    // Generate Token
-    const payload = { id: newCustomer._id, role: newCustomer.role };
-    const accessToken = jwt.sign(payload, secretKey, { expiresIn: "3d" });
-
-    res.status(200).json({
-      message: "Customer registered successfully, identifying...",
-      access_token: accessToken,
-      token_type: "Bearer",
-      expires_in: "3d",
-      customer: newCustomer,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ error: "Error in customer registration", error });
+  const existingCustomer = await Customer.findOne({ email });
+  if (existingCustomer) {
+    return res
+      .status(400)
+      .json({ error: "Customer with this email already exists" });
   }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const newCustomer = new Customer({
+    customer_image: typeof picture === "string" ? picture : picture.path,
+    first_name,
+    last_name,
+    email,
+    password: hashedPassword,
+    creation_date: Date.now(),
+    status: true,
+  });
+
+  await newCustomer.save();
+
+  const settings = await SiteSettings.findOne();
+  const siteLogo = settings?.logo_url;
+  const siteTitle = settings?.website_title?.en || "GreenVille";
+  const primaryColor = settings?.theme?.primary_color || "#4CAF50";
+
+  const emailTemplate = completeRegistrationEmailTemplate(
+    newCustomer.first_name,
+    siteLogo,
+    siteTitle,
+    primaryColor,
+  );
+
+  const mailOptions = {
+    to: newCustomer.email,
+    from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
+    subject: `Welcome to ${siteTitle}`,
+    html: emailTemplate,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (emailError) {
+    console.error("Failed to send welcome email:", emailError);
+  }
+
+  // Generate Token
+  const payload = { id: newCustomer._id, role: newCustomer.role };
+  const accessToken = jwt.sign(payload, secretKey, { expiresIn: "3d" });
+
+  res.status(200).json({
+    message: "Customer registered successfully, identifying...",
+    access_token: accessToken,
+    token_type: "Bearer",
+    expires_in: "3d",
+    customer: newCustomer,
+  });
 };
 
 function validationEmailTemplate(
@@ -240,7 +208,7 @@ function validationEmailTemplate(
   validationLink,
   siteLogo,
   siteTitle,
-  primaryColor
+  primaryColor,
 ) {
   return `
     <html>
@@ -264,7 +232,7 @@ function validationEmailTemplate(
   `;
 }
 
-const createCustomer = async (req, res) => {
+export const createCustomer = async (req, res) => {
   const customer_image = req.file;
 
   const { first_name, last_name, email, password, recaptchaToken } = req.body;
@@ -278,94 +246,88 @@ const createCustomer = async (req, res) => {
     return res.status(400).json({ message: "reCAPTCHA verification failed" });
   }
 
-  try {
-    const existingCustomer = await Customer.findOne({ email });
+  const existingCustomer = await Customer.findOne({ email });
 
-    if (existingCustomer) {
-      return res
-        .status(400)
-        .json({ error: "Customer with this email already exists" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const validationToken = crypto.randomBytes(32).toString("hex");
-
-    const newCustomer = new Customer({
-      customer_image:
-        typeof customer_image === "string"
-          ? customer_image
-          : customer_image?.path || null,
-      first_name,
-      last_name,
-      email,
-      password: hashedPassword,
-      creation_date: Date.now(),
-      status: true,
-      validation_token: validationToken,
-    });
-
-    await newCustomer.save();
-
-    // Dashboard Notification for Admin
-    try {
-      await createDashboardNotification({
-        type: "CUSTOMER_REGISTERED",
-        title: "New Customer Joined",
-        message: `${first_name} ${last_name} has just registered.`,
-        metadata: { customer_id: newCustomer._id },
-        recipient_role: "admin",
-      });
-    } catch (notifError) {
-      console.error("Failed to create dashboard notification:", notifError);
-    }
-
-    const settings = await SiteSettings.findOne();
-    const siteLogo = settings?.logo_url;
-    const siteTitle = settings?.website_title?.en || "GreenVille";
-    const primaryColor = settings?.theme?.primary_color || "#4CAF50";
-
-    const validationLink = `${process.env.BACKEND_URL}v1/customers/validate/${newCustomer._id}/${validationToken}`;
-    const emailTemplate = validationEmailTemplate(
-      newCustomer.first_name,
-      validationLink,
-      siteLogo,
-      siteTitle,
-      primaryColor
-    );
-
-    const mailOptions = {
-      to: newCustomer.email,
-      from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
-      subject: `${siteTitle} - Activate your account`,
-      html: emailTemplate,
-    };
-
-    transporter.sendMail(mailOptions);
-
-    // Auto-Login: Generate token immediately
-    const payload = { id: newCustomer._id, role: newCustomer.role };
-    const accessToken = jwt.sign(payload, secretKey, { expiresIn: "3d" });
-
-    // Note: status is still false, so they might be limited, but they are logged in.
-    // If strict email verification is required, we should not return token here.
-    // Assuming user wants immediate access regardless of verification status for UX.
-
-    res.status(200).json({
-      message: "Account created successfully.",
-      access_token: accessToken,
-      token_type: "Bearer",
-      expires_in: "3d",
-      customer: newCustomer,
-      // redirectUrl: `${process.env.FRONTEND_URL}/check-email`, // No longer redirecting to check-email
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(400).json("Error creating Customer Account" + error);
+  if (existingCustomer) {
+    return res
+      .status(400)
+      .json({ error: "Customer with this email already exists" });
   }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const validationToken = crypto.randomBytes(32).toString("hex");
+
+  const newCustomer = new Customer({
+    customer_image:
+      typeof customer_image === "string"
+        ? customer_image
+        : customer_image?.path || null,
+    first_name,
+    last_name,
+    email,
+    password: hashedPassword,
+    creation_date: Date.now(),
+    status: true,
+    validation_token: validationToken,
+  });
+
+  await newCustomer.save();
+
+  // Dashboard Notification for Admin
+  try {
+    await createDashboardNotification({
+      type: "CUSTOMER_REGISTERED",
+      title: "New Customer Joined",
+      message: `${first_name} ${last_name} has just registered.`,
+      metadata: { customer_id: newCustomer._id },
+      recipient_role: "admin",
+    });
+  } catch (notifError) {
+    console.error("Failed to create dashboard notification:", notifError);
+  }
+
+  const settings = await SiteSettings.findOne();
+  const siteLogo = settings?.logo_url;
+  const siteTitle = settings?.website_title?.en || "GreenVille";
+  const primaryColor = settings?.theme?.primary_color || "#4CAF50";
+
+  const validationLink = `${process.env.BACKEND_URL}v1/customers/validate/${newCustomer._id}/${validationToken}`;
+  const emailTemplate = validationEmailTemplate(
+    newCustomer.first_name,
+    validationLink,
+    siteLogo,
+    siteTitle,
+    primaryColor,
+  );
+
+  const mailOptions = {
+    to: newCustomer.email,
+    from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
+    subject: `${siteTitle} - Activate your account`,
+    html: emailTemplate,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (emailError) {
+    console.error("Failed to send validation email:", emailError);
+  }
+
+  // Auto-Login: Generate token immediately
+  const payload = { id: newCustomer._id, role: newCustomer.role };
+  const accessToken = jwt.sign(payload, secretKey, { expiresIn: "3d" });
+
+  res.status(200).json({
+    message: "Account created successfully.",
+    access_token: accessToken,
+    token_type: "Bearer",
+    expires_in: "3d",
+    customer: newCustomer,
+  });
 };
 
-const getAllCustomers = async (req, res) => {
+export const getAllCustomers = async (req, res) => {
   const page = parseInt(req.query.page);
   const query = req.query.query || "";
   const sort = req.query.sort || "DESC";
@@ -373,101 +335,64 @@ const getAllCustomers = async (req, res) => {
   const perPage = 10;
   const skipCount = (page - 1) * perPage;
 
-  if (page) {
-    try {
-      if (req.user && req.user.role === "vendor") {
-        return res.status(200).json({ data: [] });
-      }
+  if (req.user && req.user.role === "vendor") {
+    return res.status(200).json({ data: [] });
+  }
 
-      let queryBuilder = Customer.find();
+  let queryBuilder = Customer.find();
 
-      if (query) {
-        queryBuilder = queryBuilder.where("first_name", new RegExp(query, "i"));
-      }
+  if (query) {
+    queryBuilder = queryBuilder.where("first_name", new RegExp(query, "i"));
+  }
 
-      if (sort.toUpperCase() === "DESC") {
-        queryBuilder = queryBuilder.sort({ first_name: -1 });
-      } else {
-        queryBuilder = queryBuilder.sort({ first_name: 1 });
-      }
-
-      const customerList = await queryBuilder
-        .skip(skipCount)
-        .limit(perPage)
-        .exec();
-
-      const formattedCustomer = customerList.map((customer) => ({
-        _id: customer._id,
-        first_name: customer.first_name,
-        last_name: customer.last_name,
-        email: customer.email,
-      }));
-
-      res.status(200).json({
-        data: formattedCustomer,
-      });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Internal server error" });
-    }
+  if (sort.toUpperCase() === "DESC") {
+    queryBuilder = queryBuilder.sort({ first_name: -1 });
   } else {
-    try {
-      if (req.user && req.user.role === "vendor") {
-        return res.status(200).json({ data: [] });
-      }
+    queryBuilder = queryBuilder.sort({ first_name: 1 });
+  }
 
-      let queryBuilder = Customer.find();
+  if (page) {
+    const customerList = await queryBuilder
+      .skip(skipCount)
+      .limit(perPage)
+      .exec();
 
-      if (query) {
-        queryBuilder = queryBuilder.where("first_name", new RegExp(query, "i"));
-      }
+    const formattedCustomer = customerList.map((customer) => ({
+      _id: customer._id,
+      first_name: customer.first_name,
+      last_name: customer.last_name,
+      email: customer.email,
+    }));
 
-      if (sort.toUpperCase() === "DESC") {
-        queryBuilder = queryBuilder.sort({ first_name: -1 });
-      } else {
-        queryBuilder = queryBuilder.sort({ first_name: 1 });
-      }
+    res.status(200).json({
+      data: formattedCustomer,
+    });
+  } else {
+    const customerList = await queryBuilder.lean().exec();
 
-      const customerList = await queryBuilder.lean().exec();
-
-      res.status(200).json({
-        data: customerList,
-      });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Internal server error" });
-    }
+    res.status(200).json({
+      data: customerList,
+    });
   }
 };
 
-const getCustomerProfile = async (req, res) => {
+export const getCustomerProfile = async (req, res) => {
   const { _id } = req.user;
-  try {
-    const customer = await Customer.findById(_id).select("-password").lean();
-    if (!customer) {
-      return res.status(404).json({ message: "Customer not found" });
-    }
-    delete customer.password;
-    res.json(customer);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+  const customer = await Customer.findById(_id).select("-password").lean();
+  if (!customer) {
+    return res.status(404).json({ message: "Customer not found" });
   }
+  res.status(200).json(customer);
 };
 
-const getCustomerById = async (req, res) => {
+export const getCustomerById = async (req, res) => {
   const customerId = req.params.id;
-  try {
-    const matchingCustomer = await Customer.findById(customerId).lean();
+  const matchingCustomer = await Customer.findById(customerId).lean();
 
-    if (!matchingCustomer) {
-      return res.status(404).json({ error: "Customer not found" });
-    } else {
-      res.json(matchingCustomer);
-    }
-  } catch (error) {
-    res.status(500).json(error);
+  if (!matchingCustomer) {
+    return res.status(404).json({ error: "Customer not found" });
+  } else {
+    res.status(200).json(matchingCustomer);
   }
 };
 
@@ -475,7 +400,7 @@ function successValidationEmailTemplate(
   name,
   siteLogo,
   siteTitle,
-  primaryColor
+  primaryColor,
 ) {
   return `
     <html>
@@ -498,7 +423,7 @@ function successValidationEmailTemplate(
   `;
 }
 
-const validateCustomer = async (req, res) => {
+export const validateCustomer = async (req, res) => {
   const { id, token } = req.params;
 
   try {
@@ -508,7 +433,7 @@ const validateCustomer = async (req, res) => {
       return res
         .status(404)
         .send(
-          "<html><body><h2>Invalid token or customer not found</h2></body></html>"
+          "<html><body><h2>Invalid token or customer not found</h2></body></html>",
         );
     }
 
@@ -516,7 +441,7 @@ const validateCustomer = async (req, res) => {
       return res
         .status(400)
         .send(
-          "<html><body><h2>Account is already validated</h2></body></html>"
+          "<html><body><h2>Account is already validated</h2></body></html>",
         );
     }
 
@@ -533,7 +458,7 @@ const validateCustomer = async (req, res) => {
       matchingCustomer.first_name,
       siteLogo,
       siteTitle,
-      primaryColor
+      primaryColor,
     );
 
     const mailOptions = {
@@ -543,7 +468,11 @@ const validateCustomer = async (req, res) => {
       html: emailTemplate,
     };
 
-    transporter.sendMail(mailOptions);
+    try {
+      await transporter.sendMail(mailOptions);
+    } catch (emailError) {
+      console.error("Failed to send validation success email:", emailError);
+    }
 
     res.redirect(`${process.env.FRONTEND_URL}/login?validationSuccess=true`);
   } catch (error) {
@@ -554,100 +483,86 @@ const validateCustomer = async (req, res) => {
   }
 };
 
-const updateCustomer = async (req, res) => {
+export const updateCustomer = async (req, res) => {
   const customer_image = req.file;
   const customerId = req.params.id;
   const { first_name, last_name, email, password, status, shipping_address } =
     req.body;
 
-  try {
-    const customer = await Customer.findById(customerId);
+  const customer = await Customer.findById(customerId);
 
-    if (!customer) {
-      return res.status(404).json({ message: "Invalid customer id" });
-    }
-
-    let passwordChanged = false;
-    let emailChanged = false;
-
-    if (customer_image) {
-      customer.customer_image =
-        typeof customer_image === "string"
-          ? customer_image
-          : customer_image.path;
-    }
-
-    if (first_name) {
-      customer.first_name = first_name;
-    }
-
-    if (last_name) {
-      customer.last_name = last_name;
-    }
-
-    if (email && email !== customer.email) {
-      const existingEmail = await Customer.findOne({ email });
-      if (existingEmail) {
-        return res.status(400).json({ message: "Email is already in use" });
-      }
-      customer.email = email;
-      emailChanged = true;
-    }
-
-    if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      customer.password = hashedPassword;
-      passwordChanged = true;
-    }
-
-    if (shipping_address) {
-      customer.shipping_address = shipping_address;
-    }
-
-    if (status) {
-      customer.status = status;
-    }
-
-    await customer.validate();
-    await customer.save();
-
-    // Send security alert if critical info changed
-    if (passwordChanged) {
-      sendSecurityAlertEmail(customer, "password_changed");
-    }
-    if (emailChanged) {
-      sendSecurityAlertEmail(customer, "email_updated");
-    }
-
-    res.status(200).json({
-      message: "Account updated successfully",
-      data: customer,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Internal server error " + error,
-    });
-    console.log(error);
+  if (!customer) {
+    return res.status(404).json({ message: "Invalid customer id" });
   }
+
+  let passwordChanged = false;
+  let emailChanged = false;
+
+  if (customer_image) {
+    customer.customer_image =
+      typeof customer_image === "string" ? customer_image : customer_image.path;
+  }
+
+  if (first_name) {
+    customer.first_name = first_name;
+  }
+
+  if (last_name) {
+    customer.last_name = last_name;
+  }
+
+  if (email && email !== customer.email) {
+    const existingEmail = await Customer.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ message: "Email is already in use" });
+    }
+    customer.email = email;
+    emailChanged = true;
+  }
+
+  if (password) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    customer.password = hashedPassword;
+    passwordChanged = true;
+  }
+
+  if (shipping_address) {
+    customer.shipping_address = shipping_address;
+  }
+
+  if (status !== undefined) {
+    customer.status = status;
+  }
+
+  await customer.validate();
+  await customer.save();
+
+  // Send security alert if critical info changed
+  if (passwordChanged) {
+    sendSecurityAlertEmail(customer, "password_changed");
+  }
+  if (emailChanged) {
+    sendSecurityAlertEmail(customer, "email_updated");
+  }
+
+  res.status(200).json({
+    message: "Account updated successfully",
+    data: customer,
+  });
 };
 
-const deleteCustomer = async (req, res) => {
+export const deleteCustomer = async (req, res) => {
   const customerId = req.params.id;
-  try {
-    const customer = await Customer.findOneAndDelete({ _id: customerId });
+  const customer = await Customer.findOneAndDelete({ _id: customerId });
 
-    if (!customer) {
-      return res.status(404).json({ message: "Customer not found" });
-    }
-
-    // Send deletion confirmation email
-    sendSecurityAlertEmail(customer, "account_deleted");
-
-    return res.status(200).json({ message: "Account deleted successfully" });
-  } catch (error) {
-    console.error("Deletion error:", error);
-    return res.status(500).json({ message: "Internal server error" });
+  if (!customer) {
+    return res.status(404).json({ message: "Customer not found" });
   }
+
+  // Send deletion confirmation email
+  sendSecurityAlertEmail(customer, "account_deleted");
+
+  return res.status(200).json({ message: "Account deleted successfully" });
 };
 
 function passwordResetEmailTemplate(
@@ -655,7 +570,7 @@ function passwordResetEmailTemplate(
   resetToken,
   siteLogo,
   siteTitle,
-  primaryColor
+  primaryColor,
 ) {
   return `
     <html>
@@ -684,93 +599,72 @@ function passwordResetEmailTemplate(
   `;
 }
 
-const forgotPassword = async (req, res) => {
-  try {
-    const { email } = req.body;
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
 
-    const customer = await Customer.findOne({ email });
+  const customer = await Customer.findOne({ email });
 
-    if (!customer) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const resetToken = crypto.randomBytes(20).toString("hex");
-
-    customer.resetPasswordToken = resetToken;
-    customer.resetPasswordExpires = Date.now() + 3600000;
-
-    await customer.save();
-
-    const settings = await SiteSettings.findOne();
-    const siteLogo = settings?.logo_url;
-    const siteTitle = settings?.website_title?.en || "GreenVille";
-    const primaryColor = settings?.theme?.primary_color || "#4CAF50";
-
-    const mailOptions = {
-      to: customer.email,
-      from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
-      subject: `${siteTitle} - Password Reset`,
-      html: passwordResetEmailTemplate(
-        customer.first_name,
-        resetToken,
-        siteLogo,
-        siteTitle,
-        primaryColor
-      ),
-    };
-
-    transporter.sendMail(mailOptions);
-
-    res.json({ message: "Password reset email sent" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+  if (!customer) {
+    return res.status(404).json({ error: "User not found" });
   }
+
+  const resetToken = crypto.randomBytes(20).toString("hex");
+
+  customer.resetPasswordToken = resetToken;
+  customer.resetPasswordExpires = Date.now() + 3600000;
+
+  await customer.save();
+
+  const settings = await SiteSettings.findOne();
+  const siteLogo = settings?.logo_url;
+  const siteTitle = settings?.website_title?.en || "GreenVille";
+  const primaryColor = settings?.theme?.primary_color || "#4CAF50";
+
+  const mailOptions = {
+    to: customer.email,
+    from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
+    subject: `${siteTitle} - Password Reset`,
+    html: passwordResetEmailTemplate(
+      customer.first_name,
+      resetToken,
+      siteLogo,
+      siteTitle,
+      primaryColor,
+    ),
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (emailError) {
+    console.error("Failed to send password reset email:", emailError);
+  }
+
+  res.status(200).json({ message: "Password reset email sent" });
 };
 
-const resetPassword = async (req, res) => {
-  try {
-    const { token } = req.params;
-    const { newPassword } = req.body;
+export const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { newPassword } = req.body;
 
-    const customer = await Customer.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gt: Date.now() },
-    });
+  const customer = await Customer.findOne({
+    resetPasswordToken: token,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
 
-    if (!customer) {
-      return res.status(400).json({ error: "Invalid or expired token" });
-    }
-
-    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
-    customer.password = hashedNewPassword;
-    customer.resetPasswordToken = undefined;
-    customer.resetPasswordExpires = undefined;
-
-    await customer.save();
-
-    // Send security alert
-    sendSecurityAlertEmail(customer, "password_reset_success");
-
-    res.json({ message: "Password reset successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+  if (!customer) {
+    return res.status(400).json({ error: "Invalid or expired token" });
   }
-};
 
-module.exports = {
-  login,
-  googleLogin,
-  resetPassword,
-  forgotPassword,
-  deleteCustomer,
-  updateCustomer,
-  validateCustomer,
-  getCustomerById,
-  getCustomerProfile,
-  getAllCustomers,
-  createCustomer,
-  completeRegistration,
+  const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+  customer.password = hashedNewPassword;
+  customer.resetPasswordToken = undefined;
+  customer.resetPasswordExpires = undefined;
+
+  await customer.save();
+
+  // Send security alert
+  sendSecurityAlertEmail(customer, "password_reset_success");
+
+  res.status(200).json({ message: "Password reset successfully" });
 };

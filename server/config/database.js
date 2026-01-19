@@ -1,12 +1,16 @@
-const mongoose = require("mongoose");
+import "dotenv/config";
+import mongoose from "mongoose";
 
-mongoose
-  .connect(process.env.MONGOOSE, {
-    serverSelectionTimeoutMS: 5000,
-  })
-  .then(() => {
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGOOSE);
     console.log("Connected to the database");
-  })
-  .catch((err) => {
+  } catch (err) {
     console.error("Error connecting to the database:", err);
-  });
+    process.exit(1);
+  }
+};
+
+connectDB();
+
+export default connectDB;

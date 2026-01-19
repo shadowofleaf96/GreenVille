@@ -1,8 +1,8 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
 router.get("/", (req, res) => {
   res.redirect(process.env.FRONTEND_URL);
 });
 
-module.exports = router;
+export default router;

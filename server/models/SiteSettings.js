@@ -1,5 +1,5 @@
-const Joi = require("joi");
-const mongoose = require("mongoose");
+import Joi from "joi";
+import mongoose from "mongoose";
 
 const multilingualStringSchema = Joi.object({
   en: Joi.string().allow("").optional(),
@@ -31,7 +31,7 @@ const SiteSettingsJoiSchema = Joi.object({
         description: multilingualStringSchema.optional(),
         buttonText: multilingualStringSchema.optional(),
         link: Joi.string().allow("").optional(),
-      })
+      }),
     )
     .optional(),
   banner_active: Joi.boolean().default(true).optional(),
@@ -42,7 +42,7 @@ const SiteSettingsJoiSchema = Joi.object({
         icon: Joi.string().allow("").optional(),
         title: multilingualStringSchema.optional(),
         description: multilingualStringSchema.optional(),
-      })
+      }),
     )
     .optional(),
   benefits_active: Joi.boolean().default(true).optional(),
@@ -71,7 +71,7 @@ const SiteSettingsJoiSchema = Joi.object({
         _id: Joi.any().strip(),
         quote: multilingualStringSchema.optional(),
         attribution: multilingualStringSchema.optional(),
-      })
+      }),
     )
     .optional(),
   testimonials_active: Joi.boolean().default(true).optional(),
@@ -92,7 +92,7 @@ const SiteSettingsJoiSchema = Joi.object({
           icon: Joi.string().allow("").optional(),
           title: multilingualStringSchema.optional(),
           description: multilingualStringSchema.optional(),
-        })
+        }),
       )
       .optional(),
   }).optional(),
@@ -327,13 +327,13 @@ const SiteSettingsSchema = new mongoose.Schema(
     collection: "SiteSettings",
     versionKey: false,
     timestamps: true,
-  }
+  },
 );
 
 SiteSettingsSchema.pre("save", async function () {
   try {
     const validatedData = await SiteSettingsJoiSchema.validateAsync(
-      this.toObject()
+      this.toObject(),
     );
 
     this.logo_url = validatedData.logo_url;
@@ -355,7 +355,6 @@ SiteSettingsSchema.pre("save", async function () {
     this.footer_settings = validatedData.footer_settings;
     this.social_links = validatedData.social_links;
     this.policies = validatedData.policies;
-    this.policies = validatedData.policies;
     this.seo = validatedData.seo;
     this.auth_settings = validatedData.auth_settings;
     this.shipping_config = validatedData.shipping_config;
@@ -366,6 +365,4 @@ SiteSettingsSchema.pre("save", async function () {
   }
 });
 
-const SiteSettings = mongoose.model("SiteSettings", SiteSettingsSchema);
-
-module.exports = { SiteSettings };
+export const SiteSettings = mongoose.model("SiteSettings", SiteSettingsSchema);

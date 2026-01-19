@@ -1,28 +1,29 @@
-const api = require("./routes/api");
-const express = require("express");
-const path = require("path");
-const cors = require("cors");
-const helmet = require("helmet");
-const compression = require("compression");
-const expressStaticGzip = require("express-static-gzip");
-const { rateLimit } = require("express-rate-limit");
+import "dotenv/config"
+import api from "./routes/api.js";
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import cors from "cors";
+import helmet from "helmet";
+import compression from "compression";
+import { rateLimit } from "express-rate-limit";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Enhanced compression middleware for dynamic content
 app.use(
   compression({
-    level: 6, // Compression level (0-9, 6 is default and good balance)
-    threshold: 1024, // Only compress responses larger than 1KB
+    level: 6,
+    threshold: 1024,
     filter: (req, res) => {
-      // Don't compress if client doesn't support it
       if (req.headers["x-no-compression"]) {
         return false;
       }
-      // Use compression for all compressible content
       return compression.filter(req, res);
     },
-  })
+  }),
 );
 
 const allowedOrigins = [
@@ -33,13 +34,16 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       console.error("Blocked by CORS:", origin);
       callback(new Error("Not allowed by CORS"));
     }
   },
+  credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: [
     "Content-Type",
@@ -51,29 +55,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  next();
-});
 
 app.use(
   helmet({
@@ -96,8 +77,9 @@ app.use(
       maxAge: 31536000,
       includeSubDomains: true,
     },
-  })
+  }),
 );
+
 app.disable("x-powered-by");
 
 const staticPath = path.join(__dirname, "public", "images");
@@ -106,7 +88,7 @@ app.use(
   express.static(staticPath, {
     maxAge: "1d",
     etag: true,
-  })
+  }),
 );
 
 app.use(express.urlencoded({ extended: true }));
@@ -138,27 +120,6 @@ app.use((req, res, next) => {
   }
 });
 
-// Serve pre-compressed static files from Vite build (production only)
-if (process.env.NODE_ENV === "production") {
-  const clientDistPath = path.join(__dirname, "..", "client", "dist");
-
-  app.use(
-    expressStaticGzip(clientDistPath, {
-      enableBrotli: true,
-      orderPreference: ["br", "gz"], // Prefer Brotli over gzip
-      serveStatic: {
-        maxAge: "1y", // Cache static assets for 1 year
-        immutable: true,
-      },
-    })
-  );
-
-  // Fallback to index.html for SPA routing
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(clientDistPath, "index.html"));
-  });
-}
-
 app.use("/", api);
 
-module.exports = app;
+export default app;

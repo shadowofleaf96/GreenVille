@@ -1,20 +1,20 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const {
+import {
   verifyToken,
   requireAdminOrManager,
-} = require("../middleware/authMiddleware");
-const { upload } = require("../middleware/multerMiddleware");
+} from "../middleware/authMiddleware.js";
+import { upload } from "../middleware/multerMiddleware.js";
 
-const {
+import {
   createCategory,
   getAllCategories,
   searchCategory,
   getCategoryDetails,
   updateCategory,
   deleteCategory,
-} = require("../controllers/categoryController");
+} from "../controllers/categoryController.js";
 
 router.post(
   "/",
@@ -35,4 +35,4 @@ router.get("/", getAllCategories);
 router.get("/search", searchCategory);
 router.get("/:id", getCategoryDetails);
 
-module.exports = router;
+export default router;

@@ -1,4 +1,4 @@
-const admin = require("firebase-admin");
+import admin from "firebase-admin";
 
 const serviceAccountJson = Buffer.from(
   process.env.FIREBASE_SERVICE_ACCOUNT_BASE64,
@@ -12,4 +12,4 @@ if (!admin.apps.length) {
   });
 }
 
-module.exports = admin;
+export default admin;

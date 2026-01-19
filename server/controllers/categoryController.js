@@ -1,14 +1,14 @@
-const { Category } = require("../models/Category");
-const { SubCategory } = require("../models/SubCategory");
+import { Category } from "../models/Category.js";
+import { SubCategory } from "../models/SubCategory.js";
 
-const createCategory = async (req, res) => {
+export const createCategory = async (req, res) => {
   let { category_name, status } = req.body;
 
   if (typeof category_name === "string") {
     try {
       category_name = JSON.parse(category_name);
     } catch (error) {
-      // invalid json
+      console.error(error);
     }
   }
 
@@ -62,7 +62,7 @@ const createCategory = async (req, res) => {
   }
 };
 
-const getAllCategories = async (req, res, next) => {
+export const getAllCategories = async (req, res) => {
   const { page } = req.query;
   const perPage = 10;
 
@@ -91,7 +91,7 @@ const getAllCategories = async (req, res, next) => {
   }
 };
 
-const searchCategory = async (req, res, next) => {
+export const searchCategory = async (req, res) => {
   try {
     let { query, page = 1 } = req.query;
     const perPage = 10;
@@ -101,8 +101,11 @@ const searchCategory = async (req, res, next) => {
     const searchQuery = {
       $or: [{ category_name: { $regex: new RegExp(query, "i") } }],
     };
-    query = Category.find(searchQuery).skip(skip).limit(perPage).lean();
-    const categories = await query.exec();
+    const categoriesQuery = Category.find(searchQuery)
+      .skip(skip)
+      .limit(perPage)
+      .lean();
+    const categories = await categoriesQuery.exec();
 
     if (categories.length === 0) {
       return res.status(404).json({
@@ -121,7 +124,7 @@ const searchCategory = async (req, res, next) => {
   }
 };
 
-const getCategoryDetails = async (req, res, next) => {
+export const getCategoryDetails = async (req, res) => {
   const catId = req.params.id;
   try {
     const matchingCategory = await Category.findById(catId).lean();
@@ -141,7 +144,7 @@ const getCategoryDetails = async (req, res, next) => {
   }
 };
 
-const updateCategory = async (req, res) => {
+export const updateCategory = async (req, res) => {
   try {
     const catId = req.params.id;
     let { category_name, status } = req.body;
@@ -150,7 +153,9 @@ const updateCategory = async (req, res) => {
     if (typeof category_name === "string") {
       try {
         category_name = JSON.parse(category_name);
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     if (typeof status === "string") {
@@ -221,7 +226,7 @@ const updateCategory = async (req, res) => {
   }
 };
 
-const deleteCategory = async (req, res) => {
+export const deleteCategory = async (req, res) => {
   const categoryId = req.params.id;
   const catCount = await SubCategory.countDocuments({
     category_id: categoryId,
@@ -245,13 +250,4 @@ const deleteCategory = async (req, res) => {
     console.error("Deletion error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
-};
-
-module.exports = {
-  createCategory,
-  getCategoryDetails,
-  getAllCategories,
-  searchCategory,
-  updateCategory,
-  deleteCategory,
 };

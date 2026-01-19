@@ -1,16 +1,16 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   getNotifications,
   markAsRead,
   markAllAsRead,
   deleteNotification,
-} = require("../controllers/dashboardNotificationController");
-const { verifyToken } = require("../middleware/authMiddleware");
+} from "../controllers/dashboardNotificationController.js";
+import { verifyToken } from "../middleware/authMiddleware.js";
 
 router.get("/", verifyToken, getNotifications);
 router.patch("/mark-all-read", verifyToken, markAllAsRead);
 router.patch("/:id/read", verifyToken, markAsRead);
 router.delete("/:id", verifyToken, deleteNotification);
 
-module.exports = router;
+export default router;

@@ -1,5 +1,5 @@
-const Joi = require("joi");
-const mongoose = require("mongoose");
+import Joi from "joi";
+import mongoose from "mongoose";
 
 const paymentJoiSchema = Joi.object({
   _id: Joi.any().optional().strip(),
@@ -61,7 +61,7 @@ const paymentSchema = new mongoose.Schema(
     timestamps: true,
     collection: "Payments",
     versionKey: false,
-  }
+  },
 );
 
 paymentSchema.pre("save", async function () {
@@ -90,4 +90,4 @@ if (Payment) {
   console.log("Error creating Payment Schema");
 }
 
-module.exports = Payment;
+export default Payment;

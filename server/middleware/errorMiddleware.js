@@ -1,4 +1,4 @@
-function errorHandler(err, req, res, next) {
+export default function errorHandler(err, req, res, next) {
   console.error(err.stack);
 
   if (res.headersSent) {
@@ -12,5 +12,3 @@ function errorHandler(err, req, res, next) {
     error: errorMessage,
   });
 }
-
-module.exports = errorHandler;

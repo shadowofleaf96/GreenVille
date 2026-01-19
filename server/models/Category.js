@@ -1,5 +1,5 @@
-const Joi = require("joi");
-const mongoose = require("mongoose");
+import Joi from "joi";
+import mongoose from "mongoose";
 
 const CategoryJoiSchema = Joi.object({
   _id: Joi.any().strip(),
@@ -31,13 +31,13 @@ const CategorySchema = new mongoose.Schema(
   {
     collection: "Categories",
     versionKey: false,
-  }
+  },
 );
 
 CategorySchema.pre("save", async function () {
   try {
     const validatedData = await CategoryJoiSchema.validateAsync(
-      this.toObject()
+      this.toObject(),
     );
 
     this.category_name = validatedData.category_name;
@@ -47,14 +47,10 @@ CategorySchema.pre("save", async function () {
   }
 });
 
-const Category = mongoose.model("Categories", CategorySchema);
+export const Category = mongoose.model("Categories", CategorySchema);
 
 if (Category) {
   console.log("Category Schema created");
 } else {
   console.log("Error creating Category model");
 }
-
-module.exports = {
-  Category,
-};

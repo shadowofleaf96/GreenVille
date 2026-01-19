@@ -1,12 +1,11 @@
-const multer = require("multer");
-const cloudinary = require("../config/cloudinary");
-const { CloudinaryStorage } = require("@fluidjs/multer-cloudinary");
+import multer from "multer";
+import cloudinary from "../config/cloudinary.js";
+import { CloudinaryStorage } from "@fluidjs/multer-cloudinary";
+import { v4 as uuidv4 } from "uuid";
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
-    // uuid v13 is ESM-only, using dynamic import to bridge CommonJS
-    const { v4: uuidv4 } = await import("uuid");
     return {
       folder: "greenville/public/images",
       allowed_formats: ["jpg", "jpeg", "png", "webp"],
@@ -15,5 +14,4 @@ const storage = new CloudinaryStorage({
   },
 });
 
-const upload = multer({ storage: storage });
-module.exports = { upload };
+export const upload = multer({ storage: storage });

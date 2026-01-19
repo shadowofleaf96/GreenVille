@@ -1,5 +1,5 @@
-const transporter = require("../middleware/mailMiddleware");
-const { SiteSettings } = require("../models/SiteSettings");
+import transporter from "../middleware/mailMiddleware.js";
+import { SiteSettings } from "../models/SiteSettings.js";
 
 const getLocalizedName = (nameObj) => {
   if (!nameObj) return "Product";
@@ -13,7 +13,12 @@ const getLocalizedName = (nameObj) => {
   );
 };
 
-const generateEmailTemplate = (settings, title, message, contentHtml = "") => {
+export const generateEmailTemplate = (
+  settings,
+  title,
+  message,
+  contentHtml = "",
+) => {
   const siteLogo = settings?.logo_url;
   const siteTitle = settings?.website_title?.en || "GreenVille";
   const primaryColor = settings?.theme?.primary_color || "#15803d";
@@ -42,7 +47,7 @@ const generateEmailTemplate = (settings, title, message, contentHtml = "") => {
   `;
 };
 
-const sendOrderStatusEmail = async (order, customer, action) => {
+export const sendOrderStatusEmail = async (order, customer, action) => {
   const { _id, status, cart_total_price, order_date, order_items } = order;
   const { first_name, last_name, email } = customer;
 
@@ -139,7 +144,7 @@ const sendOrderStatusEmail = async (order, customer, action) => {
   }
 };
 
-const sendVendorApplicationEmail = async (customer, vendorData) => {
+export const sendVendorApplicationEmail = async (customer, vendorData) => {
   const { first_name, email } = customer;
   const settings = await SiteSettings.findOne();
   const siteTitle = settings?.website_title?.en || "GreenVille";
@@ -161,7 +166,11 @@ const sendVendorApplicationEmail = async (customer, vendorData) => {
   }
 };
 
-const sendReviewNotificationEmail = async (customer, product, review) => {
+export const sendReviewNotificationEmail = async (
+  customer,
+  product,
+  review,
+) => {
   const { first_name, email } = customer;
   const settings = await SiteSettings.findOne();
   const siteTitle = settings?.website_title?.en || "GreenVille";
@@ -198,7 +207,7 @@ const sendReviewNotificationEmail = async (customer, product, review) => {
   }
 };
 
-const sendSecurityAlertEmail = async (customer, action) => {
+export const sendSecurityAlertEmail = async (customer, action) => {
   const { first_name, email } = customer;
   const settings = await SiteSettings.findOne();
   const siteTitle = settings?.website_title?.en || "GreenVille";
@@ -231,7 +240,11 @@ const sendSecurityAlertEmail = async (customer, action) => {
   }
 };
 
-const sendPaymentConfirmationEmail = async (customer, order, payment) => {
+export const sendPaymentConfirmationEmail = async (
+  customer,
+  order,
+  payment,
+) => {
   const { first_name, email } = customer;
   const settings = await SiteSettings.findOne();
   const siteTitle = settings?.website_title?.en || "GreenVille";
@@ -270,12 +283,4 @@ const sendPaymentConfirmationEmail = async (customer, order, payment) => {
   } catch (error) {
     console.error(`Error sending payment confirmation email:`, error);
   }
-};
-
-module.exports = {
-  sendOrderStatusEmail,
-  sendVendorApplicationEmail,
-  sendReviewNotificationEmail,
-  sendSecurityAlertEmail,
-  sendPaymentConfirmationEmail,
 };

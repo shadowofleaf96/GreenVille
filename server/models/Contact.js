@@ -1,6 +1,5 @@
-// Shadow Of Leaf was here
-const Joi = require("joi");
-const mongoose = require("mongoose");
+import Joi from "joi";
+import mongoose from "mongoose";
 
 const contactJoiSchema = Joi.object({
   _id: Joi.any().strip(),
@@ -33,7 +32,7 @@ const contactSchema = new mongoose.Schema(
   {
     collection: "Contact",
     versionKey: false,
-  }
+  },
 );
 
 contactSchema.pre("save", async function () {
@@ -49,13 +48,9 @@ contactSchema.pre("save", async function () {
   }
 });
 
-const Contacts = mongoose.model("Contacts", contactSchema);
+export const Contacts = mongoose.model("Contacts", contactSchema);
 if (Contacts) {
   console.log("Contacts Schema created");
 } else {
   console.log("error");
 }
-
-module.exports = {
-  Contacts,
-};

@@ -1,47 +1,33 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const vendorController = require("../controllers/vendorController");
-const { upload } = require("../middleware/multerMiddleware");
-
-// Public/User routes
-router.post(
-  "/register",
-  upload.single("store_logo"),
-  vendorController.registerVendor,
-);
-const {
+import {
+  registerVendor,
+  getVendorProfile,
+  updateVendorProfile,
+  updateVendorStatus,
+  getAllVendors,
+  deleteVendor,
+} from "../controllers/vendorController.js";
+import { upload } from "../middleware/multerMiddleware.js";
+import {
   verifyToken,
   requireAdmin,
   requireAdminOrManager,
-} = require("../middleware/authMiddleware");
+} from "../middleware/authMiddleware.js";
 
 // Public/User routes
-router.post(
-  "/register",
-  upload.single("store_logo"),
-  vendorController.registerVendor,
-);
-router.get("/profile/:userId", vendorController.getVendorProfile);
+router.post("/register", upload.single("store_logo"), registerVendor);
+router.get("/profile/:userId", getVendorProfile);
 router.put(
   "/profile/:userId",
   verifyToken,
   upload.single("store_logo"),
-  vendorController.updateVendorProfile,
+  updateVendorProfile,
 );
 
 // Admin routes
-router.patch(
-  "/status/:id",
-  verifyToken,
-  requireAdmin,
-  vendorController.updateVendorStatus,
-);
-router.get(
-  "/",
-  verifyToken,
-  requireAdminOrManager,
-  vendorController.getAllVendors,
-);
-router.delete("/:id", verifyToken, requireAdmin, vendorController.deleteVendor);
+router.patch("/status/:id", verifyToken, requireAdmin, updateVendorStatus);
+router.get("/", verifyToken, requireAdminOrManager, getAllVendors);
+router.delete("/:id", verifyToken, requireAdmin, deleteVendor);
 
-module.exports = router;
+export default router;

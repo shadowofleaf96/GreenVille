@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
-const Joi = require("joi");
+import mongoose from "mongoose";
+import Joi from "joi";
 
-const vendorJoiSchema = Joi.object({
+export const vendorJoiSchema = Joi.object({
   customer: Joi.string().required(),
   store_name: Joi.string().required(),
   store_description: Joi.string().allow("", null).optional(),
@@ -70,9 +70,7 @@ const vendorSchema = new mongoose.Schema(
   {
     collection: "Vendors",
     versionKey: false,
-  }
+  },
 );
 
-const Vendor = mongoose.model("Vendors", vendorSchema);
-
-module.exports = { Vendor, vendorJoiSchema };
+export const Vendor = mongoose.model("Vendors", vendorSchema);

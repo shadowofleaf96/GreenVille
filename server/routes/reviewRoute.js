@@ -1,29 +1,25 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   verifyToken,
   requireAdminOrManager,
-} = require("../middleware/authMiddleware");
-const reviewController = require("../controllers/reviewController");
+} from "../middleware/authMiddleware.js";
+import {
+  createReview,
+  getProductReviews,
+  getAllReviews,
+  editReview,
+  deleteReview,
+} from "../controllers/reviewController.js";
 
-router.post("/", verifyToken, reviewController.createReview);
+router.post("/", verifyToken, createReview);
 
-router.get("/:id", reviewController.getProductReviews);
+router.get("/:id", getProductReviews);
 
-router.get("/", verifyToken, reviewController.getAllReviews);
+router.get("/", verifyToken, getAllReviews);
 
-router.put(
-  "/:id",
-  verifyToken,
-  requireAdminOrManager,
-  reviewController.editReview,
-);
+router.put("/:id", verifyToken, requireAdminOrManager, editReview);
 
-router.delete(
-  "/:id",
-  verifyToken,
-  requireAdminOrManager,
-  reviewController.deleteReview,
-);
+router.delete("/:id", verifyToken, requireAdminOrManager, deleteReview);
 
-module.exports = router;
+export default router;

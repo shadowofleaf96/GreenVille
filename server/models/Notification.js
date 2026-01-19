@@ -1,6 +1,5 @@
-const Joi = require("joi");
-const mongoose = require("mongoose");
-const { Schema, model } = require("mongoose");
+import Joi from "joi";
+import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema(
   {
@@ -29,7 +28,7 @@ const notificationSchema = new mongoose.Schema(
   {
     collection: "Notifications",
     versionKey: false,
-  }
+  },
 );
 
 const notificationValidationSchema = Joi.object({
@@ -57,4 +56,4 @@ if (Notification) {
   console.log("Error creating Notification Schema");
 }
 
-module.exports = Notification;
+export default Notification;

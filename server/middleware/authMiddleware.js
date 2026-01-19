@@ -1,8 +1,8 @@
-const { User } = require("../models/User");
-const { Customer } = require("../models/Customer");
-const jwt = require("jsonwebtoken");
+import { User } from "../models/User.js";
+import { Customer } from "../models/Customer.js";
+import jwt from "jsonwebtoken";
 
-const verifyToken = (req, res, next) => {
+export const verifyToken = (req, res, next) => {
   try {
     const authHeader = req.headers["authorization"];
     if (!authHeader || !authHeader.startsWith("Bearer")) {
@@ -46,7 +46,7 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-const optionalVerifyToken = (req, res, next) => {
+export const optionalVerifyToken = (req, res, next) => {
   try {
     const authHeader = req.headers["authorization"];
     if (!authHeader || !authHeader.startsWith("Bearer")) {
@@ -83,7 +83,7 @@ const optionalVerifyToken = (req, res, next) => {
   }
 };
 
-const requireAdmin = (req, res, next) => {
+export const requireAdmin = (req, res, next) => {
   try {
     const authHeader = req.headers["authorization"];
     if (!authHeader || !authHeader.startsWith("Bearer")) {
@@ -117,7 +117,7 @@ const requireAdmin = (req, res, next) => {
   }
 };
 
-const requireAdminOrManager = (req, res, next) => {
+export const requireAdminOrManager = (req, res, next) => {
   try {
     const authHeader = req.headers["authorization"];
     if (!authHeader || !authHeader.startsWith("Bearer")) {
@@ -155,11 +155,4 @@ const requireAdminOrManager = (req, res, next) => {
       message: "Internal Server Error",
     });
   }
-};
-
-module.exports = {
-  verifyToken,
-  optionalVerifyToken,
-  requireAdmin,
-  requireAdminOrManager,
 };

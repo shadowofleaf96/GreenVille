@@ -1,208 +1,186 @@
-const Review = require("../models/Review");
-const { Product } = require("../models/Product");
-const Order = require("../models/Order");
-const { Customer } = require("../models/Customer");
-const { sendReviewNotificationEmail } = require("../utils/emailUtility");
-const {
-  createDashboardNotification,
-} = require("../utils/dashboardNotificationUtility");
+import { Review } from "../models/Review.js";
+import { Product } from "../models/Product.js";
+import Order from "../models/Order.js";
+import { Customer } from "../models/Customer.js";
+import { sendReviewNotificationEmail } from "../utils/emailUtility.js";
+import { createDashboardNotification } from "../utils/dashboardNotificationUtility.js";
 
-exports.createReview = async (req, res) => {
+export const createReview = async (req, res) => {
   const { product_id, customer_id, rating, comment, status } = req.body;
 
-  try {
-    const order = await Order.findOne({
-      customer_id,
-      "order_items.product_id": product_id,
-    });
+  const order = await Order.findOne({
+    customer_id,
+    "order_items.product_id": product_id,
+  });
 
-    if (!order) {
-      return res
-        .status(400)
-        .json({ error: "You have not purchased this product." });
-    }
+  if (!order) {
+    return res
+      .status(400)
+      .json({ error: "You have not purchased this product." });
+  }
 
-    const existingReview = await Review.findOne({ product_id, customer_id });
-    if (existingReview) {
-      return res
-        .status(400)
-        .json({ error: "You have already reviewed this product." });
-    }
+  const existingReview = await Review.findOne({ product_id, customer_id });
+  if (existingReview) {
+    return res
+      .status(400)
+      .json({ error: "You have already reviewed this product." });
+  }
 
-    const review = new Review({
-      product_id,
-      customer_id,
-      rating,
-      comment,
-      status,
-    });
-    await review.save();
+  const review = new Review({
+    product_id,
+    customer_id,
+    rating,
+    comment,
+    status,
+  });
+  await review.save();
 
-    const product = await Product.findById(product_id);
-    if (!product) {
-      return res.status(404).json({ error: "Product not found." });
-    }
+  const product = await Product.findById(product_id);
+  if (!product) {
+    return res.status(404).json({ error: "Product not found." });
+  }
 
-    const newTotalReviews = product.total_reviews + 1;
-    const newAverageRating =
-      (product.average_rating * product.total_reviews + rating) /
-      newTotalReviews;
+  const newTotalReviews = product.total_reviews + 1;
+  const newAverageRating =
+    (product.average_rating * product.total_reviews + rating) / newTotalReviews;
 
-    product.total_reviews = newTotalReviews;
-    product.average_rating = newAverageRating.toFixed(1);
-    await product.save();
+  product.total_reviews = newTotalReviews;
+  product.average_rating = newAverageRating.toFixed(1);
+  await product.save();
 
-    // Send confirmation email to customer
-    const customer = await Customer.findById(customer_id);
-    if (customer) {
-      sendReviewNotificationEmail(customer, product, review);
-    }
-
-    // Dashboard Notifications
+  // Send confirmation email to customer
+  const customer = await Customer.findById(customer_id);
+  if (customer) {
     try {
-      // Notify Admin
+      await sendReviewNotificationEmail(customer, product, review);
+    } catch (emailError) {
+      console.error("Failed to send review notification email:", emailError);
+    }
+  }
+
+  // Dashboard Notifications
+  try {
+    // Notify Admin
+    await createDashboardNotification({
+      type: "REVIEW_ADDED",
+      title: "New Review Added",
+      message: `A new ${rating}-star review was added for "${
+        product.product_name?.en || "Product"
+      }"`,
+      metadata: { review_id: review._id, product_id: product._id },
+      recipient_role: "admin",
+    });
+
+    // Notify Vendor
+    if (product.vendor) {
       await createDashboardNotification({
         type: "REVIEW_ADDED",
-        title: "New Review Added",
-        message: `A new ${rating}-star review was added for "${
+        title: "New Product Review",
+        message: `Your product "${
           product.product_name?.en || "Product"
-        }"`,
+        }" received a ${rating}-star review.`,
         metadata: { review_id: review._id, product_id: product._id },
-        recipient_role: "admin",
+        recipient_role: "vendor",
+        vendor_id: product.vendor,
       });
-
-      // Notify Vendor
-      if (product.vendor) {
-        await createDashboardNotification({
-          type: "REVIEW_ADDED",
-          title: "New Product Review",
-          message: `Your product "${
-            product.product_name?.en || "Product"
-          }" received a ${rating}-star review.`,
-          metadata: { review_id: review._id, product_id: product._id },
-          recipient_role: "vendor",
-          vendor_id: product.vendor,
-        });
-      }
-    } catch (notifError) {
-      console.error("Failed to create dashboard notifications:", notifError);
     }
-
-    res.status(201).json({
-      message: "Review added successfully.",
-      data: review,
-      product: {
-        average_rating: product.average_rating,
-        total_reviews: product.total_reviews,
-      },
-    });
-  } catch (error) {
-    console.error("Error creating review:", error);
-    res.status(500).json({ error: "Internal server error." });
+  } catch (notifError) {
+    console.error("Failed to create dashboard notifications:", notifError);
   }
+
+  res.status(201).json({
+    message: "Review added successfully.",
+    data: review,
+    product: {
+      average_rating: product.average_rating,
+      total_reviews: product.total_reviews,
+    },
+  });
 };
 
-exports.getProductReviews = async (req, res) => {
+export const getProductReviews = async (req, res) => {
   const { id } = req.params;
 
-  try {
-    const reviews = await Review.find({
-      product_id: id,
-      status: "active",
-    })
-      .populate("customer_id", "first_name last_name customer_image")
-      .lean();
+  const reviews = await Review.find({
+    product_id: id,
+    status: "active",
+  })
+    .populate("customer_id", "first_name last_name customer_image")
+    .lean();
 
-    res.status(200).json({ data: reviews });
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error." + error });
-  }
+  res.status(200).json({ data: reviews });
 };
 
-exports.getAllReviews = async (req, res) => {
-  try {
-    const reviews = await Review.find()
-      .populate("product_id", "product_name")
-      .populate("customer_id", "first_name last_name")
-      .lean();
+export const getAllReviews = async (req, res) => {
+  const reviews = await Review.find()
+    .populate("product_id", "product_name")
+    .populate("customer_id", "first_name last_name")
+    .lean();
 
-    res.status(200).json({ data: reviews });
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error." + error });
-  }
+  res.status(200).json({ data: reviews });
 };
 
-exports.editReview = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { rating, comment, status, review_date } = req.body;
+export const editReview = async (req, res) => {
+  const { id } = req.params;
+  const { rating, comment, status, review_date } = req.body;
 
-    const review = await Review.findById(id);
-    if (!review) return res.status(404).json({ error: "Review not found" });
+  const review = await Review.findById(id);
+  if (!review) return res.status(404).json({ error: "Review not found" });
 
-    const product = await Product.findById(review.product_id);
-    if (!product) return res.status(404).json({ error: "Product not found" });
+  const product = await Product.findById(review.product_id);
+  if (!product) return res.status(404).json({ error: "Product not found" });
 
-    const oldRating = review.rating;
+  const oldRating = review.rating;
+  const totalRating = product.average_rating * product.total_reviews;
+  const newAverageRating =
+    (totalRating - oldRating + rating) / product.total_reviews;
+
+  review.rating = rating;
+  review.comment = comment;
+  review.status = status === "active" ? "active" : "inactive";
+  review.review_date = review_date;
+
+  await review.save();
+
+  product.average_rating = newAverageRating.toFixed(1);
+  await product.save();
+
+  const newReview = await Review.findById(id)
+    .populate("product_id", "product_name")
+    .populate("customer_id", "first_name last_name");
+
+  res.status(200).json({
+    data: newReview,
+    success: true,
+    message: "Review and product rating updated successfully!",
+  });
+};
+
+export const deleteReview = async (req, res) => {
+  const { id } = req.params;
+
+  const review = await Review.findById(id);
+  if (!review) return res.status(404).json({ error: "Review not found" });
+
+  const product = await Product.findById(review.product_id);
+  if (!product) return res.status(404).json({ error: "Product not found" });
+
+  const totalReviews = product.total_reviews - 1;
+  let newAverageRating = 0;
+
+  if (totalReviews > 0) {
     const totalRating = product.average_rating * product.total_reviews;
-    const newAverageRating =
-      (totalRating - oldRating + rating) / product.total_reviews;
-
-    review.rating = rating;
-    review.comment = comment;
-    review.status = status === "active" ? "active" : "inactive";
-    review.review_date = review_date;
-
-    await review.save();
-
-    product.average_rating = newAverageRating.toFixed(1);
-    await product.save();
-
-    const newReview = await Review.findById(id)
-      .populate("product_id", "product_name")
-      .populate("customer_id", "first_name last_name");
-
-    res.status(200).json({
-      data: newReview,
-      success: true,
-      message: "Review and product rating updated successfully!",
-    });
-  } catch (error) {
-    console.error("Error updating review:", error.message);
-    res.status(500).json({ error: "Failed to update review" });
+    newAverageRating = (totalRating - review.rating) / totalReviews;
   }
-};
 
-exports.deleteReview = async (req, res) => {
-  try {
-    const { id } = req.params;
+  product.total_reviews = totalReviews;
+  product.average_rating = newAverageRating.toFixed(1);
+  await product.save();
 
-    const review = await Review.findById(id);
-    if (!review) return res.status(404).json({ error: "Review not found" });
+  await review.deleteOne();
 
-    const product = await Product.findById(review.product_id);
-    if (!product) return res.status(404).json({ error: "Product not found" });
-
-    const totalReviews = product.total_reviews - 1;
-    let newAverageRating = 0;
-
-    if (totalReviews > 0) {
-      const totalRating = product.average_rating * product.total_reviews;
-      newAverageRating = (totalRating - review.rating) / totalReviews;
-    }
-
-    product.total_reviews = totalReviews;
-    product.average_rating = newAverageRating.toFixed(1);
-    await product.save();
-
-    await review.deleteOne();
-
-    res.status(200).json({
-      success: true,
-      message: "Review deleted and product rating updated successfully!",
-    });
-  } catch (error) {
-    console.error("Error deleting review:", error.message);
-    res.status(500).json({ error: "Failed to delete review" });
-  }
+  res.status(200).json({
+    success: true,
+    message: "Review deleted and product rating updated successfully!",
+  });
 };

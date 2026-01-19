@@ -2,15 +2,22 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.js",
+      "src": "index.js",
       "use": "@vercel/node",
-      "config": { "includeFiles": ["dist/**"] }
+      "config": {
+        "includeFiles": [
+          "dist/**"
+        ]
+      }
     }
   ],
+  "env": {
+    "NODE_OPTIONS": "--experimental-require-module"
+  },
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "server.js"
+      "dest": "index.js"
     }
   ]
 }

@@ -1,139 +1,7 @@
-const { Contacts } = require("../models/Contact");
-const transporter = require("../middleware/mailMiddleware");
-const { SiteSettings } = require("../models/SiteSettings");
-const {
-  createDashboardNotification,
-} = require("../utils/dashboardNotificationUtility");
-
-exports.createContact = async (req, res) => {
-  try {
-    const newContact = new Contacts(req.body);
-    await newContact.save();
-
-    // Dashboard Notification for Admin
-    try {
-      await createDashboardNotification({
-        type: "CONTACT_MESSAGE",
-        title: "New Contact Message",
-        message: `New message from ${newContact.name}: "${
-          newContact.subject || "No Subject"
-        }"`,
-        metadata: { contact_id: newContact._id },
-        recipient_role: "admin",
-      });
-    } catch (notifError) {
-      console.error("Failed to create dashboard notification:", notifError);
-    }
-
-    const settings = await SiteSettings.findOne();
-    const siteLogo = settings?.logo_url;
-    const siteTitle = settings?.website_title?.en || "GreenVille";
-    const primaryColor = settings?.theme?.primary_color || "#4CAF50";
-
-    const mailOptions = {
-      from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
-      to: newContact.email,
-      subject: "Thank You for Contacting Us",
-      html: confirmationEmailTemplate(
-        newContact.name,
-        siteLogo,
-        siteTitle,
-        primaryColor
-      ),
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    res
-      .status(200)
-      .json({ message: "Contact saved and email sent successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to save contact or send email" });
-  }
-};
-
-exports.getAllContactMessages = async (req, res) => {
-  try {
-    const contact = await Contacts.find().lean();
-    res.status(200).json({ data: contact });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to retrieve coupons" });
-  }
-};
-
-exports.editContact = async (req, res) => {
-  const { id } = req.params;
-  const { name, email, phone_number, message } = req.body;
-
-  try {
-    const updatedContact = await Contacts.findByIdAndUpdate(
-      id,
-      { name, email, phone_number, message },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedContact) {
-      return res.status(404).json({ message: "Contact message not found" });
-    }
-
-    res.status(200).json({
-      message: "Contact Message updated successfully",
-      data: updatedContact,
-    });
-  } catch (error) {
-    console.error("Error updating contact:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-exports.deleteContact = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const deletedContact = await Contacts.findByIdAndDelete(id);
-
-    if (!deletedContact)
-      return res.status(404).json({ error: "Contact Message not found" });
-
-    res.status(200).json({
-      success: true,
-      message: "Contact Message deleted successfully",
-    });
-  } catch (error) {
-    res.status(500).json(error);
-  }
-};
-
-exports.replyToContact = async (req, res) => {
-  const { email, subject, name, message } = req.body;
-
-  try {
-    const settings = await SiteSettings.findOne();
-    const siteLogo = settings?.logo_url;
-    const siteTitle = settings?.website_title?.en || "GreenVille";
-    const primaryColor = settings?.theme?.primary_color || "#4CAF50";
-
-    const mailOptions = {
-      from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: subject,
-      html: ReplyEmailTemplate(
-        name,
-        message,
-        siteLogo,
-        siteTitle,
-        primaryColor
-      ),
-    };
-
-    await transporter.sendMail(mailOptions);
-    res.status(200).json({ message: "Email sent successfully!" });
-  } catch (error) {
-    console.error("Error sending email:", error);
-    res.status(500).json({ message: "Failed to send email." });
-  }
-};
+import { Contacts } from "../models/Contact.js";
+import transporter from "../middleware/mailMiddleware.js";
+import { SiteSettings } from "../models/SiteSettings.js";
+import { createDashboardNotification } from "../utils/dashboardNotificationUtility.js";
 
 function confirmationEmailTemplate(name, siteLogo, siteTitle, primaryColor) {
   return `
@@ -179,3 +47,104 @@ function ReplyEmailTemplate(name, message, siteLogo, siteTitle, primaryColor) {
     </html>
   `;
 }
+
+export const createContact = async (req, res) => {
+  const newContact = new Contacts(req.body);
+  await newContact.save();
+
+  // Dashboard Notification for Admin
+  try {
+    await createDashboardNotification({
+      type: "CONTACT_MESSAGE",
+      title: "New Contact Message",
+      message: `New message from ${newContact.name}: "${
+        newContact.subject || "No Subject"
+      }"`,
+      metadata: { contact_id: newContact._id },
+      recipient_role: "admin",
+    });
+  } catch (notifError) {
+    console.error("Failed to create dashboard notification:", notifError);
+  }
+
+  const settings = await SiteSettings.findOne();
+  const siteLogo = settings?.logo_url;
+  const siteTitle = settings?.website_title?.en || "GreenVille";
+  const primaryColor = settings?.theme?.primary_color || "#4CAF50";
+
+  const mailOptions = {
+    from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
+    to: newContact.email,
+    subject: "Thank You for Contacting Us",
+    html: confirmationEmailTemplate(
+      newContact.name,
+      siteLogo,
+      siteTitle,
+      primaryColor,
+    ),
+  };
+
+  await transporter.sendMail(mailOptions);
+
+  res
+    .status(200)
+    .json({ message: "Contact saved and email sent successfully" });
+};
+
+export const getAllContactMessages = async (req, res) => {
+  const contact = await Contacts.find().lean();
+  res.status(200).json({ data: contact });
+};
+
+export const editContact = async (req, res) => {
+  const { id } = req.params;
+  const { name, email, phone_number, message } = req.body;
+
+  const updatedContact = await Contacts.findByIdAndUpdate(
+    id,
+    { name, email, phone_number, message },
+    { new: true, runValidators: true },
+  );
+
+  if (!updatedContact) {
+    return res.status(404).json({ message: "Contact message not found" });
+  }
+
+  res.status(200).json({
+    message: "Contact Message updated successfully",
+    data: updatedContact,
+  });
+};
+
+export const deleteContact = async (req, res) => {
+  const { id } = req.params;
+
+  const deletedContact = await Contacts.findByIdAndDelete(id);
+
+  if (!deletedContact)
+    return res.status(404).json({ error: "Contact Message not found" });
+
+  res.status(200).json({
+    success: true,
+    message: "Contact Message deleted successfully",
+  });
+};
+
+export const replyToContact = async (req, res) => {
+  const { email, subject, name, message } = req.body;
+
+  const settings = await SiteSettings.findOne();
+  const siteLogo = settings?.logo_url;
+  const siteTitle = settings?.website_title?.en || "GreenVille";
+  const primaryColor = settings?.theme?.primary_color || "#4CAF50";
+
+  const mailOptions = {
+    from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: subject,
+    html: ReplyEmailTemplate(name, message, siteLogo, siteTitle, primaryColor),
+  };
+
+  await transporter.sendMail(mailOptions);
+  res.status(200).json({ message: "Email sent successfully!" });
+};

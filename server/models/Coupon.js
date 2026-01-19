@@ -1,6 +1,5 @@
-const { Schema, model } = require("mongoose");
-const Joi = require("joi");
-const mongoose = require("mongoose");
+import mongoose, { Schema, model } from "mongoose";
+import Joi from "joi";
 
 const couponJoiSchema = Joi.object({
   _id: Joi.any().strip(),
@@ -57,7 +56,7 @@ const couponMongooseSchema = new Schema(
       default: "active",
     },
   },
-  { collection: "Coupon", versionKey: false }
+  { collection: "Coupon", versionKey: false },
 );
 
 couponMongooseSchema.pre("save", async function () {
@@ -76,14 +75,10 @@ couponMongooseSchema.methods.isValid = function (userId) {
   return !isExpired && !isUsedByUser && !isUsageLimitExceeded;
 };
 
-const Coupon = model("Coupon", couponMongooseSchema);
+export const Coupon = model("Coupon", couponMongooseSchema);
 
 if (Coupon) {
   console.log("Coupon Schema created");
 } else {
   console.log("error");
 }
-
-module.exports = {
-  Coupon,
-};

@@ -1,6 +1,6 @@
-const Joi = require("joi");
-const { Schema, model } = require("mongoose");
-const bcrypt = require("bcrypt");
+import Joi from "joi";
+import { Schema, model } from "mongoose";
+import bcrypt from "bcrypt";
 
 const customerJoiSchema = Joi.object({
   _id: Joi.any().strip(),
@@ -86,7 +86,7 @@ const customerSchema = new Schema(
       longitude: Number,
     },
   },
-  { collection: "Customers", versionKey: false }
+  { collection: "Customers", versionKey: false },
 );
 
 customerSchema.pre("save", async function () {
@@ -102,13 +102,9 @@ customerSchema.methods.validatePassword = async function (candidatePassword) {
   return isMatch;
 };
 
-const Customer = model("Customers", customerSchema);
+export const Customer = model("Customers", customerSchema);
 if (Customer) {
   console.log("Customer Schema created");
 } else {
   console.log("error");
 }
-
-module.exports = {
-  Customer,
-};
