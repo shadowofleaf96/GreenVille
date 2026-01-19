@@ -1,8 +1,6 @@
 import Payment from "../models/Payment.js";
 import Order from "../models/Order.js";
-import mongoose from "mongoose";
 import Stripe from "stripe";
-import axios from "axios";
 import { Customer } from "../models/Customer.js";
 import { sendPaymentConfirmationEmail } from "../utils/emailUtility.js";
 import { createDashboardNotification } from "../utils/dashboardNotificationUtility.js";

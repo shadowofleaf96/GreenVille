@@ -49,34 +49,42 @@ const Payment = () => {
 
   useEffect(() => {
     const fetchStripeKey = async () => {
-      try {
-        const response = await axiosInstance.post(
-          "/payments/create-stripe-payment",
-          {
-            amount: shippingInfo?.totalPrice,
-            currency: "mad",
-            isSavingCard: true,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
+      // Only fetch if payment method is credit card and we have a valid price
+      if (
+        paymentMethod === "creditCard" &&
+        shippingInfo?.totalPrice &&
+        !isNaN(shippingInfo.totalPrice) &&
+        shippingInfo.totalPrice > 0
+      ) {
+        try {
+          const response = await axiosInstance.post(
+            "/payments/create-stripe-payment",
+            {
+              amount: shippingInfo?.totalPrice,
+              currency: "mad",
+              isSavingCard: true,
             },
-          },
-        );
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            },
+          );
 
-        const result = response.data;
-        if (result.clientSecret) {
-          setClientSecret(result.clientSecret);
-        } else {
-          console.error("Client secret not found in response");
+          const result = response.data;
+          if (result.clientSecret) {
+            setClientSecret(result.clientSecret);
+          } else {
+            console.error("Client secret not found in response");
+          }
+        } catch (error) {
+          console.error("Error fetching client secret:", error);
         }
-      } catch (error) {
-        console.error("Error fetching client secret:", error);
       }
     };
 
     fetchStripeKey();
-  }, [axiosInstance, shippingInfo?.totalPrice]);
+  }, [axiosInstance, shippingInfo?.totalPrice, paymentMethod]);
 
   const createOrder = async () => {
     setLoading(true);

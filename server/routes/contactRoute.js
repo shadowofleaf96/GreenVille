@@ -1,11 +1,8 @@
 import express from "express";
-import express from "express";
 const router = express.Router();
-import {
 import {
   verifyToken,
   requireAdminOrManager,
-} from "../middleware/authMiddleware.js";
 } from "../middleware/authMiddleware.js";
 
 import {
@@ -26,5 +23,4 @@ router.put("/:id", verifyToken, requireAdminOrManager, editContact);
 
 router.delete("/:id", verifyToken, requireAdminOrManager, deleteContact);
 
-export default router;
 export default router;
