@@ -105,7 +105,7 @@ const Contact = () => {
         }
       />
 
-      <div className="min-h-screen bg-gray-50/50 xs:pt-6 sm:pt-8 md:pt-12 lg:pt-16 xs:pb-8 sm:pb-12 md:pb-16 lg:pb-20 px-4 sm:px-6 lg:px-8">
+      <div className="py-20 md:py-32 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto space-y-24">
           {/* Hero & Form Section */}
           <motion.div
@@ -126,7 +126,7 @@ const Contact = () => {
                 </h1>
                 <p className="text-lg font-bold text-gray-400 italic max-w-lg mx-auto lg:mx-0 leading-relaxed">
                   {t(
-                    "Discover our exceptional customer service tailored to your most distinguished expectations."
+                    "Discover our exceptional customer service tailored to your most distinguished expectations.",
                   )}
                 </p>
               </div>
@@ -206,7 +206,7 @@ const Contact = () => {
                             onChange: (e) => {
                               e.target.value = e.target.value.replace(
                                 /\D/g,
-                                ""
+                                "",
                               );
                             },
                           })}
@@ -228,7 +228,7 @@ const Contact = () => {
                       </Label>
                       <Textarea
                         placeholder={t(
-                          "How can we assist your distinguished needs?"
+                          "How can we assist your distinguished needs?",
                         )}
                         rows={6}
                         {...register("message", {
@@ -306,7 +306,7 @@ const Contact = () => {
                 </h2>
                 <p className="text-sm font-bold text-gray-400 leading-relaxed italic">
                   {t(
-                    "Our dedicated consultants are at your disposal for any professional inquiry or selection assistance."
+                    "Our dedicated consultants are at your disposal for any professional inquiry or selection assistance.",
                   )}
                 </p>
               </div>

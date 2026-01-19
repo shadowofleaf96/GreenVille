@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const SingleProduct = () => {
   const { t, i18n } = useTranslation();
@@ -54,7 +55,7 @@ const SingleProduct = () => {
     const interval = setInterval(() => {
       if (product?.product_images?.length > 0) {
         setCurrentIndex(
-          (prevIndex) => (prevIndex + 1) % product?.product_images?.length
+          (prevIndex) => (prevIndex + 1) % product?.product_images?.length,
         );
       }
     }, 10000);
@@ -143,13 +144,13 @@ const SingleProduct = () => {
             quantity: quantity,
             variantId: variantId,
             product,
-          })
+          }),
         );
       });
       setVariantSelections({});
     } else {
       dispatch(
-        addItemToCart({ id: product._id, quantity, variant: null, product })
+        addItemToCart({ id: product._id, quantity, variant: null, product }),
       );
     }
     toast.success(t("itemAdded"));
@@ -204,19 +205,19 @@ const SingleProduct = () => {
 
   const displayReviewCount = Math.max(
     totalReviewsFromList,
-    product.total_reviews || 0
+    product.total_reviews || 0,
   );
 
   return (
     <Fragment>
       <MetaData title={product?.product_name?.[currentLanguage] || ""} />
 
-      <div className="min-h-screen bg-white pt-28 pb-20 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-white pt-18 pb-8 px-3 sm:pt-28 sm:pb-20 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-16 items-start">
             {/* Left: Image Gallery */}
             <div className="space-y-6 sm:space-y-8">
-              <div className="relative aspect-square bg-gray-50/50 rounded-4xl sm:rounded-[3rem] p-6 sm:p-10 flex items-center justify-center border border-gray-100 shadow-inner overflow-hidden group">
+              <div className="relative h-56 sm:h-auto aspect-square bg-gray-50/50 rounded-3xl sm:rounded-[3rem] p-1 sm:p-10 flex items-center justify-center border border-gray-100 shadow-inner overflow-hidden group mx-auto">
                 <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full scale-50 group-hover:scale-100 transition-transform duration-1000" />
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -244,7 +245,7 @@ const SingleProduct = () => {
                       setCurrentIndex(
                         (prev) =>
                           (prev - 1 + product.product_images.length) %
-                          product.product_images.length
+                          product.product_images.length,
                       )
                     }
                     className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white/80 backdrop-blur shadow-lg text-gray-500 hover:text-primary transition-all"
@@ -260,7 +261,7 @@ const SingleProduct = () => {
                     variant="ghost"
                     onClick={() =>
                       setCurrentIndex(
-                        (prev) => (prev + 1) % product.product_images.length
+                        (prev) => (prev + 1) % product.product_images.length,
                       )
                     }
                     className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white/80 backdrop-blur shadow-lg text-gray-500 hover:text-primary transition-all"
@@ -281,7 +282,7 @@ const SingleProduct = () => {
                     key={index}
                     whileHover={{ y: -4 }}
                     onClick={() => setCurrentIndex(index)}
-                    className={`shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl p-1.5 sm:p-2 border-2 transition-all cursor-pointer bg-gray-50 ${
+                    className={`shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl p-1 sm:p-2 border-2 transition-all cursor-pointer bg-gray-50 ${
                       currentIndex === index
                         ? "border-primary shadow-lg shadow-primary/10"
                         : "border-gray-100 hover:border-primary/20"
@@ -298,10 +299,10 @@ const SingleProduct = () => {
             </div>
 
             {/* Right: Product Info */}
-            <div className="space-y-8">
+            <div className="space-y-4 sm:space-y-8">
               <div className="space-y-2">
                 <div className="flex items-center gap-3 mb-4">
-                  <Badge className="bg-primary/10 text-primary font-black px-4 py-1.5 rounded-full uppercase tracking-widest text-[10px]">
+                  <Badge className="bg-primary/10 text-primary font-black px-3 py-1 sm:px-4 sm:py-1.5 rounded-full uppercase tracking-widest text-[10px]">
                     {product?.category?.category_name?.[currentLanguage]}
                   </Badge>
                   {product.vendor?.store_name && (
@@ -313,7 +314,7 @@ const SingleProduct = () => {
                     </div>
                   )}
                 </div>
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight leading-tight">
+                <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-5xl font-black text-gray-900 tracking-tight leading-tight">
                   {product.product_name?.[currentLanguage]}
                 </h1>
 
@@ -347,13 +348,13 @@ const SingleProduct = () => {
               </div>
 
               <div className="flex items-baseline gap-3">
-                <span className="text-3xl sm:text-4xl font-black text-primary tracking-tight">
+                <span className="text-xl sm:text-4xl font-black text-primary tracking-tight">
                   {product?.variants?.length > 0
                     ? getSelectedCount() > 0
                       ? getSelectedTotal().toFixed(2)
                       : Math.min(...product.variants.map((v) => v.price))
                     : product.discount_price || product.price}
-                  <span className="text-xl ml-1">{t("DH")}</span>
+                  <span className="text-base sm:text-xl ml-1">{t("DH")}</span>
                 </span>
                 {product.discount_price &&
                   product.discount_price !== product.price && (
@@ -378,7 +379,7 @@ const SingleProduct = () => {
                       </Badge>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4">
                     {product.variants.map((v) => {
                       const isSelected = variantSelections[v._id]?.selected;
                       const vQty = variantSelections[v._id]?.quantity || 1;
@@ -389,7 +390,7 @@ const SingleProduct = () => {
                           key={v._id}
                           whileHover={!isOut ? { y: -2 } : {}}
                           onClick={() => !isOut && handleVariantToggle(v._id)}
-                          className={`p-4 rounded-3xl border-2 transition-all cursor-pointer relative overflow-hidden ${
+                          className={`p-3 sm:p-4 rounded-3xl border-2 transition-all cursor-pointer relative overflow-hidden ${
                             isSelected
                               ? "border-primary bg-primary/5 shadow-xl shadow-primary/10"
                               : "border-gray-100 bg-white"
@@ -523,7 +524,7 @@ const SingleProduct = () => {
                       ? getSelectedCount() === 0
                       : getCurrentStock() === 0
                   }
-                  className="flex-1 h-16 rounded-4xl bg-gray-900 border-none text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-gray-200 hover:bg-black transition-all gap-3"
+                  className="flex-1 h-12 sm:h-16 rounded-3xl sm:rounded-4xl bg-gray-900 border-none text-white font-black text-xs sm:text-base uppercase tracking-widest shadow-2xl shadow-gray-200 hover:bg-black transition-all gap-2 sm:gap-3"
                 >
                   <Iconify icon="solar:bolt-bold-duotone" width={24} />
                   {t("buy_now")}
@@ -536,7 +537,7 @@ const SingleProduct = () => {
                       ? getSelectedCount() === 0
                       : getCurrentStock() === 0
                   }
-                  className="flex-1 h-16 rounded-4xl border-2 border-primary bg-primary/5 text-primary font-black text-base uppercase tracking-widest hover:bg-primary/10 transition-all gap-3"
+                  className="flex-1 h-12 sm:h-16 rounded-3xl sm:rounded-4xl border-2 border-primary bg-primary/5 text-primary font-black text-xs sm:text-base uppercase tracking-widest hover:bg-primary/10 transition-all gap-2 sm:gap-3"
                 >
                   <Iconify
                     icon="solar:cart-large-minimalistic-bold-duotone"
@@ -553,20 +554,22 @@ const SingleProduct = () => {
           {/* Bottom Tabs: Description & Reviews */}
           <div className="max-w-5xl mx-auto">
             <Tabs defaultValue="description" className="w-full">
-              <TabsList className="w-full justify-start gap-12 bg-transparent border-b border-gray-100 h-16 rounded-none p-0">
-                <TabsTrigger
-                  value="description"
-                  className="font-black text-lg uppercase tracking-widest text-gray-400 data-[state=active]:text-primary data-[state=active]:border-b-4 data-[state=active]:border-primary rounded-none px-0 h-full transition-all border-transparent"
-                >
-                  {t("Product Description")}
-                </TabsTrigger>
-                <TabsTrigger
-                  value="reviews"
-                  className="font-black text-lg uppercase tracking-widest text-gray-400 data-[state=active]:text-primary data-[state=active]:border-b-4 data-[state=active]:border-primary rounded-none px-0 h-full transition-all border-transparent"
-                >
-                  {t("Comments")} ({reviews.length})
-                </TabsTrigger>
-              </TabsList>
+              <ScrollArea className="w-full border-b border-gray-100">
+                <TabsList className="w-full justify-start gap-4 sm:gap-12 bg-transparent h-12 sm:h-16 rounded-none p-0 inline-flex">
+                  <TabsTrigger
+                    value="description"
+                    className="font-black text-sm sm:text-lg uppercase tracking-widest text-gray-400 data-[state=active]:text-primary data-[state=active]:border-b-4 data-[state=active]:border-primary rounded-none px-0 h-full transition-all border-transparent whitespace-nowrap"
+                  >
+                    {t("Product Description")}
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="reviews"
+                    className="font-black text-sm sm:text-lg uppercase tracking-widest text-gray-400 data-[state=active]:text-primary data-[state=active]:border-b-4 data-[state=active]:border-primary rounded-none px-0 h-full transition-all border-transparent whitespace-nowrap"
+                  >
+                    {t("Comments")} ({reviews.length})
+                  </TabsTrigger>
+                </TabsList>
+              </ScrollArea>
 
               <div className="pt-12">
                 <TabsContent
@@ -575,7 +578,7 @@ const SingleProduct = () => {
                 >
                   <Card className="rounded-[3rem] border-none shadow-2xl shadow-gray-100/50 bg-gray-50/50 p-10">
                     <CardContent className="p-0">
-                      <p className="text-lg font-medium text-gray-600 leading-relaxed first-letter:text-5xl first-letter:font-black first-letter:text-primary first-letter:mr-3 first-letter:float-left">
+                      <p className="text-xs sm:text-lg font-medium text-gray-600 leading-relaxed first-letter:text-2xl sm:first-letter:text-5xl first-letter:font-black first-letter:text-primary first-letter:mr-1.5 sm:first-letter:mr-3 first-letter:float-left">
                         {product?.long_description?.[currentLanguage] ||
                           product?.short_description?.[currentLanguage]}
                       </p>
@@ -624,7 +627,7 @@ const SingleProduct = () => {
                                   </p>
                                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                     {new Date(
-                                      review.review_date
+                                      review.review_date,
                                     ).toLocaleDateString()}
                                   </p>
                                 </div>

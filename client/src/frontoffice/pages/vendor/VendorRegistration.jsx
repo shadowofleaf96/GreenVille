@@ -111,21 +111,24 @@ const VendorRegistration = () => {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="relative z-10 w-full max-w-5xl"
       >
-        <Card className="rounded-[2.5rem] border-none shadow-2xl bg-white overflow-hidden ring-1 ring-black/5">
+        <Card className="rounded-3xl md:rounded-[2.5rem] border-none shadow-2xl bg-white overflow-hidden ring-1 ring-black/5">
           <CardContent className="p-0">
-            <div className="flex flex-col lg:flex-row min-h-[600px]">
+            <div className="flex flex-col lg:flex-row min-h-auto lg:min-h-150">
               {/* Left Column: Form */}
-              <div className="lg:w-3/5 p-8 sm:p-12 border-b lg:border-b-0 lg:border-r border-gray-100/50 h-full overflow-y-auto max-h-[90vh]">
-                <div className="flex flex-col items-start mb-8">
+              <div className="lg:w-3/5 p-4 sm:p-12 border-b lg:border-b-0 lg:border-r border-gray-100/50 h-full overflow-y-auto max-h-[90vh]">
+                <div className="flex flex-col items-start mb-6 md:mb-8">
                   <div className="mb-4">
                     <RouterLink to="/">
-                      <Logo disabledLink className="w-12 h-12 text-primary" />
+                      <Logo
+                        disabledLink
+                        className="w-10 h-10 md:w-12 md:h-12 text-primary"
+                      />
                     </RouterLink>
                   </div>
-                  <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/80">
+                  <h2 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/80">
                     {t("Become a Vendor")}
                   </h2>
-                  <p className="text-muted-foreground mt-2 text-sm">
+                  <p className="text-muted-foreground mt-2 text-xs md:text-sm">
                     {t(
                       "Fill out the form below to apply for a vendor account.",
                     )}
@@ -311,7 +314,7 @@ const VendorRegistration = () => {
                     <textarea
                       id="store_description"
                       {...register("store_description")}
-                      className="flex min-h-[100px] w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 focus:bg-white transition-all resize-none"
+                      className="flex min-h-25 w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 focus:bg-white transition-all resize-none"
                       placeholder={t(
                         "Tell us about your products and vision...",
                       )}
@@ -366,7 +369,7 @@ const VendorRegistration = () => {
 
                   <Button
                     type="submit"
-                    className="w-full h-14 rounded-2xl bg-primary text-white font-black text-lg shadow-xl shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                    className="w-full h-12 md:h-14 rounded-2xl bg-primary text-white font-black text-lg shadow-xl shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
                     disabled={loading}
                   >
                     {loading ? (
@@ -391,7 +394,7 @@ const VendorRegistration = () => {
               </div>
 
               {/* Right Column: Instructions */}
-              <div className="lg:w-2/5 bg-gray-50/50 p-8 sm:p-12 space-y-8 flex flex-col justify-center">
+              <div className="lg:w-2/5 bg-gray-50/50 p-4 sm:p-12 space-y-8 flex flex-col justify-center">
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                     <Iconify

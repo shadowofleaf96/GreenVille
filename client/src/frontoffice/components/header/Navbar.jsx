@@ -98,7 +98,7 @@ const Navbar = () => {
       const results = products.filter((product) =>
         product.product_name[currentLanguage]
           ?.toLowerCase()
-          .includes(query.toLowerCase())
+          .includes(query.toLowerCase()),
       );
       setFilteredProducts(results);
     } else {
@@ -346,17 +346,38 @@ const Navbar = () => {
                     <span className="text-xs font-black text-gray-400 uppercase tracking-widest">
                       {t("Follow Us")}
                     </span>
-                    <div className="flex gap-2">
-                      <Iconify
-                        icon="solar:share-circle-bold-duotone"
-                        className="text-primary cursor-pointer hover:scale-110 transition-transform"
-                        width={24}
-                      />
-                      <Iconify
-                        icon="solar:heart-bold-duotone"
-                        className="text-primary cursor-pointer hover:scale-110 transition-transform"
-                        width={24}
-                      />
+                    <div className="flex gap-4">
+                      {[
+                        {
+                          icon: "simple-icons:facebook",
+                          href: settings?.social_links?.facebook,
+                        },
+                        {
+                          icon: "simple-icons:instagram",
+                          href: settings?.social_links?.instagram,
+                        },
+                        {
+                          icon: "simple-icons:x",
+                          href: settings?.social_links?.twitter,
+                        },
+                      ]
+                        .filter(
+                          (social) => social.href && social.href.trim() !== "",
+                        )
+                        .map((social, i) => (
+                          <Link
+                            key={i}
+                            to={social.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Iconify
+                              icon={social.icon}
+                              className="text-gray-400 hover:text-primary cursor-pointer hover:scale-110 transition-all duration-300"
+                              width={20}
+                            />
+                          </Link>
+                        ))}
                     </div>
                   </div>
                 </div>

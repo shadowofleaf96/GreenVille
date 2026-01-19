@@ -34,12 +34,12 @@ const VariantItem = memo(
   }) => {
     return (
       <motion.div
-        whileHover={!isOutOfStock ? { y: -4 } : {}}
+        whileHover={!isOutOfStock ? { y: -2 } : {}}
         onClick={() => !isOutOfStock && onToggle(variant._id)}
-        className={`relative p-5 rounded-3xl border-2 transition-all cursor-pointer overflow-hidden ${
+        className={`relative p-3 rounded-2xl border-2 transition-all cursor-pointer overflow-hidden ${
           isSelected
-            ? "border-primary bg-primary/5 shadow-xl shadow-primary/10"
-            : "border-gray-100 bg-white hover:border-primary/20 hover:shadow-lg"
+            ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
+            : "border-gray-100 bg-white hover:border-primary/20 hover:shadow-md"
         } ${
           isOutOfStock
             ? "opacity-50 grayscale cursor-not-allowed border-gray-100 bg-gray-50"
@@ -48,8 +48,8 @@ const VariantItem = memo(
       >
         {/* Selection Indicator */}
         {isSelected && (
-          <div className="absolute top-3 right-3 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center shadow-lg animate-in zoom-in duration-300">
-            <Iconify icon="solar:check-circle-bold" width={16} />
+          <div className="absolute top-2 right-2 w-4 h-4 bg-primary text-white rounded-full flex items-center justify-center shadow-lg animate-in zoom-in duration-300">
+            <Iconify icon="solar:check-circle-bold" width={10} />
           </div>
         )}
 
@@ -58,38 +58,38 @@ const VariantItem = memo(
           <div className="absolute inset-0 flex items-center justify-center z-10 bg-white/40 backdrop-blur-[1px]">
             <Badge
               variant="destructive"
-              className="font-black uppercase tracking-widest text-[10px] px-3 py-1"
+              className="font-black uppercase tracking-widest text-[8px] px-2 py-0.5"
             >
               {t("Out of Stock")}
             </Badge>
           </div>
         )}
 
-        <div className="space-y-4">
-          <div className="space-y-1">
+        <div className="space-y-2">
+          <div className="space-y-0.5">
             <p
-              className="font-black text-gray-900 text-sm tracking-tight truncate pr-6"
+              className="font-black text-gray-900 text-xs tracking-tight truncate pr-4"
               title={variant.variant_name}
             >
               {variant.variant_name}
             </p>
             <div className="flex items-baseline gap-1">
-              <span className="text-lg font-black text-primary">
+              <span className="text-sm font-black text-primary">
                 {variant.price}
               </span>
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+              <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">
                 {t("DH")}
               </span>
             </div>
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">
               {t("Stock")}: {variant.quantity}
             </p>
           </div>
 
           {isSelected && !isOutOfStock && (
-            <div className="space-y-3 pt-2 animate-in slide-in-from-bottom-2 duration-300">
+            <div className="space-y-2 pt-1 animate-in slide-in-from-bottom-2 duration-300">
               <div
-                className="flex items-center justify-between p-1 bg-white rounded-2xl border border-gray-100 shadow-inner"
+                className="flex items-center justify-between p-0.5 bg-white rounded-xl border border-gray-100 shadow-inner"
                 onClick={(e) => e.stopPropagation()}
               >
                 <Button
@@ -97,11 +97,11 @@ const VariantItem = memo(
                   variant="ghost"
                   onClick={(e) => onQuantityChange(e, variant._id, -1)}
                   disabled={quantity <= 1}
-                  className="h-8 w-8 rounded-xl text-primary hover:bg-primary/10 focus:ring-0"
+                  className="h-6 w-6 rounded-lg text-primary hover:bg-primary/10 focus:ring-0"
                 >
-                  <Iconify icon="solar:minus-circle-bold-duotone" width={20} />
+                  <Iconify icon="solar:minus-circle-bold-duotone" width={14} />
                 </Button>
-                <span className="text-sm font-black text-gray-900">
+                <span className="text-xs font-black text-gray-900">
                   {quantity}
                 </span>
                 <Button
@@ -109,14 +109,13 @@ const VariantItem = memo(
                   variant="ghost"
                   onClick={(e) => onQuantityChange(e, variant._id, 1)}
                   disabled={quantity >= variant.quantity}
-                  className="h-8 w-8 rounded-xl text-primary hover:bg-primary/10 focus:ring-0"
+                  className="h-6 w-6 rounded-lg text-primary hover:bg-primary/10 focus:ring-0"
                 >
-                  <Iconify icon="solar:add-circle-bold-duotone" width={20} />
+                  <Iconify icon="solar:add-circle-bold-duotone" width={14} />
                 </Button>
               </div>
-              <p className="text-[10px] font-black text-primary uppercase tracking-widest text-right">
-                {t("Subtotal")}: {(variant.price * quantity).toFixed(2)}{" "}
-                {t("DH")}
+              <p className="text-[8px] font-black text-primary uppercase tracking-widest text-right">
+                {t("Total")}: {(variant.price * quantity).toFixed(2)}
               </p>
             </div>
           )}
@@ -131,7 +130,7 @@ const VariantItem = memo(
       prevProps.isOutOfStock === nextProps.isOutOfStock &&
       prevProps.variant._id === nextProps.variant._id
     );
-  }
+  },
 );
 
 const ProductQuickViewModal = ({ open, onClose, product }) => {
@@ -161,7 +160,7 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
         const currentQty = prev[variantId]?.quantity || 1;
         const newQty = Math.max(
           1,
-          Math.min(currentQty + delta, variant.quantity)
+          Math.min(currentQty + delta, variant.quantity),
         );
 
         if (newQty < 1 || newQty > variant.quantity) return prev;
@@ -175,7 +174,7 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
         };
       });
     },
-    [product]
+    [product],
   );
 
   const handleAddToCart = useCallback(() => {
@@ -195,7 +194,7 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
           quantity: quantity,
           variantId: variantId,
           product,
-        })
+        }),
       );
     });
 
@@ -230,13 +229,13 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden rounded-[2.5rem] border-none shadow-2xl bg-white">
-        <DialogHeader className="p-8 pb-4 border-b border-gray-100 flex flex-row items-center justify-between">
-          <div className="space-y-1">
-            <DialogTitle className="text-2xl font-black text-gray-900 tracking-tight">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden rounded-[2rem] border-none shadow-2xl bg-white">
+        <DialogHeader className="p-4 md:p-6 pb-2 border-b border-gray-100 flex flex-row items-center justify-between">
+          <div className="space-y-0.5">
+            <DialogTitle className="text-lg md:text-2xl font-black text-gray-900 tracking-tight">
               {product?.product_name?.[currentLanguage]}
             </DialogTitle>
-            <DialogDescription className="text-xs font-black text-primary uppercase tracking-widest italic">
+            <DialogDescription className="text-[10px] md:text-xs font-black text-primary uppercase tracking-widest italic">
               {product?.category?.category_name?.[currentLanguage] ||
                 t("Select Options")}
             </DialogDescription>
@@ -244,26 +243,26 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
         </DialogHeader>
 
         <ScrollArea className="max-h-[75vh]">
-          <div className="p-8 space-y-8">
+          <div className="p-4 md:p-6 space-y-4 md:space-y-6">
             {/* Product Overview Section */}
-            <div className="flex flex-col md:flex-row gap-8">
-              <div className="w-full md:w-64 h-64 bg-gray-50/50 rounded-3xl p-4 flex items-center justify-center border border-gray-100 shadow-inner group">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-8">
+              <div className="w-full md:w-64 h-48 md:h-64 bg-gray-50/50 rounded-2xl p-4 flex items-center justify-center border border-gray-100 shadow-inner group">
                 <LazyImage
                   src={imageSrc}
                   alt={product?.product_name?.[currentLanguage]}
                   className="w-full h-full object-contain drop-shadow-2xl group-hover:scale-110 transition-transform duration-700"
                 />
               </div>
-              <div className="flex-1 space-y-6">
+              <div className="flex-1 space-y-3 md:space-y-6">
                 {product?.short_description?.[currentLanguage] && (
-                  <div className="p-5 bg-primary/5 rounded-2xl border-l-4 border-primary">
-                    <p className="text-sm font-medium text-gray-600 leading-relaxed italic">
+                  <div className="p-3 md:p-5 bg-primary/5 rounded-xl border-l-4 border-primary">
+                    <p className="text-xs md:text-sm font-medium text-gray-600 leading-relaxed italic">
                       &quot;{product.short_description[currentLanguage]}&quot;
                     </p>
                   </div>
                 )}
                 <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                       {t("Base Price")}
                     </span>
@@ -274,14 +273,14 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
                     )}
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-black text-gray-900">
+                    <span className="text-lg md:text-2xl font-black text-gray-900">
                       {product?.on_sale && product?.discount_price
                         ? product.discount_price
                         : product?.price}{" "}
                       {t("DH")}
                     </span>
                     {product?.on_sale && product?.discount_price && (
-                      <span className="text-sm font-bold text-gray-400 line-through">
+                      <span className="text-xs md:text-sm font-bold text-gray-400 line-through">
                         {product.price} {t("DH")}
                       </span>
                     )}
@@ -293,22 +292,22 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
             <Separator className="bg-gray-100" />
 
             {/* Variant Selection Section */}
-            <div className="space-y-6">
+            <div className="space-y-3 md:space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-black text-gray-900 tracking-tight uppercase">
+                <h3 className="text-sm md:text-lg font-black text-gray-900 tracking-tight uppercase">
                   {t("Available Options")}
                 </h3>
                 {selectedCount > 0 && (
                   <Badge
                     variant="secondary"
-                    className="bg-primary/10 text-primary font-black px-3 py-1 rounded-full uppercase tracking-widest text-[10px]"
+                    className="bg-primary/10 text-primary font-black px-2 py-0.5 rounded-full uppercase tracking-widest text-[10px]"
                   >
                     {selectedCount} {t("selected")}
                   </Badge>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
                 {product?.variants?.map((variant) => {
                   const isSelected = !!variantSelections[variant._id]?.selected;
                   const quantity =
@@ -334,13 +333,13 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
         </ScrollArea>
 
         {/* Footer with Total and Add to Cart */}
-        <div className="p-8 border-t border-gray-100 bg-gray-50/50 backdrop-blur-[1px]">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="p-4 md:p-6 border-t border-gray-100 bg-gray-50/50 backdrop-blur-[1px]">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 md:gap-6">
             <div className="flex flex-col items-center sm:items-start">
               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
                 {t("Order Summary")} ({selectedCount} {t("selected")})
               </span>
-              <span className="text-3xl font-black text-gray-900 tracking-tight">
+              <span className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
                 {selectedTotal.toFixed(2)}{" "}
                 <span className="text-lg text-primary">{t("DH")}</span>
               </span>
@@ -349,7 +348,7 @@ const ProductQuickViewModal = ({ open, onClose, product }) => {
             <Button
               onClick={handleAddToCart}
               disabled={selectedCount === 0}
-              className="w-full sm:w-auto h-16 px-12 rounded-3xl bg-primary text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 gap-3 border-none"
+              className="w-full sm:w-auto h-14 md:h-16 px-8 md:px-12 rounded-3xl bg-primary text-white font-black text-sm md:text-base uppercase tracking-widest shadow-2xl shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 gap-3 border-none"
             >
               <Iconify
                 icon="solar:cart-large-minimalistic-bold-duotone"

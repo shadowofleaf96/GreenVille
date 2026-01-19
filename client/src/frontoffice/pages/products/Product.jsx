@@ -125,7 +125,7 @@ const Product = memo(({ product, onQuickView }) => {
       <div className="p-4 pt-0">
         <Button
           onClick={product?.variants?.length > 0 ? handleQuickView : addToCart}
-          className="w-full h-12 rounded-2xl bg-gray-900 group-hover:bg-primary text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-gray-200 group-hover:shadow-primary/30 transition-all duration-500 flex items-center justify-center gap-2 border-none"
+          className="w-full h-12 rounded-2xl bg-gray-900 group-hover:bg-primary text-white font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl shadow-gray-200 group-hover:shadow-primary/30 transition-all duration-500 flex items-center justify-center gap-2 border-none"
         >
           <Iconify
             icon={

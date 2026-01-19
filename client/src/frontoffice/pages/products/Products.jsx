@@ -147,7 +147,7 @@ const Products = () => {
         return next;
       });
     },
-    [setSearchParams]
+    [setSearchParams],
   );
 
   const handleMinPriceChange = (e) => {
@@ -213,7 +213,7 @@ const Products = () => {
     setExpandedCategories((prev) =>
       prev.includes(catId)
         ? prev.filter((id) => id !== catId)
-        : [...prev, catId]
+        : [...prev, catId],
     );
   };
 
@@ -578,7 +578,7 @@ const Products = () => {
                   </h2>
                   <p className="text-gray-500 font-medium max-w-md mx-auto mb-8">
                     {t(
-                      "There was an issue loading the products. Please try again later."
+                      "There was an issue loading the products. Please try again later.",
                     )}
                   </p>
                   <Button
@@ -602,7 +602,7 @@ const Products = () => {
                   </p>
                 </div>
               ) : products.length > 0 ? (
-                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
                   {products.map((product) => (
                     <motion.div
                       key={product._id}
@@ -630,7 +630,7 @@ const Products = () => {
                   </h2>
                   <p className="text-gray-500 font-medium max-w-sm mx-auto mb-8 italic">
                     {t(
-                      "Try adjusting your filters or search terms to find what you're looking for."
+                      "Try adjusting your filters or search terms to find what you're looking for.",
                     )}
                   </p>
                   <Button
@@ -663,7 +663,7 @@ const Products = () => {
                   <div className="flex items-center gap-2">
                     {Array.from(
                       { length: Math.ceil(total / productsPerPage) },
-                      (_, i) => i + 1
+                      (_, i) => i + 1,
                     ).map((page) => (
                       <Button
                         key={page}
