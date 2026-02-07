@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
-import Iconify from "./iconify";
+import Iconify from "@/components/shared/iconify";
 
 // Mock the Icon component from @iconify/react as it might not render exactly in jsdom
 vi.mock("@iconify/react", () => ({

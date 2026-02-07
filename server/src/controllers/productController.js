@@ -351,6 +351,17 @@ export const updateProduct = async (req, res) => {
     newData.on_sale = newData.on_sale === "true";
   }
 
+  // Explicitly cast numeric fields to ensure updates work correctly
+  if (newData.quantity !== undefined && newData.quantity !== "") {
+    newData.quantity = Number(newData.quantity);
+  }
+  if (newData.price !== undefined && newData.price !== "") {
+    newData.price = Number(newData.price);
+  }
+  if (newData.discount_price !== undefined && newData.discount_price !== "") {
+    newData.discount_price = Number(newData.discount_price);
+  }
+
   const updateData = {
     ...newData,
   };

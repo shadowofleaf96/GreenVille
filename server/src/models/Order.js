@@ -177,19 +177,13 @@ ordersSchema.pre("save", async function () {
   }
 });
 
-ordersSchema.pre("findOneAndUpdate", async function (next) {
-  try {
-    const update = this.getUpdate();
+ordersSchema.pre("findOneAndUpdate", async function () {
+  const update = this.getUpdate();
 
-    if (update.status === "completed") {
-      const order = await this.model.findOne(this.getQuery());
-      update.is_review_allowed = calculateReviewAllowed(order.order_date);
-      this.setUpdate(update);
-    }
-
-    next();
-  } catch (error) {
-    next(error);
+  if (update.status === "completed") {
+    const order = await this.model.findOne(this.getQuery());
+    update.is_review_allowed = calculateReviewAllowed(order.order_date);
+    this.setUpdate(update);
   }
 });
 

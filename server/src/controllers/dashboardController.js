@@ -44,7 +44,7 @@ export const getDashboardStats = async (req, res) => {
       { $limit: 5 },
       {
         $lookup: {
-          from: "products", // Fixed collection name to lowercase 'products' if applicable, or check DB
+          from: "Products", // Fixed collection name to match Model
           localField: "_id",
           foreignField: "_id",
           as: "product",
@@ -73,7 +73,7 @@ export const getDashboardStats = async (req, res) => {
       { $limit: 5 },
       {
         $lookup: {
-          from: "products",
+          from: "Products",
           localField: "_id",
           foreignField: "_id",
           as: "product",
@@ -124,7 +124,7 @@ export const getDashboardStats = async (req, res) => {
       { $match: { "order_items.product_id": { $in: vendorProducts } } },
       {
         $lookup: {
-          from: "products",
+          from: "Products",
           localField: "order_items.product_id",
           foreignField: "_id",
           as: "product",
@@ -133,7 +133,7 @@ export const getDashboardStats = async (req, res) => {
       { $unwind: "$product" },
       {
         $lookup: {
-          from: "subcategories",
+          from: "SubCategories",
           localField: "product.subcategory_id",
           foreignField: "_id",
           as: "subcategory",
@@ -142,7 +142,7 @@ export const getDashboardStats = async (req, res) => {
       { $unwind: { path: "$subcategory", preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
-          from: "categories",
+          from: "Categories",
           localField: "subcategory.category_id",
           foreignField: "_id",
           as: "category",
@@ -166,7 +166,7 @@ export const getDashboardStats = async (req, res) => {
       { $unwind: "$order_items" },
       {
         $lookup: {
-          from: "products",
+          from: "Products",
           localField: "order_items.product_id",
           foreignField: "_id",
           as: "product",
@@ -175,7 +175,7 @@ export const getDashboardStats = async (req, res) => {
       { $unwind: "$product" },
       {
         $lookup: {
-          from: "subcategories",
+          from: "SubCategories",
           localField: "product.subcategory_id",
           foreignField: "_id",
           as: "subcategory",
@@ -184,7 +184,7 @@ export const getDashboardStats = async (req, res) => {
       { $unwind: { path: "$subcategory", preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
-          from: "categories",
+          from: "Categories",
           localField: "subcategory.category_id",
           foreignField: "_id",
           as: "category",
