@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import createAxiosInstance from "../../utils/axiosConfig";
+import createAxiosInstance from "@/utils/axiosConfig";
 
 /**
  * Hook to fetch products with filters.

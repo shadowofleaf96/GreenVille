@@ -1,0 +1,46 @@
+import express from "express";
+import userRoute from "./userRoute.js";
+import categoryRoute from "./categoryRoute.js";
+import ordersRoute from "./ordersRoute.js";
+import customerRoute from "./customerRoute.js";
+import subcategoryRoute from "./subcategoryRoute.js";
+import productRoute from "./productRoute.js";
+import homeRoute from "./homeRoute.js";
+import reviewRoute from "./reviewRoute.js";
+import paymentRoute from "./paymentRoute.js";
+import notificationRoute from "./notificationRoute.js";
+import couponRoute from "./couponRoute.js";
+import contactRoute from "./contactRoute.js";
+import settingsRoute from "./siteSettingsRoute.js";
+import vendorRoute from "./vendorRoutes.js";
+import dashboardRoute from "./dashboardRoute.js";
+import dashboardNotificationRoute from "./dashboardNotificationRoute.js";
+import localizationRoute from "./localizationRoutes.js";
+import localeRoute from "./localeRoute.js";
+import cartRoute from "./cartRoute.js";
+
+const app = express();
+import apicache from "apicache";
+const cache = apicache.middleware;
+
+app.use("/v1/products", cache("5 minutes"), productRoute);
+app.use("/v1/categories", cache("5 minutes"), categoryRoute);
+app.use("/v1/subcategories", cache("5 minutes"), subcategoryRoute);
+app.use("/v1/site-settings", settingsRoute);
+app.use("/v1/reviews", reviewRoute);
+app.use("/v1/customers", customerRoute);
+app.use("/v1/payments", paymentRoute);
+app.use("/v1/vendors", vendorRoute);
+app.use("/v1/", homeRoute);
+app.use("/v1/coupons", couponRoute);
+app.use("/v1/contact", contactRoute);
+app.use("/v1/orders", ordersRoute);
+app.use("/v1/users", userRoute);
+app.use("/v1/notifications", notificationRoute);
+app.use("/v1/dashboard", dashboardRoute);
+app.use("/v1/dashboard-notifications", dashboardNotificationRoute);
+app.use("/v1/localization", localizationRoute);
+app.use("/v1/locales", localeRoute);
+app.use("/v1/cart", cartRoute);
+
+export default app;

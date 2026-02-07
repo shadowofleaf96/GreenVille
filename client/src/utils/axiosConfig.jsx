@@ -1,7 +1,7 @@
 import axios from "axios";
 import { handleUnauthorized } from "./sessionUtils";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const createAxiosInstance = (userType) => {
   const AxiosInstance = axios.create({

@@ -2,7 +2,8 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+const backendUrl =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 
 i18n
   .use(LanguageDetector)
@@ -33,7 +34,8 @@ i18n
       excludeCacheFor: ["cimode"],
       cookieMinutes: 10,
       cookieDomain: "myDomain",
-      htmlTag: document.documentElement,
+      htmlTag:
+        typeof document !== "undefined" ? document.documentElement : null,
       cookieOptions: { path: "/", sameSite: "strict" },
 
       convertDetectedLanguage: (lng) => {
@@ -44,7 +46,7 @@ i18n
   });
 
 const loadRemoteTranslations = async (lng) => {
-  if (!lng) return;
+  if (typeof window === "undefined" || !lng) return;
   const lang = lng.split("-")[0];
   try {
     const response = await fetch(`${backendUrl}/v1/locales/${lang}`);
