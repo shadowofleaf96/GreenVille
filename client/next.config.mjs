@@ -1,17 +1,36 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  output: "standalone",
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin-allow-popups",
+          },
+        ],
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "**",
+      },
+      {
+        protocol: "https",
         hostname: "res.cloudinary.com",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
       },
     ],
   },
-  experimental: {
-  },
+  // output: "export",
+  reactStrictMode: true,
 };
 
 export default nextConfig;
