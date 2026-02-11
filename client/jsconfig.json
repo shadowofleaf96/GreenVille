@@ -15,14 +15,7 @@
       "@/admin/*": ["./src/app/admin/*"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    "./src",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    "**/*.jsx",
-    ".next/types/**/*.ts"
-  ],
+  "jsx": "preserve",
+  "include": ["**/*.js", "**/*.jsx"],
   "exclude": ["node_modules"]
 }
