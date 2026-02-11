@@ -29,7 +29,7 @@ const nextConfig = {
       },
     ],
   },
-  // output: "export",
+  output: "standalone",
   reactStrictMode: true,
 };
 
