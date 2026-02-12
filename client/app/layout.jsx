@@ -1,7 +1,16 @@
 import "./globals.css";
 import Providers from "./Providers";
+import { Raleway } from "next/font/google";
 
 import { fetchSiteSettings } from "@/utils/fetchSiteSettings";
+
+const raleway = Raleway({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-raleway",
+});
 
 export async function generateMetadata() {
   const settings = await fetchSiteSettings();
@@ -39,7 +48,7 @@ import GlobalErrorBoundary from "@/components/shared/ErrorBoundary";
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={raleway.variable}>
       <body>
         <GlobalErrorBoundary>
           <Providers>{children}</Providers>

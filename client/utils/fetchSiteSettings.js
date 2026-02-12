@@ -7,17 +7,16 @@ export const fetchSiteSettings = async () => {
     }
 
     const res = await fetch(`${backendUrl}/v1/site-settings`, {
-      next: { revalidate: 60 }, // Revalidate every 60 seconds
+      next: { revalidate: 60 },
     });
 
     if (!res.ok) {
-      // Log error but don't crash
       console.error("Failed to fetch site settings:", res.statusText);
       return null;
     }
 
     const data = await res.json();
-    return data.data; // Assuming response structure is { success: true, data: { ... } }
+    return data.data;
   } catch (error) {
     console.error("Error fetching site settings:", error);
     return null;

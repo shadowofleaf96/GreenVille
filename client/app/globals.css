@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap");
 @import "simplebar-react/dist/simplebar.min.css";
 
 @import "tailwindcss";
@@ -13,7 +12,7 @@
   Tailwind CSS v4 Configuration
 */
 @theme {
-  --font-sans: "Raleway", sans-serif;
+  --font-sans: var(--font-raleway), "Raleway", sans-serif;
 
   --color-border: var(--border);
   --color-input: var(--input);
