@@ -1,9 +1,5 @@
 import { defineConfig } from "cypress";
 
-// WORKAROUND: Bun on Windows has a known issue where process.env doesn't have
-// Object.prototype methods like hasOwnProperty. This will be fixed in a future
-// Bun release (see PR #26316). Until then, we polyfill it here.
-// Reference: https://github.com/oven-sh/bun/pull/26316
 if (typeof process !== "undefined" && process.env) {
   const hasOwn = Object.prototype.hasOwnProperty;
 

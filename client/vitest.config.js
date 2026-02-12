@@ -9,7 +9,7 @@ export default defineConfig({
     globals: true,
     setupFiles: "./setupTests.js",
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(__dirname, "."),
     },
   },
 });
