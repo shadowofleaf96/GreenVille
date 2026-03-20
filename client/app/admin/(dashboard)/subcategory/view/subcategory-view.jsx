@@ -3,8 +3,14 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import Iconify from "@/components/shared/iconify";
+import { motion } from "framer-motion";
+import {
+  fadeInUp,
+  staggerContainer,
+  premiumTransition,
+} from "@/utils/animations";
 
 import createAxiosInstance from "@/utils/axiosConfig";
 import {
@@ -196,8 +202,16 @@ export default function SubCategoryView() {
   const emptyRowsCount = emptyRows(page, rowsPerPage, data.length); // eslint-disable-line no-unused-vars
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
+    <motion.div
+      variants={staggerContainer}
+      initial="initial"
+      animate="animate"
+      className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8"
+    >
+      <motion.div
+        variants={fadeInUp}
+        className="flex items-center justify-between"
+      >
         <h4 className="text-3xl font-extrabold text-gray-900 tracking-tight">
           {t("Subcategories")}
         </h4>
@@ -213,144 +227,149 @@ export default function SubCategoryView() {
           />
           {t("Add Subcategory")}
         </Button>
-      </div>
+      </motion.div>
 
-      <Card className="rounded-3xl border-gray-100 shadow-sm overflow-hidden bg-white">
-        <SubCategoryTableToolbar
-          numSelected={selected.length}
-          filterName={filterName}
-          onFilterName={(e) => dispatch(setFilterName(e.target.value))}
-          selected={selected}
-          setSelected={setSelected}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-          statusFilter={statusFilter}
-          onStatusFilter={handleFilterStatus}
-        />
-        <ScrollArea className="w-full">
-          <Table>
-            <SubCategoryTableHead
-              order={order}
-              orderBy={orderBy}
-              rowCount={data.length}
-              numSelected={selected.length}
-              onRequestSort={handleSort}
-              onSelectAllClick={handleSelectAllClick}
-              headLabel={[
-                { id: "subcategory_name", label: t("Subcategory Name") },
-                { id: "category", label: t("Category") },
-                { id: "status", label: t("Status") },
-                { id: "actions", label: "" },
-              ]}
-            />
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24">
-                    <div className="flex justify-center items-center h-full">
-                      <Iconify
-                        icon="svg-spinners:180-ring-with-bg"
-                        width={40}
-                        className="text-primary"
+      <motion.div variants={fadeInUp}>
+        <Card className="rounded-3xl border-gray-100 shadow-sm overflow-hidden bg-white">
+          <SubCategoryTableToolbar
+            numSelected={selected.length}
+            filterName={filterName}
+            onFilterName={(e) => dispatch(setFilterName(e.target.value))}
+            selected={selected}
+            setSelected={setSelected}
+            showFilters={showFilters}
+            setShowFilters={setShowFilters}
+            statusFilter={statusFilter}
+            onStatusFilter={handleFilterStatus}
+          />
+          <ScrollArea className="w-full">
+            <Table>
+              <SubCategoryTableHead
+                order={order}
+                orderBy={orderBy}
+                rowCount={data.length}
+                numSelected={selected.length}
+                onRequestSort={handleSort}
+                onSelectAllClick={handleSelectAllClick}
+                headLabel={[
+                  { id: "subcategory_name", label: t("Subcategory Name") },
+                  { id: "category", label: t("Category") },
+                  { id: "status", label: t("Status") },
+                  { id: "actions", label: "" },
+                ]}
+              />
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-24">
+                      <div className="flex justify-center items-center h-full">
+                        <Iconify
+                          icon="svg-spinners:180-ring-with-bg"
+                          width={40}
+                          className="text-primary"
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <>
+                    {dataFiltered
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage,
+                      )
+                      .map((row) => (
+                        <SubCategoryTableRow
+                          key={row._id}
+                          selected={selected.indexOf(row._id) !== -1}
+                          subcategory_image={row?.subcategory_image}
+                          subcategory_name={row?.subcategory_name}
+                          category={row?.category?.category_name}
+                          status={row?.status}
+                          handleClick={(event) => handleClick(event, row._id)}
+                          onEdit={() => setEditing(row)}
+                          onDelete={() => openDeleteConfirmation(row._id)}
+                        />
+                      ))}
+                    {!notFound && (
+                      <TableEmptyRows
+                        height={77}
+                        emptyRows={emptyRows(page, rowsPerPage, data.length)}
                       />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                <>
-                  {dataFiltered
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => (
-                      <SubCategoryTableRow
-                        key={row._id}
-                        selected={selected.indexOf(row._id) !== -1}
-                        subcategory_image={row?.subcategory_image}
-                        subcategory_name={row?.subcategory_name}
-                        category={row?.category?.category_name}
-                        status={row?.status}
-                        handleClick={(event) => handleClick(event, row._id)}
-                        onEdit={() => setEditing(row)}
-                        onDelete={() => openDeleteConfirmation(row._id)}
+                    )}
+                    {notFound && (
+                      <TableNoDataFilter
+                        query={filterName}
+                        colSpan={5}
+                        resourceName="Subcategories"
                       />
+                    )}
+                  </>
+                )}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+          {/* Custom Pagination */}
+          <div className="flex items-center justify-between px-6 py-5 bg-gray-50/50 border-t border-gray-100">
+            <div className="text-sm font-semibold text-gray-500">
+              {t("Total")}:{" "}
+              <span className="text-gray-900 font-bold">
+                {dataFiltered.length}
+              </span>{" "}
+              {t("subcategories")}
+            </div>
+
+            <div className="flex items-center space-x-8">
+              <div className="flex items-center space-x-3">
+                <span className="text-sm font-bold text-gray-500 whitespace-nowrap">
+                  {t("Rows per page")}:
+                </span>
+                <Select
+                  value={rowsPerPage.toString()}
+                  onValueChange={(v) => handleRowsPerPageChange(parseInt(v))}
+                >
+                  <SelectTrigger className="w-17.5 bg-transparent border-none text-sm font-bold shadow-none focus:ring-0 text-gray-900">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[5, 10, 25].map((v) => (
+                      <SelectItem key={v} value={v.toString()}>
+                        {v}
+                      </SelectItem>
                     ))}
-                  {!notFound && (
-                    <TableEmptyRows
-                      height={77}
-                      emptyRows={emptyRows(page, rowsPerPage, data.length)}
-                    />
-                  )}
-                  {notFound && (
-                    <TableNoDataFilter
-                      query={filterName}
-                      colSpan={5}
-                      resourceName="Subcategories"
-                    />
-                  )}
-                </>
-              )}
-            </TableBody>
-          </Table>
-        </ScrollArea>
-        {/* Custom Pagination */}
-        <div className="flex items-center justify-between px-6 py-5 bg-gray-50/50 border-t border-gray-100">
-          <div className="text-sm font-semibold text-gray-500">
-            {t("Total")}:{" "}
-            <span className="text-gray-900 font-bold">
-              {dataFiltered.length}
-            </span>{" "}
-            {t("subcategories")}
-          </div>
-
-          <div className="flex items-center space-x-8">
-            <div className="flex items-center space-x-3">
-              <span className="text-sm font-bold text-gray-500 whitespace-nowrap">
-                {t("Rows per page")}:
-              </span>
-              <Select
-                value={rowsPerPage.toString()}
-                onValueChange={(v) => handleRowsPerPageChange(parseInt(v))}
-              >
-                <SelectTrigger className="w-17.5 bg-transparent border-none text-sm font-bold shadow-none focus:ring-0 text-gray-900">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[5, 10, 25].map((v) => (
-                    <SelectItem key={v} value={v.toString()}>
-                      {v}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                disabled={page === 0}
-                onClick={() => handlePageChange(page - 1)}
-                className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
-              >
-                <Iconify icon="material-symbols:chevron-left" width={20} />
-              </Button>
-              <div className="bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 text-sm font-bold text-primary min-w-9 text-center">
-                {page + 1}
+                  </SelectContent>
+                </Select>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                disabled={
-                  page >= Math.ceil(dataFiltered.length / rowsPerPage) - 1
-                }
-                onClick={() => handlePageChange(page + 1)}
-                className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
-              >
-                <Iconify icon="material-symbols:chevron-right" width={20} />
-              </Button>
+
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={page === 0}
+                  onClick={() => handlePageChange(page - 1)}
+                  className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
+                >
+                  <Iconify icon="material-symbols:chevron-left" width={20} />
+                </Button>
+                <div className="bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 text-sm font-bold text-primary min-w-9 text-center">
+                  {page + 1}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={
+                    page >= Math.ceil(dataFiltered.length / rowsPerPage) - 1
+                  }
+                  onClick={() => handlePageChange(page + 1)}
+                  className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
+                >
+                  <Iconify icon="material-symbols:chevron-right" width={20} />
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </motion.div>
 
       <NewSubCategoryForm
         open={openNewForm}
@@ -446,6 +465,6 @@ export default function SubCategoryView() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }

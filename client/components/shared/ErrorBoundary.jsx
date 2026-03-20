@@ -10,12 +10,10 @@ class GlobalErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    // Update state so the next render will show the fallback UI.
     return { hasError: true, error };
   }
 
   componentDidCatch(error, errorInfo) {
-    // You can also log the error to an error reporting service
     console.error("Uncaught error:", error, errorInfo);
     this.setState({ errorInfo });
   }
@@ -26,7 +24,6 @@ class GlobalErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      // You can render any custom fallback UI
       return (
         <div className="flex h-screen w-full flex-col items-center justify-center bg-gray-50 p-4 text-center">
           <div className="max-w-md space-y-4 rounded-lg bg-white p-8 shadow-lg">

@@ -4,7 +4,7 @@ import { fetchSiteSettings } from "@/utils/fetchSiteSettings";
 async function fetchProduct(id) {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${id}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/products/${id}`,
       {
         cache: "no-store",
       },
@@ -26,8 +26,7 @@ export async function generateMetadata({ params }) {
       title: "Product Not Found",
     };
   }
-
-  const product = productData || {};
+  const product = productData.data || {};
   const currentLang = "en";
 
   const title =

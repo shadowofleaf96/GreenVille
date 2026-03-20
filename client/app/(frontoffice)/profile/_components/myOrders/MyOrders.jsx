@@ -10,9 +10,10 @@ import MetaData from "@/frontoffice/_components/MetaData";
 import { useTranslation } from "react-i18next";
 import Review from "@/app/(frontoffice)/review/Review";
 import optimizeImage from "@/frontoffice/_components/optimizeImage";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import LazyImage from "@/components/shared/lazyimage/LazyImage";
 import { motion, AnimatePresence } from "framer-motion";
+import { fadeInUp, scaleIn, premiumTransition } from "@/utils/animations";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -120,8 +121,9 @@ const MyOrders = () => {
 
                   {orders && orders.length === 0 ? (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
+                      variants={scaleIn}
+                      initial="initial"
+                      animate="animate"
                       className="bg-white shadow-2xl rounded-4xl sm:rounded-[3rem] p-8 sm:p-16 text-center border border-gray-100 italic"
                     >
                       <div className="relative w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-8 flex items-center justify-center">
@@ -143,7 +145,7 @@ const MyOrders = () => {
                           )}
                       </p>
                       <Link href="/products">
-                        <Button className="h-16 px-12 rounded-4xl bg-gray-900 text-white font-black uppercase tracking-widest shadow-2xl shadow-gray-200 hover:bg-black transition-all gap-4">
+                        <Button className="h-16 px-12 rounded-4xl bg-primary text-white font-black uppercase tracking-widest shadow-2xl shadow-primary/20 hover:bg-primary/90 transition-all gap-4">
                           <Iconify icon="solar:shop-bold-duotone" width={24} />
                           {t("MyOrders.startShopping") || t("Start Shopping")}
                         </Button>
@@ -152,245 +154,258 @@ const MyOrders = () => {
                   ) : (
                     <div className="space-y-6">
                       <AnimatePresence>
-                        {orders.map((order, orderIdx) => {
-                          const status = getStatusConfig(order.status);
-                          const isActive = activeOrder === order._id;
+                        {[...orders]
+                          .sort(
+                            (a, b) =>
+                              new Date(b.order_date) - new Date(a.order_date),
+                          )
+                          .map((order, orderIdx) => {
+                            const status = getStatusConfig(order.status);
+                            const isActive = activeOrder === order._id;
 
-                          return (
-                            <motion.div
-                              key={order._id}
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: orderIdx * 0.05 }}
-                              className={`bg-white shadow-xl rounded-4xl sm:rounded-[2.5rem] overflow-hidden border transition-all duration-500 hover:shadow-2xl ${
-                                isActive
-                                  ? "border-primary/20 shadow-primary/5 ring-1 ring-primary/5"
-                                  : "border-gray-100 shadow-gray-200/30"
-                              }`}
-                            >
-                              {/* Order Header */}
-                              <div
-                                className={`p-6 sm:p-10 flex flex-col md:flex-row md:items-center justify-between gap-8 cursor-pointer group transition-colors ${
+                            return (
+                              <motion.div
+                                key={order._id}
+                                variants={fadeInUp}
+                                initial="initial"
+                                whileInView="animate"
+                                viewport={{ once: true }}
+                                transition={{
+                                  ...premiumTransition,
+                                  delay: orderIdx * 0.05,
+                                }}
+                                className={`bg-white shadow-xl rounded-4xl sm:rounded-[2.5rem] overflow-hidden border transition-all duration-500 hover:shadow-2xl ${
                                   isActive
-                                    ? "bg-primary/2"
-                                    : "hover:bg-gray-50/50"
+                                    ? "border-primary/20 shadow-primary/5 ring-1 ring-primary/5"
+                                    : "border-gray-100 shadow-gray-200/30"
                                 }`}
-                                onClick={() => toggleOrderDetails(order._id)}
                               >
-                                <div className="flex items-center gap-6">
-                                  <div
-                                    className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 border-2 ${
-                                      isActive
-                                        ? "bg-primary text-white border-primary rotate-180"
-                                        : "bg-white text-gray-400 border-gray-100 group-hover:border-primary/20 group-hover:text-primary"
-                                    }`}
-                                  >
-                                    <Iconify
-                                      icon="solar:alt-arrow-down-bold"
-                                      width={24}
-                                    />
-                                  </div>
-                                  <div className="space-y-1">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">
-                                      {t("Order Placed")}
-                                    </p>
-                                    <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">
-                                      {new Date(
-                                        order.order_date,
-                                      ).toLocaleDateString(undefined, {
-                                        day: "numeric",
-                                        month: "long",
-                                        year: "numeric",
-                                      })}
-                                    </h3>
-                                  </div>
-                                </div>
-
-                                <div className="flex flex-wrap items-center gap-8 md:gap-12 pl-16 md:pl-0">
-                                  <div className="space-y-1">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic text-right md:text-left">
-                                      {t("Total Amount")}
-                                    </p>
-                                    <p className="text-2xl font-black text-primary tracking-tighter">
-                                      {order.cart_total_price}{" "}
-                                      <span className="text-xs">DH</span>
-                                    </p>
-                                  </div>
-                                  <div className="space-y-2 text-right">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">
-                                      {t("Shipment Status")}
-                                    </p>
-                                    <Badge
-                                      className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border-none ${status.color}`}
+                                {/* Order Header */}
+                                <div
+                                  className={`p-6 sm:p-10 flex flex-col md:flex-row md:items-center justify-between gap-8 cursor-pointer group transition-colors ${
+                                    isActive
+                                      ? "bg-primary/2"
+                                      : "hover:bg-gray-50/50"
+                                  }`}
+                                  onClick={() => toggleOrderDetails(order._id)}
+                                >
+                                  <div className="flex items-center gap-6">
+                                    <div
+                                      className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 border-2 ${
+                                        isActive
+                                          ? "bg-primary text-white border-primary rotate-180"
+                                          : "bg-white text-gray-400 border-gray-100 group-hover:border-primary/20 group-hover:text-primary"
+                                      }`}
                                     >
-                                      <Iconify icon={status.icon} width={16} />
-                                      {status.label}
-                                    </Badge>
+                                      <Iconify
+                                        icon="solar:alt-arrow-down-bold"
+                                        width={24}
+                                      />
+                                    </div>
+                                    <div className="space-y-1">
+                                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">
+                                        {t("Order Placed")}
+                                      </p>
+                                      <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">
+                                        {new Date(
+                                          order.order_date,
+                                        ).toLocaleDateString(undefined, {
+                                          day: "numeric",
+                                          month: "long",
+                                          year: "numeric",
+                                        })}
+                                      </h3>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex flex-wrap items-center gap-8 md:gap-12 pl-16 md:pl-0">
+                                    <div className="space-y-1">
+                                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic text-right md:text-left">
+                                        {t("Total Amount")}
+                                      </p>
+                                      <p className="text-2xl font-black text-primary tracking-tighter">
+                                        {order.cart_total_price}{" "}
+                                        <span className="text-xs">DH</span>
+                                      </p>
+                                    </div>
+                                    <div className="space-y-2 text-right">
+                                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">
+                                        {t("Shipment Status")}
+                                      </p>
+                                      <Badge
+                                        className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border-none ${status.color}`}
+                                      >
+                                        <Iconify
+                                          icon={status.icon}
+                                          width={16}
+                                        />
+                                        {status.label}
+                                      </Badge>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
 
-                              {/* Order Items (Collapsible) */}
-                              <AnimatePresence>
-                                {isActive && (
-                                  <motion.div
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: "auto", opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
-                                    transition={{
-                                      duration: 0.4,
-                                      ease: "easeInOut",
-                                    }}
-                                  >
-                                    <div className="p-8 md:p-10 bg-gray-50/30 border-t border-gray-50 space-y-6">
-                                      <div className="space-y-4">
-                                        {order.order_items.map(
-                                          (item, index) => (
-                                            <div
-                                              key={index}
-                                              className="flex flex-col sm:flex-row sm:items-center gap-6 p-6 rounded-4xl bg-white border border-gray-50 hover:border-primary/20 hover:shadow-lg transition-all group"
-                                            >
-                                              <div className="relative shrink-0">
-                                                <div className="absolute inset-0 bg-primary/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                <LazyImage
-                                                  wrapperClassName="w-24 h-24 bg-white rounded-2xl p-3 shadow-inner relative z-10 border border-gray-50 flex items-center justify-center"
-                                                  className="w-full h-full object-contain"
-                                                  src={
-                                                    typeof item?.product
-                                                      ?.product_images ===
-                                                    "string"
-                                                      ? optimizeImage(
-                                                          item?.product
-                                                            ?.product_images,
-                                                          200,
-                                                        )
-                                                      : optimizeImage(
-                                                          item?.product
-                                                            ?.product_images?.[0],
-                                                          200,
-                                                        )
-                                                  }
-                                                  alt={
-                                                    item?.product
-                                                      ?.product_name?.[
-                                                      currentLanguage
-                                                    ] || t("Product")
-                                                  }
-                                                />
-                                              </div>
+                                {/* Order Items (Collapsible) */}
+                                <AnimatePresence>
+                                  {isActive && (
+                                    <motion.div
+                                      initial={{ height: 0, opacity: 0 }}
+                                      animate={{ height: "auto", opacity: 1 }}
+                                      exit={{ height: 0, opacity: 0 }}
+                                      transition={{
+                                        duration: 0.4,
+                                        ease: "easeInOut",
+                                      }}
+                                    >
+                                      <div className="p-8 md:p-10 bg-gray-50/30 border-t border-gray-50 space-y-6">
+                                        <div className="space-y-4">
+                                          {order.order_items.map(
+                                            (item, index) => (
+                                              <div
+                                                key={index}
+                                                className="flex flex-col sm:flex-row sm:items-center gap-6 p-6 rounded-4xl bg-white border border-gray-50 hover:border-primary/20 hover:shadow-lg transition-all group"
+                                              >
+                                                <div className="relative shrink-0">
+                                                  <div className="absolute inset-0 bg-primary/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                  <LazyImage
+                                                    wrapperClassName="w-24 h-24 bg-white rounded-2xl p-3 shadow-inner relative z-10 border border-gray-50 flex items-center justify-center"
+                                                    className="w-full h-full object-contain"
+                                                    src={
+                                                      typeof item?.product
+                                                        ?.product_images ===
+                                                      "string"
+                                                        ? optimizeImage(
+                                                            item?.product
+                                                              ?.product_images,
+                                                            200,
+                                                          )
+                                                        : optimizeImage(
+                                                            item?.product
+                                                              ?.product_images?.[0],
+                                                            200,
+                                                          )
+                                                    }
+                                                    alt={
+                                                      item?.product
+                                                        ?.product_name?.[
+                                                        currentLanguage
+                                                      ] || t("Product")
+                                                    }
+                                                  />
+                                                </div>
 
-                                              <div className="grow space-y-2">
-                                                <h4 className="text-lg font-black text-gray-900 leading-tight uppercase tracking-tight group-hover:text-primary transition-colors">
-                                                  {
-                                                    item.product.product_name[
-                                                      currentLanguage
-                                                    ]
-                                                  }
-                                                </h4>
-                                                <div className="flex flex-wrap items-center gap-4">
-                                                  {item.variant && (
-                                                    <Badge
-                                                      variant="outline"
-                                                      className="h-6 gap-1 bg-white border-gray-100 text-gray-500 font-bold text-[10px] uppercase px-3 py-0"
-                                                    >
-                                                      <Iconify
-                                                        icon="solar:tag-bold-duotone"
-                                                        width={14}
-                                                        className="text-primary"
-                                                      />
-                                                      {
-                                                        item.variant
-                                                          .variant_name
-                                                      }
-                                                    </Badge>
-                                                  )}
-                                                  <div className="flex items-center gap-3 text-xs">
-                                                    <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest italic">
-                                                      {t("Quantity:")}
-                                                    </span>
-                                                    <span className="font-black text-gray-900">
-                                                      x{item.quantity}
-                                                    </span>
-                                                    <span className="w-1 H-1 rounded-full bg-gray-200" />
-                                                    <span className="font-black text-primary">
-                                                      {item.price} DH
-                                                    </span>
+                                                <div className="grow space-y-2">
+                                                  <h4 className="text-lg font-black text-gray-900 leading-tight uppercase tracking-tight group-hover:text-primary transition-colors">
+                                                    {
+                                                      item.product.product_name[
+                                                        currentLanguage
+                                                      ]
+                                                    }
+                                                  </h4>
+                                                  <div className="flex flex-wrap items-center gap-4">
+                                                    {item.variant && (
+                                                      <Badge
+                                                        variant="outline"
+                                                        className="h-6 gap-1 bg-white border-gray-100 text-gray-500 font-bold text-[10px] uppercase px-3 py-0"
+                                                      >
+                                                        <Iconify
+                                                          icon="solar:tag-bold-duotone"
+                                                          width={14}
+                                                          className="text-primary"
+                                                        />
+                                                        {
+                                                          item.variant
+                                                            .variant_name
+                                                        }
+                                                      </Badge>
+                                                    )}
+                                                    <div className="flex items-center gap-3 text-xs">
+                                                      <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest italic">
+                                                        {t("Quantity:")}
+                                                      </span>
+                                                      <span className="font-black text-gray-900">
+                                                        x{item.quantity}
+                                                      </span>
+                                                      <span className="w-1 H-1 rounded-full bg-gray-200" />
+                                                      <span className="font-black text-primary">
+                                                        {item.price} DH
+                                                      </span>
+                                                    </div>
                                                   </div>
                                                 </div>
-                                              </div>
 
-                                              <div className="shrink-0">
-                                                <Button
-                                                  disabled={
-                                                    !order.is_review_allowed ||
-                                                    item.reviewed
-                                                  }
-                                                  onClick={() =>
-                                                    handleLeaveReview(
-                                                      item.product._id,
-                                                      order.order_date,
-                                                      order.customer._id,
-                                                    )
-                                                  }
-                                                  className={`h-12 px-8 rounded-2xl font-black text-[10px] uppercase tracking-widest gap-2 transition-all shadow-xl hover:shadow-primary/20 ${
-                                                    !order.is_review_allowed ||
-                                                    item.reviewed
-                                                      ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none"
-                                                      : "bg-primary text-white hover:bg-primary/90"
-                                                  }`}
-                                                >
-                                                  <Iconify
-                                                    icon={
+                                                <div className="shrink-0">
+                                                  <Button
+                                                    disabled={
+                                                      !order.is_review_allowed ||
                                                       item.reviewed
-                                                        ? "solar:check-circle-bold-duotone"
-                                                        : "solar:star-bold-duotone"
                                                     }
-                                                    width={18}
-                                                  />
-                                                  {item.reviewed
-                                                    ? t("Reviewed")
-                                                    : t("Leave Review")}
-                                                </Button>
+                                                    onClick={() =>
+                                                      handleLeaveReview(
+                                                        item.product._id,
+                                                        order.order_date,
+                                                        order.customer._id,
+                                                      )
+                                                    }
+                                                    className={`h-12 px-8 rounded-2xl font-black text-[10px] uppercase tracking-widest gap-2 transition-all shadow-xl hover:shadow-primary/20 ${
+                                                      !order.is_review_allowed ||
+                                                      item.reviewed
+                                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none"
+                                                        : "bg-primary text-white hover:bg-primary/90"
+                                                    }`}
+                                                  >
+                                                    <Iconify
+                                                      icon={
+                                                        item.reviewed
+                                                          ? "solar:check-circle-bold-duotone"
+                                                          : "solar:star-bold-duotone"
+                                                      }
+                                                      width={18}
+                                                    />
+                                                    {item.reviewed
+                                                      ? t("Reviewed")
+                                                      : t("Leave Review")}
+                                                  </Button>
+                                                </div>
                                               </div>
-                                            </div>
-                                          ),
-                                        )}
-                                      </div>
-
-                                      <Separator className="bg-gray-100" />
-
-                                      <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-2">
-                                        <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-50 shadow-sm">
-                                          <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">
-                                            {t("Transaction ID")}:
-                                          </p>
-                                          <span className="text-[10px] font-mono font-bold text-gray-900 tracking-tighter">
-                                            {order._id
-                                              .toString()
-                                              .slice(-5)
-                                              .toUpperCase()}
-                                          </span>
+                                            ),
+                                          )}
                                         </div>
-                                        <div className="flex items-center gap-4">
-                                          <Iconify
-                                            icon="solar:shield-check-bold"
-                                            width={20}
-                                            className="text-green-500"
-                                          />
-                                          <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-relaxed italic max-w-xs text-right">
-                                            {t(
-                                              "Order is fully protected by our selection guarantee and return policy.",
-                                            )}
-                                          </p>
+
+                                        <Separator className="bg-gray-100" />
+
+                                        <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-2">
+                                          <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-50 shadow-sm">
+                                            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">
+                                              {t("Transaction ID")}:
+                                            </p>
+                                            <span className="text-[10px] font-mono font-bold text-gray-900 tracking-tighter">
+                                              {order._id
+                                                .toString()
+                                                .slice(-5)
+                                                .toUpperCase()}
+                                            </span>
+                                          </div>
+                                          <div className="flex items-center gap-4">
+                                            <Iconify
+                                              icon="solar:shield-check-bold"
+                                              width={20}
+                                              className="text-green-500"
+                                            />
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-relaxed italic max-w-xs text-right">
+                                              {t(
+                                                "Order is fully protected by our selection guarantee and return policy.",
+                                              )}
+                                            </p>
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
-                            </motion.div>
-                          );
-                        })}
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </motion.div>
+                            );
+                          })}
                       </AnimatePresence>
                     </div>
                   )}

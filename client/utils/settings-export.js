@@ -1,4 +1,4 @@
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 /**
  * Export settings to JSON file
@@ -121,6 +121,8 @@ export const getDefaultSettings = () => {
       secondary_color: "#eab308",
       accent_color: "#fefce8",
       bgColor: "#ffffff",
+      primary_font: "Raleway",
+      secondary_font: "Raleway",
     },
     about_page: {
       title: { en: "", fr: "", ar: "" },
@@ -182,6 +184,9 @@ export const getDefaultSettings = () => {
     payment_methods: {
       paypal_active: true,
       stripe_active: true,
+    },
+    vendor_config: {
+      isActive: true,
     },
     translations: {},
   };

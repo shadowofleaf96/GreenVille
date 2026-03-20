@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { deleteCustomer } from "@/store/slices/admin/customerSlice";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import createAxiosInstance from "@/utils/axiosConfig";
 import Iconify from "@/components/shared/iconify";
 

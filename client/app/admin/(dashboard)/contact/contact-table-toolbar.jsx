@@ -2,7 +2,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import { deleteContact } from "@/store/slices/admin/contactSlice";
 import createAxiosInstance from "@/utils/axiosConfig";

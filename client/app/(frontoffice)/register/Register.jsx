@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
@@ -15,6 +15,7 @@ import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import Logo from "@/frontoffice/_components/logo";
 import createAxiosInstance from "@/utils/axiosConfig";
 import Iconify from "@/components/shared/iconify";
+import { scaleIn } from "@/utils/animations";
 
 import { Input } from "@/components/ui/input";
 import AuthBackground from "@/frontoffice/_components/auth/AuthBackground";
@@ -90,6 +91,7 @@ const RegistrationForm = () => {
           "customer_access_token",
           response.data.access_token,
         );
+        document.cookie = `customer_access_token=${response.data.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax;`;
         dispatch(
           loginSuccess({
             customer: response.data.customer,
@@ -130,9 +132,7 @@ const RegistrationForm = () => {
       </div>
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        {...scaleIn}
         className="relative z-10 w-full sm:max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg"
       >
         <Card className="rounded-4xl sm:rounded-[2.5rem] border-none shadow-2xl bg-white overflow-hidden ring-1 ring-black/5">

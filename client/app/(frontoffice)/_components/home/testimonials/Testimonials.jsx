@@ -1,5 +1,8 @@
-import { useTranslation } from "react-i18next";
+"use client";
 import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { fadeInUp, premiumTransition } from "@/utils/animations";
+import { useTranslation } from "react-i18next";
 
 export default function Testimonials() {
   const { t, i18n } = useTranslation();
@@ -25,7 +28,13 @@ export default function Testimonials() {
       className="relative py-24 sm:py-32 bg-gray-50/50"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl lg:max-w-4xl text-center mb-16">
+        <motion.div
+          variants={fadeInUp}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true }}
+          className="mx-auto max-w-2xl lg:max-w-4xl text-center mb-16"
+        >
           <h2
             id="testimonial-heading"
             className="text-3xl font-black tracking-tight text-gray-900 sm:text-4xl uppercase"
@@ -37,12 +46,17 @@ export default function Testimonials() {
               "See what our happy customers are saying about our fresh products and delivery.",
             )}
           </p>
-        </div>
+        </motion.div>
 
         <div className="mx-auto grid max-w-2xl grid-cols-1 gap-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
           {testimonials.map((testimonial, index) => (
-            <div
+            <motion.div
               key={index}
+              variants={fadeInUp}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true }}
+              transition={{ ...fadeInUp.transition, delay: index * 0.1 }}
               className="flex flex-col justify-between bg-white p-8 sm:p-10 rounded-[2.5rem] shadow-xl shadow-gray-100/50 border border-gray-100/50 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1 transition-all duration-300 group"
             >
               <div className="flex-1">
@@ -93,11 +107,10 @@ export default function Testimonials() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
     </section>
   );
 }
-

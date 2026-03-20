@@ -1,6 +1,8 @@
 import { useTranslation } from "react-i18next";
 import Iconify from "@/components/shared/iconify";
 import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { fadeInUp, premiumTransition } from "@/utils/animations";
 
 const Benefits = () => {
   const { i18n } = useTranslation();
@@ -20,35 +22,44 @@ const Benefits = () => {
   }
 
   return (
-    <div className="bg-gray-50">
-      <div className="max-w-7xl mx-auto py-12 sm:px-2 lg:px-4">
-        <div className="max-w-2xl mx-auto px-4 grid grid-cols-1 gap-y-10 gap-x-8 lg:max-w-none lg:grid-cols-3">
+    <div className="py-20 bg-white">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {benefits.map((benefit, index) => (
-            <div
+            <motion.div
               key={index}
-              className="text-center sm:flex sm:text-left rtl:sm:text-center lg:block lg:text-center"
+              variants={fadeInUp}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true }}
+              transition={{ ...fadeInUp.transition, delay: index * 0.2 }}
+              className="group relative p-8 rounded-[3rem] bg-gray-50 border border-gray-100 hover:bg-primary transition-all duration-500 text-center flex flex-col items-center shadow-xl shadow-gray-100/50 hover:shadow-primary/30"
             >
-              <div className="sm:shrink-0">
-                <div className="flow-root">
-                  <Iconify
-                    icon={benefit.icon}
-                    className="w-auto h-auto mx-auto text-2xl text-primary font-medium rounded-lg shadow-none transition-shadow duration-300 cursor-pointer hover:text-secondary"
-                    width={60}
-                    height={60}
-                  />
-                </div>
+              {/* Icon Container */}
+              <div className="relative mb-6">
+                <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-700" />
+                <Iconify
+                  icon={benefit.icon}
+                  className="relative z-10 text-primary group-hover:text-white transition-colors duration-500"
+                  width={64}
+                  height={64}
+                />
               </div>
-              <div className="mt-4 sm:mt-0 sm:ml-6 rtl:sm:ml-0 rtl:sm:mr-6 lg:mt-6 lg:ml-0 lg:rtl:mr-0">
-                <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">
+
+              <div className="space-y-3">
+                <h3 className="text-xl font-black text-gray-900 group-hover:text-white uppercase tracking-tight transition-colors duration-500">
                   {benefit.title?.[currentLang] || benefit.title?.en || ""}
                 </h3>
-                <p className="mt-2 text-sm text-gray-500 font-medium leading-relaxed">
+                <p className="text-sm text-gray-500 group-hover:text-white/80 font-medium leading-relaxed transition-colors duration-500 max-w-60 mx-auto">
                   {benefit.description?.[currentLang] ||
                     benefit.description?.en ||
                     ""}
                 </p>
               </div>
-            </div>
+
+              {/* Decorative Shimmer */}
+              <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none rounded-[3rem]" />
+            </motion.div>
           ))}
         </div>
       </div>
@@ -57,4 +68,3 @@ const Benefits = () => {
 };
 
 export default Benefits;
-

@@ -38,6 +38,7 @@ export const updateSettings = async (req, res) => {
     shipping_config,
     vat_config,
     payment_methods,
+    vendor_config,
   } = req.body;
 
   let settings = await SiteSettings.findOne();
@@ -65,6 +66,7 @@ export const updateSettings = async (req, res) => {
   if (shipping_config) settings.shipping_config = parse(shipping_config);
   if (vat_config) settings.vat_config = parse(vat_config);
   if (payment_methods) settings.payment_methods = parse(payment_methods);
+  if (vendor_config) settings.vendor_config = parse(vendor_config);
 
   // 3. Process Complex Fields (mix of JSON strings + potential file overwrites)
   if (banner_slides) {

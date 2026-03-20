@@ -7,7 +7,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
@@ -16,6 +16,7 @@ import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import Logo from "@/frontoffice/_components/logo";
 import createAxiosInstance from "@/utils/axiosConfig";
 import Iconify from "@/components/shared/iconify";
+import { scaleIn } from "@/utils/animations";
 
 import { Input } from "@/components/ui/input";
 import AuthBackground from "@/frontoffice/_components/auth/AuthBackground";
@@ -115,6 +116,7 @@ const Login = () => {
           "customer_access_token",
           response.data.access_token,
         );
+        document.cookie = `customer_access_token=${response.data.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax;`;
 
         dispatch(
           loginSuccess({
@@ -132,11 +134,13 @@ const Login = () => {
       }
     } catch (error) {
       toast.error(
-        "Error: " + (error.response?.data?.message || t("login.loginFailed")),
+        "Error: " +
+          (error.response?.data?.message ||
+            t("Login failed. Please check your credentials.")),
       );
+      setLoadingSave(false);
     } finally {
       setRefreshReCaptcha(!refreshReCaptcha);
-      setLoadingSave(false);
     }
   };
 
@@ -152,6 +156,7 @@ const Login = () => {
           window.location.href = redirectUrl;
         } else {
           localStorage.setItem("customer_access_token", res.data.access_token);
+          document.cookie = `customer_access_token=${res.data.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax;`;
 
           dispatch(
             loginSuccess({
@@ -164,7 +169,9 @@ const Login = () => {
       }
     } catch (error) {
       toast.error(
-        "Error: " + (error.response?.data?.message || t("login.loginFailed")),
+        "Error: " +
+          (error.response?.data?.message ||
+            t("Login failed. Please check your credentials.")),
       );
     }
   };
@@ -207,12 +214,7 @@ const Login = () => {
         <div className="absolute inset-0 bg-linear-to-b from-black/80 via-transparent to-black/80" />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-lg"
-      >
+      <motion.div {...scaleIn} className="relative z-10 w-full max-w-lg">
         <Card className="rounded-4xl sm:rounded-[2.5rem] border-none shadow-2xl bg-white/95 overflow-hidden ring-1 ring-black/5">
           <CardContent className="p-6 sm:p-10 md:p-12">
             <div className="flex flex-col items-center">
@@ -320,7 +322,7 @@ const Login = () => {
                         icon="svg-spinners:180-ring-with-bg"
                         width={24}
                       />
-                      {t("login.loggingIn")}
+                      {t("Authenticating...")}
                     </div>
                   ) : (
                     t("login.login")

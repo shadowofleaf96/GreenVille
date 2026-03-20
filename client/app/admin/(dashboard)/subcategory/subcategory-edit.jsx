@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import createAxiosInstance from "@/utils/axiosConfig";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 function EditSubCategoryForm({ subcategory, open, onClose, onSave }) {
   const { t, i18n } = useTranslation();

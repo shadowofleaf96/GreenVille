@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
@@ -41,6 +41,12 @@ import {
 } from "@/store/slices/admin/userSlice";
 import Loader from "@/frontoffice/_components/loader/Loader";
 import createAxiosInstance from "@/utils/axiosConfig";
+import { motion } from "framer-motion";
+import {
+  fadeInUp,
+  staggerContainer,
+  premiumTransition,
+} from "@/utils/animations";
 
 export default function UserView() {
   const dispatch = useDispatch();
@@ -338,8 +344,16 @@ export default function UserView() {
   const totalPages = Math.ceil(dataFiltered.length / rowsPerPage);
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
+    <motion.div
+      variants={staggerContainer}
+      initial="initial"
+      animate="animate"
+      className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8"
+    >
+      <motion.div
+        variants={fadeInUp}
+        className="flex items-center justify-between"
+      >
         <h4 className="text-3xl font-extrabold text-gray-900 tracking-tight">
           {t("Users")}
         </h4>
@@ -357,159 +371,164 @@ export default function UserView() {
             {t("Add User")}
           </Button>
         )}
-      </div>
+      </motion.div>
 
-      <Card className="rounded-3xl border-gray-100 shadow-sm overflow-hidden bg-white">
-        <UserTableToolbar
-          numSelected={selected.length}
-          filterName={filterName}
-          onFilterName={handleFilterByName}
-          emailFilter={emailFilter}
-          onEmailFilter={handleFilterByEmail}
-          selected={selected}
-          setSelected={setSelected}
-          fetchData={fetchData}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-          roleFilter={roleFilter}
-          onRoleFilter={handleFilterRole}
-          statusFilter={statusFilter}
-          onStatusFilter={handleFilterStatus}
-        />
+      <motion.div variants={fadeInUp}>
+        <Card className="rounded-3xl border-gray-100 shadow-sm overflow-hidden bg-white">
+          <UserTableToolbar
+            numSelected={selected.length}
+            filterName={filterName}
+            onFilterName={handleFilterByName}
+            emailFilter={emailFilter}
+            onEmailFilter={handleFilterByEmail}
+            selected={selected}
+            setSelected={setSelected}
+            fetchData={fetchData}
+            showFilters={showFilters}
+            setShowFilters={setShowFilters}
+            roleFilter={roleFilter}
+            onRoleFilter={handleFilterRole}
+            statusFilter={statusFilter}
+            onStatusFilter={handleFilterStatus}
+          />
 
-        <Scrollbar>
-          <Table>
-            <UserTableHead
-              order={order}
-              orderBy={orderBy}
-              rowCount={data.length}
-              numSelected={selected.length}
-              onRequestSort={handleSort}
-              onSelectAllClick={handleSelectAllClick}
-              headLabel={[
-                { id: "user_image", label: t("Image") },
-                { id: "first_name", label: t("First Name") },
-                { id: "last_name", label: t("Last Name") },
-                { id: "role", label: t("Role") },
-                { id: "user_name", label: t("User Name") },
-                { id: "creation_date", label: t("Creation Date") },
-                { id: "status", label: t("Status") },
-                { id: " " },
-              ]}
-            />
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={9} className="h-24">
-                    <div className="flex justify-center items-center h-full">
-                      <Iconify
-                        icon="svg-spinners:180-ring-with-bg"
-                        width={40}
-                        className="text-primary"
+          <Scrollbar>
+            <Table>
+              <UserTableHead
+                order={order}
+                orderBy={orderBy}
+                rowCount={data.length}
+                numSelected={selected.length}
+                onRequestSort={handleSort}
+                onSelectAllClick={handleSelectAllClick}
+                headLabel={[
+                  { id: "user_image", label: t("Image") },
+                  { id: "first_name", label: t("First Name") },
+                  { id: "last_name", label: t("Last Name") },
+                  { id: "role", label: t("Role") },
+                  { id: "user_name", label: t("User Name") },
+                  { id: "creation_date", label: t("Creation Date") },
+                  { id: "status", label: t("Status") },
+                  { id: " " },
+                ]}
+              />
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="h-24">
+                      <div className="flex justify-center items-center h-full">
+                        <Iconify
+                          icon="svg-spinners:180-ring-with-bg"
+                          width={40}
+                          className="text-primary"
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <>
+                    {dataFiltered
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage,
+                      )
+                      .map((row) => (
+                        <UserTableRow
+                          key={row._id}
+                          user_image={`${row.user_image}`}
+                          first_name={row.first_name}
+                          last_name={row.last_name}
+                          role={row.role}
+                          user_name={row.user_name}
+                          creation_date={row.creation_date}
+                          status={row.status}
+                          selected={selected.indexOf(row._id) !== -1}
+                          handleClick={(event) => handleClick(event, row._id)}
+                          onEdit={() => handleEditUser(row)}
+                          onDelete={(event) =>
+                            openDeleteConfirmation(row._id, event)
+                          }
+                          onDetails={() => handleOpenDetailsPopup(row)}
+                        />
+                      ))}
+                    {!notFound && (
+                      <TableEmptyRows
+                        height={77}
+                        emptyRows={emptyRows(page, rowsPerPage, data.length)}
                       />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                <>
-                  {dataFiltered
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => (
-                      <UserTableRow
-                        key={row._id}
-                        user_image={`${row.user_image}`}
-                        first_name={row.first_name}
-                        last_name={row.last_name}
-                        role={row.role}
-                        user_name={row.user_name}
-                        creation_date={row.creation_date}
-                        status={row.status}
-                        selected={selected.indexOf(row._id) !== -1}
-                        handleClick={(event) => handleClick(event, row._id)}
-                        onEdit={() => handleEditUser(row)}
-                        onDelete={(event) =>
-                          openDeleteConfirmation(row._id, event)
-                        }
-                        onDetails={() => handleOpenDetailsPopup(row)}
+                    )}
+                    {notFound && (
+                      <TableNoDataFilter
+                        query={filterName}
+                        colSpan={9}
+                        resourceName="Users"
                       />
+                    )}
+                  </>
+                )}
+              </TableBody>
+            </Table>
+          </Scrollbar>
+
+          {/* Custom Pagination */}
+          <div className="flex items-center justify-between px-6 py-5 bg-gray-50/50 border-t border-gray-100">
+            <div className="text-sm font-semibold text-gray-500">
+              {t("Total")}:{" "}
+              <span className="text-gray-900 font-bold">
+                {dataFiltered.length}
+              </span>{" "}
+              {t("users")}
+            </div>
+
+            <div className="flex items-center space-x-8">
+              <div className="flex items-center space-x-3">
+                <span className="text-sm font-bold text-gray-500 whitespace-nowrap">
+                  {t("Rows per page")}:
+                </span>
+                <Select
+                  value={rowsPerPage.toString()}
+                  onValueChange={(v) => handleRowsPerPageChange(parseInt(v))}
+                >
+                  <SelectTrigger className="w-17.5 bg-transparent border-none text-sm font-bold shadow-none focus:ring-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[5, 10, 25].map((v) => (
+                      <SelectItem key={v} value={v.toString()}>
+                        {v}
+                      </SelectItem>
                     ))}
-                  {!notFound && (
-                    <TableEmptyRows
-                      height={77}
-                      emptyRows={emptyRows(page, rowsPerPage, data.length)}
-                    />
-                  )}
-                  {notFound && (
-                    <TableNoDataFilter
-                      query={filterName}
-                      colSpan={9}
-                      resourceName="Users"
-                    />
-                  )}
-                </>
-              )}
-            </TableBody>
-          </Table>
-        </Scrollbar>
-
-        {/* Custom Pagination */}
-        <div className="flex items-center justify-between px-6 py-5 bg-gray-50/50 border-t border-gray-100">
-          <div className="text-sm font-semibold text-gray-500">
-            {t("Total")}:{" "}
-            <span className="text-gray-900 font-bold">
-              {dataFiltered.length}
-            </span>{" "}
-            {t("users")}
-          </div>
-
-          <div className="flex items-center space-x-8">
-            <div className="flex items-center space-x-3">
-              <span className="text-sm font-bold text-gray-500 whitespace-nowrap">
-                {t("Rows per page")}:
-              </span>
-              <Select
-                value={rowsPerPage.toString()}
-                onValueChange={(v) => handleRowsPerPageChange(parseInt(v))}
-              >
-                <SelectTrigger className="w-17.5 bg-transparent border-none text-sm font-bold shadow-none focus:ring-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[5, 10, 25].map((v) => (
-                    <SelectItem key={v} value={v.toString()}>
-                      {v}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                disabled={page === 0}
-                onClick={() => handlePageChange(page - 1)}
-                className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
-              >
-                <Iconify icon="material-symbols:chevron-left" width={20} />
-              </Button>
-              <div className="bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 text-sm font-bold text-primary min-w-9 text-center">
-                {page + 1}
+                  </SelectContent>
+                </Select>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                disabled={page >= totalPages - 1}
-                onClick={() => handlePageChange(page + 1)}
-                className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
-              >
-                <Iconify icon="material-symbols:chevron-right" width={20} />
-              </Button>
+
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={page === 0}
+                  onClick={() => handlePageChange(page - 1)}
+                  className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
+                >
+                  <Iconify icon="material-symbols:chevron-left" width={20} />
+                </Button>
+                <div className="bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 text-sm font-bold text-primary min-w-9 text-center">
+                  {page + 1}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={page >= totalPages - 1}
+                  onClick={() => handlePageChange(page + 1)}
+                  className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
+                >
+                  <Iconify icon="material-symbols:chevron-right" width={20} />
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </motion.div>
 
       <NewUserForm
         open={isNewUserFormOpen}
@@ -573,6 +592,6 @@ export default function UserView() {
           </div>
         </PopoverContent>
       </Popover>
-    </div>
+    </motion.div>
   );
 }

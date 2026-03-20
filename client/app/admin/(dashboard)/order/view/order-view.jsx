@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import Iconify from "@/components/shared/iconify";
 import Scrollbar from "@/admin/_components/scrollbar";
@@ -24,6 +24,12 @@ import {
 import { fetchSettings } from "@/store/slices/admin/settingsSlice";
 import Loader from "@/frontoffice/_components/loader/Loader";
 import createAxiosInstance from "@/utils/axiosConfig";
+import { motion } from "framer-motion";
+import {
+  fadeInUp,
+  staggerContainer,
+  premiumTransition,
+} from "@/utils/animations";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
@@ -259,181 +265,195 @@ export default function OrderView() {
   const notFound = !dataFiltered.length && !loading;
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
+    <motion.div
+      variants={staggerContainer}
+      initial="initial"
+      animate="animate"
+      className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8"
+    >
+      <motion.div
+        variants={fadeInUp}
+        className="flex items-center justify-between"
+      >
         <h4 className="text-3xl font-extrabold text-gray-900 tracking-tight">
           {t("Orders")}
         </h4>
-      </div>
+      </motion.div>
 
-      <Card className="rounded-3xl border-gray-100 shadow-sm overflow-hidden bg-white">
-        <CardContent className="p-0">
-          <OrderTableToolbar
-            numSelected={selected.length}
-            filterName={filterName}
-            onFilterName={handleFilterByName}
-            itemsFilter={itemsFilter}
-            onItemsFilter={handleFilterByItems}
-            totalPriceFilter={totalPriceFilter}
-            onTotalPriceFilter={handleFilterByTotalPrice}
-            showFilters={showFilters}
-            setShowFilters={setShowFilters}
-            selected={selected}
-            setSelected={setSelected}
-          />
+      <motion.div variants={fadeInUp}>
+        <Card className="rounded-3xl border-gray-100 shadow-sm overflow-hidden bg-white">
+          <CardContent className="p-0">
+            <OrderTableToolbar
+              numSelected={selected.length}
+              filterName={filterName}
+              onFilterName={handleFilterByName}
+              itemsFilter={itemsFilter}
+              onItemsFilter={handleFilterByItems}
+              totalPriceFilter={totalPriceFilter}
+              onTotalPriceFilter={handleFilterByTotalPrice}
+              showFilters={showFilters}
+              setShowFilters={setShowFilters}
+              selected={selected}
+              setSelected={setSelected}
+            />
 
-          <Scrollbar>
-            <Table>
-              <OrderTableHead
-                order={order}
-                orderBy={orderBy}
-                rowCount={dataFiltered.length}
-                numSelected={selected.length}
-                onRequestSort={handleSort}
-                onSelectAllClick={handleSelectAllClick}
-                headLabel={[
-                  { id: "id", label: t("Order ID") },
-                  { id: "customer", label: t("Customer Name") },
-                  { id: "order_items", label: t("Order Items") },
-                  { id: "cart_total_price", label: t("Cart Total Price") },
-                  { id: "order_date", label: t("Order Date") },
-                  { id: "shipping_method", label: t("Shipping Method") },
-                  { id: "shipping_status", label: t("Shipping Status") },
-                  { id: "delivery_boy", label: t("Delivery Boy") },
-                  { id: "status", label: t("Status") },
-                  { id: " " },
-                ]}
-              />
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={10} className="h-24">
-                      <div className="flex justify-center items-center h-full">
-                        <Iconify
-                          icon="svg-spinners:180-ring-with-bg"
-                          width={40}
-                          className="text-primary"
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  <>
-                    {dataFiltered
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage,
-                      )
-                      .map((row) => {
-                        const orderItemsArray = Object.values(row.order_items);
-                        return (
-                          <OrderTableRow
-                            key={row._id}
-                            id={row._id}
-                            customer={row.customer}
-                            order_items={orderItemsArray}
-                            cart_total_price={row.cart_total_price}
-                            order_date={row.order_date}
-                            shipping_method={row.shipping_method}
-                            shipping_status={row.shipping_status}
-                            shipping_address={row.shipping_address}
-                            shipping_price={row.shipping_price}
-                            tax={row.tax}
-                            coupon_discount={row.coupon_discount}
-                            status={row.status}
-                            delivery_boy={row.delivery_boy}
-                            selected={selected.indexOf(row._id) !== -1}
-                            handleClick={(event) => handleClick(event, row._id)}
-                            onEdit={() => handleEditOrder(row)}
-                            onDelete={(event) =>
-                              openDeleteConfirmation(event, row._id)
-                            }
-                            onDetails={() => handleOpenDetailsPopup(row)}
+            <Scrollbar>
+              <Table>
+                <OrderTableHead
+                  order={order}
+                  orderBy={orderBy}
+                  rowCount={dataFiltered.length}
+                  numSelected={selected.length}
+                  onRequestSort={handleSort}
+                  onSelectAllClick={handleSelectAllClick}
+                  headLabel={[
+                    { id: "id", label: t("Order ID") },
+                    { id: "customer", label: t("Customer Name") },
+                    { id: "order_items", label: t("Order Items") },
+                    { id: "cart_total_price", label: t("Cart Total Price") },
+                    { id: "order_date", label: t("Order Date") },
+                    { id: "shipping_method", label: t("Shipping Method") },
+                    { id: "shipping_status", label: t("Shipping Status") },
+                    { id: "delivery_boy", label: t("Delivery Boy") },
+                    { id: "status", label: t("Status") },
+                    { id: " " },
+                  ]}
+                />
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={10} className="h-24">
+                        <div className="flex justify-center items-center h-full">
+                          <Iconify
+                            icon="svg-spinners:180-ring-with-bg"
+                            width={40}
+                            className="text-primary"
                           />
-                        );
-                      })}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    <>
+                      {dataFiltered
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage,
+                        )
+                        .map((row) => {
+                          const orderItemsArray = Object.values(
+                            row.order_items,
+                          );
+                          return (
+                            <OrderTableRow
+                              key={row._id}
+                              id={row._id}
+                              customer={row.customer}
+                              order_items={orderItemsArray}
+                              cart_total_price={row.cart_total_price}
+                              order_date={row.order_date}
+                              shipping_method={row.shipping_method}
+                              shipping_status={row.shipping_status}
+                              shipping_address={row.shipping_address}
+                              shipping_price={row.shipping_price}
+                              tax={row.tax}
+                              coupon_discount={row.coupon_discount}
+                              status={row.status}
+                              delivery_boy={row.delivery_boy}
+                              selected={selected.indexOf(row._id) !== -1}
+                              handleClick={(event) =>
+                                handleClick(event, row._id)
+                              }
+                              onEdit={() => handleEditOrder(row)}
+                              onDelete={(event) =>
+                                openDeleteConfirmation(event, row._id)
+                              }
+                              onDetails={() => handleOpenDetailsPopup(row)}
+                            />
+                          );
+                        })}
 
-                    {!notFound && (
-                      <TableEmptyRows
-                        height={77}
-                        emptyRows={emptyRows(
-                          page,
-                          rowsPerPage,
-                          dataFiltered.length,
-                        )}
-                      />
-                    )}
+                      {!notFound && (
+                        <TableEmptyRows
+                          height={77}
+                          emptyRows={emptyRows(
+                            page,
+                            rowsPerPage,
+                            dataFiltered.length,
+                          )}
+                        />
+                      )}
 
-                    {notFound && (
-                      <TableNoDataFilter
-                        query={filterName}
-                        colSpan={10}
-                        resourceName="Orders"
-                      />
-                    )}
-                  </>
-                )}
-              </TableBody>
-            </Table>
-          </Scrollbar>
+                      {notFound && (
+                        <TableNoDataFilter
+                          query={filterName}
+                          colSpan={10}
+                          resourceName="Orders"
+                        />
+                      )}
+                    </>
+                  )}
+                </TableBody>
+              </Table>
+            </Scrollbar>
 
-          <div className="flex items-center justify-between px-6 py-5 bg-gray-50/50 border-t border-gray-100">
-            <div className="text-sm font-semibold text-gray-500">
-              {t("Total")}:{" "}
-              <span className="text-gray-900 font-bold">
-                {dataFiltered.length}
-              </span>{" "}
-              {t("orders")}
-            </div>
-            <div className="flex items-center space-x-8">
-              <div className="flex items-center space-x-3">
-                <span className="text-sm font-bold text-gray-500 whitespace-nowrap">
-                  {t("Rows per page")}:
-                </span>
-                <Select
-                  value={rowsPerPage.toString()}
-                  onValueChange={(v) => handleRowsPerPageChange(parseInt(v))}
-                >
-                  <SelectTrigger className="w-17.5 bg-transparent border-none text-sm font-bold shadow-none focus:ring-0 text-gray-900">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[5, 10, 25].map((v) => (
-                      <SelectItem key={v} value={v.toString()}>
-                        {v}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <div className="flex items-center justify-between px-6 py-5 bg-gray-50/50 border-t border-gray-100">
+              <div className="text-sm font-semibold text-gray-500">
+                {t("Total")}:{" "}
+                <span className="text-gray-900 font-bold">
+                  {dataFiltered.length}
+                </span>{" "}
+                {t("orders")}
               </div>
-
-              <div className="flex items-center space-x-3">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={page === 0}
-                  onClick={() => handlePageChange(page - 1)}
-                  className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
-                >
-                  <Iconify icon="material-symbols:chevron-left" width={20} />
-                </Button>
-                <div className="bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 text-sm font-bold text-primary min-w-9 text-center">
-                  {page + 1}
+              <div className="flex items-center space-x-8">
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm font-bold text-gray-500 whitespace-nowrap">
+                    {t("Rows per page")}:
+                  </span>
+                  <Select
+                    value={rowsPerPage.toString()}
+                    onValueChange={(v) => handleRowsPerPageChange(parseInt(v))}
+                  >
+                    <SelectTrigger className="w-17.5 bg-transparent border-none text-sm font-bold shadow-none focus:ring-0 text-gray-900">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[5, 10, 25].map((v) => (
+                        <SelectItem key={v} value={v.toString()}>
+                          {v}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={(page + 1) * rowsPerPage >= dataFiltered.length}
-                  onClick={() => handlePageChange(page + 1)}
-                  className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
-                >
-                  <Iconify icon="material-symbols:chevron-right" width={20} />
-                </Button>
+
+                <div className="flex items-center space-x-3">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={page === 0}
+                    onClick={() => handlePageChange(page - 1)}
+                    className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
+                  >
+                    <Iconify icon="material-symbols:chevron-left" width={20} />
+                  </Button>
+                  <div className="bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 text-sm font-bold text-primary min-w-9 text-center">
+                    {page + 1}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={(page + 1) * rowsPerPage >= dataFiltered.length}
+                    onClick={() => handlePageChange(page + 1)}
+                    className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
+                  >
+                    <Iconify icon="material-symbols:chevron-right" width={20} />
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       <OrderDetailsPopup
         order={selectedOrder}
@@ -505,6 +525,6 @@ export default function OrderView() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }

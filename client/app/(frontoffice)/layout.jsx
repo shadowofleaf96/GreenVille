@@ -20,7 +20,7 @@ export default function FrontOfficeLayout({ children }) {
   return (
     <>
       {!isAuthPage && <Header />}
-      <main className={!isAuthPage ? "pt-44" : ""}>{children}</main>
+      <main className={!isAuthPage ? "" : ""}>{children}</main>
       {!isAuthPage && <Footer />}
     </>
   );

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { fDateTime } from "@/utils/format-time";
 import Iconify from "@/components/shared/iconify";

@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import createAxiosInstance from "@/utils/axiosConfig";
 import { useForm } from "react-hook-form";
+import { scaleIn, premiumTransition } from "@/utils/animations";
 
 import MetaData from "@/frontoffice/_components/MetaData";
 import Iconify from "@/components/shared/iconify";
@@ -29,6 +30,12 @@ const VendorRegistration = () => {
   const [logoPreview, setLogoPreview] = useState(null);
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (settings?.vendor_config?.isActive === false) {
+      router.push("/");
+    }
+  }, [settings, router]);
 
   const formatPhone = (phone) => {
     let sanitized = phone.replace(/\D/g, "");
@@ -100,6 +107,8 @@ const VendorRegistration = () => {
     }
   };
 
+  if (settings?.vendor_config?.isActive === false) return null;
+
   return (
     <div className="backImage min-h-screen w-full flex items-center justify-center p-4 overflow-hidden relative">
       <MetaData title={t("Vendor Registration")} />
@@ -108,9 +117,9 @@ const VendorRegistration = () => {
       <AuthBackground url={settings?.auth_settings?.auth_video_url} />
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        variants={scaleIn}
+        initial="initial"
+        animate="animate"
         className="relative z-10 w-full max-w-5xl"
       >
         <Card className="rounded-3xl md:rounded-[2.5rem] border-none shadow-2xl bg-white overflow-hidden ring-1 ring-black/5">

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import createAxiosInstance from "../../../utils/axiosConfig";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const axiosInstance = createAxiosInstance("admin");
 export const fetchSettings = createAsyncThunk(

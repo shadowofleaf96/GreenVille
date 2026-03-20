@@ -15,6 +15,7 @@ import Testimonials from "./_components/home/testimonials/Testimonials";
 import CTA from "./_components/home/cta/CTA";
 import CTA2 from "./_components/home/cta/CTA2";
 import { useTranslation } from "react-i18next";
+import { fadeInUp, premiumTransition } from "@/utils/animations";
 
 export default function Home() {
   const { i18n, t } = useTranslation();
@@ -25,15 +26,7 @@ export default function Home() {
   });
   const products = productsData?.data || [];
 
-  const fadeIn = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 1 } },
-  };
-
-  const slideIn = (isRTL) => ({
-    hidden: { x: isRTL ? 100 : -100, opacity: 0 },
-    visible: { x: 0, opacity: 1, transition: { duration: 1 } },
-  });
+  // Standardized variants will be imported
 
   const [bannerRef, bannerInView] = useInView({
     triggerOnce: true,
@@ -65,9 +58,9 @@ export default function Home() {
       {settings?.banner_active !== false && (
         <motion.div
           ref={bannerRef}
-          initial="hidden"
-          animate={bannerInView ? "visible" : "hidden"}
-          variants={fadeIn}
+          variants={fadeInUp}
+          initial="initial"
+          animate={bannerInView ? "animate" : "initial"}
         >
           <Banner />
         </motion.div>
@@ -76,9 +69,9 @@ export default function Home() {
       {settings?.benefits_active !== false && (
         <motion.div
           ref={benefitsRef}
-          initial="hidden"
-          animate={benefitsInView ? "visible" : "hidden"}
-          variants={slideIn}
+          variants={fadeInUp}
+          initial="initial"
+          animate={benefitsInView ? "animate" : "initial"}
         >
           <Benefits />
         </motion.div>
@@ -89,9 +82,9 @@ export default function Home() {
           <hr />
           <motion.div
             ref={categoryRef}
-            initial="hidden"
-            animate={categoryInView ? "visible" : "hidden"}
-            variants={fadeIn}
+            variants={fadeInUp}
+            initial="initial"
+            animate={categoryInView ? "animate" : "initial"}
           >
             <Category />
           </motion.div>
@@ -103,9 +96,9 @@ export default function Home() {
           <hr />
           <motion.div
             ref={ctaRef}
-            initial="hidden"
-            animate={ctaInView ? "visible" : "hidden"}
-            variants={slideIn}
+            variants={fadeInUp}
+            initial="initial"
+            animate={ctaInView ? "animate" : "initial"}
           >
             <CTA />
           </motion.div>
@@ -119,9 +112,9 @@ export default function Home() {
       ) : (
         <motion.div
           ref={fsRef}
-          initial="hidden"
-          animate={fsInView ? "visible" : "hidden"}
-          variants={fadeIn}
+          variants={fadeInUp}
+          initial="initial"
+          animate={fsInView ? "animate" : "initial"}
         >
           <FlashSales products={products} />
         </motion.div>
@@ -133,9 +126,9 @@ export default function Home() {
         <>
           <motion.div
             ref={cta2Ref}
-            initial="hidden"
-            animate={cta2InView ? "visible" : "hidden"}
-            variants={slideIn}
+            variants={fadeInUp}
+            initial="initial"
+            animate={cta2InView ? "animate" : "initial"}
           >
             <CTA2 />
           </motion.div>
@@ -147,9 +140,9 @@ export default function Home() {
           <hr />
           <motion.div
             ref={testimonialsRef}
-            initial="hidden"
-            animate={testimonialsInView ? "visible" : "hidden"}
-            variants={slideIn(i18n.language === "ar")}
+            variants={fadeInUp}
+            initial="initial"
+            animate={testimonialsInView ? "animate" : "initial"}
           >
             <Testimonials />
           </motion.div>

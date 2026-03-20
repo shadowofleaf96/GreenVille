@@ -5,6 +5,7 @@ import MetaData from "@/frontoffice/_components/MetaData";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
+import { scaleIn, fadeInUp, premiumTransition } from "@/utils/animations";
 import Iconify from "@/components/shared/iconify";
 import { Button } from "@/components/ui/button";
 
@@ -18,21 +19,18 @@ const Success = () => {
 
       <div className="min-h-screen bg-gray-50/50 pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
+          variants={scaleIn}
+          initial="initial"
+          animate="animate"
           className="max-w-xl w-full text-center space-y-12"
         >
           {/* Celebratory Icon */}
           <div className="relative flex items-center justify-center">
             <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{
-                type: "spring",
-                stiffness: 260,
-                damping: 20,
-                delay: 0.1,
-              }}
+              variants={scaleIn}
+              initial="initial"
+              animate="animate"
+              transition={{ ...premiumTransition, delay: 0.1 }}
               className="w-32 h-32 sm:w-40 sm:h-40 bg-primary/5 rounded-[2.5rem] sm:rounded-[3rem] flex items-center justify-center relative z-10 border border-primary/10"
             >
               <div className="w-24 h-24 sm:w-32 sm:h-32 bg-primary rounded-4xl sm:rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-primary/40">
@@ -89,7 +87,7 @@ const Success = () => {
             <Button
               size="lg"
               onClick={() => router.push("/profile/orders")}
-              className="w-full sm:w-auto h-16 px-10 rounded-4xl bg-gray-900 text-white font-black uppercase tracking-widest shadow-2xl shadow-gray-200 hover:bg-black transition-all gap-3 border-none"
+              className="w-full sm:w-auto h-16 px-10 rounded-4xl bg-primary text-white font-black uppercase tracking-widest shadow-2xl shadow-primary/30 hover:bg-primary/90 transition-all gap-3 border-none"
             >
               <Iconify icon="solar:list-check-bold-duotone" width={24} />
               {t("View My Orders")}

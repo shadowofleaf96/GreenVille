@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Iconify from "@/components/shared/iconify/iconify";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const SettingsActions = ({
   onSave,

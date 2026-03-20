@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter, usePathname } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import DashboardLayout from "@/admin/_layouts/dashboard";
 import Loader from "@/app/(frontoffice)/_components/loader/Loader";
@@ -40,6 +40,8 @@ export default function ProtectedDashboardLayout({ children }) {
         console.error(err);
         toast.error(t("Session expired, please log in again!"));
         localStorage.removeItem("user_access_token");
+        document.cookie =
+          "user_access_token=; path=/; max-age=0; SameSite=Lax;";
         setIsAuthenticated(false);
       }
     } else {

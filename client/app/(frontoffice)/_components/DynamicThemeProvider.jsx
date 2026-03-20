@@ -1,23 +1,40 @@
-import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useRouter, usePathname } from "next/navigation";
 import { fetchSettings } from "@/store/slices/admin/settingsSlice";
 import { fetchLocalizations } from "@/store/slices/admin/localizationSlice";
 import i18n from "i18next";
+import Loader from "./loader/Loader";
+import React, { useEffect } from "react";
 
 import { hexToHsl } from "@/utils/color-convert";
 
 const DynamicThemeProvider = ({ children }) => {
   const dispatch = useDispatch();
-  const { data: settings } = useSelector((state) => state.adminSettings);
-  const { data: localizations } = useSelector(
+  const router = useRouter();
+  const pathname = usePathname();
+  const { data: settings, loading: settingsLoading } = useSelector(
+    (state) => state.adminSettings,
+  );
+  const { data: localizations, loading: localizationsLoading } = useSelector(
     (state) => state.adminLocalization,
   );
 
-  console.log("DynamicThemeProvider: Current settings from Redux:", settings);
+  const [initialized, setInitialized] = React.useState(false);
 
   useEffect(() => {
-    dispatch(fetchSettings());
-    dispatch(fetchLocalizations());
+    const init = async () => {
+      try {
+        await Promise.all([
+          dispatch(fetchSettings()).unwrap(),
+          dispatch(fetchLocalizations()).unwrap(),
+        ]);
+      } catch (error) {
+        console.error("Initialization failed:", error);
+      } finally {
+        setInitialized(true);
+      }
+    };
+    init();
   }, [dispatch]);
 
   React.useLayoutEffect(() => {
@@ -62,6 +79,37 @@ const DynamicThemeProvider = ({ children }) => {
       }
       if (accent_color) root.style.setProperty("--color-beige", accent_color);
       if (bgColor) root.style.setProperty("--color-white", bgColor);
+
+      // --- Dynamic Google Fonts ---
+      const primaryFont = activeSettings.theme?.primary_font || "Raleway";
+      const secondaryFont = activeSettings.theme?.secondary_font || primaryFont;
+
+      const fontFamilies = Array.from(new Set([primaryFont, secondaryFont]));
+      const fontUrl = `https://fonts.googleapis.com/css2?${fontFamilies
+        .map(
+          (f) =>
+            `family=${f.replace(/ /g, "+")}:wght@100;200;300;400;500;600;700;800;900`,
+        )
+        .join("&")}&display=swap`;
+
+      let fontLink = document.getElementById("dynamic-google-fonts");
+      if (!fontLink) {
+        fontLink = document.createElement("link");
+        fontLink.id = "dynamic-google-fonts";
+        fontLink.rel = "stylesheet";
+        document.head.appendChild(fontLink);
+      }
+      fontLink.href = fontUrl;
+
+      root.style.setProperty("--font-body", `"${primaryFont}", sans-serif`);
+      root.style.setProperty(
+        "--font-heading",
+        `"${secondaryFont}", sans-serif`,
+      );
+      console.log("DynamicThemeProvider: Applied fonts:", {
+        primaryFont,
+        secondaryFont,
+      });
     }
   }, [settings]);
 
@@ -90,6 +138,21 @@ const DynamicThemeProvider = ({ children }) => {
       });
     }
   }, [localizations]);
+
+  useEffect(() => {
+    const isAdminPath = pathname?.startsWith("/admin");
+    if (initialized && pathname !== "/setup" && !isAdminPath) {
+      const isSetupNeeded =
+        !settings || !settings.website_title?.en || !settings.logo_url;
+      if (isSetupNeeded) {
+        router.push("/setup");
+      }
+    }
+  }, [initialized, settings, pathname, router]);
+
+  if (!initialized) {
+    return <Loader />;
+  }
 
   return <>{children}</>;
 };

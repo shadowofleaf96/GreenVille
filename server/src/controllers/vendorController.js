@@ -1,4 +1,4 @@
-import { Vendor, vendorJoiSchema } from "../models/Vendor.js";
+import { Vendor } from "../models/Vendor.js";
 import { User } from "../models/User.js";
 import { Customer } from "../models/Customer.js";
 import { SiteSettings } from "../models/SiteSettings.js";
@@ -8,6 +8,7 @@ import {
   generateEmailTemplate,
 } from "../utils/emailUtility.js";
 import { createDashboardNotification } from "../utils/dashboardNotificationUtility.js";
+import { withTransaction } from "../utils/withTransaction.js";
 
 // Register a new vendor (Applied by a Customer)
 export const registerVendor = async (req, res) => {
@@ -56,28 +57,37 @@ export const registerVendor = async (req, res) => {
     status: "pending",
   });
 
-  await newVendor.save();
-
-  // Dashboard Notification for Admin
   try {
-    await createDashboardNotification({
-      type: "VENDOR_APPLIED",
-      title: "New Vendor Application",
-      message: `"${store_name}" has applied to become a vendor.`,
-      metadata: { vendor_id: newVendor._id },
-      recipient_role: "admin",
+    await withTransaction(async (session) => {
+      await newVendor.save({ session });
+
+      // Dashboard Notification for Admin
+      try {
+        await createDashboardNotification({
+          type: "VENDOR_APPLIED",
+          title: "New Vendor Application",
+          message: `"${store_name}" has applied to become a vendor.`,
+          metadata: { vendor_id: newVendor._id },
+          recipient_role: "admin",
+          session,
+        });
+      } catch (notifError) {
+        console.error("Failed to create dashboard notification:", notifError);
+        throw notifError;
+      }
     });
-  } catch (notifError) {
-    console.error("Failed to create dashboard notification:", notifError);
+
+    // Send confirmation email to customer (outside transaction)
+    sendVendorApplicationEmail(customer, newVendor);
+
+    res.status(201).json({
+      message: "Vendor application submitted successfully",
+      data: newVendor,
+    });
+  } catch (error) {
+    console.error("Transaction Error during vendor registration", error);
+    res.status(500).json({ error: "Failed to submit vendor application" });
   }
-
-  // Send confirmation email to customer
-  sendVendorApplicationEmail(customer, newVendor);
-
-  res.status(201).json({
-    message: "Vendor application submitted successfully",
-    data: newVendor,
-  });
 };
 
 export const getVendorProfile = async (req, res) => {
@@ -102,80 +112,97 @@ export const updateVendorStatus = async (req, res) => {
     return res.status(404).json({ message: "Vendor application not found" });
   }
 
-  vendor.status = status;
-  await vendor.save();
+  try {
+    let customerData = null;
 
-  // SHADOW ACCOUNT LOGIC
-  if (status === "approved") {
-    // Fetch the Customer details
-    const customer = await Customer.findById(vendor.customer);
-    if (!customer) {
-      return res
-        .status(404)
-        .json({ message: "Linked Customer account not found" });
-    }
+    await withTransaction(async (session) => {
+      vendor.status = status;
+      await vendor.save({ session });
 
-    // Check if a User account already exists for this email
-    let user = await User.findOne({ email: customer.email });
+      // SHADOW ACCOUNT LOGIC
+      if (status === "approved") {
+        // Fetch the Customer details
+        const customer = await Customer.findById(vendor.customer).session(
+          session,
+        );
+        if (!customer) {
+          throw new Error("Linked Customer account not found");
+        }
+        customerData = customer; // save for email
 
-    if (!user) {
-      // Create Shadow User Account for Admin Panel Access
-      user = new User({
-        first_name: customer.first_name,
-        last_name: customer.last_name,
-        email: customer.email,
-        user_name: `vendor_${vendor.store_name
-          .replace(/\s+/g, "")
-          .toLowerCase()
-          .substring(0, 10)}_${Date.now()}`, // Generate unique username
-        password: customer.password, // Copy hashed password
-        role: "vendor",
-        status: true,
-        user_image: customer.customer_image,
-      });
-      await user.save();
-    } else {
-      // If user exists, ensure they have vendor role?
-      if (user.role === "user") {
-        user.role = "vendor";
-        await user.save();
+        // Check if a User account already exists for this email
+        let user = await User.findOne({ email: customer.email }).session(
+          session,
+        );
+
+        if (!user) {
+          // Create Shadow User Account for Admin Panel Access
+          user = new User({
+            first_name: customer.first_name,
+            last_name: customer.last_name,
+            email: customer.email,
+            user_name: `vendor_${vendor.store_name
+              .replace(/\s+/g, "")
+              .toLowerCase()
+              .substring(0, 10)}_${Date.now()}`, // Generate unique username
+            password: customer.password, // Copy hashed password
+            role: "vendor",
+            status: true,
+            user_image: customer.customer_image,
+          });
+          await user.save({ session });
+        } else {
+          // If user exists, ensure they have vendor role?
+          if (user.role === "user") {
+            user.role = "vendor";
+            await user.save({ session });
+          }
+        }
+
+        // Link the Shadow User to the Vendor Profile
+        vendor.user = user._id;
+        await vendor.save({ session });
       }
-    }
-
-    // Link the Shadow User to the Vendor Profile
-    vendor.user = user._id;
-    await vendor.save();
+    });
 
     // Send Approval Email
-    const settings = await SiteSettings.findOne();
-    const siteTitle = settings?.website_title?.en || "GreenVille";
-    const primaryColor = settings?.theme?.primary_color || "#15803d";
-    const adminPanelUrl = `${
-      process.env.FRONTEND_URL || "http://localhost:5173"
-    }/backoffice/login`;
+    if (status === "approved" && customerData) {
+      const settings = await SiteSettings.findOne();
+      const siteTitle = settings?.website_title?.en || "GreenVille";
+      const primaryColor = settings?.theme?.primary_color || "#15803d";
+      const adminPanelUrl = `${
+        process.env.FRONTEND_URL || "http://localhost:5173"
+      }/backoffice/login`;
 
-    const title = `Congratulations ${customer.first_name}!`;
-    const message = `Your application for <strong>${vendor.store_name}</strong> has been approved. You are now officially a vendor on ${siteTitle}! <br><br> To start adding your products and managing your store, please log in to our Vendor Panel using your customer credentials.`;
+      const title = `Congratulations ${customerData.first_name}!`;
+      const message = `Your application for <strong>${vendor.store_name}</strong> has been approved. You are now officially a vendor on ${siteTitle}! <br><br> To start adding your products and managing your store, please log in to our Vendor Panel using your customer credentials.`;
 
-    const actionHtml = `
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${adminPanelUrl}" style="background-color: ${primaryColor}; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Open Vendor Panel</a>
-        </div>
-      `;
+      const actionHtml = `
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${adminPanelUrl}" style="background-color: ${primaryColor}; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Open Vendor Panel</a>
+          </div>
+        `;
 
-    const html = generateEmailTemplate(settings, title, message, actionHtml);
+      const html = generateEmailTemplate(settings, title, message, actionHtml);
 
-    const mailOptions = {
-      to: customer.email,
-      from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
-      subject: `Welcome ${vendor.store_name}! Your Vendor Store is Approved`,
-      html,
-    };
+      const mailOptions = {
+        to: customerData.email,
+        from: `"${siteTitle}" <${process.env.EMAIL_USER}>`,
+        subject: `Welcome ${vendor.store_name}! Your Vendor Store is Approved`,
+        html,
+      };
 
-    transporter.sendMail(mailOptions);
+      transporter.sendMail(mailOptions);
+    }
+
+    res.status(200).json({ message: `Vendor request ${status}`, data: vendor });
+  } catch (error) {
+    console.error("Transaction Error during vendor status update:", error);
+    if (error.message === "Linked Customer account not found") {
+      return res.status(404).json({ message: error.message });
+    }
+    res.status(500).json({ error: "Failed to update vendor status" });
   }
-
-  res.status(200).json({ message: `Vendor request ${status}`, data: vendor });
 };
 
 export const updateVendorProfile = async (req, res) => {
@@ -218,14 +245,28 @@ export const getAllVendors = async (req, res) => {
 };
 
 export const deleteVendor = async (req, res) => {
-  const vendor = await Vendor.findByIdAndDelete(req.params.id);
-  if (!vendor) {
-    return res.status(404).json({ message: "Vendor not found" });
-  }
+  try {
+    await withTransaction(async (session) => {
+      const vendor = await Vendor.findByIdAndDelete(req.params.id).session(
+        session,
+      );
+      if (!vendor) {
+        throw new Error("Vendor not found");
+      }
 
-  if (vendor.user) {
-    await User.findByIdAndUpdate(vendor.user, { role: "user" });
-  }
+      if (vendor.user) {
+        await User.findByIdAndUpdate(vendor.user, { role: "user" }).session(
+          session,
+        );
+      }
+    });
 
-  res.status(200).json({ message: "Vendor deleted successfully" });
+    res.status(200).json({ message: "Vendor deleted successfully" });
+  } catch (error) {
+    if (error.message === "Vendor not found") {
+      return res.status(404).json({ message: error.message });
+    }
+    console.error("Transaction Error during vendor delete:", error);
+    res.status(500).json({ message: "Failed to delete vendor" });
+  }
 };

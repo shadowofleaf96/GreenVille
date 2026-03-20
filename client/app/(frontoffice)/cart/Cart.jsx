@@ -10,11 +10,12 @@ import {
   removeItemFromCart,
 } from "@/store/slices/shop/cartSlice";
 import MetaData from "@/frontoffice/_components/MetaData";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import optimizeImage from "@/frontoffice/_components/optimizeImage";
 import LazyImage from "@/components/shared/lazyimage/LazyImage";
 import { motion, AnimatePresence } from "framer-motion";
+import { fadeInUp, fadeInLeft, premiumTransition } from "@/utils/animations";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -109,8 +110,9 @@ const Cart = () => {
             <div className="lg:col-span-2 space-y-6">
               {cartItems.length === 0 ? (
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  variants={fadeInUp}
+                  initial="initial"
+                  animate="animate"
                   className="bg-white rounded-[3rem] p-16 text-center shadow-sm border border-gray-100 flex flex-col items-center justify-center min-h-[50vh]"
                 >
                   <div className="w-24 h-24 bg-primary/5 text-primary rounded-4xl flex items-center justify-center mb-8">
@@ -142,9 +144,10 @@ const Cart = () => {
                     <motion.div
                       key={`${item.product}-${item.variant?._id || "base"}`}
                       layout
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
+                      variants={fadeInLeft}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
                       className="group bg-white rounded-4xl sm:rounded-[2.5rem] p-5 sm:p-8 shadow-sm border border-gray-100 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all duration-500"
                     >
                       <div className="flex flex-col sm:flex-row items-center gap-8">

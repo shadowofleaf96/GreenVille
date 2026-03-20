@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useEffect, useMemo, Fragment } from "react";
+import { useState, useEffect, useMemo, Fragment, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
+import { debounce } from "lodash";
 import {
   PayPalButtons,
   FUNDING,
   PayPalScriptProvider,
 } from "@paypal/react-paypal-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { toast } from "sonner";
 import { Elements } from "@stripe/react-stripe-js";
 
 import MetaData from "@/frontoffice/_components/MetaData";
@@ -19,6 +21,7 @@ import CheckoutForm from "./CheckoutForm";
 import createAxiosInstance from "@/utils/axiosConfig";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
+import { fadeInUp, fadeInLeft, premiumTransition } from "@/utils/animations";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,6 +41,7 @@ const Payment = () => {
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const axiosInstance = useMemo(() => createAxiosInstance("customer"), []);
 
   const router = useRouter();
@@ -46,6 +50,27 @@ const Payment = () => {
     (acc, item) => acc + (item.discountPrice || item.price) * item.quantity,
     0,
   );
+
+  useEffect(() => {
+    if (isSuccess) return;
+
+    if (cartItems.length === 0) {
+      router.replace("/products");
+      return;
+    }
+
+    if (!shippingInfo || !shippingInfo.address) {
+      toast.error(t("Please provide your shipping information first"));
+      router.replace("/shipping");
+      return;
+    }
+
+    if (!shippingInfo.totalPrice) {
+      toast.error(t("Please confirm your order first"));
+      router.replace("/confirm");
+      return;
+    }
+  }, [cartItems, shippingInfo, router, t, isSuccess]);
 
   const totalPriceUSD = (shippingInfo?.totalPrice * 0.11).toFixed(2);
 
@@ -167,6 +192,7 @@ const Payment = () => {
 
         await axiosInstance.post("/payments/save-payment-info", paymentData);
 
+        setIsSuccess(true);
         dispatch(clearCart());
         router.push("/success");
       } catch (error) {
@@ -187,6 +213,7 @@ const Payment = () => {
 
       await axiosInstance.post("/payments" + operation, paymentData);
 
+      setIsSuccess(true);
       dispatch(clearCart());
 
       setLoading(false);
@@ -205,6 +232,14 @@ const Payment = () => {
       console.error("Error processing payment:", error);
     }
   };
+
+  const debouncedHandleCODPayment = useCallback(
+    debounce(handleCODPayment, 1500, {
+      leading: true,
+      trailing: false,
+    }),
+    [customer, cartItems, shippingInfo],
+  );
 
   return (
     <Fragment>
@@ -230,8 +265,10 @@ const Payment = () => {
             {/* Payment Selection */}
             <div className="lg:col-span-2 space-y-8">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                variants={fadeInUp}
+                initial="initial"
+                whileInView="animate"
+                viewport={{ once: true }}
                 className="bg-white rounded-4xl sm:rounded-[3rem] p-6 sm:p-12 shadow-2xl shadow-gray-200/50 border border-gray-100"
               >
                 <div className="space-y-10">
@@ -330,10 +367,11 @@ const Payment = () => {
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={paymentMethod}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 10 }}
-                      transition={{ duration: 0.3 }}
+                      variants={fadeInLeft}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                      transition={premiumTransition}
                     >
                       <Separator className="bg-gray-100 my-10" />
 
@@ -361,9 +399,9 @@ const Payment = () => {
                             </div>
                           </div>
                           <Button
-                            onClick={handleCODPayment}
+                            onClick={debouncedHandleCODPayment}
                             disabled={loading}
-                            className="w-full h-16 rounded-[2.5rem] bg-gray-900 text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-gray-200 hover:bg-black transition-all gap-4 border-none"
+                            className="w-full h-16 rounded-[2.5rem] bg-primary text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-primary/20 hover:bg-primary/90 transition-all gap-4 border-none"
                           >
                             {loading ? (
                               <Iconify

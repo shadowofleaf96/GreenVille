@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import Iconify from "@/components/shared/iconify";
 import createAxiosInstance from "@/utils/axiosConfig";
 

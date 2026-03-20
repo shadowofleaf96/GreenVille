@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import transporter from "../middleware/mailMiddleware.js";
+import { withTransaction } from "../utils/withTransaction.js";
 
 const secretKey = process.env.SECRETKEY;
 
@@ -11,62 +12,76 @@ export const createUser = async (req, res) => {
   const user_image = req.file;
   const { role, user_name, first_name, last_name, email, password } = req.body;
 
-  const existingUser = await User.findOne({
-    $or: [{ user_name }, { email }],
-  });
-
-  if (existingUser) {
-    return res.status(400).json({
-      status: 400,
-      message: "User name or email already exists",
+  try {
+    const existingUser = await User.findOne({
+      $or: [{ user_name }, { email }],
     });
-  }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const newUser = await User.create({
-    user_image: typeof user_image === "string" ? user_image : user_image?.path,
-    role,
-    user_name,
-    first_name,
-    last_name,
-    email,
-    password: hashedPassword,
-    creation_date: Date.now(),
-    status: true,
-  });
-
-  // If role is vendor, create the Vendor profile
-  if (role === "vendor") {
-    try {
-      await Vendor.create({
-        user: newUser._id,
-        store_name: `${user_name}'s Store`, // Default store name
-        store_description: `Welcome to ${user_name}'s store!`,
-        status: "approved", // Auto-approve admin-created vendors
+    if (existingUser) {
+      return res.status(400).json({
+        status: 400,
+        message: "User name or email already exists",
       });
-    } catch (vendorError) {
-      console.error("Error creating vendor profile:", vendorError);
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await withTransaction(async (session) => {
+      const user = new User({
+        user_image:
+          typeof user_image === "string" ? user_image : user_image?.path,
+        role,
+        user_name,
+        first_name,
+        last_name,
+        email,
+        password: hashedPassword,
+        creation_date: Date.now(),
+        status: true,
+      });
+
+      await user.save({ session });
+
+      // If role is vendor, create the Vendor profile
+      if (role === "vendor") {
+        try {
+          const newVendor = new Vendor({
+            user: user._id,
+            store_name: `${user_name}'s Store`, // Default store name
+            store_description: `Welcome to ${user_name}'s store!`,
+            status: "approved", // Auto-approve admin-created vendors
+          });
+          await newVendor.save({ session });
+        } catch (vendorError) {
+          console.error("Error creating vendor profile:", vendorError);
+          throw vendorError;
+        }
+      }
+
+      return user;
+    });
+
+    const mailOptions = {
+      from: process.env.SENDER,
+      to: newUser.email,
+      subject: `Welcome to Our Ecommerce Project`,
+      text: `Hello ${newUser.first_name},\n\nWelcome to Our Ecommerce Project! Your account has been successfully created.`,
+    };
+
+    transporter.sendMail(mailOptions);
+
+    res.status(201).json({
+      status: 201,
+      message: "User created successfully",
+      data: newUser,
+    });
+  } catch (error) {
+    console.error("User Creation Error:", error);
+    res.status(500).json({ error: "Server error" });
   }
-
-  const mailOptions = {
-    from: process.env.SENDER,
-    to: newUser.email,
-    subject: `Welcome to Our Ecommerce Project`,
-    text: `Hello ${newUser.first_name},\n\nWelcome to Our Ecommerce Project! Your account has been successfully created.`,
-  };
-
-  transporter.sendMail(mailOptions);
-
-  res.status(201).json({
-    status: 201,
-    message: "User created successfully",
-    data: newUser,
-  });
 };
 
-export const getAllUsers = async (req, res, next) => {
+export const getAllUsers = async (req, res) => {
   const { page, sort, role } = req.query;
   const perPage = 10;
 
@@ -97,7 +112,7 @@ export const getAllUsers = async (req, res, next) => {
   }
 };
 
-export const searchUser = async (req, res, next) => {
+export const searchUser = async (req, res) => {
   let { query, page = 1, sort = "DESC" } = req.query;
   const perPage = 10;
 
@@ -124,7 +139,7 @@ export const searchUser = async (req, res, next) => {
   res.status(200).json({ data: users });
 };
 
-export const getUserDetails = async (req, res, next) => {
+export const getUserDetails = async (req, res) => {
   const userId = req.params.id;
   const matchingUser = await User.findById(userId).lean();
 
@@ -223,7 +238,7 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-export const loginUser = async (req, res, next) => {
+export const loginUser = async (req, res) => {
   const { user_name, password } = req.body;
 
   const user = await User.findOne({ user_name });

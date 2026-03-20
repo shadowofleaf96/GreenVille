@@ -9,6 +9,7 @@ import DashboardNotification from "../models/DashboardNotification.js";
  * @param {Object} [params.metadata] - Optional object containing related IDs (e.g., { order_id: "..." })
  * @param {string} [params.recipient_role="admin"] - "admin" or "vendor"
  * @param {string} [params.vendor_id=null] - Specify if the notification is for a specific vendor
+ * @param {Object} [params.session=null] - Mongoose session for transactions
  */
 export const createDashboardNotification = async ({
   type,
@@ -17,6 +18,7 @@ export const createDashboardNotification = async ({
   metadata = {},
   recipient_role = "admin",
   vendor_id = null,
+  session = null,
 }) => {
   try {
     const notification = new DashboardNotification({
@@ -27,9 +29,16 @@ export const createDashboardNotification = async ({
       recipient_role,
       vendor_id,
     });
-    await notification.save();
+
+    if (session) {
+      await notification.save({ session });
+    } else {
+      await notification.save();
+    }
+
     return notification;
   } catch (error) {
     console.error("Error creating dashboard notification:", error);
+    throw error;
   }
 };

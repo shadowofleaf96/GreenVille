@@ -2,6 +2,8 @@
 
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { fadeInUp, premiumTransition } from "@/utils/animations";
 
 const RefundPolicy = () => {
   const { t, i18n } = useTranslation();
@@ -18,8 +20,8 @@ const RefundPolicy = () => {
   const currentLang = i18n.language;
 
   return (
-    <div>
-      <div className="container h-screen mx-auto px-4 py-8">
+    <motion.div variants={fadeInUp} initial="initial" animate="animate">
+      <div className="container min-h-[60vh] mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6 text-center">
           {t("refund_policy.title")}
         </h1>
@@ -95,7 +97,7 @@ const RefundPolicy = () => {
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

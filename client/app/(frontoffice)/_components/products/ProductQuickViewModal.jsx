@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, memo } from "react";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 import Iconify from "@/components/shared/iconify";

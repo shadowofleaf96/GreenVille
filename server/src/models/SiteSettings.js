@@ -80,6 +80,8 @@ const SiteSettingsJoiSchema = Joi.object({
     secondary_color: Joi.string().allow("").optional(),
     accent_color: Joi.string().allow("").optional(),
     bgColor: Joi.string().allow("").optional(),
+    primary_font: Joi.string().allow("").optional(),
+    secondary_font: Joi.string().allow("").optional(),
   }).optional(),
   about_page: Joi.object({
     title: multilingualStringSchema.optional(),
@@ -163,6 +165,9 @@ const SiteSettingsJoiSchema = Joi.object({
     paypal_active: Joi.boolean().default(true).optional(),
     stripe_active: Joi.boolean().default(true).optional(),
   }).optional(),
+  vendor_config: Joi.object({
+    isActive: Joi.boolean().default(true).optional(),
+  }).optional(),
   createdAt: Joi.date().optional(),
   updatedAt: Joi.date().optional(),
 });
@@ -242,6 +247,8 @@ const SiteSettingsSchema = new mongoose.Schema(
       secondary_color: { type: String, default: "#eab308" },
       accent_color: { type: String, default: "#fefce8" },
       bgColor: { type: String, default: "#ffffff" },
+      primary_font: { type: String, default: "Raleway" },
+      secondary_font: { type: String, default: "Raleway" },
     },
     about_page: {
       title: multilingualSchema,
@@ -322,6 +329,9 @@ const SiteSettingsSchema = new mongoose.Schema(
       paypal_active: { type: Boolean, default: true },
       stripe_active: { type: Boolean, default: true },
     },
+    vendor_config: {
+      isActive: { type: Boolean, default: true },
+    },
   },
   {
     collection: "SiteSettings",
@@ -360,6 +370,7 @@ SiteSettingsSchema.pre("save", async function () {
     this.shipping_config = validatedData.shipping_config;
     this.vat_config = validatedData.vat_config;
     this.payment_methods = validatedData.payment_methods;
+    this.vendor_config = validatedData.vendor_config;
   } catch (error) {
     console.error(error);
   }

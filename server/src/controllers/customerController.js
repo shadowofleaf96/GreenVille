@@ -8,6 +8,7 @@ import transporter from "../middleware/mailMiddleware.js";
 import { SiteSettings } from "../models/SiteSettings.js";
 import { sendSecurityAlertEmail } from "../utils/emailUtility.js";
 import { createDashboardNotification } from "../utils/dashboardNotificationUtility.js";
+import { withTransaction } from "../utils/withTransaction.js";
 
 const secretKey = process.env.SECRETKEY;
 const captchaSecretKey = process.env.CAPTCHA_SECRET_KEY;
@@ -255,36 +256,49 @@ export const createCustomer = async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-
   const validationToken = crypto.randomBytes(32).toString("hex");
 
-  const newCustomer = new Customer({
-    customer_image:
-      typeof customer_image === "string"
-        ? customer_image
-        : customer_image?.path || null,
-    first_name,
-    last_name,
-    email,
-    password: hashedPassword,
-    creation_date: Date.now(),
-    status: true,
-    validation_token: validationToken,
-  });
-
-  await newCustomer.save();
-
-  // Dashboard Notification for Admin
+  let newCustomer;
   try {
-    await createDashboardNotification({
-      type: "CUSTOMER_REGISTERED",
-      title: "New Customer Joined",
-      message: `${first_name} ${last_name} has just registered.`,
-      metadata: { customer_id: newCustomer._id },
-      recipient_role: "admin",
+    newCustomer = await withTransaction(async (session) => {
+      const customer = new Customer({
+        customer_image:
+          typeof customer_image === "string"
+            ? customer_image
+            : customer_image?.path || null,
+        first_name,
+        last_name,
+        email,
+        password: hashedPassword,
+        creation_date: Date.now(),
+        status: true,
+        validation_token: validationToken,
+      });
+
+      await customer.save({ session });
+
+      // Dashboard Notification for Admin
+      try {
+        await createDashboardNotification({
+          type: "CUSTOMER_REGISTERED",
+          title: "New Customer Joined",
+          message: `${first_name} ${last_name} has just registered.`,
+          metadata: { customer_id: customer._id },
+          recipient_role: "admin",
+          session,
+        });
+      } catch (notifError) {
+        console.error("Failed to create dashboard notification:", notifError);
+        // Re-throw to ensure transaction rollback if notification fails
+        throw notifError;
+      }
+      return customer;
     });
-  } catch (notifError) {
-    console.error("Failed to create dashboard notification:", notifError);
+  } catch (error) {
+    console.error("Transaction Error during customer registration:", error);
+    return res
+      .status(500)
+      .json({ error: "Failed to create customer due to a transaction error." });
   }
 
   const settings = await SiteSettings.findOne();

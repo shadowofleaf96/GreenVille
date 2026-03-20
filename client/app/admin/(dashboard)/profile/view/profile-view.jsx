@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import { updateVendorProfile } from "@/store/slices/admin/authSlice";
 
@@ -27,6 +27,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { motion } from "framer-motion";
+import { staggerContainer, fadeInUp } from "@/utils/animations";
 
 const ProfilePage = () => {
   const { t } = useTranslation();
@@ -84,8 +86,13 @@ const ProfilePage = () => {
   }`.toUpperCase();
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-12 animate-in fade-in duration-500">
-      <div className="relative">
+    <motion.div
+      variants={staggerContainer}
+      initial="initial"
+      animate="animate"
+      className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-12"
+    >
+      <motion.div variants={fadeInUp} className="relative">
         {/* Cover Image */}
         <div className="h-48 sm:h-64 w-full rounded-3xl bg-linear-to-r from-primary to-green-600 shadow-xl shadow-primary/20 relative overflow-hidden">
           <div className="absolute inset-0 bg-white/5 backdrop-blur-3xl animate-pulse duration-1000" />
@@ -182,11 +189,11 @@ const ProfilePage = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
 
       {/* Vendor Notification Section */}
       {admin?.role === "vendor" && vendorProfile && (
-        <div className="space-y-6 pt-6">
+        <motion.div variants={fadeInUp} className="space-y-6 pt-6">
           <div className="flex items-center justify-between px-2">
             <h2 className="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
@@ -276,7 +283,7 @@ const ProfilePage = () => {
                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">
                         {t("Store Joined")}
                       </Label>
-                      <div className="flex items-center gap-3 text-gray-900 font-bold p-4 rounded-xl bg-gray-50/30 border border-gray-50">
+                      <div className="flex items-center gap-3 text-gray-900 font-bold p-4 rounded-xl bg-gray-50/30 border border-gray-100">
                         <Iconify
                           icon="solar:calendar-bold-duotone"
                           width={22}
@@ -292,7 +299,7 @@ const ProfilePage = () => {
                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">
                         {t("Verification Status")}
                       </Label>
-                      <div className="flex items-center gap-3 text-gray-900 font-bold p-4 rounded-xl bg-gray-50/30 border border-gray-50">
+                      <div className="flex items-center gap-3 text-gray-900 font-bold p-4 rounded-xl bg-gray-50/30 border border-gray-100">
                         <Iconify
                           icon={
                             vendorProfile.status === "approved"
@@ -316,7 +323,7 @@ const ProfilePage = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </motion.div>
       )}
 
       {/* Edit Vendor Dialog */}
@@ -434,7 +441,7 @@ const ProfilePage = () => {
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 };
 

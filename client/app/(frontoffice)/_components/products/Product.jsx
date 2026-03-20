@@ -1,18 +1,23 @@
 import { memo } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import Iconify from "@/components/shared/iconify";
 import { addItemToCart } from "@/store/slices/shop/cartSlice";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import optimizeImage from "../optimizeImage";
 import LazyImage from "@/components/shared/lazyimage/LazyImage";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { fadeInUp } from "@/utils/animations";
 
 const Product = memo(({ product, onQuickView }) => {
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language;
+
+  const { data: settings } = useSelector((state) => state.adminSettings);
+  const showVendor = settings?.vendor_config?.isActive !== false;
 
   const addToCart = (e) => {
     e.preventDefault();
@@ -69,7 +74,8 @@ const Product = memo(({ product, onQuickView }) => {
   };
 
   return (
-    <div
+    <motion.div
+      {...fadeInUp}
       data-testid="product-card"
       className="group relative bg-white rounded-4xl border border-gray-100 hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 flex flex-col h-full overflow-hidden"
     >
@@ -109,7 +115,7 @@ const Product = memo(({ product, onQuickView }) => {
 
         {/* Vendor name */}
         <div className="h-6 mt-2 flex justify-center">
-          {product?.vendor && (
+          {showVendor && product?.vendor && (
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">
               {t("Sold by")}:{" "}
               <span className="text-primary font-black">
@@ -129,7 +135,7 @@ const Product = memo(({ product, onQuickView }) => {
       <div className="p-4 pt-0">
         <Button
           onClick={product?.variants?.length > 0 ? handleQuickView : addToCart}
-          className="w-full h-12 rounded-2xl bg-gray-900 group-hover:bg-primary text-white font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl shadow-gray-200 group-hover:shadow-primary/30 transition-all duration-500 flex items-center justify-center gap-2 border-none"
+          className="w-full h-12 rounded-2xl bg-primary text-white font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all duration-500 flex items-center justify-center gap-2 border-none"
         >
           <Iconify
             icon={
@@ -142,7 +148,7 @@ const Product = memo(({ product, onQuickView }) => {
           {product?.variants?.length > 0 ? t("Select Options") : t("addToCart")}
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 });
 

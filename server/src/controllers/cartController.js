@@ -1,5 +1,6 @@
 import { Cart } from "../models/Cart.js";
 import { Product } from "../models/Product.js";
+import { withTransaction } from "../utils/withTransaction.js";
 
 // Helper to expand cart items with product details for the frontend
 const populateCartItems = async (items) => {
@@ -94,45 +95,47 @@ export const mergeCart = async (req, res) => {
     const userId = req.user._id;
     const { items: guestItems } = req.body;
 
-    let cart = await Cart.findOne({ userId });
+    await withTransaction(async (session) => {
+      let cart = await Cart.findOne({ userId }).session(session);
 
-    if (!cart) {
-      // If no server cart, just save the guest cart
-      cart = new Cart({ userId, items: guestItems });
-      await cart.save();
-    } else {
-      // Merge logic:
-      // Loop through guest items. If item exists (same product + same variant), update quantity.
-      // If not, push.
+      if (!cart) {
+        // If no server cart, just save the guest cart
+        cart = new Cart({ userId, items: guestItems });
+        await cart.save({ session });
+      } else {
+        // Merge logic:
+        guestItems.forEach((guestItem) => {
+          const existingItemIndex = cart.items.findIndex((dbItem) => {
+            const sameProduct = dbItem.product.toString() === guestItem.product;
 
-      guestItems.forEach((guestItem) => {
-        const existingItemIndex = cart.items.findIndex((dbItem) => {
-          const sameProduct = dbItem.product.toString() === guestItem.product;
+            const guestVarId = guestItem.variant?._id;
+            const dbVarId = dbItem.variant?._id;
 
-          const guestVarId = guestItem.variant?._id;
-          const dbVarId = dbItem.variant?._id;
+            const sameVariant =
+              (guestVarId && dbVarId && guestVarId === dbVarId) ||
+              (!guestVarId && !dbVarId);
 
-          const sameVariant =
-            (guestVarId && dbVarId && guestVarId === dbVarId) ||
-            (!guestVarId && !dbVarId);
+            return sameProduct && sameVariant;
+          });
 
-          return sameProduct && sameVariant;
+          if (existingItemIndex > -1) {
+            // Update quantity
+            cart.items[existingItemIndex].quantity += guestItem.quantity;
+          } else {
+            // Add new
+            cart.items.push(guestItem);
+          }
         });
 
-        if (existingItemIndex > -1) {
-          // Update quantity
-          cart.items[existingItemIndex].quantity += guestItem.quantity;
-        } else {
-          // Add new
-          cart.items.push(guestItem);
-        }
-      });
+        await cart.save({ session });
+      }
+    });
 
-      await cart.save();
-    }
+    // fetch again for read after transaction
+    const finalCart = await Cart.findOne({ userId });
 
     // Return the full populated cart back to client
-    const formattedItems = await populateCartItems(cart.items);
+    const formattedItems = await populateCartItems(finalCart.items);
     res.status(200).json({ items: formattedItems });
   } catch (error) {
     console.error("Merge Cart Error:", error);

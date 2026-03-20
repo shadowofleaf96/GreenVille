@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useForm } from "react-hook-form";
 import createAxiosInstance from "@/utils/axiosConfig";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -20,10 +20,7 @@ import { Fragment, useState } from "react";
 import Link from "next/link";
 import Iconify from "@/components/shared/iconify/index";
 
-const fadeInVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
-};
+import { fadeInUp, premiumTransition } from "@/utils/animations";
 
 const Contact = () => {
   const [formRef, formInView] = useInView({
@@ -98,14 +95,14 @@ const Contact = () => {
 
   return (
     <Fragment>
-      <div className="py-20 md:py-32 bg-white overflow-hidden">
+      <div className="py-12 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto space-y-24">
           {/* Hero & Form Section */}
           <motion.div
             ref={formRef}
-            variants={fadeInVariants}
-            initial="hidden"
-            animate={formInView ? "visible" : "hidden"}
+            variants={fadeInUp}
+            initial="initial"
+            animate={formInView ? "animate" : "initial"}
             className="grid lg:grid-cols-2 gap-16 items-center"
           >
             <div className="relative group text-center lg:text-left space-y-8 order-2 lg:order-1">
@@ -265,7 +262,7 @@ const Contact = () => {
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-16 rounded-4xl bg-gray-900 text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-gray-200 hover:bg-black transition-all gap-4 border-none"
+                    className="w-full h-16 rounded-4xl bg-primary text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-primary/20 hover:bg-primary/90 transition-all gap-4 border-none"
                   >
                     {loading ? (
                       <>
@@ -287,9 +284,9 @@ const Contact = () => {
           {/* Info & Map Section */}
           <motion.div
             ref={infoRef}
-            variants={fadeInVariants}
-            initial="hidden"
-            animate={infoInView ? "visible" : "hidden"}
+            variants={fadeInUp}
+            initial="initial"
+            animate={infoInView ? "animate" : "initial"}
             className="grid lg:grid-cols-2 gap-16"
           >
             <div className="p-10 md:p-12 bg-white rounded-[3rem] shadow-xl border border-gray-100 space-y-12">

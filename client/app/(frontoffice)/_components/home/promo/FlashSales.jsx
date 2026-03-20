@@ -1,22 +1,24 @@
-import { useRef, useEffect, useState } from "react";
+"use client";
+
+import { useRef, useState } from "react";
 import Iconify from "@/components/shared/iconify";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import optimizeImage from "@/frontoffice/_components/optimizeImage";
-import LazyImage from "@/components/shared/lazyimage/LazyImage";
-import { motion, useAnimation, useMotionValue } from "framer-motion";
+import Product from "@/frontoffice/_components/products/Product";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Autoplay, FreeMode } from "swiper/modules";
+import { fadeInUp, premiumTransition } from "@/utils/animations";
+
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/free-mode";
 
 const FlashSales = ({ products }) => {
   const { t, i18n } = useTranslation();
-  const currentLanguage = i18n.language;
-
-  const [width, setWidth] = useState(0);
-  const carouselRef = useRef();
-  const innerRef = useRef();
-  const controls = useAnimation();
-  const x = useMotionValue(0);
-  const isDragging = useRef(false);
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
 
   const flashSalesProducts = products?.filter(
     (product) => product.on_sale === true,
@@ -24,226 +26,138 @@ const FlashSales = ({ products }) => {
 
   const noProductsAvailable = !products || products.length === 0;
 
-  useEffect(() => {
-    if (carouselRef.current && innerRef.current) {
-      const totalWidth = innerRef.current.scrollWidth;
-      const visibleWidth = carouselRef.current.offsetWidth;
-      setWidth(totalWidth - visibleWidth);
-    }
-  }, [flashSalesProducts]);
+  if (noProductsAvailable) {
+    return (
+      <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center">
+        <Iconify
+          className="mb-4 text-gray-200"
+          icon="solar:box-minimalistic-linear"
+          width={100}
+        />
+        <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tight mb-2">
+          {t("Error Loading Products")}
+        </h3>
+        <Button
+          className="bg-primary text-white rounded-2xl font-bold px-8"
+          onClick={() => window.location.reload()}
+        >
+          {t("Reload")}
+        </Button>
+      </div>
+    );
+  }
 
-  const handleScroll = (direction) => {
-    const scrollAmount = 320;
-    const currentX = x.get();
-
-    let newX;
-    if (direction === "left") {
-      newX = Math.min(currentX + scrollAmount, 0);
-    } else {
-      if (Math.abs(currentX) >= width - 10) {
-        newX = 0;
-      } else {
-        newX = Math.max(currentX - scrollAmount, -width);
-      }
-    }
-
-    controls.start({
-      x: newX,
-      transition: { type: "spring", stiffness: 300, damping: 30 },
-    });
-  };
-
-  useEffect(() => {
-    const intervalTime = 5000;
-
-    const interval = setInterval(() => {
-      if (isDragging.current) return;
-
-      const currentX = x.get();
-      let newX;
-
-      if (Math.abs(currentX) >= width - 10) {
-        newX = 0;
-      } else {
-        newX = Math.max(currentX - 320, -width);
-      }
-
-      controls.start({
-        x: newX,
-        transition: { duration: 0.8, ease: "easeInOut" },
-      });
-    }, intervalTime);
-
-    return () => clearInterval(interval);
-  }, [width, controls, x]);
+  if (!flashSalesProducts || flashSalesProducts.length === 0) return null;
 
   return (
-    <div className="relative mt-6 mb-6 mx-4 md:mx-0 select-none">
-      <div className="container mx-auto px-4 mb-4 lg:mb-8">
-        {noProductsAvailable ? (
-          <div className="flex flex-col items-center justify-center text-center p-2">
-            <Iconify
-              className="mb-2"
-              icon="mdi:alert-circle-outline"
-              width={100}
-              height={100}
-            />
-            <h3 className="text-lg md:text-2xl font-semibold text-gray-800 mb-2">
-              {t("Error Loading Products")}
-            </h3>
-            <p className="text-gray-600 mb-4">
-              {t(
-                "There was an issue loading the products. Please try again later.",
-              )}
-            </p>
+    <div className="max-w-7xl mx-auto relative py-12 overflow-hidden select-none">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header Aesthetic matching Single Product */}
+        <div className="flex items-center justify-between gap-6 mb-10">
+          <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 uppercase tracking-tight">
+              {t("Flash Sales")}
+            </h2>
+            <span className="text-primary font-black text-[10px] sm:text-xs uppercase tracking-[0.3em] flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              {t("Limited Time")}
+            </span>
+          </div>
+
+          <div className="h-0.5 flex-1 bg-gray-100 rounded-full hidden md:block" />
+
+          <div className="flex items-center gap-3 shrink-0">
+            {/* Swiper Controls */}
+            <div className="flex items-center gap-2 mr-2 sm:mr-4">
+              <button
+                ref={prevRef}
+                className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-gray-100 bg-white text-gray-500 hover:text-primary hover:border-primary/20 transition-all shadow-sm flex items-center justify-center group"
+              >
+                <Iconify
+                  icon="solar:alt-arrow-left-bold-duotone"
+                  width={20}
+                  className="group-hover:-translate-x-0.5 transition-transform rtl:rotate-180"
+                />
+              </button>
+              <button
+                ref={nextRef}
+                className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-gray-100 bg-white text-gray-500 hover:text-primary hover:border-primary/20 transition-all shadow-sm flex items-center justify-center group"
+              >
+                <Iconify
+                  icon="solar:alt-arrow-right-bold-duotone"
+                  width={20}
+                  className="group-hover:translate-x-0.5 transition-transform rtl:rotate-180"
+                />
+              </button>
+            </div>
+
             <Button
-              className="px-6 p-3 bg-primary text-white shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-secondary rounded-md font-bold"
-              onClick={() => window.location.reload()}
+              variant="premium"
+              className="h-10 sm:h-12 px-6 sm:px-8 text-[10px] sm:text-xs uppercase font-black tracking-widest rounded-2xl shadow-xl shadow-primary/10"
+              asChild
             >
-              {t("Reload")}
+              <Link href="/products?sales">
+                {t("See all")}
+                <Iconify
+                  icon="solar:arrow-right-bold-duotone"
+                  width={18}
+                  className="ml-2 rtl:mr-2 rtl:rotate-180"
+                />
+              </Link>
             </Button>
           </div>
-        ) : (
-          <>
-            {flashSalesProducts?.length > 0 && (
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-xl sm:text-2xl font-black text-gray-900 uppercase tracking-tight">
-                    {t("Flash Sales")}
-                  </h4>
-                  <Button
-                    variant="premium"
-                    className="h-10 px-6 text-xs sm:text-sm"
-                    asChild
-                  >
-                    <Link href="/products/option?sales">
-                      {t("See all")}
-                      <Iconify
-                        icon="solar:arrow-right-bold-duotone"
-                        width={16}
-                        className="ml-2 rtl:mr-2 rtl:rotate-180"
-                      />
-                    </Link>
-                  </Button>
-                </div>
+        </div>
 
-                <div className="relative group">
-                  <div className="max-w-full overflow-hidden" ref={carouselRef}>
-                    <motion.div
-                      className="flex space-x-4 mt-4 cursor-grab active:cursor-grabbing"
-                      drag="x"
-                      dragConstraints={{ right: 0, left: -width }}
-                      animate={controls}
-                      style={{ x }}
-                      onDragStart={() => {
-                        isDragging.current = true;
-                      }}
-                      onDragEnd={() => {
-                        setTimeout(() => {
-                          isDragging.current = false;
-                        }, 200);
-                      }}
-                      ref={innerRef}
-                      whileTap={{ cursor: "grabbing" }}
-                    >
-                      {flashSalesProducts.map((product, index) => (
-                        <motion.div
-                          key={index}
-                          className="flex flex-col bg-white rounded-4xl w-64 md:w-80 shrink-0 overflow-hidden border border-gray-100 shadow-xl shadow-gray-100/50 group/item"
-                        >
-                          <Link
-                            href={`/product/${product?._id}`}
-                            className="no-underline text-black font-semibold text-lg hover:text-gray-500"
-                            draggable="false"
-                            onClick={(e) => {
-                              if (isDragging.current) {
-                                e.preventDefault();
-                              }
-                            }}
-                          >
-                            <div className="relative aspect-square bg-gray-50/50 p-6 flex items-center justify-center overflow-hidden">
-                              <LazyImage
-                                wrapperClassName="w-full h-full flex items-center justify-center relative"
-                                src={
-                                  typeof product?.product_images === "string"
-                                    ? `${optimizeImage(
-                                        product?.product_images,
-                                        400,
-                                      )}`
-                                    : `${optimizeImage(
-                                        product?.product_images[0],
-                                        400,
-                                      )}`
-                                }
-                                alt={product?.product_name[currentLanguage]}
-                                className="h-full w-full object-contain group-hover/item:scale-110 transition-transform duration-500 pointer-events-none drop-shadow-xl"
-                                width={288}
-                                height={208}
-                              />
-                            </div>
-                            <div className="p-6 space-y-2 flex flex-col items-center">
-                              <p className="text-gray-900 font-black text-sm md:text-base uppercase tracking-tight truncate px-2 text-center w-full">
-                                {product?.product_name[currentLanguage]}
-                              </p>
-                              <div className="flex justify-center text-center">
-                                {product?.discount_price &&
-                                product?.discount_price !== product?.price ? (
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-black text-lg md:text-xl text-primary">
-                                      {product?.discount_price} {t("DH")}
-                                    </span>
-                                    <span className="line-through text-xs md:text-sm text-gray-400 font-bold">
-                                      {product?.price} {t("DH")}
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <span className="font-black text-lg md:text-xl text-gray-900">
-                                    {product?.price} {t("DH")}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </Link>
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                  </div>
-                  {/* Left Button */}
-                  <div className="absolute top-1/2 -translate-y-1/2 -left-2 sm:-left-4 z-10">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleScroll("left")}
-                      className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-primary text-white hover:bg-primary/90 opacity-75 hover:opacity-100 transition-all shadow-lg"
-                    >
-                      <Iconify
-                        icon="material-symbols-light:chevron-left-rounded"
-                        width={24}
-                        className="sm:w-8 sm:h-8"
-                      />
-                    </Button>
-                  </div>
-
-                  {/* Right Button */}
-                  <div className="absolute top-1/2 -translate-y-1/2 -right-2 sm:-right-4 z-10">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleScroll("right")}
-                      className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-primary text-white hover:bg-primary/90 opacity-75 hover:opacity-100 transition-all shadow-lg"
-                    >
-                      <Iconify
-                        icon="material-symbols-light:chevron-right-rounded"
-                        width={24}
-                        className="sm:w-8 sm:h-8"
-                      />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
-        )}
+        {/* Swiper Carousel - Contained Start, Screen Edge Overflow */}
+        <div className="products-carousel relative pt-4">
+          <Swiper
+            modules={[Navigation, Autoplay, FreeMode]}
+            spaceBetween={20}
+            slidesPerView={"auto"}
+            freeMode={true}
+            grabCursor={true}
+            navigation={{
+              prevEl: prevRef.current,
+              nextEl: nextRef.current,
+            }}
+            autoplay={{
+              delay: 5000,
+              disableOnInteraction: true,
+              pauseOnMouseEnter: true,
+            }}
+            onBeforeInit={(swiper) => {
+              swiper.params.navigation.prevEl = prevRef.current;
+              swiper.params.navigation.nextEl = nextRef.current;
+            }}
+            breakpoints={{
+              640: { spaceBetween: 24 },
+              1024: { spaceBetween: 24 },
+              1280: { spaceBetween: 32 },
+            }}
+            className="overflow-visible!"
+          >
+            {flashSalesProducts.map((product, index) => (
+              <SwiperSlide
+                key={product._id || index}
+                className="w-65! sm:w-70! lg:w-80! h-auto"
+              >
+                <motion.div
+                  variants={fadeInUp}
+                  initial="initial"
+                  whileInView="animate"
+                  viewport={{ once: true }}
+                  transition={{ ...fadeInUp.transition, delay: index * 0.1 }}
+                  className="h-full pb-8"
+                >
+                  <Product product={product} onQuickView={() => {}} />
+                </motion.div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
       </div>
     </div>
   );

@@ -2,6 +2,8 @@
 
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { fadeInUp, premiumTransition } from "@/utils/animations";
 
 const ShippingAndDeliveryPolicy = () => {
   const { t, i18n } = useTranslation();
@@ -19,7 +21,12 @@ const ShippingAndDeliveryPolicy = () => {
   const currentLang = i18n.language;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <motion.div
+      variants={fadeInUp}
+      initial="initial"
+      animate="animate"
+      className="container min-h-[60vh] mx-auto px-4 py-8"
+    >
       <h1 className="text-3xl font-bold mb-6 text-center">
         {t("shipping_delivery.title")}
       </h1>
@@ -100,7 +107,7 @@ const ShippingAndDeliveryPolicy = () => {
           </>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

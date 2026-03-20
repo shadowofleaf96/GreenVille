@@ -1,5 +1,4 @@
 @import "simplebar-react/dist/simplebar.min.css";
-
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -12,7 +11,8 @@
   Tailwind CSS v4 Configuration
 */
 @theme {
-  --font-sans: var(--font-raleway), "Raleway", sans-serif;
+  --font-sans: var(--font-body), "Raleway", sans-serif;
+  --font-heading: var(--font-heading), var(--font-body), serif;
 
   --color-border: var(--border);
   --color-input: var(--input);
@@ -199,7 +199,11 @@ html {
 }
 
 * {
-  font-family: "Raleway", sans-serif;
+  font-family: var(--font-body), "Raleway", sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), var(--font-body), sans-serif;
 }
 
 body {
@@ -505,82 +509,50 @@ body {
 
 
 /* React Toastify Custom Styles */
+:root {
+  --toastify-color-success: color-mix(in srgb, var(--color-primary, #15803d) 90%, transparent);
+  --toastify-color-warning: color-mix(in srgb, var(--color-secondary, #eab308) 90%, transparent);
+  --toastify-color-error: color-mix(in srgb, #ef4444 90%, transparent);
+  --toastify-color-info: color-mix(in srgb, #3b82f6 90%, transparent);
+}
+
 .Toastify__toast-container {
   padding: 16px;
 }
 
 .Toastify__toast {
-  font-family: "Raleway", sans-serif;
-  border-radius: 1.5rem !important;
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1) !important;
-  padding: 0 !important;
-  min-height: 70px !important;
-  background: rgba(255, 255, 255, 0.9) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.5) !important;
-  overflow: hidden !important;
-  margin-bottom: 1rem !important;
+  font-family: var(--font-body), sans-serif;
+  border-radius: 1.25rem !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  padding: 8px !important;
+  min-height: 80px !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  margin-bottom: 1.5rem !important;
+  margin-left: 1rem !important;
 }
 
 .dark .Toastify__toast {
-  background: rgba(20, 20, 20, 0.9) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .Toastify__toast-body {
-  padding: 16px !important;
+  padding: 12px 16px !important;
   margin: 0 !important;
-  font-weight: 600 !important;
-  color: #1f2937;
+  font-weight: 500 !important;
   font-size: 0.95rem !important;
-}
-
-.dark .Toastify__toast-body {
-  color: #f3f4f6;
+  line-height: 1.5 !important;
 }
 
 .Toastify__close-button {
   align-self: center !important;
   margin-right: 16px !important;
-  color: #9ca3af !important;
   opacity: 0.7 !important;
 }
 
 .Toastify__close-button:hover {
   opacity: 1 !important;
-  color: #4b5563 !important;
-}
-
-.dark .Toastify__close-button {
-  color: #6b7280 !important;
-}
-
-.dark .Toastify__close-button:hover {
-  color: #e5e7eb !important;
-}
-
-/* Progress Bar */
-.Toastify__progress-bar {
-  height: 4px !important;
-  background: hsl(var(--primary)) !important;
-}
-
-.Toastify__progress-bar--success {
-  background: hsl(var(--primary)) !important;
-}
-
-.Toastify__progress-bar--error {
-  background: #ef4444 !important;
-}
-
-.Toastify__progress-bar--warning {
-  background: #f59e0b !important;
-}
-
-.Toastify__progress-bar--info {
-  background: #3b82f6 !important;
 }
 
 /* Icons */
@@ -597,4 +569,50 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Premium Swiper Pagination */
+.custom-pagination {
+  display: flex !important;
+  gap: 12px !important;
+  z-index: 50 !important;
+}
+
+.custom-bullet {
+  width: 40px !important;
+  height: 4px !important;
+  border-radius: 4px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  opacity: 1 !important;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+  border: none !important;
+}
+
+.swiper-pagination-bullet-active.custom-bullet {
+  width: 80px !important;
+  background: white !important;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3) !important;
+}
+
+@keyframes aurora-float {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+.animate-aurora {
+  animation: aurora-float 15s ease-in-out infinite;
 }

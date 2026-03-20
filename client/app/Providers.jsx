@@ -6,10 +6,9 @@ import { PersistGate } from "redux-persist/integration/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { ToastContainer, Slide } from "react-toastify";
+import { Toaster } from "sonner";
 
 import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
-import "react-toastify/dist/ReactToastify.css";
 
 import { store, persistor } from "@/store";
 import DynamicThemeProvider from "@/frontoffice/_components/DynamicThemeProvider";
@@ -54,6 +53,7 @@ export default function Providers({ children }) {
         <QueryClientProvider client={queryClient}>
           <GoogleOAuthProvider clientId={googleClientId}>
             <DynamicThemeProvider>
+              <Toaster position="bottom-left" richColors duration={3000} />
               {isAuthPage ? (
                 <GoogleReCaptchaProvider
                   reCaptchaKey={captchaKey}
@@ -69,24 +69,10 @@ export default function Providers({ children }) {
                     },
                   }}
                 >
-                  <ToastContainer
-                    autoClose={1000}
-                    hideProgressBar={true}
-                    position="bottom-left"
-                    transition={Slide}
-                  />
                   <Suspense>{children}</Suspense>
                 </GoogleReCaptchaProvider>
               ) : (
-                <>
-                  <ToastContainer
-                    autoClose={1000}
-                    hideProgressBar={true}
-                    position="bottom-left"
-                    transition={Slide}
-                  />
-                  <Suspense>{children}</Suspense>
-                </>
+                <Suspense>{children}</Suspense>
               )}
             </DynamicThemeProvider>
           </GoogleOAuthProvider>

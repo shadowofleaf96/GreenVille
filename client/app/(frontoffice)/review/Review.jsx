@@ -6,11 +6,12 @@ import { useForm } from "react-hook-form";
 import DOMPurify from "dompurify";
 import createAxiosInstance from "@/utils/axiosConfig";
 import Iconify from "@/components/shared/iconify";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import optimizeImage from "@/frontoffice/_components/optimizeImage";
 import LazyImage from "@/components/shared/lazyimage/LazyImage";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { fadeInUp, scaleIn, premiumTransition } from "@/utils/animations";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -100,7 +101,7 @@ const Review = ({ productId, customerId, closeModal }) => {
   };
 
   return (
-    <div className="bg-white p-8 md:p-12 space-y-10">
+    <motion.div {...fadeInUp} className="bg-white p-8 md:p-12 space-y-10">
       {/* Header Section */}
       <div className="text-center space-y-2">
         <Badge className="bg-primary/5 text-primary font-black text-[10px] uppercase tracking-[0.2em] px-4 py-1.5 border-none mb-4">
@@ -133,8 +134,7 @@ const Review = ({ productId, customerId, closeModal }) => {
         </div>
       ) : alreadyReviewed ? (
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          {...scaleIn}
           className="flex flex-col items-center text-center space-y-8 py-10"
         >
           <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center text-green-500 shadow-inner">
@@ -152,7 +152,7 @@ const Review = ({ productId, customerId, closeModal }) => {
           </div>
           <Button
             onClick={closeModal}
-            className="h-14 px-10 rounded-2xl bg-gray-900 text-white font-black uppercase tracking-widest hover:bg-black transition-all"
+            className="h-14 px-10 rounded-2xl bg-primary text-white font-black uppercase tracking-widest hover:bg-primary/90 transition-all shadow-xl shadow-primary/20"
           >
             {t("Close Window")}
           </Button>
@@ -289,7 +289,7 @@ const Review = ({ productId, customerId, closeModal }) => {
               <Button
                 type="submit"
                 disabled={submitDisabled}
-                className="w-full h-16 rounded-4xl bg-gray-900 text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-gray-200 hover:bg-black transition-all gap-4 border-none"
+                className="w-full h-16 rounded-4xl bg-primary text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-primary/20 hover:bg-primary/90 transition-all gap-4 border-none"
               >
                 {submitDisabled ? (
                   <>
@@ -321,9 +321,8 @@ const Review = ({ productId, customerId, closeModal }) => {
           </form>
         </>
       )}
-    </div>
+    </motion.div>
   );
 };
 
 export default Review;
-

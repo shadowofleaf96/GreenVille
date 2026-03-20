@@ -6,7 +6,7 @@ import { fetchSettings } from "@/store/slices/admin/settingsSlice";
 import { useParams, useRouter } from "next/navigation";
 import Logo from "@/frontoffice/_components/logo";
 import createAxiosInstance from "@/utils/axiosConfig";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import DOMPurify from "dompurify";
@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Iconify from "@/components/shared/iconify";
+import { scaleIn } from "@/utils/animations";
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -95,12 +96,7 @@ const ResetPassword = () => {
         <div className="absolute inset-0 bg-linear-to-b from-black/80 via-transparent to-black/80" />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-md"
-      >
+      <motion.div {...scaleIn} className="relative z-10 w-full max-w-md">
         <Card className="bg-white rounded-[3rem] shadow-2xl shadow-black/80 border border-white/20 overflow-hidden">
           <CardContent className="p-10 md:p-12 space-y-10">
             <div className="flex flex-col items-center gap-8">
@@ -151,7 +147,7 @@ const ResetPassword = () => {
                   </p>
                   <Button
                     onClick={() => router.push("/login")}
-                    className="h-14 px-10 rounded-2xl bg-gray-900 text-white font-black uppercase tracking-widest mt-4"
+                    className="h-14 px-10 rounded-2xl bg-primary text-white font-black uppercase tracking-widest mt-4 shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all"
                   >
                     {t("Return to Portal")}
                   </Button>
@@ -242,7 +238,7 @@ const ResetPassword = () => {
                   <Button
                     type="submit"
                     disabled={loadingSave}
-                    className="w-full h-16 rounded-4xl bg-gray-900 text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-gray-200 hover:bg-black transition-all gap-4 border-none"
+                    className="w-full h-16 rounded-4xl bg-primary text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-primary/20 hover:bg-primary/90 transition-all gap-4 border-none"
                   >
                     {loadingSave ? (
                       <>

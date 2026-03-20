@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useProducts } from "@/services/api/product.queries";
 
@@ -14,6 +14,7 @@ import Announcement from "../announcement/Announcement";
 import LazyImage from "@/components/shared/lazyimage/LazyImage";
 import optimizeImage from "@/frontoffice/_components/optimizeImage";
 import LanguagePopover from "@/admin/_layouts/dashboard/common/language-popover";
+import { fadeInDown, scaleIn, staggerContainer } from "@/utils/animations";
 
 import {
   logout,
@@ -122,7 +123,7 @@ const Navbar = () => {
   ];
 
   return (
-    <div className="fixed w-full z-50">
+    <div className="sticky top-0 w-full z-50">
       <Announcement />
 
       <nav className="bg-white/95 border-b border-gray-100 shadow-sm transition-all duration-300">
@@ -403,10 +404,8 @@ const Navbar = () => {
       <AnimatePresence>
         {isSearchVisible && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full left-0 w-full bg-white shadow-2xl border-b border-gray-100 overflow-hidden z-49 animate-in slide-in-from-top-4 duration-300"
+            {...fadeInDown}
+            className="absolute top-full left-0 w-full bg-white shadow-2xl border-b border-gray-100 overflow-hidden z-49 duration-300"
           >
             <div className="container mx-auto px-4 py-8 max-w-4xl">
               <div className="relative group">

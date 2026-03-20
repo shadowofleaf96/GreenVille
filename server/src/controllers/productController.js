@@ -2,6 +2,7 @@ import { Product } from "../models/Product.js";
 import { Review } from "../models/Review.js";
 import { SubCategory } from "../models/SubCategory.js";
 import { Vendor } from "../models/Vendor.js";
+import { withTransaction } from "../utils/withTransaction.js";
 
 export const createProduct = async (req, res) => {
   const product_images = req.files;
@@ -427,33 +428,43 @@ export const updateReview = async (req, res) => {
   const { reviewId } = req.params;
   const { newRating, newComment } = req.body;
 
-  const review = await Review.findById(reviewId);
-  if (!review) {
-    return res.status(404).json({ error: "Review not found" });
+  try {
+    await withTransaction(async (session) => {
+      const review = await Review.findById(reviewId).session(session);
+      if (!review) {
+        throw new Error("Review not found");
+      }
+
+      const product = await Product.findById(review.product).session(session);
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      const oldRating = review.rating || 0;
+      const totalRating =
+        (product.average_rating || 0) * (product.total_reviews || 0);
+      const newAverageRating =
+        (totalRating - oldRating + newRating) / (product.total_reviews || 1);
+
+      review.rating = newRating;
+      review.comment = newComment;
+      await review.save({ session });
+
+      product.average_rating = newAverageRating.toFixed(1);
+      await product.save({ session });
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Review updated in product model successfully!",
+    });
+  } catch (error) {
+    if (["Review not found", "Product not found"].includes(error.message)) {
+      return res.status(404).json({ error: error.message });
+    }
+    console.error("Transaction Error during review update:", error);
+    res.status(500).json({ error: "Failed to update review" });
   }
-
-  const product = await Product.findById(review.product);
-  if (!product) {
-    return res.status(404).json({ error: "Product not found" });
-  }
-
-  const oldRating = review.rating || 0;
-  const totalRating =
-    (product.average_rating || 0) * (product.total_reviews || 0);
-  const newAverageRating =
-    (totalRating - oldRating + newRating) / (product.total_reviews || 1);
-
-  review.rating = newRating;
-  review.comment = newComment;
-  await review.save();
-
-  product.average_rating = newAverageRating.toFixed(1);
-  await product.save();
-
-  res.status(200).json({
-    success: true,
-    message: "Review updated in product model successfully!",
-  });
 };
 
 export const getVendorProducts = async (req, res) => {

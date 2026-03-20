@@ -5,9 +5,10 @@ import { useEffect, useState, Suspense } from "react";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "@/store/slices/admin/authSlice";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { fadeInUp, premiumTransition } from "@/utils/animations";
 
 import Logo from "@/admin/_components/logo";
 import Iconify from "@/components/shared/iconify";
@@ -41,10 +42,22 @@ const LoginViewContent = () => {
   const axiosInstance = createAxiosInstance("admin");
   const isRtl = i18n.language === "ar";
 
-  const isLoggedin =
-    typeof window !== "undefined"
-      ? localStorage.getItem("user_access_token")
-      : null;
+  const [isLoggedin, setIsLoggedin] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("user_access_token");
+      const hasCookie = document.cookie.includes("user_access_token");
+
+      if (token && hasCookie) {
+        setIsLoggedin(true);
+      } else if (token && !hasCookie) {
+        // Discrepancy: token in localStorage but no cookie (middleware rejected it)
+        localStorage.removeItem("user_access_token");
+        setIsLoggedin(false);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (isLoggedin) {
@@ -52,7 +65,13 @@ const LoginViewContent = () => {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       const defaultPath =
         user.role === "delivery_boy" ? "/admin/order" : "/admin/";
-      router.replace(redirect || defaultPath);
+
+      // Ensure we don't redirect back to login if already logged in (breaks the loop)
+      if (redirect && !redirect.includes("/admin/login")) {
+        router.replace(redirect);
+      } else {
+        router.replace(defaultPath);
+      }
     }
   }, [isLoggedin, searchParams, router]);
 
@@ -63,6 +82,7 @@ const LoginViewContent = () => {
 
       if (response.status === 200) {
         localStorage.setItem("user_access_token", response.data.access_token);
+        document.cookie = `user_access_token=${response.data.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax;`;
 
         dispatch(
           loginSuccess({
@@ -80,9 +100,8 @@ const LoginViewContent = () => {
       toast.error(
         t("Error") +
           ": " +
-          (error.response?.data?.message || t("An error occurred")),
+          (error.response?.data?.message || t("Login failed")),
       );
-    } finally {
       setLoadingSave(false);
     }
   };
@@ -96,9 +115,9 @@ const LoginViewContent = () => {
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-3xl animate-pulse delay-700" />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        variants={fadeInUp}
+        initial="initial"
+        animate="animate"
         className="w-full max-w-105 px-4 relative z-10"
       >
         <Card className="border-none shadow-[0_20px_50px_rgba(0,0,0,0.05)] rounded-[2.5rem] bg-white/80 backdrop-blur-xl overflow-hidden">

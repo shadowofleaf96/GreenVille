@@ -6,12 +6,13 @@ import MetaData from "@/frontoffice/_components/MetaData";
 import ProfileLink from "@/frontoffice/_components/profileLinks/ProfileLink";
 import UploadButton from "@/admin/_components/button/UploadButton";
 import createAxiosInstance from "@/utils/axiosConfig";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { fetchCustomerProfile } from "@/store/slices/shop/customerSlice";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import Iconify from "@/components/shared/iconify";
 import { motion } from "framer-motion";
+import { fadeInUp, premiumTransition } from "@/utils/animations";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -111,8 +112,10 @@ const UpdateProfile = () => {
             {/* Main Content */}
             <div className="lg:col-span-3">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                variants={fadeInUp}
+                initial="initial"
+                whileInView="animate"
+                viewport={{ once: true }}
                 className="bg-white rounded-4xl sm:rounded-[3rem] shadow-2xl shadow-gray-200/50 border border-gray-100 overflow-hidden"
               >
                 <div className="p-6 sm:p-12 space-y-10">

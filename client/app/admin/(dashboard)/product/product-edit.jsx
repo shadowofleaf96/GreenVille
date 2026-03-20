@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import Iconify from "@/components/shared/iconify";
 import UploadButton from "@/admin/_components/button/UploadButton";
 import LazyImage from "@/components/shared/lazyimage/LazyImage";

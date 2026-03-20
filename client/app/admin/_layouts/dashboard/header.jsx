@@ -8,6 +8,8 @@ import AccountPopover from "./common/account-popover";
 import LanguagePopover from "./common/language-popover";
 import NotificationsPopover from "./common/notifications-popover";
 import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
+import { fadeInDown, premiumTransition } from "@/utils/animations";
 
 export default function Header({ onOpenNav }) {
   const lgUp = useResponsive("up", "lg");
@@ -15,7 +17,10 @@ export default function Header({ onOpenNav }) {
   const isRtl = i18n.language === "ar";
 
   return (
-    <header
+    <motion.header
+      variants={fadeInDown}
+      initial="initial"
+      animate="animate"
       className={`
         fixed top-0 z-40 flex items-center
         transition-all duration-200
@@ -51,7 +56,7 @@ export default function Header({ onOpenNav }) {
           <AccountPopover />
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }
 

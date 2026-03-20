@@ -1,4 +1,5 @@
 import { Coupon } from "../models/Coupon.js";
+import { withTransaction } from "../utils/withTransaction.js";
 
 export const createCoupon = async (req, res) => {
   const { code, discount, expiresAt, usageLimit, status } = req.body;
@@ -24,16 +25,27 @@ export const createCoupon = async (req, res) => {
 export const applyCoupon = async (req, res) => {
   const { code, userId } = req.body;
 
-  const coupon = await Coupon.findOne({ code }).exec();
+  try {
+    const coupon = await withTransaction(async (session) => {
+      const c = await Coupon.findOne({ code }).session(session).exec();
 
-  if (!coupon || !coupon.isValid(userId)) {
-    return res.status(400).json({ error: "Invalid or expired coupon" });
+      if (!c || !c.isValid(userId)) {
+        throw new Error("Invalid or expired coupon");
+      }
+
+      c.usedBy.push(userId);
+      await c.save({ session });
+      return c;
+    });
+
+    res.status(200).json({ success: true, discount: coupon.discount });
+  } catch (error) {
+    if (error.message === "Invalid or expired coupon") {
+      return res.status(400).json({ error: error.message });
+    }
+    console.error("Transaction Error during coupon apply:", error);
+    res.status(500).json({ error: "Failed to apply coupon" });
   }
-
-  coupon.usedBy.push(userId);
-  await coupon.save();
-
-  res.status(200).json({ success: true, discount: coupon.discount });
 };
 
 export const getAllCoupons = async (req, res) => {

@@ -1,8 +1,9 @@
 "use client";
 
 import { useSelector } from "react-redux";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import LazyImage from "@/components/shared/lazyimage/LazyImage";
+import { premiumTransition } from "@/utils/animations";
 
 const Loader = () => {
   const { data: settings } = useSelector((state) => state.adminSettings);
@@ -12,7 +13,13 @@ const Loader = () => {
     : "/assets/logo.webp";
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-white">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={premiumTransition}
+      className="fixed inset-0 z-9999 flex items-center justify-center bg-white"
+    >
       <div className="relative flex flex-col items-center">
         {/* Decorative Background Element */}
         <div className="absolute -inset-10 bg-primary/5 blur-3xl rounded-full" />
@@ -51,7 +58,7 @@ const Loader = () => {
           />
         </div> */}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import Iconify from "@/components/shared/iconify";
 import Scrollbar from "@/admin/_components/scrollbar";
@@ -22,6 +22,12 @@ import {
 } from "@/store/slices/admin/reviewSlice";
 import Loader from "@/frontoffice/_components/loader/Loader";
 import createAxiosInstance from "@/utils/axiosConfig";
+import { motion } from "framer-motion";
+import {
+  fadeInUp,
+  staggerContainer,
+  premiumTransition,
+} from "@/utils/animations";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
@@ -228,185 +234,197 @@ export default function ReviewView() {
   const notFound = !dataFiltered.length && !loading;
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
+    <motion.div
+      variants={staggerContainer}
+      initial="initial"
+      animate="animate"
+      className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8"
+    >
+      <motion.div
+        variants={fadeInUp}
+        className="flex items-center justify-between"
+      >
         <h4 className="text-3xl font-extrabold text-gray-900 tracking-tight">
           {t("Reviews")}
         </h4>
-      </div>
+      </motion.div>
 
-      <Card className="rounded-3xl border-gray-100 shadow-sm overflow-hidden bg-white">
-        <CardContent className="p-0">
-          <ReviewTableToolbar
-            numSelected={selected.length}
-            filterName={filterName}
-            onFilterName={handleFilterByName}
-            selected={selected}
-            setSelected={setSelected}
-            showFilters={showFilters}
-            setShowFilters={setShowFilters}
-            statusFilter={statusFilter}
-            onStatusFilter={handleFilterStatus}
-            ratingFilter={ratingFilter}
-            onRatingFilter={handleFilterRating}
-          />
+      <motion.div variants={fadeInUp}>
+        <Card className="rounded-3xl border-gray-100 shadow-sm overflow-hidden bg-white">
+          <CardContent className="p-0">
+            <ReviewTableToolbar
+              numSelected={selected.length}
+              filterName={filterName}
+              onFilterName={handleFilterByName}
+              selected={selected}
+              setSelected={setSelected}
+              showFilters={showFilters}
+              setShowFilters={setShowFilters}
+              statusFilter={statusFilter}
+              onStatusFilter={handleFilterStatus}
+              ratingFilter={ratingFilter}
+              onRatingFilter={handleFilterRating}
+            />
 
-          <Scrollbar>
-            <Table>
-              <ReviewTableHead
-                order={order}
-                orderBy={orderBy}
-                rowCount={dataFiltered.length}
-                numSelected={selected.length}
-                onRequestSort={handleSort}
-                onSelectAllClick={handleSelectAllClick}
-                headLabel={[
-                  { id: "product", label: t("Product Name") },
-                  { id: "customer", label: t("Customer Name") },
-                  { id: "rating", label: t("Rating") },
-                  { id: "comment", label: t("Comment") },
-                  { id: "review_date", label: t("Review Date") },
-                  { id: "status", label: t("Status") },
-                  { id: " " },
-                ]}
-              />
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="h-24">
-                      <div className="flex justify-center items-center h-full">
-                        <Iconify
-                          icon="svg-spinners:180-ring-with-bg"
-                          width={40}
-                          className="text-primary"
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  <>
-                    {dataFiltered
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage,
-                      )
-                      .map((row) => {
-                        const {
-                          product_id,
-                          customer_id,
-                          rating,
-                          comment,
-                          review_date,
-                          status,
-                        } = row;
-                        const reviewDate = new Date(
-                          review_date,
-                        ).toLocaleDateString();
-
-                        return (
-                          <ReviewTableRow
-                            key={row._id}
-                            product={product_id.product_name[currentLanguage]}
-                            customer={
-                              customer_id.first_name +
-                              " " +
-                              customer_id.last_name
-                            }
-                            rating={rating}
-                            comment={comment}
-                            review_date={reviewDate}
-                            status={status}
-                            selected={selected.indexOf(row._id) !== -1}
-                            handleClick={(event) => handleClick(event, row._id)}
-                            onEdit={() => handleEditReview(row)}
-                            onDelete={(event) =>
-                              openDeleteConfirmation(event, row._id)
-                            }
+            <Scrollbar>
+              <Table>
+                <ReviewTableHead
+                  order={order}
+                  orderBy={orderBy}
+                  rowCount={dataFiltered.length}
+                  numSelected={selected.length}
+                  onRequestSort={handleSort}
+                  onSelectAllClick={handleSelectAllClick}
+                  headLabel={[
+                    { id: "product", label: t("Product Name") },
+                    { id: "customer", label: t("Customer Name") },
+                    { id: "rating", label: t("Rating") },
+                    { id: "comment", label: t("Comment") },
+                    { id: "review_date", label: t("Review Date") },
+                    { id: "status", label: t("Status") },
+                    { id: " " },
+                  ]}
+                />
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="h-24">
+                        <div className="flex justify-center items-center h-full">
+                          <Iconify
+                            icon="svg-spinners:180-ring-with-bg"
+                            width={40}
+                            className="text-primary"
                           />
-                        );
-                      })}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    <>
+                      {dataFiltered
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage,
+                        )
+                        .map((row) => {
+                          const {
+                            product_id,
+                            customer_id,
+                            rating,
+                            comment,
+                            review_date,
+                            status,
+                          } = row;
+                          const reviewDate = new Date(
+                            review_date,
+                          ).toLocaleDateString();
 
-                    {!notFound && (
-                      <TableEmptyRows
-                        height={77}
-                        emptyRows={emptyRows(
-                          page,
-                          rowsPerPage,
-                          dataFiltered.length,
-                        )}
-                      />
-                    )}
+                          return (
+                            <ReviewTableRow
+                              key={row._id}
+                              product={product_id.product_name[currentLanguage]}
+                              customer={
+                                customer_id.first_name +
+                                " " +
+                                customer_id.last_name
+                              }
+                              rating={rating}
+                              comment={comment}
+                              review_date={reviewDate}
+                              status={status}
+                              selected={selected.indexOf(row._id) !== -1}
+                              handleClick={(event) =>
+                                handleClick(event, row._id)
+                              }
+                              onEdit={() => handleEditReview(row)}
+                              onDelete={(event) =>
+                                openDeleteConfirmation(event, row._id)
+                              }
+                            />
+                          );
+                        })}
 
-                    {notFound && (
-                      <TableNoDataFilter
-                        query={filterName}
-                        colSpan={8}
-                        resourceName="Reviews"
-                      />
-                    )}
-                  </>
-                )}
-              </TableBody>
-            </Table>
-          </Scrollbar>
+                      {!notFound && (
+                        <TableEmptyRows
+                          height={77}
+                          emptyRows={emptyRows(
+                            page,
+                            rowsPerPage,
+                            dataFiltered.length,
+                          )}
+                        />
+                      )}
 
-          <div className="flex items-center justify-between px-6 py-5 bg-gray-50/50 border-t border-gray-100">
-            <div className="text-sm font-semibold text-gray-500">
-              {t("Total")}:{" "}
-              <span className="text-gray-900 font-bold">
-                {dataFiltered.length}
-              </span>{" "}
-              {t("reviews")}
-            </div>
-            <div className="flex items-center space-x-8">
-              <div className="flex items-center space-x-3">
-                <span className="text-sm font-bold text-gray-500 whitespace-nowrap">
-                  {t("Rows per page")}:
-                </span>
-                <Select
-                  value={rowsPerPage.toString()}
-                  onValueChange={(v) => handleRowsPerPageChange(parseInt(v))}
-                >
-                  <SelectTrigger className="w-17.5 bg-transparent border-none text-sm font-bold shadow-none focus:ring-0 text-gray-900">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[5, 10, 25].map((v) => (
-                      <SelectItem key={v} value={v.toString()}>
-                        {v}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      {notFound && (
+                        <TableNoDataFilter
+                          query={filterName}
+                          colSpan={8}
+                          resourceName="Reviews"
+                        />
+                      )}
+                    </>
+                  )}
+                </TableBody>
+              </Table>
+            </Scrollbar>
+
+            <div className="flex items-center justify-between px-6 py-5 bg-gray-50/50 border-t border-gray-100">
+              <div className="text-sm font-semibold text-gray-500">
+                {t("Total")}:{" "}
+                <span className="text-gray-900 font-bold">
+                  {dataFiltered.length}
+                </span>{" "}
+                {t("reviews")}
               </div>
-
-              <div className="flex items-center space-x-3">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={page === 0}
-                  onClick={() => handlePageChange(page - 1)}
-                  className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
-                >
-                  <Iconify icon="material-symbols:chevron-left" width={20} />
-                </Button>
-                <div className="bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 text-sm font-bold text-primary min-w-9 text-center">
-                  {page + 1}
+              <div className="flex items-center space-x-8">
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm font-bold text-gray-500 whitespace-nowrap">
+                    {t("Rows per page")}:
+                  </span>
+                  <Select
+                    value={rowsPerPage.toString()}
+                    onValueChange={(v) => handleRowsPerPageChange(parseInt(v))}
+                  >
+                    <SelectTrigger className="w-17.5 bg-transparent border-none text-sm font-bold shadow-none focus:ring-0 text-gray-900">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[5, 10, 25].map((v) => (
+                        <SelectItem key={v} value={v.toString()}>
+                          {v}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={(page + 1) * rowsPerPage >= dataFiltered.length}
-                  onClick={() => handlePageChange(page + 1)}
-                  className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
-                >
-                  <Iconify icon="material-symbols:chevron-right" width={20} />
-                </Button>
+
+                <div className="flex items-center space-x-3">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={page === 0}
+                    onClick={() => handlePageChange(page - 1)}
+                    className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
+                  >
+                    <Iconify icon="material-symbols:chevron-left" width={20} />
+                  </Button>
+                  <div className="bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 text-sm font-bold text-primary min-w-9 text-center">
+                    {page + 1}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={(page + 1) * rowsPerPage >= dataFiltered.length}
+                    onClick={() => handlePageChange(page + 1)}
+                    className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
+                  >
+                    <Iconify icon="material-symbols:chevron-right" width={20} />
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {editingReview && (
         <EditReviewForm
@@ -472,6 +490,6 @@ export default function ReviewView() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }

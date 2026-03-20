@@ -10,11 +10,7 @@ import LazyImage from "@/components/shared/lazyimage/LazyImage";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { Button } from "@/components/ui/button";
-
-const fadeInVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
-};
+import { fadeInUp, premiumTransition } from "@/utils/animations";
 
 const About = () => {
   const { t, i18n } = useTranslation();
@@ -104,9 +100,9 @@ const About = () => {
             {/* Image Side */}
             <motion.div
               className="w-full md:w-1/2 relative"
-              variants={fadeInVariants}
-              initial="hidden"
-              animate={aboutInView ? "visible" : "hidden"}
+              variants={fadeInUp}
+              initial="initial"
+              animate={aboutInView ? "animate" : "initial"}
             >
               <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl shadow-primary/20 aspect-4/3 group">
                 <LazyImage
@@ -124,9 +120,9 @@ const About = () => {
             {/* Content Side */}
             <motion.div
               className="w-full md:w-1/2 text-center md:text-left rtl:md:text-right"
-              variants={fadeInVariants}
-              initial="hidden"
-              animate={aboutInView ? "visible" : "hidden"}
+              variants={fadeInUp}
+              initial="initial"
+              animate={aboutInView ? "animate" : "initial"}
             >
               <h2 className="text-4xl lg:text-5xl font-black text-gray-900 tracking-tight uppercase mb-6">
                 {aboutPage?.title?.[currentLang] || t("about.title")}
@@ -161,9 +157,9 @@ const About = () => {
       <section className="py-24 bg-gray-50/50" ref={whyUsRef}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            variants={fadeInVariants}
-            initial="hidden"
-            animate={whyUsInView ? "visible" : "hidden"}
+            variants={fadeInUp}
+            initial="initial"
+            animate={whyUsInView ? "animate" : "initial"}
             className="text-center mb-16"
           >
             <h2 className="text-3xl lg:text-4xl font-black text-gray-900 tracking-tight uppercase mb-4">
@@ -176,10 +172,10 @@ const About = () => {
             {abouts.map((about, index) => (
               <motion.div
                 key={index}
-                variants={fadeInVariants}
-                initial="hidden"
-                animate={whyUsInView ? "visible" : "hidden"}
-                transition={{ delay: index * 0.1 }}
+                variants={fadeInUp}
+                initial="initial"
+                animate={whyUsInView ? "animate" : "initial"}
+                transition={{ ...fadeInUp.transition, delay: index * 0.1 }}
                 whileHover={{ y: -10 }}
                 className="bg-white rounded-4xl p-8 shadow-lg shadow-gray-100/50 border border-gray-100 flex flex-col items-center text-center group hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300"
               >

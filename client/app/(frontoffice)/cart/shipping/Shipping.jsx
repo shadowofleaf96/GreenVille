@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { Fragment, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import CheckoutSteps from "../checkoutSteps/CheckoutSteps";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import createAxiosInstance from "@/utils/axiosConfig";
 import {
   applyCouponCode,
@@ -13,6 +13,7 @@ import {
 } from "@/store/slices/shop/cartSlice";
 import MetaData from "@/frontoffice/_components/MetaData";
 import { motion } from "framer-motion";
+import { fadeInUp, premiumTransition } from "@/utils/animations";
 import Iconify from "@/components/shared/iconify";
 import MapPicker from "@/components/shared/map/MapPicker";
 
@@ -274,8 +275,10 @@ const Shipping = () => {
             {/* Shipping Form */}
             <div className="lg:col-span-2 space-y-8">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                variants={fadeInUp}
+                initial="initial"
+                whileInView="animate"
+                viewport={{ once: true }}
                 className="bg-white rounded-4xl sm:rounded-[3rem] p-6 sm:p-12 shadow-2xl shadow-gray-200/50 border border-gray-100"
               >
                 <form onSubmit={submitHandler} className="space-y-10">

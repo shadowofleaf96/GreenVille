@@ -5,6 +5,7 @@ import { Customer } from "../models/Customer.js";
 import { sendPaymentConfirmationEmail } from "../utils/emailUtility.js";
 import { createDashboardNotification } from "../utils/dashboardNotificationUtility.js";
 import { Product } from "../models/Product.js";
+import { withTransaction } from "../utils/withTransaction.js";
 
 const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY);
 
@@ -127,63 +128,83 @@ export const savePaymentInfo = async (req, res) => {
     ...(paymentMethod === "credit_card" && { paymentCredentials }),
   });
 
-  await payment.save();
+  try {
+    const savedPayment = await withTransaction(async (session) => {
+      await payment.save({ session });
 
-  // Send payment confirmation email if successful
-  if (paymentStatus === "succeeded" || paymentStatus === "paid") {
-    const customer = await Customer.findById(order.customer_id);
-    if (customer) {
-      try {
-        await sendPaymentConfirmationEmail(customer, order, payment);
-      } catch (emailError) {
-        console.error("Failed to send payment confirmation email:", emailError);
+      if (paymentStatus === "succeeded" || paymentStatus === "paid") {
+        try {
+          // Notify Admin
+          await createDashboardNotification({
+            type: "PAYMENT_RECEIVED",
+            title: "Payment Received",
+            message: `Payment of ${payment.amount} ${
+              payment.currency
+            } received for order #${order._id.toString().slice(-5).toUpperCase()}`,
+            metadata: { payment_id: payment._id, order_id: order._id },
+            recipient_role: "admin",
+            session,
+          });
+
+          // Notify Vendors - (Order might have items from multiple vendors)
+          const productIds = order.order_items.map((item) => item.product_id);
+          const products = await Product.find({
+            _id: { $in: productIds },
+          })
+            .select("vendor")
+            .session(session);
+
+          const vendorIds = [
+            ...new Set(
+              products
+                .filter((p) => p && p.vendor)
+                .map((p) => p.vendor.toString()),
+            ),
+          ];
+
+          for (const vId of vendorIds) {
+            await createDashboardNotification({
+              type: "PAYMENT_RECEIVED",
+              title: "Payment Received for Order",
+              message: `A payment has been received for order #${order._id
+                .toString()
+                .slice(-5)
+                .toUpperCase()}.`,
+              metadata: { order_id: order._id },
+              recipient_role: "vendor",
+              vendor_id: vId,
+              session,
+            });
+          }
+        } catch (notifError) {
+          console.error("Failed to create dashboard notification:", notifError);
+          throw notifError;
+        }
+      }
+      return payment;
+    });
+
+    // Send payment confirmation email if successful (outside transaction)
+    if (paymentStatus === "succeeded" || paymentStatus === "paid") {
+      const customer = await Customer.findById(order.customer_id);
+      if (customer) {
+        try {
+          await sendPaymentConfirmationEmail(customer, order, savedPayment);
+        } catch (emailError) {
+          console.error(
+            "Failed to send payment confirmation email:",
+            emailError,
+          );
+        }
       }
     }
 
-    // Dashboard Notifications
-    try {
-      // Notify Admin
-      await createDashboardNotification({
-        type: "PAYMENT_RECEIVED",
-        title: "Payment Received",
-        message: `Payment of ${payment.amount} ${
-          payment.currency
-        } received for order #${order._id.toString().slice(-5).toUpperCase()}`,
-        metadata: { payment_id: payment._id, order_id: order._id },
-        recipient_role: "admin",
-      });
-
-      // Notify Vendors - (Order might have items from multiple vendors)
-      const productIds = order.order_items.map((item) => item.product_id);
-      const products = await Product.find({
-        _id: { $in: productIds },
-      }).select("vendor");
-      const vendorIds = [
-        ...new Set(
-          products.filter((p) => p && p.vendor).map((p) => p.vendor.toString()),
-        ),
-      ];
-
-      for (const vId of vendorIds) {
-        await createDashboardNotification({
-          type: "PAYMENT_RECEIVED",
-          title: "Payment Received for Order",
-          message: `A payment has been received for order #${order._id
-            .toString()
-            .slice(-5)
-            .toUpperCase()}.`,
-          metadata: { order_id: order._id },
-          recipient_role: "vendor",
-          vendor_id: vId,
-        });
-      }
-    } catch (notifError) {
-      console.error("Failed to create dashboard notification:", notifError);
-    }
+    res.status(200).json({
+      message: "Payment created successfully",
+      data: savedPayment,
+    });
+  } catch (error) {
+    console.error("Transaction Error during payment save", error);
+    res.status(500).json({ error: "Failed to save payment" });
   }
-
-  res.status(200).json({
-    message: "Payment created successfully",
-    data: payment,
-  });
 };

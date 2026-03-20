@@ -9,7 +9,8 @@ import {
 } from "next/navigation";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
+import { fadeInUp, staggerContainer } from "@/utils/animations";
 
 import Iconify from "@/components/shared/iconify";
 // Removed Redux fetching actions
@@ -64,7 +65,6 @@ const Products = () => {
   const urlKeyword = searchParams.get("keyword") || "";
   const urlOnSale = searchParams.get("sales") !== null;
 
-  // 2. React Query Hooks
   const { data: categories = [] } = useCategories();
   const { data: subcategories = [] } = useSubcategories();
 
@@ -177,19 +177,58 @@ const Products = () => {
   };
 
   const handleCategoryToggle = (catId) => {
-    const newCategories = urlCategory.includes(catId)
+    const isRemoving = urlCategory.includes(catId);
+    const newCategories = isRemoving
       ? urlCategory.filter((id) => id !== catId)
       : [...urlCategory, catId];
+    if (isRemoving && routeCategoryId === catId) {
+      router.push("/products");
+      return;
+    }
+
+    let newSubcategories = urlSubcategory;
+    if (isRemoving) {
+      const subcatsToRemove = subcategories
+        .filter((sub) => {
+          const subCatId =
+            typeof sub.category_id === "object"
+              ? sub.category_id?._id
+              : sub.category_id;
+          return subCatId === catId;
+        })
+        .map((sub) => sub._id);
+
+      newSubcategories = urlSubcategory.filter(
+        (id) => !subcatsToRemove.includes(id),
+      );
+    }
+
     updateParams({
       category: newCategories.length > 0 ? newCategories.join(",") : null,
+      subcategory:
+        newSubcategories.length > 0 ? newSubcategories.join(",") : null,
     });
   };
 
   const handleSubcategoryToggle = (subcatId) => {
-    const newSubcategories = urlSubcategory.includes(subcatId)
+    const subcat = subcategories.find((s) => s._id === subcatId);
+    const parentCatId =
+      typeof subcat?.category_id === "object"
+        ? subcat?.category_id?._id
+        : subcat?.category_id;
+
+    const isRemoving = urlSubcategory.includes(subcatId);
+    const newSubcategories = isRemoving
       ? urlSubcategory.filter((id) => id !== subcatId)
       : [...urlSubcategory, subcatId];
+
+    let newCategories = urlCategory;
+    if (!isRemoving && parentCatId && !urlCategory.includes(parentCatId)) {
+      newCategories = [...urlCategory, parentCatId];
+    }
+
     updateParams({
+      category: newCategories.length > 0 ? newCategories.join(",") : null,
       subcategory:
         newSubcategories.length > 0 ? newSubcategories.join(",") : null,
     });
@@ -249,7 +288,7 @@ const Products = () => {
 
   return (
     <Fragment>
-      <div className="min-h-screen bg-gray-50/50 pb-20 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50/50 pb-20 px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-7xl mx-auto">
           {/* Top Bar: Title & Sorting */}
           <div className="flex flex-col md:flex-row items-center justify-between mb-10 gap-6">
@@ -470,7 +509,16 @@ const Products = () => {
                           >
                             <Checkbox
                               id={cat._id}
-                              checked={urlCategory.includes(cat._id)}
+                              checked={
+                                urlCategory.includes(cat._id) ||
+                                subcategories.some(
+                                  (sub) =>
+                                    urlSubcategory.includes(sub._id) &&
+                                    (typeof sub.category_id === "object"
+                                      ? sub.category_id?._id === cat._id
+                                      : sub.category_id === cat._id),
+                                )
+                              }
                               className="w-5 h-5 rounded-lg border-gray-200 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                             />
                             <label className="text-sm font-bold text-gray-500 group-hover:text-gray-900 cursor-pointer transition-colors flex-1">
@@ -583,21 +631,21 @@ const Products = () => {
                   </p>
                 </div>
               ) : products.length > 0 ? (
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
+                <motion.div
+                  variants={staggerContainer(0.05, 0.1)}
+                  initial="initial"
+                  animate="animate"
+                  className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8"
+                >
                   {products.map((product) => (
-                    <motion.div
-                      key={product._id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4 }}
-                    >
+                    <motion.div key={product._id} variants={fadeInUp}>
                       <Product
                         product={product}
                         onQuickView={handleQuickView}
                       />
                     </motion.div>
                   ))}
-                </div>
+                </motion.div>
               ) : (
                 <div className="flex flex-col items-center justify-center min-h-[50vh] bg-white rounded-[3rem] p-12 text-center shadow-sm border border-gray-100">
                   <div className="w-24 h-24 bg-primary/5 text-primary rounded-4xl flex items-center justify-center mb-6">
@@ -685,7 +733,7 @@ const Products = () => {
             <SheetTrigger asChild>
               <Button
                 size="icon"
-                className="w-14 h-14 rounded-full bg-black text-white shadow-2xl shadow-black/30 hover:scale-105 active:scale-95 transition-all border-none"
+                className="w-14 h-14 rounded-full bg-primary text-white shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all border-none"
               >
                 <Iconify icon="solar:filter-bold-duotone" width={24} />
               </Button>
@@ -755,7 +803,16 @@ const Products = () => {
                           >
                             <Checkbox
                               id={`mobile-${cat._id}`}
-                              checked={urlCategory.includes(cat._id)}
+                              checked={
+                                urlCategory.includes(cat._id) ||
+                                subcategories.some(
+                                  (sub) =>
+                                    urlSubcategory.includes(sub._id) &&
+                                    (typeof sub.category_id === "object"
+                                      ? sub.category_id?._id === cat._id
+                                      : sub.category_id === cat._id),
+                                )
+                              }
                               className="w-5 h-5 rounded-md"
                             />
                             <span className="text-sm font-bold text-gray-900">

@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,7 +8,7 @@ import MetaData from "@/frontoffice/_components/MetaData";
 import CheckoutSteps from "../checkoutSteps/CheckoutSteps";
 import { useTranslation } from "react-i18next";
 import DOMPurify from "dompurify";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   applyCouponCode,
   saveShippingInfo,
@@ -17,6 +17,7 @@ import createAxiosInstance from "@/utils/axiosConfig";
 import optimizeImage from "@/frontoffice/_components/optimizeImage";
 import LazyImage from "@/components/shared/lazyimage/LazyImage";
 import { motion } from "framer-motion";
+import { fadeInUp, fadeInLeft, premiumTransition } from "@/utils/animations";
 import Iconify from "@/components/shared/iconify";
 
 import { Button } from "@/components/ui/button";
@@ -46,9 +47,18 @@ const ConfirmOrder = () => {
     0,
   );
 
-  if (itemsPrice === 0) {
-    router.push("/products");
-  }
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      router.replace("/products");
+      return;
+    }
+
+    if (!shippingInfo || !shippingInfo.address) {
+      toast.error(t("Please provide your shipping information first"));
+      router.replace("/shipping");
+      return;
+    }
+  }, [cartItems, shippingInfo, router, t]);
 
   let discountedTotal;
   let discountedPrice = ((itemsPrice * coupon?.discount) / 100).toFixed(2);
@@ -124,8 +134,10 @@ const ConfirmOrder = () => {
             <div className="lg:col-span-2 space-y-8">
               {/* Shipping Info Card */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                variants={fadeInUp}
+                initial="initial"
+                whileInView="animate"
+                viewport={{ once: true }}
                 className="bg-white rounded-4xl sm:rounded-[2.5rem] p-6 sm:p-10 shadow-xl shadow-gray-200/50 border border-gray-100"
               >
                 <div className="flex items-center justify-between mb-8">
@@ -219,8 +231,9 @@ const ConfirmOrder = () => {
                   {cartItems.map((item) => (
                     <motion.div
                       key={`${item.product}-${item.variant?._id || "base"}`}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
+                      variants={fadeInLeft}
+                      initial="initial"
+                      animate="animate"
                       className="flex items-center gap-6 p-6 bg-white rounded-4xl border border-gray-100 shadow-sm hover:shadow-md transition-all group"
                     >
                       <div className="w-20 h-20 bg-gray-50 rounded-2xl p-2 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-500">
@@ -311,7 +324,7 @@ const ConfirmOrder = () => {
                           <Button
                             onClick={applyCoupon}
                             disabled={!couponCode || isLoading}
-                            className="absolute right-1 top-1 bottom-1 h-12 rounded-xl bg-gray-900 text-white font-black text-[10px] uppercase tracking-widest px-6 hover:bg-black transition-all"
+                            className="absolute right-1 top-1 bottom-1 h-12 rounded-xl bg-primary text-white font-black text-[10px] uppercase tracking-widest px-6 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
                           >
                             {isLoading ? (
                               <Iconify

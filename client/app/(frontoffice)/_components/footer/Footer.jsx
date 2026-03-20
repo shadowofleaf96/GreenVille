@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import Iconify from "@/components/shared/iconify";
 import LazyImage from "@/components/shared/lazyimage/LazyImage";
+import { motion } from "framer-motion";
+import { fadeInUp, premiumTransition } from "@/utils/animations";
 
 const Footer = () => {
   const { t, i18n } = useTranslation();
@@ -15,7 +17,13 @@ const Footer = () => {
     return null;
   }
   return (
-    <footer className="bg-white border-t border-gray-100 rounded-t-[3rem] sm:rounded-t-[4rem] relative z-10 -mt-10 overflow-hidden shadow-[0_-20px_50px_-20px_rgba(0,0,0,0.05)]">
+    <motion.footer
+      variants={fadeInUp}
+      initial="initial"
+      whileInView="animate"
+      viewport={{ once: true }}
+      className="bg-white border-t border-gray-100 rounded-t-[3rem] sm:rounded-t-[4rem] relative z-10 -mt-10 overflow-hidden shadow-[0_-20px_50px_-20px_rgba(0,0,0,0.05)]"
+    >
       <div className="container mx-auto pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32">
           {/* Brand Section */}
@@ -105,11 +113,15 @@ const Footer = () => {
                         },
                       ]
                     : []),
-                  {
-                    to: "/vendor/register",
-                    label: t("footer.become_vendor"),
-                    icon: "solar:shop-bold-duotone",
-                  },
+                  ...(settings?.vendor_config?.isActive !== false
+                    ? [
+                        {
+                          to: "/vendor/register",
+                          label: t("footer.become_vendor"),
+                          icon: "solar:shop-bold-duotone",
+                        },
+                      ]
+                    : []),
                 ].map((item, i) => (
                   <li key={i}>
                     <Link
@@ -196,7 +208,7 @@ const Footer = () => {
           {footer?.copyright?.[currentLanguage] || t("footer.copyright")}
         </span>
       </div>
-    </footer>
+    </motion.footer>
   );
 };
 

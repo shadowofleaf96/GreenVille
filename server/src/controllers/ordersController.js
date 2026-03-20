@@ -5,7 +5,7 @@ import { Vendor } from "../models/Vendor.js";
 import { Customer } from "../models/Customer.js";
 import { sendOrderStatusEmail } from "../utils/emailUtility.js";
 import { createDashboardNotification } from "../utils/dashboardNotificationUtility.js";
-import DashboardNotification from "../models/DashboardNotification.js";
+import { withTransaction } from "../utils/withTransaction.js";
 
 export const createOrder = async (req, res) => {
   const {
@@ -88,68 +88,80 @@ export const createOrder = async (req, res) => {
     delivery_boy_id,
   });
 
-  const savedOrder = await newOrder.save();
-
-  // Fetch customer details to send email
   try {
-    const customer = await Customer.findById(req.body.customer_id);
-    if (customer) {
-      // Populate product names for the email
-      const populatedOrder = await Order.findById(savedOrder._id).populate({
-        path: "order_items.product_id",
-        select: "product_name",
-      });
-      await sendOrderStatusEmail(populatedOrder, customer, "created");
-    }
-  } catch (emailError) {
-    console.error("Failed to send order confirmation email:", emailError);
-  }
+    const savedOrder = await withTransaction(async (session) => {
+      const order = await newOrder.save({ session });
 
-  // Dashboard Notifications
-  try {
-    // Notify Admin
-    await createDashboardNotification({
-      type: "ORDER_CREATED",
-      title: "New Order",
-      message: `Order #${savedOrder._id
-        .toString()
-        .slice(-5)
-        .toUpperCase()} was placed for ${savedOrder.cart_total_price.toFixed(
-        2,
-      )} DH`,
-      metadata: { order_id: savedOrder._id },
-      recipient_role: "admin",
+      // Dashboard Notifications
+      try {
+        // Notify Admin
+        await createDashboardNotification({
+          type: "ORDER_CREATED",
+          title: "New Order",
+          message: `Order #${order._id
+            .toString()
+            .slice(-5)
+            .toUpperCase()} was placed for ${order.cart_total_price.toFixed(2)} DH`,
+          metadata: { order_id: order._id },
+          recipient_role: "admin",
+          session,
+        });
+
+        // Notify Vendors
+        const productIds = order.order_items.map((item) => item.product_id);
+        const products = await Product.find({ _id: { $in: productIds } })
+          .select("vendor")
+          .session(session);
+        const vendorIds = [
+          ...new Set(
+            products
+              .filter((p) => p && p.vendor)
+              .map((p) => p.vendor.toString()),
+          ),
+        ];
+
+        for (const vId of vendorIds) {
+          await createDashboardNotification({
+            type: "ORDER_CREATED",
+            title: "New Order for your products",
+            message: `A new order contains items from your store.`,
+            metadata: { order_id: order._id },
+            recipient_role: "vendor",
+            vendor_id: vId,
+            session,
+          });
+        }
+      } catch (notifError) {
+        console.error("Failed to create dashboard notifications:", notifError);
+        throw notifError;
+      }
+
+      return order;
     });
 
-    // Notify Vendors
-    const productIds = savedOrder.order_items.map((item) => item.product_id);
-    const products = await Product.find({ _id: { $in: productIds } }).select(
-      "vendor",
-    );
-    const vendorIds = [
-      ...new Set(
-        products.filter((p) => p && p.vendor).map((p) => p.vendor.toString()),
-      ),
-    ];
-
-    for (const vId of vendorIds) {
-      await createDashboardNotification({
-        type: "ORDER_CREATED",
-        title: "New Order for your products",
-        message: `A new order contains items from your store.`,
-        metadata: { order_id: savedOrder._id },
-        recipient_role: "vendor",
-        vendor_id: vId,
-      });
+    // Fetch customer details to send email outside transaction
+    try {
+      const customer = await Customer.findById(req.body.customer_id);
+      if (customer) {
+        // Populate product names for the email
+        const populatedOrder = await Order.findById(savedOrder._id).populate({
+          path: "order_items.product_id",
+          select: "product_name",
+        });
+        await sendOrderStatusEmail(populatedOrder, customer, "created");
+      }
+    } catch (emailError) {
+      console.error("Failed to send order confirmation email:", emailError);
     }
-  } catch (notifError) {
-    console.error("Failed to create dashboard notifications:", notifError);
-  }
 
-  res.status(200).json({
-    message: "Order created successfully",
-    order: savedOrder,
-  });
+    res.status(200).json({
+      message: "Order created successfully",
+      order: savedOrder,
+    });
+  } catch (error) {
+    console.error("Transaction Error during order creation", error);
+    res.status(500).json({ error: "Failed to create order" });
+  }
 };
 
 export const getAllOrders = async (req, res) => {

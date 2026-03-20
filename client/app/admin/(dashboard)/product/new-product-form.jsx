@@ -7,7 +7,7 @@ import UploadButton from "@/admin/_components/button/UploadButton";
 import createAxiosInstance from "@/utils/axiosConfig";
 import LazyImage from "@/components/shared/lazyimage/LazyImage";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import {
   Dialog,

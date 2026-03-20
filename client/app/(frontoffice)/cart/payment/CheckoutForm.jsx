@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { debounce } from "lodash";
 import { useRouter } from "next/navigation";
 import {
   PaymentElement,
@@ -10,7 +11,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { clearCart } from "@/store/slices/shop/cartSlice";
 import createAxiosInstance from "@/utils/axiosConfig";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import Iconify from "@/components/shared/iconify";
 
@@ -133,13 +134,21 @@ const CheckoutForm = () => {
     }
   };
 
+  const debouncedHandleCreditCardPayment = useCallback(
+    debounce(handleCreditCardPayment, 1500, {
+      leading: true,
+      trailing: false,
+    }),
+    [stripe, elements, customer, cartItems, shippingInfo],
+  );
+
   const paymentElementOptions = {
     layout: "tabs",
   };
 
   return (
     <div className="w-full max-w-lg mx-auto">
-      <form onSubmit={handleCreditCardPayment} className="space-y-8">
+      <form onSubmit={debouncedHandleCreditCardPayment} className="space-y-8">
         <div className="text-center space-y-2">
           <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest leading-none">
             {t("Card Details")}
@@ -156,7 +165,7 @@ const CheckoutForm = () => {
         <Button
           type="submit"
           disabled={loading || !stripe || !elements}
-          className="w-full h-16 rounded-4xl bg-gray-900 text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-gray-200 hover:bg-black transition-all gap-4 border-none"
+          className="w-full h-16 rounded-4xl bg-primary text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-primary/20 hover:bg-primary/90 transition-all gap-4 border-none"
         >
           {loading ? (
             <Iconify icon="svg-spinners:ring-resize" width={24} />

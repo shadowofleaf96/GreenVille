@@ -14,6 +14,12 @@ import { useEffect, useState } from "react";
 import { fDayMonth } from "@/utils/format-time";
 import { format } from "date-fns";
 import Loader from "@/frontoffice/_components/loader/Loader";
+import { motion } from "framer-motion";
+import {
+  fadeInUp,
+  staggerContainer,
+  premiumTransition,
+} from "@/utils/animations";
 
 export default function AppView() {
   const { t } = useTranslation();
@@ -131,8 +137,13 @@ export default function AppView() {
   const primaryColor = settings?.theme?.primary_color || "#8DC63F";
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-in fade-in duration-500">
-      <header className="mb-2">
+    <motion.div
+      variants={staggerContainer}
+      initial="initial"
+      animate="animate"
+      className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8"
+    >
+      <motion.header variants={fadeInUp} className="mb-2">
         <h4 className="text-3xl font-extrabold text-gray-900 tracking-tight">
           {t("Welcome")},{" "}
           <span style={{ color: primaryColor }}>{admin.first_name}</span>
@@ -140,10 +151,13 @@ export default function AppView() {
         <p className="text-gray-500 mt-1 font-medium">
           {t("Here's what's happening today.")}
         </p>
-      </header>
+      </motion.header>
 
       {/* Stats Widgets Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div
+        variants={fadeInUp}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
         <AppWidgetSummary
           title={t("Sales")}
           total={totalQuantity}
@@ -196,20 +210,25 @@ export default function AppView() {
             />
           }
         />
-      </div>
+      </motion.div>
 
       {/* Main Charts Row: New Orders (100%) */}
-      <AppWebsiteVisits
-        title={t("New Orders")}
-        subheader={t("Orders added each day")}
-        chart={{
-          ...chartData,
-          colors: [primaryColor],
-        }}
-      />
+      <motion.div variants={fadeInUp}>
+        <AppWebsiteVisits
+          title={t("New Orders")}
+          subheader={t("Orders added each day")}
+          chart={{
+            ...chartData,
+            colors: [primaryColor],
+          }}
+        />
+      </motion.div>
 
       {/* Secondary Charts Row: Status & Category (50/50) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <motion.div
+        variants={fadeInUp}
+        className="grid grid-cols-1 md:grid-cols-2 gap-8"
+      >
         <AppCurrentVisits
           title={t("Order Status")}
           chart={{
@@ -225,10 +244,13 @@ export default function AppView() {
             series: data.stats.categorySales,
           }}
         />
-      </div>
+      </motion.div>
 
       {/* Detail Lists Row: Top Products & Reviews (50/50) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <motion.div
+        variants={fadeInUp}
+        className="grid grid-cols-1 md:grid-cols-2 gap-8"
+      >
         <AppTopProducts
           title={t("Top Products")}
           list={data.stats.topProducts}
@@ -238,7 +260,7 @@ export default function AppView() {
           title={t("Recent Reviews")}
           list={data.stats.recentReviews}
         />
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -1,19 +1,21 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { Fragment, useEffect, useState, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter, useParams } from "next/navigation";
 import { useProduct, useReviews } from "@/services/api/product.queries";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
 import Loader from "@/frontoffice/_components/loader/Loader";
 import Iconify from "@/components/shared/iconify";
 import { addItemToCart } from "@/store/slices/shop/cartSlice";
+import { fadeInUp, premiumTransition } from "@/utils/animations";
 
 import optimizeImage from "@/frontoffice/_components/optimizeImage";
 import LazyImage from "@/components/shared/lazyimage/LazyImage";
+import Product from "@/frontoffice/_components/products/Product";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -36,10 +38,26 @@ const SingleProduct = () => {
 
   const { data: product, isLoading: productLoading } = useProduct(id);
   const { data: reviews = [], isLoading: reviewsLoading } = useReviews(id);
+  const { data: settings } = useSelector((state) => state.adminSettings);
+  const showVendor = settings?.vendor_config?.isActive !== false;
 
   const loading = productLoading || reviewsLoading;
 
   const [variantSelections, setVariantSelections] = useState({});
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const scrollContainerRef = useRef(null);
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -320, behavior: "smooth" });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 320, behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -47,6 +65,39 @@ const SingleProduct = () => {
       setQuantity(1);
     }
   }, [id]);
+
+  useEffect(() => {
+    if (!product) return;
+
+    // Load existing items from local storage
+    const storedItems = JSON.parse(
+      localStorage.getItem("recently_viewed") || "[]",
+    );
+
+    // Filter out the current product from the display list so we don't show the product we are currently looking at
+    setRecentlyViewed(storedItems.filter((p) => p._id !== product._id));
+
+    // Construct a lightweight product object to store
+    const viewItem = {
+      _id: product._id,
+      product_name: product.product_name,
+      product_images: Array.isArray(product.product_images)
+        ? [product.product_images[0]]
+        : product.product_images,
+      price: product.price,
+      on_sale: product.on_sale,
+      discount_price: product.discount_price,
+      variants: product.variants,
+      vendor: product.vendor,
+    };
+
+    // Remove duplicates of current product, put current product at the front, limit to 10
+    const updatedItems = [
+      viewItem,
+      ...storedItems.filter((p) => p._id !== product._id),
+    ].slice(0, 10);
+    localStorage.setItem("recently_viewed", JSON.stringify(updatedItems));
+  }, [product]);
 
   useEffect(() => {
     if (product?.product_images && product?.product_images.length > 0) {
@@ -212,7 +263,7 @@ const SingleProduct = () => {
   return (
     <Fragment>
       <div className="min-h-screen bg-white pb-8 px-3 sm:pb-20 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+        <motion.div {...fadeInUp} className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-16 items-start">
             {/* Left: Image Gallery */}
             <div className="space-y-6 sm:space-y-8">
@@ -224,7 +275,7 @@ const SingleProduct = () => {
                     initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
                     exit={{ opacity: 0, scale: 1.1, rotate: 2 }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    transition={premiumTransition}
                     className="relative z-10 w-full h-full flex items-center justify-center"
                   >
                     <LazyImage
@@ -306,7 +357,7 @@ const SingleProduct = () => {
                   <Badge className="bg-primary/10 text-primary font-black px-3 py-1 sm:px-4 sm:py-1.5 rounded-full uppercase tracking-widest text-[10px]">
                     {product?.category?.category_name?.[currentLanguage]}
                   </Badge>
-                  {product.vendor?.store_name && (
+                  {showVendor && product.vendor?.store_name && (
                     <div className="flex items-center gap-1.5 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                       {t("Sold by")}:
                       <span className="text-primary">
@@ -525,7 +576,7 @@ const SingleProduct = () => {
                       ? getSelectedCount() === 0
                       : getCurrentStock() === 0
                   }
-                  className="flex-1 h-12 sm:h-16 rounded-3xl sm:rounded-4xl bg-gray-900 border-none text-white font-black text-xs sm:text-base uppercase tracking-widest shadow-2xl shadow-gray-200 hover:bg-black transition-all gap-2 sm:gap-3"
+                  className="flex-1 h-12 sm:h-16 rounded-3xl sm:rounded-4xl bg-primary border-none text-white font-black text-xs sm:text-base uppercase tracking-widest shadow-2xl shadow-primary/20 hover:bg-primary/90 transition-all gap-2 sm:gap-3"
                 >
                   <Iconify icon="solar:bolt-bold-duotone" width={24} />
                   {t("buy_now")}
@@ -553,7 +604,7 @@ const SingleProduct = () => {
           <Separator className="my-20 bg-gray-100" />
 
           {/* Bottom Tabs: Description & Reviews */}
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <Tabs defaultValue="description" className="w-full">
               <ScrollArea className="w-full border-b border-gray-100">
                 <TabsList className="w-full justify-start gap-4 sm:gap-12 bg-transparent h-12 sm:h-16 rounded-none p-0 inline-flex">
@@ -666,7 +717,63 @@ const SingleProduct = () => {
               </div>
             </Tabs>
           </div>
-        </div>
+
+          {/* Recently Viewed Section */}
+          {recentlyViewed.length > 0 && (
+            <div className="mt-24 max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 relative">
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="text-2xl sm:text-3xl font-black text-gray-900 uppercase tracking-tight">
+                  {t("Recently Viewed")}
+                </h2>
+                <div className="h-1 flex-1 bg-gray-100 rounded-full hidden sm:block" />
+                <div className="flex gap-2 shrink-0">
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={scrollLeft}
+                    className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-gray-100 bg-white text-gray-500 hover:text-primary hover:border-primary/20 transition-all shadow-sm"
+                  >
+                    <Iconify
+                      icon="solar:alt-arrow-left-bold-duotone"
+                      width={20}
+                    />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={scrollRight}
+                    className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-gray-100 bg-white text-gray-500 hover:text-primary hover:border-primary/20 transition-all shadow-sm"
+                  >
+                    <Iconify
+                      icon="solar:alt-arrow-right-bold-duotone"
+                      width={20}
+                    />
+                  </Button>
+                </div>
+              </div>
+
+              <div
+                ref={scrollContainerRef}
+                className="flex overflow-x-auto gap-4 sm:gap-6 pb-8 pt-4 px-2 scroll-smooth scrollbar-hide snap-x snap-mandatory"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {recentlyViewed.map((viewedProduct) => (
+                  <div
+                    key={viewedProduct._id}
+                    className="min-w-50 sm:min-w-60 max-w-70 w-full shrink-0 snap-start"
+                  >
+                    <Product
+                      product={viewedProduct}
+                      onQuickView={() =>
+                        router.push(`/product/${viewedProduct._id}`)
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </motion.div>
       </div>
     </Fragment>
   );

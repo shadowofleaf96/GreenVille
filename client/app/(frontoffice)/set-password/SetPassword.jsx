@@ -8,13 +8,14 @@ import { useForm, Controller } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import DOMPurify from "dompurify";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
 
 import Logo from "@/frontoffice/_components/logo";
 import createAxiosInstance from "@/utils/axiosConfig";
 import Iconify from "@/components/shared/iconify";
+import { scaleIn } from "@/utils/animations";
 import { Input } from "@/components/ui/input";
 import AuthBackground from "@/frontoffice/_components/auth/AuthBackground";
 import { Button } from "@/components/ui/button";
@@ -103,6 +104,7 @@ const SetGooglePasswordContent = () => {
           "customer_access_token",
           axiosResponse.data.access_token,
         );
+        document.cookie = `customer_access_token=${axiosResponse.data.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax;`;
         dispatch(
           loginSuccess({
             customer: axiosResponse.data.customer,
@@ -132,12 +134,7 @@ const SetGooglePasswordContent = () => {
         <div className="absolute inset-0 bg-linear-to-b from-black/80 via-transparent to-black/80" />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-md"
-      >
+      <motion.div {...scaleIn} className="relative z-10 w-full max-w-md">
         <Card className="bg-white rounded-[3rem] shadow-2xl shadow-black/80 border border-white/20 overflow-hidden">
           <CardContent className="p-6 sm:p-10 md:p-12 space-y-6 sm:space-y-10">
             <div className="flex flex-col items-center gap-8">
@@ -188,7 +185,7 @@ const SetGooglePasswordContent = () => {
                   </p>
                   <Button
                     onClick={() => router.push("/login")}
-                    className="h-14 px-10 rounded-2xl bg-gray-900 text-white font-black uppercase tracking-widest mt-4"
+                    className="h-14 px-10 rounded-2xl bg-primary text-white font-black uppercase tracking-widest mt-4 shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all"
                   >
                     {t("Return to Login")}
                   </Button>
@@ -300,7 +297,7 @@ const SetGooglePasswordContent = () => {
                   <Button
                     type="submit"
                     disabled={loadingSave}
-                    className="w-full h-14 sm:h-16 rounded-4xl bg-gray-900 text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-gray-200 hover:bg-black transition-all gap-4 border-none"
+                    className="w-full h-14 sm:h-16 rounded-4xl bg-primary text-white font-black text-base uppercase tracking-widest shadow-2xl shadow-primary/20 hover:bg-primary/90 transition-all gap-4 border-none"
                   >
                     {loadingSave ? (
                       <>

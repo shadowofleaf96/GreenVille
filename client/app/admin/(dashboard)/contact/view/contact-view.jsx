@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import Iconify from "@/components/shared/iconify";
 import Scrollbar from "@/admin/_components/scrollbar";
@@ -43,6 +43,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { motion } from "framer-motion";
+import { staggerContainer, fadeInUp } from "@/utils/animations";
 
 export default function ContactView() {
   const dispatch = useDispatch();
@@ -238,158 +240,168 @@ export default function ContactView() {
   const notFound = !dataFiltered.length && !loading;
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
+    <motion.div
+      variants={staggerContainer}
+      initial="initial"
+      animate="animate"
+      className="w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8"
+    >
+      <motion.div
+        variants={fadeInUp}
+        className="flex items-center justify-between"
+      >
         <h4 className="text-3xl font-extrabold text-gray-900 tracking-tight">
           {t("Contact")}
         </h4>
-      </div>
+      </motion.div>
 
-      <Card className="rounded-3xl border-gray-100 shadow-sm overflow-hidden bg-white">
-        <CardContent className="p-0">
-          <ContactTableToolbar
-            numSelected={selected.length}
-            selected={selected}
-            setSelected={setSelected}
-            filterName={filterName}
-            onFilterName={handleFilterByName}
-          />
+      <motion.div variants={fadeInUp}>
+        <Card className="rounded-3xl border-gray-100 shadow-sm overflow-hidden bg-white">
+          <CardContent className="p-0">
+            <ContactTableToolbar
+              numSelected={selected.length}
+              selected={selected}
+              setSelected={setSelected}
+              filterName={filterName}
+              onFilterName={handleFilterByName}
+            />
 
-          <Scrollbar>
-            <Table>
-              <ContactTableHead
-                order={order}
-                orderBy={orderBy}
-                rowCount={dataFiltered.length}
-                numSelected={selected.length}
-                onRequestSort={handleSort}
-                onSelectAllClick={handleSelectAllClick}
-                headLabel={[
-                  { id: "name", label: t("Contact Name") },
-                  { id: "email", label: t("Contact Email") },
-                  { id: "phone_number", label: t("Contact Phone Number") },
-                  { id: "message", label: t("Contact Message") },
-                  { id: " " },
-                ]}
-              />
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="h-24">
-                      <div className="flex justify-center items-center h-full">
-                        <Iconify
-                          icon="svg-spinners:180-ring-with-bg"
-                          width={40}
-                          className="text-primary"
+            <Scrollbar>
+              <Table>
+                <ContactTableHead
+                  order={order}
+                  orderBy={orderBy}
+                  rowCount={dataFiltered.length}
+                  numSelected={selected.length}
+                  onRequestSort={handleSort}
+                  onSelectAllClick={handleSelectAllClick}
+                  headLabel={[
+                    { id: "name", label: t("Contact Name") },
+                    { id: "email", label: t("Contact Email") },
+                    { id: "phone_number", label: t("Contact Phone Number") },
+                    { id: "message", label: t("Contact Message") },
+                    { id: " " },
+                  ]}
+                />
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="h-24">
+                        <div className="flex justify-center items-center h-full">
+                          <Iconify
+                            icon="svg-spinners:180-ring-with-bg"
+                            width={40}
+                            className="text-primary"
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    <>
+                      {dataFiltered
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage,
+                        )
+                        .map((row) => (
+                          <ContactTableRow
+                            key={row._id}
+                            name={row.name}
+                            email={row.email}
+                            phone_number={row.phone_number}
+                            message={row.message}
+                            selected={selected.indexOf(row._id) !== -1}
+                            handleClick={(event) => handleClick(event, row._id)}
+                            onEdit={() => handleEditContact(row)}
+                            onReply={() => handleReplyContact(row)}
+                            onDelete={(event) =>
+                              openDeleteConfirmation(event, row._id)
+                            }
+                          />
+                        ))}
+
+                      {!notFound && (
+                        <TableEmptyRows
+                          height={77}
+                          emptyRows={emptyRows(
+                            page,
+                            rowsPerPage,
+                            dataFiltered.length,
+                          )}
                         />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  <>
-                    {dataFiltered
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage,
-                      )
-                      .map((row) => (
-                        <ContactTableRow
-                          key={row._id}
-                          name={row.name}
-                          email={row.email}
-                          phone_number={row.phone_number}
-                          message={row.message}
-                          selected={selected.indexOf(row._id) !== -1}
-                          handleClick={(event) => handleClick(event, row._id)}
-                          onEdit={() => handleEditContact(row)}
-                          onReply={() => handleReplyContact(row)}
-                          onDelete={(event) =>
-                            openDeleteConfirmation(event, row._id)
-                          }
+                      )}
+
+                      {notFound && (
+                        <TableNoDataFilter
+                          query={filterName}
+                          colSpan={6}
+                          resourceName="Messages"
                         />
+                      )}
+                    </>
+                  )}
+                </TableBody>
+              </Table>
+            </Scrollbar>
+
+            <div className="flex items-center justify-between px-6 py-5 bg-gray-50/50 border-t border-gray-100">
+              <div className="text-sm font-semibold text-gray-500">
+                {t("Total")}:{" "}
+                <span className="text-gray-900 font-bold">
+                  {dataFiltered.length}
+                </span>{" "}
+                {t("contacts")}
+              </div>
+              <div className="flex items-center space-x-8">
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm font-bold text-gray-500 whitespace-nowrap">
+                    {t("Rows per page")}:
+                  </span>
+                  <Select
+                    value={rowsPerPage.toString()}
+                    onValueChange={(v) => handleRowsPerPageChange(parseInt(v))}
+                  >
+                    <SelectTrigger className="w-17.5 bg-transparent border-none text-sm font-bold shadow-none focus:ring-0 text-gray-900">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[5, 10, 25].map((v) => (
+                        <SelectItem key={v} value={v.toString()}>
+                          {v}
+                        </SelectItem>
                       ))}
-
-                    {!notFound && (
-                      <TableEmptyRows
-                        height={77}
-                        emptyRows={emptyRows(
-                          page,
-                          rowsPerPage,
-                          dataFiltered.length,
-                        )}
-                      />
-                    )}
-
-                    {notFound && (
-                      <TableNoDataFilter
-                        query={filterName}
-                        colSpan={6}
-                        resourceName="Messages"
-                      />
-                    )}
-                  </>
-                )}
-              </TableBody>
-            </Table>
-          </Scrollbar>
-
-          <div className="flex items-center justify-between px-6 py-5 bg-gray-50/50 border-t border-gray-100">
-            <div className="text-sm font-semibold text-gray-500">
-              {t("Total")}:{" "}
-              <span className="text-gray-900 font-bold">
-                {dataFiltered.length}
-              </span>{" "}
-              {t("contacts")}
-            </div>
-            <div className="flex items-center space-x-8">
-              <div className="flex items-center space-x-3">
-                <span className="text-sm font-bold text-gray-500 whitespace-nowrap">
-                  {t("Rows per page")}:
-                </span>
-                <Select
-                  value={rowsPerPage.toString()}
-                  onValueChange={(v) => handleRowsPerPageChange(parseInt(v))}
-                >
-                  <SelectTrigger className="w-17.5 bg-transparent border-none text-sm font-bold shadow-none focus:ring-0 text-gray-900">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[5, 10, 25].map((v) => (
-                      <SelectItem key={v} value={v.toString()}>
-                        {v}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center space-x-3">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={page === 0}
-                  onClick={() => handlePageChange(page - 1)}
-                  className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
-                >
-                  <Iconify icon="material-symbols:chevron-left" width={20} />
-                </Button>
-                <div className="bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 text-sm font-bold text-primary min-w-9 text-center">
-                  {page + 1}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={(page + 1) * rowsPerPage >= dataFiltered.length}
-                  onClick={() => handlePageChange(page + 1)}
-                  className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
-                >
-                  <Iconify icon="material-symbols:chevron-right" width={20} />
-                </Button>
+
+                <div className="flex items-center space-x-3">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={page === 0}
+                    onClick={() => handlePageChange(page - 1)}
+                    className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
+                  >
+                    <Iconify icon="material-symbols:chevron-left" width={20} />
+                  </Button>
+                  <div className="bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 text-sm font-bold text-primary min-w-9 text-center">
+                    {page + 1}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={(page + 1) * rowsPerPage >= dataFiltered.length}
+                    onClick={() => handlePageChange(page + 1)}
+                    className="rounded-xl hover:bg-white hover:shadow-sm disabled:opacity-30 transition-all h-9 w-9"
+                  >
+                    <Iconify icon="material-symbols:chevron-right" width={20} />
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {editingContact && (
         <EditContactForm
@@ -459,6 +471,6 @@ export default function ContactView() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }

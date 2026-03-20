@@ -2,7 +2,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import Iconify from "@/components/shared/iconify";
 
 import { deleteProduct } from "@/store/slices/admin/productSlice";

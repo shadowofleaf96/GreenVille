@@ -5,24 +5,30 @@ import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
 import LazyImage from "@/components/shared/lazyimage/LazyImage";
 import { Button } from "@/components/ui/button";
+import {
+  fadeInUp,
+  fadeInLeft,
+  hoverScale,
+  staggerContainer,
+} from "@/utils/animations";
 
 const defaultCTA2 = {
   heading: {
-    en: "Fresh Vegetables. \n Free Shipping!",
-    fr: "LÃ©gumes frais. \n Livraison gratuite !",
-    ar: "Ø®Ø¶Ø±ÙˆØ§Øª Ø·Ø§Ø²Ø¬Ø©. \n Ø´Ø­Ù† Ù…Ø¬Ø§Ù†ÙŠ!",
+    en: "Pure Organic. \n Delivered Fresh.",
+    fr: "Pur Bio. \n Livré frais.",
+    ar: "عضوي نقي. \n يوصل طازج.",
   },
   paragraph: {
-    en: "Get fresh and organic vegetables delivered straight to your door with free shipping on all orders over 1500dh. Shop now and enjoy healthy eating made easy!",
-    fr: "Obtenez des lÃ©gumes frais et biologiques livrÃ©s directement Ã  votre porte avec livraison gratuite sur toutes les commandes de plus de 1500dh. Achetez maintenant et profitez d'une alimentation saine facilitÃ©e!",
-    ar: "Ø§Ø­ØµÙ„ Ø¹Ù„Ù‰ Ø®Ø¶Ø±ÙˆØ§Øª Ø·Ø§Ø²Ø¬Ø© ÙˆØ¹Ø¶ÙˆÙŠØ© ÙŠØªÙ… ØªÙˆØµÙŠÙ„Ù‡Ø§ Ù…Ø¨Ø§Ø´Ø±Ø© Ø¥Ù„Ù‰ Ø¨Ø§Ø¨ Ù…Ù†Ø²Ù„Ùƒ Ù…Ø¹ Ø´Ø­Ù† Ù…Ø¬Ø§Ù†ÙŠ Ø¹Ù„Ù‰ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø·Ù„Ø¨Ø§Øª Ø§Ù„ØªÙŠ ØªØ²ÙŠØ¯ Ø¹Ù† 1500 Ø¯Ø±Ù‡Ù…. ØªØ³ÙˆÙ‚ Ø§Ù„Ø¢Ù† ÙˆØ§Ø³ØªÙ…ØªØ¹ Ø¨ØªÙ†Ø§ÙˆÙ„ Ø·Ø¹Ø§Ù… ØµØ­ÙŠ Ø¨Ø³Ù‡ÙˆÙ„Ø©!",
+    en: "Elevate your lifestyle with our hand-picked organic selections. Straight from the farm to your doorstep with premium care.",
+    fr: "Améliorez votre style de vie avec nos sélections biologiques triées sur le volet. Directement de la ferme à votre porte avec un soin premium.",
+    ar: "ارتق بأسلوب حياتك مع مختاراتنا العضوية المختارة بعناية. مباشرة من المزرعة إلى عتبة داركم بعناية فائقة.",
   },
   link_text: {
-    en: "Order Now",
-    fr: "Commander maintenant",
-    ar: "Ø§Ø·Ù„Ø¨ Ø§Ù„Ø¢Ù†",
+    en: "Explore Catalog",
+    fr: "Explorer le catalogue",
+    ar: "استكشف الكتالوج",
   },
-  link_url: "/products/655c721c82ea0f3d8fc1db2d",
+  link_url: "/products",
   images: [
     "https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/0bca71897aa053232e6c77888dbd8b95",
     "https://res.cloudinary.com/donffivrz/image/upload/f_auto,q_auto/b642bedbad44c86730a61fe43340f1c2",
@@ -30,7 +36,7 @@ const defaultCTA2 = {
 };
 
 const CTA2 = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { data: settings, loading } = useSelector(
     (state) => state.adminSettings,
   );
@@ -50,70 +56,108 @@ const CTA2 = () => {
 
   const currentLang = i18n.language;
 
-  if (loading) {
-    return (
-      <section
-        aria-labelledby="cta2-heading"
-        className="py-12 flex justify-center"
-      >
-        <p className="text-gray-500">Loading...</p>
-      </section>
-    );
-  }
+  if (loading) return null;
 
   return (
-    <section aria-labelledby="cta2-heading">
-      <div className="overflow-hidden mt-2 lg:mt-8 mb-4 lg:mb-12 pt-4 mx-2 md:pt-8">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 bg-gray-200 rounded-xl">
-          <div className="relative flex flex-col lg:flex-row items-center gap-8 py-10 px-6 md:py-16">
-            <div className="flex-1 text-center lg:text-left rtl:lg:text-right">
-              <h2
-                id="cta2-heading"
-                className="text-3xl sm:text-4xl font-black tracking-tight text-primary md:text-5xl lg:text-6xl uppercase leading-tight"
+    <section className="relative py-24 overflow-hidden select-none">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+          {/* Visual Side - Image Spotlight */}
+          <div className="flex-1 w-full relative">
+            <motion.div
+              {...fadeInLeft}
+              className="relative aspect-square max-w-lg mx-auto"
+            >
+              {/* Decorative Glows */}
+              <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 aspect-square bg-primary/20 rounded-full blur-[100px] animate-pulse" />
+              <div className="absolute inset-0 bg-linear-to-tr from-primary/10 to-transparent rounded-[3rem] -rotate-6" />
+
+              <motion.div
+                {...hoverScale}
+                className="relative z-10 w-full h-full flex items-center justify-center pointer-events-auto cursor-pointer"
               >
-                {cta2Data.heading?.[currentLang] || cta2Data.heading?.en || ""}
-              </h2>
-              <p className="mt-6 text-base md:text-lg text-gray-600 font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                {cta2Data.paragraph?.[currentLang] ||
-                  cta2Data.paragraph?.en ||
-                  ""}
-              </p>
-              <div className="mt-10">
+                <LazyImage
+                  className="w-full h-full object-contain drop-shadow-[0_35px_35px_rgba(0,0,0,0.2)]"
+                  src={cta2Data.images[0]}
+                  alt="Product Showcase"
+                />
+              </motion.div>
+            </motion.div>
+          </div>
+
+          {/* Content Side - Polished Glass Card */}
+          <div className="flex-1 text-center lg:text-left rtl:lg:text-right">
+            <motion.div
+              variants={staggerContainer(0.1, 0.2)}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true }}
+            >
+              <motion.span
+                variants={fadeInUp}
+                className="inline-block px-4 py-1.5 mb-6 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] border border-primary/20"
+              >
+                {t("New Collection")}
+              </motion.span>
+
+              <motion.h2
+                variants={fadeInUp}
+                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-gray-900 leading-[0.95] tracking-tight mb-8 uppercase whitespace-pre-line"
+              >
+                {cta2Data.heading?.[currentLang] || cta2Data.heading?.en}
+              </motion.h2>
+
+              <motion.p
+                variants={fadeInUp}
+                className="text-gray-500 text-base md:text-lg font-medium leading-relaxed max-w-xl mx-auto lg:mx-0 mb-10 italic"
+              >
+                {cta2Data.paragraph?.[currentLang] || cta2Data.paragraph?.en}
+              </motion.p>
+
+              <motion.div
+                variants={fadeInUp}
+                className="flex flex-col sm:flex-row items-center gap-6 justify-center lg:justify-start"
+              >
                 <Button
                   variant="premium"
-                  className="h-14 px-8 text-base"
+                  className="h-16 px-10 rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 group"
                   asChild
                 >
                   <Link href={cta2Data.link_url || "#"}>
-                    {cta2Data.link_text?.[currentLang] ||
-                      cta2Data.link_text?.en ||
-                      ""}
-                    <Iconify
-                      icon="solar:arrow-right-bold-duotone"
-                      width={20}
-                      className="ml-2 rtl:mr-2 rtl:rotate-180"
-                    />
+                    <span className="flex items-center gap-3">
+                      {cta2Data.link_text?.[currentLang] ||
+                        cta2Data.link_text?.en}
+                      <Iconify
+                        icon="solar:minimalistic-magnifer-bold-duotone"
+                        width={20}
+                        className="group-hover:rotate-12 transition-transform"
+                      />
+                    </span>
                   </Link>
                 </Button>
-              </div>
-            </div>
 
-            <div className="flex-1 flex justify-center items-center w-full">
-              {cta2Data.images.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  className="relative w-full max-w-md aspect-square"
-                >
-                  <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-                  <LazyImage
-                    className="relative z-10 w-full h-full object-contain drop-shadow-2xl"
-                    src={cta2Data.images[0]}
-                    alt="Fresh Vegetables"
-                  />
-                </motion.div>
-              )}
-            </div>
+                <div className="flex -space-x-3">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="w-10 h-10 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center overflow-hidden"
+                    >
+                      <img
+                        src={`https://i.pravatar.cc/100?u=${i}`}
+                        alt="user"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                  <div className="w-10 h-10 rounded-full border-2 border-white bg-primary text-white text-[10px] font-black flex items-center justify-center">
+                    +2k
+                  </div>
+                </div>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest hidden sm:block">
+                  Happy Customers
+                </p>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </div>

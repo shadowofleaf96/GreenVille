@@ -24,7 +24,7 @@ export default function NotificationsPopover() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const router = useRouter();
-  const axiosInstance = createAxiosInstance("admin"); // Assuming admin/vendor use same axios config or similar
+  const axiosInstance = createAxiosInstance("admin");
 
   const fetchNotifications = useCallback(async () => {
     try {

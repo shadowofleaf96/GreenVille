@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { deletePayment } from "@/store/slices/admin/paymentListSlice";
 import { useTranslation } from "react-i18next";
 import createAxiosInstance from "@/utils/axiosConfig";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import Iconify from "@/components/shared/iconify";
 
 import { Input } from "@/components/ui/input";

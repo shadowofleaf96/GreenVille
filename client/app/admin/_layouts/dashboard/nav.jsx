@@ -14,6 +14,13 @@ import { NAV } from "../dashboard/config-layout";
 import useNavConfig from "../dashboard/config-navigation";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  fadeInLeft,
+  fadeInUp,
+  staggerContainer,
+  premiumTransition,
+} from "@/utils/animations";
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
   const { admin } = useSelector((state) => state.adminAuth);
@@ -39,7 +46,10 @@ export default function Nav({ openNav, onCloseNav }) {
   const navConfig = useNavConfig();
 
   const renderAccount = (
-    <div className="mx-6 py-8 flex flex-col items-center justify-center space-y-4">
+    <motion.div
+      variants={fadeInLeft}
+      className="mx-6 py-8 flex flex-col items-center justify-center space-y-4"
+    >
       <Avatar className="w-24 h-24 border-4 border-primary/10 shadow-xl scale-110">
         <AvatarImage
           src={admin?.user_image}
@@ -62,15 +72,20 @@ export default function Nav({ openNav, onCloseNav }) {
           {admin?.role}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 
   const renderMenu = (
-    <nav className="grow px-4 space-y-2 overflow-y-auto scrollbar-hide">
+    <motion.nav
+      variants={staggerContainer}
+      initial="initial"
+      animate="animate"
+      className="grow px-4 space-y-2 overflow-y-auto scrollbar-hide"
+    >
       {navConfig.map((item) => (
         <NavItem key={item.title} item={item} />
       ))}
-    </nav>
+    </motion.nav>
   );
 
   const renderContent = (
@@ -124,28 +139,30 @@ function NavItem({ item }) {
   const active = item.path === pathname;
 
   return (
-    <Link
-      href={item.path}
-      className={`
-        flex items-center min-h-11 px-4 rounded-lg
-        transition-all duration-200 group
-        ${
-          active
-            ? "bg-primary/10 text-primary font-semibold"
-            : "text-gray-500 hover:bg-gray-50 hover:text-gray-800 font-medium"
-        }
-      `}
-    >
-      <div
-        className={`w-6 h-6 mr-4 flex items-center justify-center transition-colors ${
-          active ? "text-primary" : "text-gray-400 group-hover:text-gray-600"
-        }`}
+    <motion.div variants={fadeInLeft}>
+      <Link
+        href={item.path}
+        className={`
+          flex items-center min-h-11 px-4 rounded-lg
+          transition-all duration-200 group
+          ${
+            active
+              ? "bg-primary/10 text-primary font-semibold"
+              : "text-gray-500 hover:bg-gray-50 hover:text-gray-800 font-medium"
+          }
+        `}
       >
-        {item.icon}
-      </div>
+        <div
+          className={`w-6 h-6 mr-4 flex items-center justify-center transition-colors ${
+            active ? "text-primary" : "text-gray-400 group-hover:text-gray-600"
+          }`}
+        >
+          {item.icon}
+        </div>
 
-      <span className="text-sm capitalize grow">{item.title}</span>
-    </Link>
+        <span className="text-sm capitalize grow">{item.title}</span>
+      </Link>
+    </motion.div>
   );
 }
 

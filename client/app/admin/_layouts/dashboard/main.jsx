@@ -1,6 +1,8 @@
 import PropTypes from "prop-types";
 import { useResponsive } from "@/admin/_hooks/use-responsive";
 import { NAV, HEADER } from "../dashboard/config-layout";
+import { motion } from "framer-motion";
+import { premiumTransition } from "@/utils/animations";
 
 const SPACING = 8;
 
@@ -8,7 +10,10 @@ export default function Main({ children, sx, ...other }) {
   const lgUp = useResponsive("up", "lg");
 
   return (
-    <main
+    <motion.main
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={premiumTransition}
       className={`
         grow min-h-screen flex flex-col
         transition-all duration-200
@@ -27,7 +32,7 @@ export default function Main({ children, sx, ...other }) {
       {...other}
     >
       {children}
-    </main>
+    </motion.main>
   );
 }
 
